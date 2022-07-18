@@ -1,14 +1,14 @@
 export default function Breadcrumb(props) {
   return (
-    <div class="title-bar">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12">
-            <ol class="title-bar-text">
-              <li class="breadcrumb-item">
+    <div className="title-bar">
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-12">
+            <ol className="title-bar-text">
+              <li className="breadcrumb-item">
                 <a href="/">Home</a>
               </li>
-              <li class="breadcrumb-item active" aria-current="page">
+              <li className="breadcrumb-item active" aria-current="page">
                 {props.pagename}
               </li>
             </ol>

@@ -12,10 +12,15 @@ import "../node_modules/slick-carousel/slick/slick-theme.css";
 import "./assets/fonts/flaticon/flaticon.css";
 import "./assets/fonts/font-awesome/css/all.min.css";
 
+//context
+import LoginContext from "./context/LoginContext";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
-    <App />
+    <LoginContext>
+      <App />
+    </LoginContext>
   </BrowserRouter>
 );
 

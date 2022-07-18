@@ -40,365 +40,366 @@ const Jobs = () => {
   };
 
   return (
-    <div class="find-lts-jobs">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12 col-12">
-            <div class="main-heading">
+    <div className="find-lts-jobs">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12 col-12">
+            <div className="main-heading">
               <h2>Find Latest Jobs</h2>
               <span>Your Job for a Future</span>
-              <div class="line-shape1">
+              <div className="line-shape1">
                 <img src={line} alt="" />
               </div>
             </div>
           </div>
-          <div class="col-md-12 col-12">
-            <div class="lts-jobs-slider">
+          <div className="col-md-12 col-12">
+            <div className="lts-jobs-slider">
               <Slider {...settings} className="job-slider" initialSlide={0}>
-                <div class="item">
-                  <div class="job-item">
-                    <div class="job-top-dt">
-                      <div class="job-left-dt">
+                <div className="item">
+                  <div className="job-item">
+                    <div className="job-top-dt">
+                      <div className="job-left-dt">
                         <img src={img1} alt="" />
-                        <div class="job-ut-dts">
+                        <div className="job-ut-dts">
                           <a href="#">
                             <h4>John Doe</h4>
                           </a>
                           <span>
-                            <i class="fas fa-map-marker-alt"></i> New York City
+                            <i className="fas fa-map-marker-alt"></i> New York
+                            City
                           </span>
                         </div>
                       </div>
-                      <div class="job-right-dt">
-                        <div class="job-price">$599</div>
-                        <div class="job-fp">Full Time</div>
+                      <div className="job-right-dt">
+                        <div className="job-price">$599</div>
+                        <div className="job-fp">Full Time</div>
                       </div>
                     </div>
-                    <div class="job-des-dt">
+                    <div className="job-des-dt">
                       <h4>UX Designer</h4>
                       <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         Etiam cursus pulvinar dolor nec...
                       </p>
-                      <div class="job-skills">
+                      <div className="job-skills">
                         <a href="#">UX</a>
                         <a href="#">UI</a>
                         <a href="#">Photoshop</a>
-                        <a href="#" class="more-skills">
+                        <a href="#" className="more-skills">
                           +4
                         </a>
                       </div>
                     </div>
-                    <div class="job-buttons">
-                      <ul class="link-btn">
+                    <div className="job-buttons">
+                      <ul className="link-btn">
                         <li>
-                          <a href="#" class="link-j1" title="Apply Now">
+                          <a href="#" className="link-j1" title="Apply Now">
                             APPLY NOW
                           </a>
                         </li>
                         <li>
                           <a
                             href="job_single_view.html"
-                            class="link-j1"
+                            className="link-j1"
                             title="View Job"
                           >
                             View Job
                           </a>
                         </li>
-                        <li class="bkd-pm">
-                          <button class="bookmark1" title="bookmark">
-                            <i class="fas fa-heart"></i>
+                        <li className="bkd-pm">
+                          <button className="bookmark1" title="bookmark">
+                            <i className="fas fa-heart"></i>
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
-                <div class="item">
-                  <div class="job-item">
-                    <div class="job-top-dt">
-                      <div class="job-left-dt">
+                <div className="item">
+                  <div className="job-item">
+                    <div className="job-top-dt">
+                      <div className="job-left-dt">
                         <img src={img1} alt="" />
-                        <div class="job-ut-dts">
+                        <div className="job-ut-dts">
                           <a href="#">
                             <h4>Johnson Smith</h4>
                           </a>
                           <span>
-                            <i class="fas fa-map-marker-alt"></i> India
+                            <i className="fas fa-map-marker-alt"></i> India
                           </span>
                         </div>
                       </div>
-                      <div class="job-right-dt">
-                        <div class="job-price">$50/hr</div>
-                        <div class="job-fp job-prt">Part Time</div>
+                      <div className="job-right-dt">
+                        <div className="job-price">$50/hr</div>
+                        <div className="job-fp job-prt">Part Time</div>
                       </div>
                     </div>
-                    <div class="job-des-dt">
+                    <div className="job-des-dt">
                       <h4>PHP Developer</h4>
                       <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         Etiam cursus pulvinar dolor nec...
                       </p>
-                      <div class="job-skills">
+                      <div className="job-skills">
                         <a href="#">Php</a>
                         <a href="#">Sql</a>
                         <a href="#">Javascript</a>
-                        <a href="#" class="more-skills">
+                        <a href="#" className="more-skills">
                           +4
                         </a>
                       </div>
                     </div>
-                    <div class="job-buttons">
-                      <ul class="link-btn">
+                    <div className="job-buttons">
+                      <ul className="link-btn">
                         <li>
-                          <a href="#" class="link-j1" title="Apply Now">
+                          <a href="#" className="link-j1" title="Apply Now">
                             APPLY NOW
                           </a>
                         </li>
                         <li>
                           <a
                             href="job_single_view.html"
-                            class="link-j1"
+                            className="link-j1"
                             title="View Job"
                           >
                             View Job
                           </a>
                         </li>
-                        <li class="bkd-pm">
-                          <button class="bookmark1" title="bookmark">
-                            <i class="fas fa-heart"></i>
+                        <li className="bkd-pm">
+                          <button className="bookmark1" title="bookmark">
+                            <i className="fas fa-heart"></i>
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
-                <div class="item">
-                  <div class="job-item">
-                    <div class="job-top-dt">
-                      <div class="job-left-dt">
+                <div className="item">
+                  <div className="job-item">
+                    <div className="job-top-dt">
+                      <div className="job-left-dt">
                         <img src={img1} alt="" />
-                        <div class="job-ut-dts">
+                        <div className="job-ut-dts">
                           <a href="#">
                             <h4>Envato</h4>
                           </a>
                           <span>
-                            <i class="fas fa-map-marker-alt"></i> Australia
+                            <i className="fas fa-map-marker-alt"></i> Australia
                           </span>
                         </div>
                       </div>
-                      <div class="job-right-dt">
-                        <div class="job-price">$900</div>
-                        <div class="job-fp">Full Time</div>
+                      <div className="job-right-dt">
+                        <div className="job-price">$900</div>
+                        <div className="job-fp">Full Time</div>
                       </div>
                     </div>
-                    <div class="job-des-dt">
+                    <div className="job-des-dt">
                       <h4>Wordpress Developer</h4>
                       <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         Etiam cursus pulvinar dolor nec...
                       </p>
-                      <div class="job-skills">
+                      <div className="job-skills">
                         <a href="#">Html</a>
                         <a href="#">Css</a>
                         <a href="#">Wordpress</a>
-                        <a href="#" class="more-skills">
+                        <a href="#" className="more-skills">
                           +4
                         </a>
                       </div>
                     </div>
-                    <div class="job-buttons">
-                      <ul class="link-btn">
+                    <div className="job-buttons">
+                      <ul className="link-btn">
                         <li>
-                          <a href="#" class="link-j1" title="Apply Now">
+                          <a href="#" className="link-j1" title="Apply Now">
                             APPLY NOW
                           </a>
                         </li>
                         <li>
                           <a
                             href="job_single_view.html"
-                            class="link-j1"
+                            className="link-j1"
                             title="View Job"
                           >
                             View Job
                           </a>
                         </li>
-                        <li class="bkd-pm">
-                          <button class="bookmark1" title="bookmark">
-                            <i class="fas fa-heart"></i>
+                        <li className="bkd-pm">
+                          <button className="bookmark1" title="bookmark">
+                            <i className="fas fa-heart"></i>
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
-                <div class="item">
-                  <div class="job-item">
-                    <div class="job-top-dt">
-                      <div class="job-left-dt">
+                <div className="item">
+                  <div className="job-item">
+                    <div className="job-top-dt">
+                      <div className="job-left-dt">
                         <img src={img1} alt="" />
-                        <div class="job-ut-dts">
+                        <div className="job-ut-dts">
                           <a href="#">
                             <h4>Joy Smith</h4>
                           </a>
                           <span>
-                            <i class="fas fa-map-marker-alt"></i> India
+                            <i className="fas fa-map-marker-alt"></i> India
                           </span>
                         </div>
                       </div>
-                      <div class="job-right-dt">
-                        <div class="job-price">$500</div>
-                        <div class="job-fp">Full Time</div>
+                      <div className="job-right-dt">
+                        <div className="job-price">$500</div>
+                        <div className="job-fp">Full Time</div>
                       </div>
                     </div>
-                    <div class="job-des-dt">
+                    <div className="job-des-dt">
                       <h4>Graphic Designer</h4>
                       <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         Etiam cursus pulvinar dolor nec...
                       </p>
-                      <div class="job-skills">
+                      <div className="job-skills">
                         <a href="#">Illistrator</a>
                         <a href="#">Photoshop</a>
-                        <a href="#" class="more-skills">
+                        <a href="#" className="more-skills">
                           +4
                         </a>
                       </div>
                     </div>
-                    <div class="job-buttons">
-                      <ul class="link-btn">
+                    <div className="job-buttons">
+                      <ul className="link-btn">
                         <li>
-                          <a href="#" class="link-j1" title="Apply Now">
+                          <a href="#" className="link-j1" title="Apply Now">
                             APPLY NOW
                           </a>
                         </li>
                         <li>
                           <a
                             href="job_single_view.html"
-                            class="link-j1"
+                            className="link-j1"
                             title="View Job"
                           >
                             View Job
                           </a>
                         </li>
-                        <li class="bkd-pm">
-                          <button class="bookmark1" title="bookmark">
-                            <i class="fas fa-heart"></i>
+                        <li className="bkd-pm">
+                          <button className="bookmark1" title="bookmark">
+                            <i className="fas fa-heart"></i>
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
-                <div class="item">
-                  <div class="job-item">
-                    <div class="job-top-dt">
-                      <div class="job-left-dt">
+                <div className="item">
+                  <div className="job-item">
+                    <div className="job-top-dt">
+                      <div className="job-left-dt">
                         <img src={img1} alt="" />
-                        <div class="job-ut-dts">
+                        <div className="job-ut-dts">
                           <a href="#">
                             <h4>Jassica William</h4>
                           </a>
                           <span>
-                            <i class="fas fa-map-marker-alt"></i> Australia
+                            <i className="fas fa-map-marker-alt"></i> Australia
                           </span>
                         </div>
                       </div>
-                      <div class="job-right-dt">
-                        <div class="job-price">$300</div>
-                        <div class="job-fp">Full Time</div>
+                      <div className="job-right-dt">
+                        <div className="job-price">$300</div>
+                        <div className="job-fp">Full Time</div>
                       </div>
                     </div>
-                    <div class="job-des-dt">
+                    <div className="job-des-dt">
                       <h4>Data Science &amp; Analytics</h4>
                       <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         Etiam cursus pulvinar dolor nec...
                       </p>
-                      <div class="job-skills">
+                      <div className="job-skills">
                         <a href="#">Delivery</a>
                         <a href="#">Local</a>
                         <a href="#">Graduation</a>
                       </div>
                     </div>
-                    <div class="job-buttons">
-                      <ul class="link-btn">
+                    <div className="job-buttons">
+                      <ul className="link-btn">
                         <li>
-                          <a href="#" class="link-j1" title="Apply Now">
+                          <a href="#" className="link-j1" title="Apply Now">
                             APPLY NOW
                           </a>
                         </li>
                         <li>
                           <a
                             href="job_single_view.html"
-                            class="link-j1"
+                            className="link-j1"
                             title="View Job"
                           >
                             View Job
                           </a>
                         </li>
-                        <li class="bkd-pm">
-                          <button class="bookmark1" title="bookmark">
-                            <i class="fas fa-heart"></i>
+                        <li className="bkd-pm">
+                          <button className="bookmark1" title="bookmark">
+                            <i className="fas fa-heart"></i>
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
-                <div class="item">
-                  <div class="job-item">
-                    <div class="job-top-dt">
-                      <div class="job-left-dt">
+                <div className="item">
+                  <div className="job-item">
+                    <div className="job-top-dt">
+                      <div className="job-left-dt">
                         <img src={img1} alt="" />
-                        <div class="job-ut-dts">
+                        <div className="job-ut-dts">
                           <a href="#">
                             <h4>Gambolthemes</h4>
                           </a>
                           <span>
-                            <i class="fas fa-map-marker-alt"></i> India
+                            <i className="fas fa-map-marker-alt"></i> India
                           </span>
                         </div>
                       </div>
-                      <div class="job-right-dt">
-                        <div class="job-price">$60/hr</div>
-                        <div class="job-fp">Full Time</div>
+                      <div className="job-right-dt">
+                        <div className="job-price">$60/hr</div>
+                        <div className="job-fp">Full Time</div>
                       </div>
                     </div>
-                    <div class="job-des-dt">
+                    <div className="job-des-dt">
                       <h4>Front End Developer</h4>
                       <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         Etiam cursus pulvinar dolor nec...
                       </p>
-                      <div class="job-skills">
+                      <div className="job-skills">
                         <a href="#">Html</a>
                         <a href="#">Css</a>
                         <a href="#">Boostrap</a>
-                        <a href="#" class="more-skills">
+                        <a href="#" className="more-skills">
                           +4
                         </a>
                       </div>
                     </div>
-                    <div class="job-buttons">
-                      <ul class="link-btn">
+                    <div className="job-buttons">
+                      <ul className="link-btn">
                         <li>
-                          <a href="#" class="link-j1" title="Apply Now">
+                          <a href="#" className="link-j1" title="Apply Now">
                             APPLY NOW
                           </a>
                         </li>
                         <li>
                           <a
                             href="job_single_view.html"
-                            class="link-j1"
+                            className="link-j1"
                             title="View Job"
                           >
                             View Job
                           </a>
                         </li>
-                        <li class="bkd-pm">
-                          <button class="bookmark1" title="bookmark">
-                            <i class="fas fa-heart"></i>
+                        <li className="bkd-pm">
+                          <button className="bookmark1" title="bookmark">
+                            <i className="fas fa-heart"></i>
                           </button>
                         </li>
                       </ul>
@@ -406,13 +407,10 @@ const Jobs = () => {
                   </div>
                 </div>
               </Slider>
-              <div class="text-center">
-                <button
-                  class="view-links"
-                  onclick="window.location.href = '#';"
-                >
+              <div className="text-center">
+                <a className="view-links" href="/browse-jobs">
                   BROWSE ALL JOBS
-                </button>
+                </a>
               </div>
             </div>
           </div>

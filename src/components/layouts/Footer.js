@@ -2,41 +2,42 @@ import logo from "../../assets/images/logo1.svg";
 
 const Footer = () => {
   return (
-    <footer class="footer">
-      <div class="subscribe-newsletter">
-        <div class="container">
-          <div class="row justify-content-between">
-            <div class="col-lg-6 col-md-6">
-              <div class="subcribes">
-                <div class="text-step1">
+    <footer className="footer">
+      <div className="subscribe-newsletter">
+        <div className="container">
+          <div className="row justify-content-between">
+            <div className="col-lg-6 col-md-6">
+              <div className="subcribes">
+                <div className="text-step1">
                   <h4>Subscribe to Newsletter</h4>
                   <div
-                    class="btext-heading mt-2"
+                    className="btext-heading mt-2"
                     style={{ color: "#acacac", fontSize: "14px" }}
                   >
-                    <i class="fas fa-check-circle"></i>Cras nunc mauris, rhoncus
-                    eu justo at, egestas sagittis felis. Ut sed feugiat eros.
+                    <i className="fas fa-check-circle"></i>Cras nunc mauris,
+                    rhoncus eu justo at, egestas sagittis felis. Ut sed feugiat
+                    eros.
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-lg-5 col-md-6">
-              <div class="subcribe-input">
+            <div className="col-lg-5 col-md-6">
+              <div className="subcribe-input">
                 <input
-                  class="nltr-input"
+                  className="nltr-input"
                   type="email"
                   placeholder="Your Email Address"
                 />
-                <button class="s-btn">Subscribe</button>
+                <button className="s-btn">Subscribe</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-3 col-md-3">
-            <div class="about-jobby">
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-3 col-md-3">
+            <div className="about-jobby">
               <a href="/">
                 <img src={logo} alt="" />
               </a>
@@ -48,8 +49,8 @@ const Footer = () => {
               </p>
             </div>
           </div>
-          <div class="col-lg-3 col-md-3">
-            <div class="footer-links">
+          <div className="col-lg-3 col-md-3">
+            <div className="footer-links">
               <h4>About</h4>
               <ul>
                 <li>
@@ -73,8 +74,8 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-          <div class="col-lg-3 col-md-3">
-            <div class="footer-links">
+          <div className="col-lg-3 col-md-3">
+            <div className="footer-links">
               <h4>For Companies</h4>
               <ul>
                 <li>
@@ -92,8 +93,8 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-          <div class="col-lg-3 col-md-3">
-            <div class="footer-links">
+          <div className="col-lg-3 col-md-3">
+            <div className="footer-links">
               <h4>For Candidates</h4>
               <ul>
                 <li>
@@ -113,37 +114,37 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div class="copy-social">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-6 col-md-6">
-              <div class="copyright">
-                <i class="far fa-copyright"></i>Copyright 2019{" "}
+      <div className="copy-social">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-md-6">
+              <div className="copyright">
+                <i className="far fa-copyright"></i>Copyright 2019{" "}
                 <span>Jobby</span> by <a href="#">Gambolthemes</a>. All Right
                 Reserved.
               </div>
             </div>
-            <div class="col-lg-6 col-md-6">
-              <div class="social-icons">
+            <div className="col-lg-6 col-md-6">
+              <div className="social-icons">
                 <ul>
                   <li>
                     <a href="#">
-                      <i class="fab fa-facebook-f"></i>
+                      <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-twitter"></i>
+                      <i className="fab fa-twitter"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-google-plus-g"></i>
+                      <i className="fab fa-google-plus-g"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-linkedin-in"></i>
+                      <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
                 </ul>

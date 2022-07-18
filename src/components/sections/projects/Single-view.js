@@ -24,43 +24,43 @@ const customStyles = {
 };
 const SingleView = () => {
   return (
-    <main class="browse-section">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-9 col-md-8">
-            <div class="view_details">
+    <main className="browse-section">
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-9 col-md-8">
+            <div className="view_details">
               <ul>
                 <li>
-                  <div class="vw_items">
-                    <i class="fas fa-eye"></i>
-                    <div class="vw_item_text">
+                  <div className="vw_items">
+                    <i className="fas fa-eye"></i>
+                    <div className="vw_item_text">
                       <h6>Views</h6>
                       <span>135</span>
                     </div>
                   </div>
                 </li>
                 <li>
-                  <div class="vw_items">
-                    <i class="fas fa-shield-alt"></i>
-                    <div class="vw_item_text">
+                  <div className="vw_items">
+                    <i className="fas fa-shield-alt"></i>
+                    <div className="vw_item_text">
                       <h6>Verify</h6>
                       <span>Yes</span>
                     </div>
                   </div>
                 </li>
                 <li>
-                  <div class="vw_items">
-                    <i class="far fa-money-bill-alt"></i>
-                    <div class="vw_item_text">
+                  <div className="vw_items">
+                    <i className="far fa-money-bill-alt"></i>
+                    <div className="vw_item_text">
                       <h6>Budget</h6>
                       <span>$500 - $2000</span>
                     </div>
                   </div>
                 </li>
                 <li>
-                  <div class="vw_items">
-                    <i class="far fa-clock"></i>
-                    <div class="vw_item_text">
+                  <div className="vw_items">
+                    <i className="far fa-clock"></i>
+                    <div className="vw_item_text">
                       <h6>Posted Date</h6>
                       <span>4 days ago</span>
                     </div>
@@ -68,24 +68,24 @@ const SingleView = () => {
                 </li>
               </ul>
             </div>
-            <div class="job-item ptrl_2 mt-20">
-              <div class="job-top-dt">
-                <div class="job-left-dt">
+            <div className="job-item ptrl_2 mt-20">
+              <div className="job-top-dt">
+                <div className="job-left-dt">
                   <img src="images/homepage/latest-jobs/img-1.jpg" alt="" />
-                  <div class="job-ut-dts">
+                  <div className="job-ut-dts">
                     <a href="#">
                       <h4>John Doe</h4>
                     </a>
                     <span>
-                      <i class="fas fa-map-marker-alt"></i> New York City
+                      <i className="fas fa-map-marker-alt"></i> New York City
                     </span>
                   </div>
                 </div>
-                <div class="job-right-dt">
-                  <div class="job-price">$500 - $2000</div>
+                <div className="job-right-dt">
+                  <div className="job-price">$500 - $2000</div>
                 </div>
               </div>
-              <div class="job-des-dt">
+              <div className="job-des-dt">
                 <h4>I Need a Travel Psd Template</h4>
                 <p>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -102,7 +102,7 @@ const SingleView = () => {
                   eget interdum tellus volutpat in. Phasellus laoreet quam id
                   euismod tristique.
                 </p>
-                <div class="job-skills">
+                <div className="job-skills">
                   <a href="#">UX</a>
                   <a href="#">UI</a>
                   <a href="#">Photoshop</a>
@@ -111,31 +111,31 @@ const SingleView = () => {
                   <a href="#">Graphic Design</a>
                 </div>
               </div>
-              <div class="job_dts">
+              <div className="job_dts">
                 <h4>Attachments</h4>
-                <ul class="download_files">
+                <ul className="download_files">
                   <li>
-                    <div class="dwn_fls">
-                      <div class="dwn-header">
+                    <div className="dwn_fls">
+                      <div className="dwn-header">
                         <h6>Project Briefing Details</h6>
                       </div>
-                      <div class="dwn-footer">
+                      <div className="dwn-footer">
                         <span>PDF</span>
-                        <button class="download_button">
-                          <i class="fas fa-download"></i>
+                        <button className="download_button">
+                          <i className="fas fa-download"></i>
                         </button>
                       </div>
                     </div>
                   </li>
                   <li>
-                    <div class="dwn_fls">
-                      <div class="dwn-header">
+                    <div className="dwn_fls">
+                      <div className="dwn-header">
                         <h6>Images</h6>
                       </div>
-                      <div class="dwn-footer">
+                      <div className="dwn-footer">
                         <span>Zip</span>
-                        <button class="download_button">
-                          <i class="fas fa-download"></i>
+                        <button className="download_button">
+                          <i className="fas fa-download"></i>
                         </button>
                       </div>
                     </div>
@@ -143,131 +143,132 @@ const SingleView = () => {
                 </ul>
               </div>
             </div>
-            <div class="find-lts-jobs">
-              <div class="main-heading bids_heading">
+            <div className="find-lts-jobs">
+              <div className="main-heading bids_heading">
                 <h2>Freelancers Bidding</h2>
-                <div class="line-shape1">
+                <div className="line-shape1">
                   <img src="images/line.svg" alt="" />
                 </div>
               </div>
-              <div class="freelancers_bidings">
-                <div class="job-item mt-30">
-                  <div class="job-top-dt">
-                    <div class="job-left-dt">
+              <div className="freelancers_bidings">
+                <div className="job-item mt-30">
+                  <div className="job-top-dt">
+                    <div className="job-left-dt">
                       <img src="images/homepage/latest-jobs/img-1.jpg" alt="" />
-                      <div class="job-ut-dts">
+                      <div className="job-ut-dts">
                         <a href="#">
                           <h4>John Doe</h4>
                         </a>
                         <span>
-                          <i class="fas fa-map-marker-alt"></i> India
+                          <i className="fas fa-map-marker-alt"></i> India
                         </span>
-                        <div class="star mt-2">
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
+                        <div className="star mt-2">
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
                           <span>4.9</span>
                         </div>
                       </div>
                     </div>
-                    <div class="job-right-dt job-right-dt78">
-                      <div class="job-price job-price78">$500 - $1000</div>
-                      <div class="job-fp dy_cl">in 5 days</div>
+                    <div className="job-right-dt job-right-dt78">
+                      <div className="job-price job-price78">$500 - $1000</div>
+                      <div className="job-fp dy_cl">in 5 days</div>
                     </div>
                   </div>
                 </div>
-                <div class="job-item mt-30">
-                  <div class="job-top-dt">
-                    <div class="job-left-dt">
+                <div className="job-item mt-30">
+                  <div className="job-top-dt">
+                    <div className="job-left-dt">
                       <img src="images/homepage/latest-jobs/img-7.jpg" alt="" />
-                      <div class="job-ut-dts">
+                      <div className="job-ut-dts">
                         <a href="#">
                           <h4>Johnson Smith</h4>
                         </a>
                         <span>
-                          <i class="fas fa-map-marker-alt"></i> New York City
+                          <i className="fas fa-map-marker-alt"></i> New York
+                          City
                         </span>
-                        <div class="star mt-2">
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
+                        <div className="star mt-2">
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
                           <span>4.9</span>
                         </div>
                       </div>
                     </div>
-                    <div class="job-right-dt job-right-dt78">
-                      <div class="job-price job-price78">$500 - $1000</div>
-                      <div class="job-fp dy_cl">in 5 days</div>
+                    <div className="job-right-dt job-right-dt78">
+                      <div className="job-price job-price78">$500 - $1000</div>
+                      <div className="job-fp dy_cl">in 5 days</div>
                     </div>
                   </div>
                 </div>
-                <div class="job-item mt-30">
-                  <div class="job-top-dt">
-                    <div class="job-left-dt">
+                <div className="job-item mt-30">
+                  <div className="job-top-dt">
+                    <div className="job-left-dt">
                       <img src="images/homepage/latest-jobs/img-4.jpg" alt="" />
-                      <div class="job-ut-dts">
+                      <div className="job-ut-dts">
                         <a href="#">
                           <h4>Jass singh</h4>
                         </a>
                         <span>
-                          <i class="fas fa-map-marker-alt"></i> India
+                          <i className="fas fa-map-marker-alt"></i> India
                         </span>
-                        <div class="star mt-2">
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
-                          <i class="fas fa-star"></i>
+                        <div className="star mt-2">
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
+                          <i className="fas fa-star"></i>
                           <span>5.0</span>
                         </div>
                       </div>
                     </div>
-                    <div class="job-right-dt job-right-dt78">
-                      <div class="job-price job-price78">$600 - $1200</div>
-                      <div class="job-fp dy_cl">in 5 days</div>
+                    <div className="job-right-dt job-right-dt78">
+                      <div className="job-price job-price78">$600 - $1200</div>
+                      <div className="job-fp dy_cl">in 5 days</div>
                     </div>
                   </div>
                 </div>
-                <div class="job-item mt-30">
-                  <div class="job-top-dt">
-                    <div class="job-left-dt">
+                <div className="job-item mt-30">
+                  <div className="job-top-dt">
+                    <div className="job-left-dt">
                       <img src="images/homepage/latest-jobs/img-5.jpg" alt="" />
-                      <div class="job-ut-dts">
+                      <div className="job-ut-dts">
                         <a href="#">
                           <h4>Jassica WIlliam</h4>
                         </a>
                         <span>
-                          <i class="fas fa-map-marker-alt"></i> Australia
+                          <i className="fas fa-map-marker-alt"></i> Australia
                         </span>
-                        <a href="#" class="vote_rqur mt-2">
+                        <a href="#" className="vote_rqur mt-2">
                           Minimum of 3 votes required
                         </a>
                       </div>
                     </div>
-                    <div class="job-right-dt job-right-dt78">
-                      <div class="job-price job-price78">$400 - $1000</div>
-                      <div class="job-fp dy_cl">in 5 days</div>
+                    <div className="job-right-dt job-right-dt78">
+                      <div className="job-price job-price78">$400 - $1000</div>
+                      <div className="job-fp dy_cl">in 5 days</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-lg-3 col-md-4 mainpage">
-            <div class="total_days mtp_30">4 days 5 hours left</div>
-            <h4 class="bid_title">Bid Now This Job</h4>
-            <div class="bid_amount">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+          <div className="col-lg-3 col-md-4 mainpage">
+            <div className="total_days mtp_30">4 days 5 hours left</div>
+            <h4 className="bid_title">Bid Now This Job</h4>
+            <div className="bid_amount">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>
                     Set Your Minimal Rate <span>($)</span>
                   </h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -279,12 +280,12 @@ const SingleView = () => {
                 }
               />
             </div>
-            <div class="dlvry_days">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="dlvry_days">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>Set Your Delivery Time</h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -296,34 +297,34 @@ const SingleView = () => {
                 className="skills-search"
               />
             </div>
-            <button class="apply_job_rt" type="button">
+            <button className="apply_job_rt" type="button">
               PLACE A BID
             </button>
-            <div class="bookmark_rt">
-              <button class="bookmark1 mr-3" title="bookmark">
-                <i class="fas fa-heart"></i>
+            <div className="bookmark_rt">
+              <button className="bookmark1 mr-3" title="bookmark">
+                <i className="fas fa-heart"></i>
               </button>
               BOOKMARK
             </div>
-            <ul class="social-links">
+            <ul className="social-links">
               <li>
                 <a href="#">
-                  <i class="fab fa-facebook-f"></i>
+                  <i className="fab fa-facebook-f"></i>
                 </a>
               </li>
               <li>
                 <a href="#">
-                  <i class="fab fa-twitter"></i>
+                  <i className="fab fa-twitter"></i>
                 </a>
               </li>
               <li>
                 <a href="#">
-                  <i class="fab fa-google-plus-g"></i>
+                  <i className="fab fa-google-plus-g"></i>
                 </a>
               </li>
               <li>
                 <a href="#">
-                  <i class="fab fa-linkedin-in"></i>
+                  <i className="fab fa-linkedin-in"></i>
                 </a>
               </li>
             </ul>

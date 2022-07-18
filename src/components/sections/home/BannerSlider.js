@@ -40,83 +40,83 @@ const BannerSlider = () => {
   return (
     <div className="banner-slider">
       <Slider {...settings}>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">California</div>
+          <div className="featured-text">
+            <div className="city-title">California</div>
             <ins>125 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">San Francisco</div>
+          <div className="featured-text">
+            <div className="city-title">San Francisco</div>
             <ins>12 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">Tulsa</div>
+          <div className="featured-text">
+            <div className="city-title">Tulsa</div>
             <ins>190 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">Austin</div>
+          <div className="featured-text">
+            <div className="city-title">Austin</div>
             <ins>200 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">Los Angeles</div>
+          <div className="featured-text">
+            <div className="city-title">Los Angeles</div>
             <ins>25 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">California</div>
+          <div className="featured-text">
+            <div className="city-title">California</div>
             <ins>125 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">San Francisco</div>
+          <div className="featured-text">
+            <div className="city-title">San Francisco</div>
             <ins>12 Jobs</ins>
           </div>
         </div>
-        <div class="featured-cities">
-          <div class="feature-img">
+        <div className="featured-cities">
+          <div className="feature-img">
             <img src={img1} alt="" />
-            <div class="overly-bg"></div>
+            <div className="overly-bg"></div>
           </div>
-          <div class="featured-text">
-            <div class="city-title">Tulsa</div>
+          <div className="featured-text">
+            <div className="city-title">Tulsa</div>
             <ins>190 Jobs</ins>
           </div>
         </div>

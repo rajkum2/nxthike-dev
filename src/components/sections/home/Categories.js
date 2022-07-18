@@ -13,23 +13,23 @@ import icon17 from "../../../assets/images/homepage/categories/icon-17.svg";
 import icon7 from "../../../assets/images/homepage/categories/icon-7.svg";
 const Categories = () => {
   return (
-    <div class="all-categories">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12 col-12">
-            <div class="main-heading">
+    <div className="all-categories">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12 col-12">
+            <div className="main-heading">
               <h2>Choose Category</h2>
               <span>Find quality talent or agencies</span>
-              <div class="line-shape1">
+              <div className="line-shape1">
                 <img src={line} alt="" />
               </div>
             </div>
           </div>
-          <div class="col-md-12 col-12">
-            <div class="job-categories mt-30">
-              <div class="row no-gutters">
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+          <div className="col-md-12 col-12">
+            <div className="job-categories mt-30">
+              <div className="row no-gutters">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon5} alt="" />
                       <span>Web, Mobile &amp; Software Dev</span>
@@ -37,8 +37,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon2} alt="" />
                       <span>Data Science &amp; Analytics</span>
@@ -46,8 +46,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon3} alt="" />
                       <span>Admin Support</span>
@@ -55,8 +55,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon4} alt="" />
                       <span>Design &amp; Creative</span>
@@ -64,8 +64,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon11} alt="" />
                       <span>Accounting &amp; Consulting</span>
@@ -73,8 +73,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon13} alt="" />
                       <span>Writing</span>
@@ -82,8 +82,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon14} alt="" />
                       <span>Legal</span>
@@ -91,8 +91,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon15} alt="" />
                       <span>IT &amp; Networking</span>
@@ -100,8 +100,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon9} alt="" />
                       <span>Sales &amp; Marketing</span>
@@ -109,8 +109,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon16} alt="" />
                       <span>Customer Service</span>
@@ -118,8 +118,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon17} alt="" />
                       <span>Translation</span>
@@ -127,8 +127,8 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div class="p-category">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                  <div className="p-category">
                     <a href="#" title="">
                       <img src={icon7} alt="" />
                       <span>Engineering &amp; Architecture</span>

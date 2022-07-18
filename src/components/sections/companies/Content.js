@@ -7,35 +7,35 @@ import BrowseFilter from "../../layouts/BrowseFilter";
 
 export default function Content() {
   return (
-    <main class="browse-section">
-      <div class="container">
-        <div class="row">
+    <main className="browse-section">
+      <div className="container">
+        <div className="row">
           <BrowseFilter />
-          <div class="col-lg-8 col-md-7 mainpage">
-            <div class="browse-banner">
-              <div class="bbnr-left">
+          <div className="col-lg-8 col-md-7 mainpage">
+            <div className="browse-banner">
+              <div className="bbnr-left">
                 <img src={trophy} alt="" />
-                <div class="bbnr-text">
+                <div className="bbnr-text">
                   <h4>Upgrade to Pro</h4>
                   <p>Unlimited Job Posts and Apply.</p>
                 </div>
               </div>
-              <div class="bbnr-right">
-                <button class="plan-btn">Upgrade Plan</button>
+              <div className="bbnr-right">
+                <button className="plan-btn">Upgrade Plan</button>
               </div>
             </div>
-            <div class="main-tabs">
-              <div class="res-tabs">
-                <div class=" mtab-left">
-                  <ul class="browsr-project">
+            <div className="main-tabs">
+              <div className="res-tabs">
+                <div className=" mtab-left">
+                  <ul className="browsr-project">
                     <li>
-                      <span class="nav-link">Results 170</span>
+                      <span className="nav-link">Results 170</span>
                     </li>
                   </ul>
                 </div>
-                <div class=" mtab-right">
+                <div className=" mtab-right">
                   <ul>
-                    <li class="sort-list-dt">
+                    <li className="sort-list-dt">
                       <Dropdown className="ui selection dropdown skills-search sort-dropdown">
                         <Dropdown.Toggle className="text" size="sm" variant="">
                           Sort By
@@ -54,339 +54,340 @@ export default function Content() {
                   </ul>
                 </div>
               </div>
-              <div class="prjoects-content">
-                <div class="row view-group" id="freelancers">
-                  <div class="lg-item5 col-lg-6 col-xs-6">
-                    <div class="job-item mt-30">
-                      <div class="job-top-dt1 text-center">
-                        <div class="job-center-dt">
+              <div className="prjoects-content">
+                <div className="row view-group" id="freelancers">
+                  <div className="lg-item5 col-lg-6 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt1 text-center">
+                        <div className="job-center-dt">
                           <img src={img1} alt="" />
-                          <div class="job-urs-dts">
+                          <div className="job-urs-dts">
                             <a href="#">
                               <h4>Gambol Themes</h4>
                             </a>
-                            <a href="#" class="avialable c-link">
+                            <a href="#" className="avialable c-link">
                               www.gambolthemes.net
                             </a>
                           </div>
                         </div>
                       </div>
-                      <div class="rating-location">
-                        <div class="left-rating">
-                          <div class="rtitle">Rating</div>
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                      <div className="rating-location">
+                        <div className="left-rating">
+                          <div className="rtitle">Rating</div>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>4.9</span>
                           </div>
                         </div>
-                        <div class="right-location">
-                          <div class="text-left">
-                            <div class="rtitle">Location</div>
+                        <div className="right-location">
+                          <div className="text-left">
+                            <div className="rtitle">Location</div>
                             <span>
-                              <i class="fas fa-map-marker-alt"></i> New York
+                              <i className="fas fa-map-marker-alt"></i> New York
                               City
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div class="job-buttons">
-                        <ul class="link-btn">
-                          <li class="cpy-btn">
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li className="cpy-btn">
                             <a
                               href="other_company_profile.html"
-                              class="link-j1"
+                              className="link-j1"
                               title="View Profile"
                             >
                               View Profile
                             </a>
                           </li>
-                          <li class="bkd-pm">
-                            <button class="bookmark1" title="bookmark">
-                              <i class="fas fa-heart"></i>
+                          <li className="bkd-pm">
+                            <button className="bookmark1" title="bookmark">
+                              <i className="fas fa-heart"></i>
                             </button>
                           </li>
                         </ul>
                       </div>
                     </div>
                   </div>
-                  <div class="lg-item5 col-lg-6 col-xs-6">
-                    <div class="job-item mt-30">
-                      <div class="job-top-dt1 text-center">
-                        <div class="job-center-dt">
+                  <div className="lg-item5 col-lg-6 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt1 text-center">
+                        <div className="job-center-dt">
                           <img src={img1} alt="" />
-                          <div class="job-urs-dts">
+                          <div className="job-urs-dts">
                             <a href="#">
                               <h4>Plame Designs</h4>
                             </a>
-                            <a href="#" class="avialable c-link">
+                            <a href="#" className="avialable c-link">
                               www.plamedesigns.net
                             </a>
                           </div>
                         </div>
                       </div>
-                      <div class="rating-location">
-                        <div class="left-rating">
-                          <div class="rtitle">Rating</div>
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                      <div className="rating-location">
+                        <div className="left-rating">
+                          <div className="rtitle">Rating</div>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>4.9</span>
                           </div>
                         </div>
-                        <div class="right-location">
-                          <div class="text-left">
-                            <div class="rtitle">Location</div>
+                        <div className="right-location">
+                          <div className="text-left">
+                            <div className="rtitle">Location</div>
                             <span>
-                              <i class="fas fa-map-marker-alt"></i> Australia
+                              <i className="fas fa-map-marker-alt"></i>{" "}
+                              Australia
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div class="job-buttons">
-                        <ul class="link-btn">
-                          <li class="cpy-btn">
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li className="cpy-btn">
                             <a
                               href="other_company_profile.html"
-                              class="link-j1"
+                              className="link-j1"
                               title="View Profile"
                             >
                               View Profile
                             </a>
                           </li>
-                          <li class="bkd-pm">
-                            <button class="bookmark1" title="bookmark">
-                              <i class="fas fa-heart"></i>
+                          <li className="bkd-pm">
+                            <button className="bookmark1" title="bookmark">
+                              <i className="fas fa-heart"></i>
                             </button>
                           </li>
                         </ul>
                       </div>
                     </div>
                   </div>
-                  <div class="lg-item5 col-lg-6 col-xs-6">
-                    <div class="job-item mt-30">
-                      <div class="job-top-dt1 text-center">
-                        <div class="job-center-dt">
+                  <div className="lg-item5 col-lg-6 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt1 text-center">
+                        <div className="job-center-dt">
                           <img src={img1} alt="" />
-                          <div class="job-urs-dts">
+                          <div className="job-urs-dts">
                             <a href="#">
                               <h4>Logomaker</h4>
                             </a>
-                            <a href="#" class="avialable c-link">
+                            <a href="#" className="avialable c-link">
                               www.logomaker.net
                             </a>
                           </div>
                         </div>
                       </div>
-                      <div class="rating-location">
-                        <div class="left-rating">
-                          <div class="rtitle">Rating</div>
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                      <div className="rating-location">
+                        <div className="left-rating">
+                          <div className="rtitle">Rating</div>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>5.0</span>
                           </div>
                         </div>
-                        <div class="right-location">
-                          <div class="text-left">
-                            <div class="rtitle">Location</div>
+                        <div className="right-location">
+                          <div className="text-left">
+                            <div className="rtitle">Location</div>
                             <span>
-                              <i class="fas fa-map-marker-alt"></i> India
+                              <i className="fas fa-map-marker-alt"></i> India
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div class="job-buttons">
-                        <ul class="link-btn">
-                          <li class="cpy-btn">
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li className="cpy-btn">
                             <a
                               href="other_company_profile.html"
-                              class="link-j1"
+                              className="link-j1"
                               title="View Profile"
                             >
                               View Profile
                             </a>
                           </li>
-                          <li class="bkd-pm">
-                            <button class="bookmark1" title="bookmark">
-                              <i class="fas fa-heart"></i>
+                          <li className="bkd-pm">
+                            <button className="bookmark1" title="bookmark">
+                              <i className="fas fa-heart"></i>
                             </button>
                           </li>
                         </ul>
                       </div>
                     </div>
                   </div>
-                  <div class="lg-item5 col-lg-6 col-xs-6">
-                    <div class="job-item mt-30">
-                      <div class="job-top-dt1 text-center">
-                        <div class="job-center-dt">
+                  <div className="lg-item5 col-lg-6 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt1 text-center">
+                        <div className="job-center-dt">
                           <img src={img1} alt="" />
-                          <div class="job-urs-dts">
+                          <div className="job-urs-dts">
                             <a href="#">
                               <h4>Sofwebtech</h4>
                             </a>
-                            <a href="#" class="avialable c-link">
+                            <a href="#" className="avialable c-link">
                               www.sofwebtech.net
                             </a>
                           </div>
                         </div>
                       </div>
-                      <div class="rating-location">
-                        <div class="left-rating">
-                          <div class="rtitle">Rating</div>
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                      <div className="rating-location">
+                        <div className="left-rating">
+                          <div className="rtitle">Rating</div>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>5.0</span>
                           </div>
                         </div>
-                        <div class="right-location">
-                          <div class="text-left">
-                            <div class="rtitle">Location</div>
+                        <div className="right-location">
+                          <div className="text-left">
+                            <div className="rtitle">Location</div>
                             <span>
-                              <i class="fas fa-map-marker-alt"></i> India
+                              <i className="fas fa-map-marker-alt"></i> India
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div class="job-buttons">
-                        <ul class="link-btn">
-                          <li class="cpy-btn">
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li className="cpy-btn">
                             <a
                               href="other_company_profile.html"
-                              class="link-j1"
+                              className="link-j1"
                               title="View Profile"
                             >
                               View Profile
                             </a>
                           </li>
-                          <li class="bkd-pm">
-                            <button class="bookmark1" title="bookmark">
-                              <i class="fas fa-heart"></i>
+                          <li className="bkd-pm">
+                            <button className="bookmark1" title="bookmark">
+                              <i className="fas fa-heart"></i>
                             </button>
                           </li>
                         </ul>
                       </div>
                     </div>
                   </div>
-                  <div class="lg-item5 col-lg-6 col-xs-6">
-                    <div class="job-item mt-30">
-                      <div class="job-top-dt1 text-center">
-                        <div class="job-center-dt">
+                  <div className="lg-item5 col-lg-6 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt1 text-center">
+                        <div className="job-center-dt">
                           <img src={img1} alt="" />
-                          <div class="job-urs-dts">
+                          <div className="job-urs-dts">
                             <a href="#">
                               <h4>WPMarket</h4>
                             </a>
-                            <a href="#" class="avialable c-link">
+                            <a href="#" className="avialable c-link">
                               www.wpMarket.net
                             </a>
                           </div>
                         </div>
                       </div>
-                      <div class="rating-location">
-                        <div class="left-rating">
-                          <div class="rtitle">Rating</div>
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                      <div className="rating-location">
+                        <div className="left-rating">
+                          <div className="rtitle">Rating</div>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>4.0</span>
                           </div>
                         </div>
-                        <div class="right-location">
-                          <div class="text-left">
-                            <div class="rtitle">Location</div>
+                        <div className="right-location">
+                          <div className="text-left">
+                            <div className="rtitle">Location</div>
                             <span>
-                              <i class="fas fa-map-marker-alt"></i> India
+                              <i className="fas fa-map-marker-alt"></i> India
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div class="job-buttons">
-                        <ul class="link-btn">
-                          <li class="cpy-btn">
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li className="cpy-btn">
                             <a
                               href="other_company_profile.html"
-                              class="link-j1"
+                              className="link-j1"
                               title="View Profile"
                             >
                               View Profile
                             </a>
                           </li>
-                          <li class="bkd-pm">
-                            <button class="bookmark1" title="bookmark">
-                              <i class="fas fa-heart"></i>
+                          <li className="bkd-pm">
+                            <button className="bookmark1" title="bookmark">
+                              <i className="fas fa-heart"></i>
                             </button>
                           </li>
                         </ul>
                       </div>
                     </div>
                   </div>
-                  <div class="lg-item5 col-lg-6 col-xs-6">
-                    <div class="job-item mt-30">
-                      <div class="job-top-dt1 text-center">
-                        <div class="job-center-dt">
+                  <div className="lg-item5 col-lg-6 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt1 text-center">
+                        <div className="job-center-dt">
                           <img src={img1} alt="" />
-                          <div class="job-urs-dts">
+                          <div className="job-urs-dts">
                             <a href="#">
                               <h4>Multimedia Web</h4>
                             </a>
-                            <a href="#" class="avialable c-link">
+                            <a href="#" className="avialable c-link">
                               www.multimediaweb.net
                             </a>
                           </div>
                         </div>
                       </div>
-                      <div class="rating-location">
-                        <div class="left-rating">
-                          <div class="rtitle">Rating</div>
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                      <div className="rating-location">
+                        <div className="left-rating">
+                          <div className="rtitle">Rating</div>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>5.0</span>
                           </div>
                         </div>
-                        <div class="right-location">
-                          <div class="text-left">
-                            <div class="rtitle">Location</div>
+                        <div className="right-location">
+                          <div className="text-left">
+                            <div className="rtitle">Location</div>
                             <span>
-                              <i class="fas fa-map-marker-alt"></i> India
+                              <i className="fas fa-map-marker-alt"></i> India
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div class="job-buttons">
-                        <ul class="link-btn">
-                          <li class="cpy-btn">
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li className="cpy-btn">
                             <a
                               href="other_company_profile.html"
-                              class="link-j1"
+                              className="link-j1"
                               title="View Profile"
                             >
                               View Profile
                             </a>
                           </li>
-                          <li class="bkd-pm">
-                            <button class="bookmark1" title="bookmark">
-                              <i class="fas fa-heart"></i>
+                          <li className="bkd-pm">
+                            <button className="bookmark1" title="bookmark">
+                              <i className="fas fa-heart"></i>
                             </button>
                           </li>
                         </ul>
@@ -394,37 +395,41 @@ export default function Content() {
                     </div>
                   </div>
 
-                  <div class="col-12">
-                    <div class="main-p-pagination">
+                  <div className="col-12">
+                    <div className="main-p-pagination">
                       <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                          <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous">
+                        <ul className="pagination">
+                          <li className="page-item">
+                            <a
+                              className="page-link"
+                              href="#"
+                              aria-label="Previous"
+                            >
                               PREV
                             </a>
                           </li>
-                          <li class="page-item">
-                            <a class="page-link active" href="#">
+                          <li className="page-item">
+                            <a className="page-link active" href="#">
                               1
                             </a>
                           </li>
-                          <li class="page-item">
-                            <a class="page-link" href="#">
+                          <li className="page-item">
+                            <a className="page-link" href="#">
                               2
                             </a>
                           </li>
-                          <li class="page-item">
-                            <a class="page-link" href="#">
+                          <li className="page-item">
+                            <a className="page-link" href="#">
                               ...
                             </a>
                           </li>
-                          <li class="page-item">
-                            <a class="page-link" href="#">
+                          <li className="page-item">
+                            <a className="page-link" href="#">
                               24
                             </a>
                           </li>
-                          <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next">
+                          <li className="page-item">
+                            <a className="page-link" href="#" aria-label="Next">
                               NEXT
                             </a>
                           </li>

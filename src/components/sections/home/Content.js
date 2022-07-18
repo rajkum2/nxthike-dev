@@ -29,7 +29,7 @@ const Content = () => {
   window.addEventListener("scroll", toggleVisible);
   return (
     <>
-      <main class="body-section">
+      <main className="body-section">
         <SearchBar />
         <BannerSlider />
         <Achievement />
@@ -44,7 +44,7 @@ const Content = () => {
         id="pageup"
         style={{ display: visible ? "block" : "none" }}
       >
-        <i class="fas fa-arrow-up"></i>
+        <i className="fas fa-arrow-up"></i>
       </button>
     </>
   );

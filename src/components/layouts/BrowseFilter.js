@@ -15,20 +15,20 @@ const customStyles = {
 export default function BrowseFilter() {
   const pathName = window.location.pathname.split("/")[1];
   return (
-    <div class="col-lg-4 col-md-5">
-      <div class="browser-job-filters">
-        <div class="filter-heading">
-          <div class="fh-left">Filters</div>
-          <div class="fh-right">
+    <div className="col-lg-4 col-md-5">
+      <div className="browser-job-filters">
+        <div className="filter-heading">
+          <div className="fh-left">Filters</div>
+          <div className="fh-right">
             <a href="#">Clear All Filters</a>
           </div>
         </div>
-        <div class="fltr-group">
-          <div class="fltr-items-heading">
-            <div class="fltr-item-left">
+        <div className="fltr-group">
+          <div className="fltr-items-heading">
+            <div className="fltr-item-left">
               <h6>Skills</h6>
             </div>
-            <div class="fltr-item-right">
+            <div className="fltr-item-right">
               <a href="#">Clear</a>
             </div>
           </div>
@@ -44,12 +44,12 @@ export default function BrowseFilter() {
         </div>
         {pathName === "browse-companies" ? (
           <>
-            <div class="fltr-group">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="fltr-group">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>Category</h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -61,12 +61,12 @@ export default function BrowseFilter() {
                 className="skills-search"
               />
             </div>
-            <div class="fltr-group">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="fltr-group">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>Series (A to Z)</h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -81,44 +81,44 @@ export default function BrowseFilter() {
           </>
         ) : (
           <>
-            <div class="fltr-group">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="fltr-group">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>Availability</h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
-              <div class="ui form">
-                <div class="grouped fields">
-                  <div class="field fltr-radio">
-                    <div class="ui radio checkbox">
+              <div className="ui form">
+                <div className="grouped fields">
+                  <div className="field fltr-radio">
+                    <div className="ui radio checkbox">
                       <input type="radio" name="example2" />
                       <label>Hourly</label>
                     </div>
                   </div>
-                  <div class="field">
-                    <div class="ui radio checkbox">
+                  <div className="field">
+                    <div className="ui radio checkbox">
                       <input type="radio" name="example2" />
                       <label>Part Time</label>
                     </div>
                   </div>
-                  <div class="field">
-                    <div class="ui radio checkbox">
+                  <div className="field">
+                    <div className="ui radio checkbox">
                       <input type="radio" name="example2" />
-                      <label class="lst-label">Full Time</label>
+                      <label className="lst-label">Full Time</label>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="fltr-group">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="fltr-group">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>Job Type</h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -130,14 +130,14 @@ export default function BrowseFilter() {
                 styles={customStyles}
               />
             </div>
-            <div class="fltr-group">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="fltr-group">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>
                     Pay Rate <span>($)</span>
                   </h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -149,12 +149,12 @@ export default function BrowseFilter() {
                 }
               />
             </div>
-            <div class="fltr-group">
-              <div class="fltr-items-heading">
-                <div class="fltr-item-left">
+            <div className="fltr-group">
+              <div className="fltr-items-heading">
+                <div className="fltr-item-left">
                   <h6>Experience Level</h6>
                 </div>
-                <div class="fltr-item-right">
+                <div className="fltr-item-right">
                   <a href="#">Clear</a>
                 </div>
               </div>
@@ -168,12 +168,12 @@ export default function BrowseFilter() {
             </div>
           </>
         )}
-        <div class="fltr-group fltr-gend">
-          <div class="fltr-items-heading">
-            <div class="fltr-item-left">
+        <div className="fltr-group fltr-gend">
+          <div className="fltr-items-heading">
+            <div className="fltr-item-left">
               <h6>Location</h6>
             </div>
-            <div class="fltr-item-right">
+            <div className="fltr-item-right">
               <a href="#">Clear</a>
             </div>
           </div>
@@ -185,8 +185,8 @@ export default function BrowseFilter() {
             className="skills-search"
           />
         </div>
-        <div class="filter-button">
-          <button class="flr-btn">Search Now</button>
+        <div className="filter-button">
+          <button className="flr-btn">Search Now</button>
         </div>
       </div>
     </div>

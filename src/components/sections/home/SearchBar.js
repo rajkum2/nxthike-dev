@@ -7,7 +7,7 @@ const SearchBar = () => {
             <div className="form-group mb-0">
               <input
                 className="search-1"
-                placeHolder="Keywords (e.g. Job Title, Position...)"
+                placeholder="Keywords (e.g. Job Title, Position...)"
               />
             </div>
           </div>
@@ -15,7 +15,7 @@ const SearchBar = () => {
             <div className="form-group mb-0 mt-15">
               <input
                 className="search-1"
-                placeHolder="Location (e.g. City, Country...)"
+                placeholder="Location (e.g. City, Country...)"
               />
             </div>
           </div>
@@ -23,7 +23,7 @@ const SearchBar = () => {
             <div className="form-group mb-0">
               <input
                 className="search-1"
-                placeHolder="Industry (e.g. Design, Art...)"
+                placeholder="Industry (e.g. Design, Art...)"
               />
             </div>
           </div>

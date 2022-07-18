@@ -2,17 +2,17 @@ import line from "../../../assets/images/line.svg";
 import team from "../../../assets/images/about/team-1.jpg";
 const Content = () => {
   return (
-    <main class="browse-section">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="main-heading">
+    <main className="browse-section">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="main-heading">
               <h2>About Us</h2>
-              <div class="line-shape1">
+              <div className="line-shape1">
                 <img src={line} alt="" />
               </div>
             </div>
-            <div class="about_des">
+            <div className="about_des">
               <p>
                 Vivamus tortor nisl, lobortis in, faucibus et, tempus at, dui.
                 Nunc risus. Proin scelerisque augue. Nam ullamcorper. Phasellus
@@ -38,18 +38,18 @@ const Content = () => {
           </div>
         </div>
       </div>
-      <div class="choose_us">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-6 col-md-12">
-              <div class="choose_left">
-                <div class="main-heading bids_heading">
+      <div className="choose_us">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-md-12">
+              <div className="choose_left">
+                <div className="main-heading bids_heading">
                   <h2>Why Choose Us</h2>
-                  <div class="line-shape1">
+                  <div className="line-shape1">
                     <img src={line} alt="" />
                   </div>
                 </div>
-                <div class="choose_des">
+                <div className="choose_des">
                   <p>
                     Fusce dictum mauris nec magna consequat, ut semper leo
                     pulvinar. Cras rhoncus lorem lorem, a fermentum lacus congue
@@ -57,8 +57,8 @@ const Content = () => {
                   </p>
                   <ul>
                     <li>
-                      <div class="abt142">
-                        <i class="fas fa-check-circle"></i>
+                      <div className="abt142">
+                        <i className="fas fa-check-circle"></i>
                         <p>
                           Cras rhoncus lorem lorem, a fermentum lacus congue
                           vehicula. Nullam luct us mi eget nisl tincidunt
@@ -67,8 +67,8 @@ const Content = () => {
                       </div>
                     </li>
                     <li>
-                      <div class="abt142">
-                        <i class="fas fa-check-circle"></i>
+                      <div className="abt142">
+                        <i className="fas fa-check-circle"></i>
                         <p>
                           Cras rhoncus lorem lorem, a fermentum lacus congue
                           vehicula. Nullam luct us mi eget nisl tincidunt
@@ -80,8 +80,8 @@ const Content = () => {
                 </div>
               </div>
             </div>
-            <div class="col-lg-6 col-md-12">
-              <div class="about_video">
+            <div className="col-lg-6 col-md-12">
+              <div className="about_video">
                 <iframe
                   src="https://www.youtube.com/embed/TKnufs85hXk"
                   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -92,156 +92,156 @@ const Content = () => {
           </div>
         </div>
       </div>
-      <div class="our_team">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="main-heading">
+      <div className="our_team">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="main-heading">
                 <h2>Meet Our Team</h2>
-                <div class="line-shape1">
+                <div className="line-shape1">
                   <img src={line} alt="" />
                 </div>
               </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6">
-              <div class="team_item">
-                <div class="team_img">
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <div className="team_item">
+                <div className="team_img">
                   <img src={team} alt="" />
                 </div>
                 <h4>John Doe</h4>
                 <span>CEO</span>
-                <ul class="team_links">
+                <ul className="team_links">
                   <li>
                     <a href="#">
-                      <i class="fab fa-facebook-f"></i>
+                      <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-twitter"></i>
+                      <i className="fab fa-twitter"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-instagram"></i>
+                      <i className="fab fa-instagram"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-linkedin-in"></i>
+                      <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-youtube"></i>
+                      <i className="fab fa-youtube"></i>
                     </a>
                   </li>
                 </ul>
               </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6">
-              <div class="team_item">
-                <div class="team_img">
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <div className="team_item">
+                <div className="team_img">
                   <img src={team} alt="" />
                 </div>
                 <h4>Rock Smith</h4>
                 <span>CTO</span>
-                <ul class="team_links">
+                <ul className="team_links">
                   <li>
                     <a href="#">
-                      <i class="fab fa-facebook-f"></i>
+                      <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-twitter"></i>
+                      <i className="fab fa-twitter"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-instagram"></i>
+                      <i className="fab fa-instagram"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-linkedin-in"></i>
+                      <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-youtube"></i>
+                      <i className="fab fa-youtube"></i>
                     </a>
                   </li>
                 </ul>
               </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6">
-              <div class="team_item">
-                <div class="team_img">
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <div className="team_item">
+                <div className="team_img">
                   <img src={team} alt="" />
                 </div>
                 <h4>Jassica William</h4>
                 <span>Senior Developer</span>
-                <ul class="team_links">
+                <ul className="team_links">
                   <li>
                     <a href="#">
-                      <i class="fab fa-facebook-f"></i>
+                      <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-twitter"></i>
+                      <i className="fab fa-twitter"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-instagram"></i>
+                      <i className="fab fa-instagram"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-linkedin-in"></i>
+                      <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-youtube"></i>
+                      <i className="fab fa-youtube"></i>
                     </a>
                   </li>
                 </ul>
               </div>
             </div>
-            <div class="col-xl-3 col-lg-6 col-md-6">
-              <div class="team_item">
-                <div class="team_img">
+            <div className="col-xl-3 col-lg-6 col-md-6">
+              <div className="team_item">
+                <div className="team_img">
                   <img src={team} alt="" />
                 </div>
                 <h4>Johnson</h4>
                 <span>UI/UX Designer</span>
-                <ul class="team_links">
+                <ul className="team_links">
                   <li>
                     <a href="#">
-                      <i class="fab fa-facebook-f"></i>
+                      <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-twitter"></i>
+                      <i className="fab fa-twitter"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-instagram"></i>
+                      <i className="fab fa-instagram"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-linkedin-in"></i>
+                      <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
                   <li>
                     <a href="#">
-                      <i class="fab fa-youtube"></i>
+                      <i className="fab fa-youtube"></i>
                     </a>
                   </li>
                 </ul>
