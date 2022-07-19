@@ -4929,8 +4929,14 @@ span.right-cm {
   border: 1px solid #e5e5e5;
 }
 
+.job_nav li {
+  width: 100% !important;
+}
+
 .job_nav .nav-item {
   margin-bottom: 0 !important;
+  cursor: pointer !important;
+  width: 100% !important;
 }
 
 .job_nav .nav-link {
@@ -4946,6 +4952,7 @@ span.right-cm {
   border-right: 1px solid transparent !important;
   border-bottom: 1px solid transparent !important;
   border-radius: 0px;
+  cursor: pointer;
 }
 
 .job_nav .nav-item.show .nav-link,
@@ -4957,16 +4964,17 @@ span.right-cm {
   border-right: 1px solid transparent !important;
   border-bottom: 1px solid transparent !important;
   border-radius: 0;
+  cursor: pointer;
 }
 
 .job_nav .nav-link:hover {
   color: #ff4500 !important;
-  background-color: #fefefe !important;
-  border-left: 2px solid #ff4500 !important;
   border-top: 1px solid transparent !important;
   border-right: 1px solid transparent !important;
   border-bottom: 1px solid transparent !important;
   border-radius: 0px;
+  background-color: #e9ecef !important;
+  cursor: pointer;
 }
 
 .job_bid_body {

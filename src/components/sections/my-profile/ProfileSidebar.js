@@ -10,6 +10,7 @@ export default function ProfileSideBar() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     fetchLoginUserData(loginuserId);
+    console.log(loginuserId);
   }, []);
   return (
     <>

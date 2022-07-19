@@ -8,11 +8,11 @@ export default function MyProfile() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Profile</title>
+        <title>Jobby - My Account</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />
-      <Breadcrumb pagename="My Profile" />
+      <Breadcrumb pagename="My Account" />
       <Content />
       <Footer />
     </Fragment>
