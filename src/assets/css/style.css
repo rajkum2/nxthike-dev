@@ -475,10 +475,6 @@ input[type="email"]::-ms-input-placeholder {
   color: #847577;
 }
 
-input:focus {
-  border: 1px solid #ff4500;
-}
-
 textarea:focus {
   border: 1px solid #ff4500;
 }
@@ -878,6 +874,12 @@ header {
   border-left: 2px solid #ff7555;
   color: #ff7555 !important;
   background: #f3f3f3;
+}
+
+.link-item:active {
+  background: #e56042 !important;
+  color: white !important;
+  border: none !important;
 }
 
 .lanuage-dropdown {
@@ -1793,7 +1795,7 @@ span.right-cm {
   line-height: 1.2;
   text-align: center;
   font-family: "Roboto", sans-serif;
-  margin-bottom: 8px !important;
+  margin-block: 8px !important;
 }
 
 .job-urs-dts span {
@@ -1801,7 +1803,8 @@ span.right-cm {
   color: #757575;
   font-weight: 400;
   text-align: center;
-  margin-bottom: 0;
+  margin-bottom: 4px;
+  display: block;
 }
 
 .job-urs-dts .avialable {
@@ -3266,15 +3269,7 @@ span.right-cm {
   font-weight: 600 !important;
 }
 
-.dp_upload [type="file"] {
-  height: 0;
-  overflow: hidden;
-  width: 0;
-  float: left;
-  opacity: 0;
-}
-
-.dp_upload [type="file"] + label {
+.dp_upload button {
   background: #efefef;
   border: 0;
   border-radius: 3px;
@@ -3292,7 +3287,7 @@ span.right-cm {
   margin: 0;
 }
 
-.dp_upload [type="file"] + label:hover {
+.dp_upload button:hover {
   background: #242424;
   color: #fff;
 }

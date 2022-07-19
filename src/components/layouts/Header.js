@@ -66,9 +66,20 @@ export default function Header() {
                           <i
                             className="far fa-user-circle pt-1 mx-1"
                             style={{ fontSize: "28px" }}
-                          ></i>
+                          />
                         </Dropdown.Toggle>
                         <Dropdown.Menu style={{ padding: 0 }}>
+                          <DropdownItem
+                            as={a}
+                            to="/myprofile"
+                            className="link-item"
+                          >
+                            <i
+                              className="far fa-user-circle"
+                              style={{ fontSize: "16px", marginRight: "5px" }}
+                            />
+                            My Profile
+                          </DropdownItem>
                           <DropdownItem
                             as={a}
                             to="/"
