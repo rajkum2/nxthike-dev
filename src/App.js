@@ -7,6 +7,7 @@ const Companies = React.lazy(() => import("./components/pages/Companies"));
 const Freelancers = React.lazy(() => import("./components/pages/Freelancers"));
 const About = React.lazy(() => import("./components/pages/About"));
 const SingleJob = React.lazy(() => import("./components/pages/SingleJob"));
+const Contact = React.lazy(() => import("./components/pages/Contactus"));
 const SingleProject = React.lazy(() =>
   import("./components/pages/SingleProject")
 );
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/single-project" element={<SingleProject />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/editprofile" element={<EditProfile />} />
+        <Route path="/contact-us" element={<Contact/>} />
       </Routes>
     </React.Suspense>
   );

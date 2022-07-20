@@ -254,7 +254,7 @@ export default function Header() {
                             >
                               About
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item as={a} to="/our-blog" className="link-item">
                               Our Blog
                             </Dropdown.Item>
                             <Dropdown.Item as={a} to="/" className="link-item">
@@ -269,7 +269,7 @@ export default function Header() {
                             <Dropdown.Item as={a} to="/" className="link-item">
                               Invoice Slip
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item as={a} to="/sign-in" className="link-item">
                               Sign In
                             </Dropdown.Item>
                             <Dropdown.Item as={a} to="/" className="link-item">
@@ -284,7 +284,7 @@ export default function Header() {
                             <Dropdown.Item as={a} to="/" className="link-item">
                               Create Company Profile
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item as={a} to="/contact-us" className="link-item">
                               Contact Us
                             </Dropdown.Item>
                             <Dropdown.Item as={a} to="/" className="link-item">
