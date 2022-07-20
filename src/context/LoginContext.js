@@ -123,33 +123,9 @@ export default function LoginContext({ children }) {
   /*===== Update Login User Data  =====*/
   function updateLoginUserData(data) {
     if (isLoggedIn) {
-      // var formData = {
-      //   user_id: loginuserData.user_id,
-      //   device_token: loginuserData.device_token,
-      //   phone_id: loginuserData.phone_id,
-      //   user_name: data.user_name ? data.user_name : loginuserData.user_name,
-      //   unique_link: data.unique_link
-      //     ? data.unique_link
-      //     : loginuserData.unique_link,
-      //   user_email: data.user_email
-      //     ? data.user_email
-      //     : loginuserData.user_email,
-      //   user_whatsapp_number: data.user_whatsapp_number
-      //     ? data.user_whatsapp_number
-      //     : loginuserData.user_whatsapp_number,
-      //   user_phone: data.user_phone
-      //     ? data.user_phone
-      //     : loginuserData.user_phone,
-      //   city: data.city ? data.city : loginuserData.city,
-      //   user_address: data.user_address
-      //     ? data.user_address
-      //     : loginuserData.user_address,
-      //   listing_by: data.listing_by
-      //     ? data.listing_by
-      //     : loginuserData.listing_by,
-      // };
       var urlencoded = new URLSearchParams();
       urlencoded.append("user_id", loginuserData.user_id);
+      urlencoded.append("phone_id", loginuserData.phone_id);
       urlencoded.append(
         "user_phone",
         data.user_phone ? data.user_phone : loginuserData.user_phone
@@ -158,7 +134,6 @@ export default function LoginContext({ children }) {
         "unique_link",
         data.unique_link ? data.unique_link : loginuserData.unique_link
       );
-      urlencoded.append("phone_id", loginuserData.phone_id);
       urlencoded.append(
         "user_name",
         data.user_name ? data.user_name : loginuserData.user_name
@@ -167,18 +142,43 @@ export default function LoginContext({ children }) {
         "user_email",
         data.user_email ? data.user_email : loginuserData.user_email
       );
-      urlencoded.append("city", data.city ? data.city : loginuserData.city);
       urlencoded.append(
-        "listing_by",
-        data.listing_by ? data.listing_by : loginuserData.listing_by
+        "user_about_me",
+        data.user_about_me ? data.user_about_me : loginuserData.user_about_me
       );
       urlencoded.append(
-        "user_whatsapp_number",
-        data.user_whatsapp_number
-          ? data.user_whatsapp_number
-          : loginuserData.user_whatsapp_number
+        "tagline",
+        data.tagline ? data.tagline : loginuserData.tagline
       );
-      urlencoded.append("collage_name", "");
+      urlencoded.append(
+        "user_skills",
+        data.user_skills ? data.user_skills : loginuserData.user_skills
+      );
+      urlencoded.append(
+        "user_languages",
+        data.user_languages ? data.user_languages : loginuserData.user_languages
+      );
+      urlencoded.append(
+        "user_address",
+        data.user_address ? data.user_address : loginuserData.user_address
+      );
+      urlencoded.append(
+        "facebook_id",
+        data.facebook_id ? data.facebook_id : loginuserData.facebook_id
+      );
+      urlencoded.append(
+        "twitter_id",
+        data.twitter_id ? data.twitter_id : loginuserData.twitter_id
+      );
+      urlencoded.append(
+        "linkedin_id",
+        data.linkedin_id ? data.linkedin_id : loginuserData.linkedin_id
+      );
+      urlencoded.append(
+        "user_youtube",
+        data.user_youtube ? data.user_youtube : loginuserData.user_youtube
+      );
+
       //console.log(formData);
       //fetch(`${API_URL.BASE_URL}/users/profile_update/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/ `, {
       fetch(
@@ -238,7 +238,7 @@ export default function LoginContext({ children }) {
   const successcall = (data) => {
     const res = JSON.parse(data);
     console.log(res);
-    if (res.status === "success") {
+    if (res.success === "1") {
       console.log("ok1");
       fetchLoginUserData(loginuserId);
       setLoading(false);

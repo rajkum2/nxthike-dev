@@ -136,46 +136,35 @@ export default function ProfileSideBar() {
             <div class="social_leftt3">
               <h6>Contact Social Account</h6>
             </div>
-            <div class="social_right3">
-              <a href="#">
-                <i class="far fa-edit"></i>
-              </a>
-            </div>
             <ul class="social_accounts">
               <li>
                 <a href="#" class="social_links">
                   <i class="fab fa-facebook-f f1"></i>
-                  http://facebook.com/johndoe
+                  {loginuserData && loginuserData.facebook_id}
                 </a>
               </li>
               <li>
                 <a href="#" class="social_links">
                   <i class="fab fa-twitter t1"></i>
-                  http://twitter.com/johndoe
+                  {loginuserData && loginuserData.twitter_id}
                 </a>
               </li>
               <li>
                 <a href="#" class="social_links">
                   <i class="fab fa-linkedin-in l1"></i>
-                  http://linkedin.com/johndoe
+                  {loginuserData && loginuserData.linkedin_id}
                 </a>
               </li>
               <li>
                 <a href="#" class="social_links">
-                  <i class="fab fa-dribbble d1"></i>
-                  http://dribbble.com/johndoe
+                  <i class="fab fa-youtube y1"></i>
+                  {loginuserData && loginuserData.user_youtube}
                 </a>
               </li>
               <li>
                 <a href="#" class="social_links">
-                  <i class="fab fa-behance b1"></i>
-                  http://behance.net/johndoe
-                </a>
-              </li>
-              <li>
-                <a href="#" class="social_links">
-                  <i class="fab fa-github g1"></i>
-                  http://github.com/johndoe
+                  <i class="fab fa-instagram i1"></i>
+                  {loginuserData && loginuserData.user_youtube}
                 </a>
               </li>
             </ul>
