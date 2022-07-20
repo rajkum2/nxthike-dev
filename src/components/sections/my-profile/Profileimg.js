@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "./../../../context/LoginContext";
 import axios from "axios";
 const Profileimg = ({ clsmodal }) => {
-  const { loginUserId, fetchLoginUserData } = useContext(UserContext);
+  const { loginuserId, fetchLoginUserData } = useContext(UserContext);
   const [selectedFile, setSelectedFile] = useState();
   const [fileCheck, setFileCheck] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ const Profileimg = ({ clsmodal }) => {
   function postFile() {
     const fd = new FormData();
     fd.append("file", selectedFile, selectedFile.name);
-    fd.append("user_id", loginUserId);
+    fd.append("user_id", loginuserId);
     fd.append("platform_name", "web");
     axios
       .post(
@@ -27,7 +27,7 @@ const Profileimg = ({ clsmodal }) => {
       )
       .then((res) => {
         if (res.status === 200) {
-          fetchLoginUserData(loginUserId);
+          fetchLoginUserData(loginuserId);
           setLoading(false);
           clsmodal();
         } else {

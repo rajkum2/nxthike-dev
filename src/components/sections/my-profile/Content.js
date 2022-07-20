@@ -4,6 +4,7 @@ import { Modal } from "react-responsive-modal";
 import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "./Profileimg";
 import ProfileSideBar from "./ProfileSidebar";
+import ProfileHeader from "./ProfileHeader";
 
 export default function Content() {
   const { loginuserId, fetchLoginUserData, loginuserData, logoutAction } =
@@ -18,78 +19,7 @@ export default function Content() {
           <div className="row">
             <ProfileSideBar />
             <div class="col-lg-9 col-md-8 mainpage">
-              <div class="account_heading">
-                <div class="account_hd_left">
-                  <h2>Manage Your Account</h2>
-                </div>
-                <div class="account_hd_right">
-                  <a onClick={logoutAction} href="/" className="main_lg_btn">
-                    Logout
-                  </a>
-                </div>
-              </div>
-              <div class="account_tabs">
-                <ul class="nav nav-tabs">
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_dashboard.html">
-                      Dashboard
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      href="my_freelancer_profile.html"
-                    >
-                      Profile
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_portfolio.html">
-                      Portfolio
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_notifications.html">
-                      Notifications
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_messages.html">
-                      Messages
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_bookmarks.html">
-                      Bookmarks
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_jobs.html">
-                      Jobs
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_bids.html">
-                      Bids
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_reviews.html">
-                      Reviews
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="my_freelancer_payments.html">
-                      Payment
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/editprofile">
-                      <i class="fas fa-cog"></i>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+              <ProfileHeader pathname={"profile"} />
               <div class="view_chart">
                 <div class="view_chart_header">
                   <h4>About</h4>
