@@ -2529,6 +2529,7 @@ span.right-cm {
   float: left;
   width: 100%;
   border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 5px;
 }
 
 .mtab-left {
@@ -2651,31 +2652,31 @@ span.right-cm {
 }
 
 .main-p-pagination .pagination .page-link {
-  font-size: 14px;
-  font-weight: 400;
-  position: relative;
-  display: block;
-  padding: 7px 12px;
-  margin-left: 8px;
-  line-height: 1.25;
-  color: #000;
-  border-radius: 3px;
-  background-color: #fff;
-  border: 1px solid #e5e5e5;
-  text-align: center;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  position: relative !important;
+  display: block !important;
+  padding: 7px 12px !important;
+  margin-left: 8px !important;
+  line-height: 1.25 !important;
+  color: #000 !important;
+  border-radius: 3px !important;
+  background-color: #fff !important;
+  border: 1px solid #e5e5e5 !important;
+  text-align: center !important;
 }
 
 .main-p-pagination .pagination .page-link.active {
-  background: #000;
-  border: 1px solid #000;
-  color: #fff;
+  background: #000 !important;
+  border: 1px solid #000 !important;
+  color: #fff !important;
 }
 
 .main-p-pagination .pagination .page-link:hover {
-  background: #ff4500;
-  border: 1px solid #ff4500;
+  background: #ff4500 !important;
+  border: 1px solid #ff4500 !important;
   color: #fff !important;
-  box-shadow: none;
+  box-shadow: none !important;
 }
 
 .main-p-pagination .pagination .page-link:focus {
