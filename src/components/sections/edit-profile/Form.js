@@ -99,7 +99,7 @@ export default function Form(props) {
         user_dob: dob,
       };
       updateLoginUserData(formData);
-      window.location.reload(true);
+      if (successMsg) window.location.reload(true);
     } else {
       alert("Please login again");
     }

@@ -1,6 +1,10 @@
+import { useContext } from "react";
 import logo from "../../assets/images/logo1.svg";
+import { UserContext } from "../../context/LoginContext";
+import Modalbox from "./Modal";
 
 const Footer = () => {
+  const { isLoggedIn } = useContext(UserContext);
   return (
     <footer className="footer">
       <div className="subscribe-newsletter">
@@ -54,22 +58,23 @@ const Footer = () => {
               <h4>About</h4>
               <ul>
                 <li>
-                  <a href="about.html">About Us</a>
+                  <a href="/about">About Us</a>
+                </li>
+                {isLoggedIn ? (
+                  <li>
+                    <a href="/my-profile">My Account</a>
+                  </li>
+                ) : (
+                  <Modalbox parent="footer" />
+                )}
+                <li>
+                  <a href="/contact-us">Contact</a>
                 </li>
                 <li>
-                  <a href="sign_in.html">Login</a>
+                  <a href="/privacy">Privacy Policy</a>
                 </li>
                 <li>
-                  <a href="my_freelancer_profile.html">My Account</a>
-                </li>
-                <li>
-                  <a href="contact_us.html">Contact</a>
-                </li>
-                <li>
-                  <a href="privacy_policy.html">Privacy Policy</a>
-                </li>
-                <li>
-                  <a href="Terms.html">Terms of Use</a>
+                  <a href="/terms">Terms of Use</a>
                 </li>
               </ul>
             </div>
@@ -79,16 +84,16 @@ const Footer = () => {
               <h4>For Companies</h4>
               <ul>
                 <li>
-                  <a href="browse_freelancers.html">Browse Freelancers</a>
+                  <a href="/browse-freelancers">Browse Freelancers</a>
                 </li>
                 <li>
-                  <a href="post_a_job.html">Post a Job</a>
+                  <a href="/submit-job">Post a Job</a>
                 </li>
                 <li>
-                  <a href="post_a_project.html">Post a Project</a>
+                  <a href="/submit-project">Post a Project</a>
                 </li>
                 <li>
-                  <a href="pricing_plans.html">Pricing Plans</a>
+                  <a href="/pricing">Pricing Plans</a>
                 </li>
               </ul>
             </div>
@@ -98,7 +103,7 @@ const Footer = () => {
               <h4>For Candidates</h4>
               <ul>
                 <li>
-                  <a href="browse_jobs.html">Browese Jobs</a>
+                  <a href="/browse-jobs">Browse Jobs</a>
                 </li>
                 <li>
                   <a href="my_freelancer_jobs.html">Jobs Alerts</a>

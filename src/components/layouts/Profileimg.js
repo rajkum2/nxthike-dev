@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { UserContext } from "./../../../context/LoginContext";
+import { UserContext } from "../../context/LoginContext";
 import axios from "axios";
 const Profileimg = ({ clsmodal }) => {
   const { loginuserId, fetchLoginUserData } = useContext(UserContext);

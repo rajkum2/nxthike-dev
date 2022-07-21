@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { UserContext } from "../../../context/LoginContext";
+import { UserContext } from "../../context/LoginContext";
 
 export default function ProfileHeader({ pathname }) {
   const { logoutAction } = useContext(UserContext);
@@ -18,7 +18,12 @@ export default function ProfileHeader({ pathname }) {
       <div className="account_tabs">
         <ul className="nav nav-tabs">
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_dashboard.html">
+            <a
+              className={`${
+                pathname === "dashboard" ? "nav-link active" : "nav-link"
+              }`}
+              href="/dashboard"
+            >
               Dashboard
             </a>
           </li>
@@ -33,42 +38,82 @@ export default function ProfileHeader({ pathname }) {
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_portfolio.html">
+            <a
+              className={`${
+                pathname === "portfolio" ? "nav-link active" : "nav-link"
+              }`}
+              href="/portfolio"
+            >
               Portfolio
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_notifications.html">
+            <a
+              className={`${
+                pathname === "notifications" ? "nav-link active" : "nav-link"
+              }`}
+              href="/notifications"
+            >
               Notifications
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_messages.html">
+            <a
+              className={`${
+                pathname === "messages" ? "nav-link active" : "nav-link"
+              }`}
+              href="/messages"
+            >
               Messages
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_bookmarks.html">
+            <a
+              className={`${
+                pathname === "bookmarks" ? "nav-link active" : "nav-link"
+              }`}
+              href="/bookmarks"
+            >
               Bookmarks
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_jobs.html">
+            <a
+              className={`${
+                pathname === "manage-jobs" ? "nav-link active" : "nav-link"
+              }`}
+              href="/manage-jobs"
+            >
               Jobs
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_bids.html">
+            <a
+              className={`${
+                pathname === "bids" ? "nav-link active" : "nav-link"
+              }`}
+              href="/bids"
+            >
               Bids
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_reviews.html">
+            <a
+              className={`${
+                pathname === "reviews" ? "nav-link active" : "nav-link"
+              }`}
+              href="/reviews"
+            >
               Reviews
             </a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="my_freelancer_payments.html">
+            <a
+              className={`${
+                pathname === "payments" ? "nav-link active" : "nav-link"
+              }`}
+              href="/payments"
+            >
               Payment
             </a>
           </li>

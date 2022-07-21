@@ -2074,6 +2074,17 @@ span.right-cm {
   margin-bottom: 14px;
 }
 
+.footer-links ul li {
+  font-size: 14px;
+  color: #ff4500;
+  font-weight: 400;
+  line-height: 26px;
+  text-align: left;
+  margin-bottom: 0;
+  font-family: "Roboto", sans-serif;
+  cursor: pointer;
+}
+
 .footer-links ul li a {
   font-size: 14px;
   color: #acacac;

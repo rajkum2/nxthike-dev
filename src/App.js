@@ -23,6 +23,19 @@ const SubmitJob = React.lazy(() => import("./components/pages/SubmitJob"));
 const SubmitProject = React.lazy(() =>
   import("./components/pages/SubmitProject")
 );
+const Privacy = React.lazy(() => import("./components/pages/Privacy"));
+const Terms = React.lazy(() => import("./components/pages/Terms"));
+const Dashboard = React.lazy(() => import("./components/pages/Dashboard"));
+const ManageJobs = React.lazy(() => import("./components/pages/ManageJobs"));
+const Portfolio = React.lazy(() => import("./components/pages/Portfolio"));
+const Bookmarks = React.lazy(() => import("./components/pages/Bookmarks"));
+const Notifications = React.lazy(() =>
+  import("./components/pages/Notifications")
+);
+const Messages = React.lazy(() => import("./components/pages/Messages"));
+const Reviews = React.lazy(() => import("./components/pages/Reviews"));
+const Bids = React.lazy(() => import("./components/pages/Bids"));
+const Payments = React.lazy(() => import("./components/pages/Payments"));
 export default function App() {
   return (
     <React.Suspense>
@@ -46,6 +59,17 @@ export default function App() {
         <Route path="/invoice" element={<Invoice />} />
         <Route path="/submit-job" element={<SubmitJob />} />
         <Route path="/submit-project" element={<SubmitProject />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/bookmarks" element={<Bookmarks />} />
+        <Route path="/manage-jobs" element={<ManageJobs />} />
+        <Route path="/bids" element={<Bids />} />
+        <Route path="/reviews" element={<Reviews />} />
+        <Route path="/payments" element={<Payments />} />
       </Routes>
     </React.Suspense>
   );

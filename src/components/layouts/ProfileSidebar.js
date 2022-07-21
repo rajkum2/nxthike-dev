@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { UserContext } from "../../../context/LoginContext";
+import { UserContext } from "../../context/LoginContext";
 import { Modal } from "react-responsive-modal";
-import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
+import img1 from "../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "./Profileimg";
 
 export default function ProfileSideBar() {
@@ -10,7 +10,6 @@ export default function ProfileSideBar() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     fetchLoginUserData(loginuserId);
-    console.log(loginuserId);
   }, []);
   return (
     <>
@@ -34,7 +33,7 @@ export default function ProfileSideBar() {
                 <button onClick={() => setOpen(true)}>Upload Photo</button>
               </div>
               <h4>{loginuserData !== null && loginuserData.user_name}</h4>
-              <span>UX Designer</span>
+              <span>{loginuserData !== null && loginuserData.tagline}</span>
               <span>
                 <i class="fas fa-map-marker-alt lc_icon" />
                 {loginuserData !== null && " " + loginuserData.city}

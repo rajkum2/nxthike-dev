@@ -1,7 +1,7 @@
-import ProfileSideBar from "../my-profile/ProfileSidebar";
+import ProfileSideBar from "../../layouts/ProfileSidebar";
 import { Tab, Nav } from "react-bootstrap";
 import { useContext, useEffect, useState } from "react";
-import ProfileHeader from "../my-profile/ProfileHeader";
+import ProfileHeader from "../../layouts/ProfileHeader";
 import Select from "react-select";
 import options from "../../../data/allJobOptions.json";
 import { UserContext } from "../../../context/LoginContext";
@@ -21,9 +21,6 @@ const customStyles = {
 export default function Content() {
   const { loginuserData, fetchLoginUserData, loginuserId } =
     useContext(UserContext);
-  const [tab1, setTab1] = useState(false);
-  const [tab2, setTab2] = useState(false);
-  const [activeKey, setActiveKey] = useState("tab1");
 
   useEffect(() => {
     fetchLoginUserData(loginuserId);

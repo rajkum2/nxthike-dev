@@ -2,9 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../../context/LoginContext";
 import { Modal } from "react-responsive-modal";
 import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
-import Profileimg from "./Profileimg";
-import ProfileSideBar from "./ProfileSidebar";
-import ProfileHeader from "./ProfileHeader";
+import Profileimg from "../../layouts/Profileimg";
+import ProfileHeader from "../../layouts/ProfileHeader";
+import ProfileSideBar from "../../layouts/ProfileSidebar";
 
 export default function Content() {
   const { loginuserId, fetchLoginUserData, loginuserData, logoutAction } =

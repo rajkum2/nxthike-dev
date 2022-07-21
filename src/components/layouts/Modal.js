@@ -27,11 +27,15 @@ const Modalbox = (props) => {
 
   return (
     <>
-      <div className="login__dropDown">
-        <button className="add-post" onClick={() => setOpen(true)}>
-          Register
-        </button>
-      </div>
+      {props.parent === "footer" ? (
+        <li onClick={() => setOpen(true)}>Login</li>
+      ) : (
+        <div className="login__dropDown">
+          <button className="add-post" onClick={() => setOpen(true)}>
+            Register
+          </button>
+        </div>
+      )}
       <Modal
         open={open}
         onClose={() => setOpen(false)}
