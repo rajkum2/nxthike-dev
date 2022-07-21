@@ -13,6 +13,16 @@ const SingleProject = React.lazy(() =>
 );
 const MyProfile = React.lazy(() => import("./components/pages/MyProfile"));
 const EditProfile = React.lazy(() => import("./components/pages/EditProfile"));
+const HelpCentre = React.lazy(() => import("./components/pages/HelpCentre"));
+const Blog = React.lazy(() => import("./components/pages/Blog"));
+const BlogSingle = React.lazy(() => import("./components/pages/BlogSingle"));
+const Pricing = React.lazy(() => import("./components/pages/Pricing"));
+const Checkout = React.lazy(() => import("./components/pages/Checkout"));
+const Invoice = React.lazy(() => import("./components/pages/Invoice"));
+const SubmitJob = React.lazy(() => import("./components/pages/SubmitJob"));
+const SubmitProject = React.lazy(() =>
+  import("./components/pages/SubmitProject")
+);
 export default function App() {
   return (
     <React.Suspense>
@@ -27,7 +37,15 @@ export default function App() {
         <Route path="/single-project" element={<SingleProject />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/editprofile" element={<EditProfile />} />
-        <Route path="/contact-us" element={<Contact/>} />
+        <Route path="/contact-us" element={<Contact />} />
+        <Route path="/help" element={<HelpCentre />} />
+        <Route path="/our-blog" element={<Blog />} />
+        <Route path="/blog-single" element={<BlogSingle />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/invoice" element={<Invoice />} />
+        <Route path="/submit-job" element={<SubmitJob />} />
+        <Route path="/submit-project" element={<SubmitProject />} />
       </Routes>
     </React.Suspense>
   );

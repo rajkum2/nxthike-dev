@@ -106,6 +106,7 @@ export default function LoginContext({ children }) {
       )
         .then((response) => response.json())
         .then((data) => {
+          console.log(data);
           setLoginuserData(data);
           if (data.user_name === "") {
             setFirstLogin(true);
@@ -138,6 +139,7 @@ export default function LoginContext({ children }) {
         "user_name",
         data.user_name ? data.user_name : loginuserData.user_name
       );
+      urlencoded.append("city", data.city ? data.city : loginuserData.city);
       urlencoded.append(
         "user_email",
         data.user_email ? data.user_email : loginuserData.user_email
@@ -175,10 +177,17 @@ export default function LoginContext({ children }) {
         data.linkedin_id ? data.linkedin_id : loginuserData.linkedin_id
       );
       urlencoded.append(
+        "insta_id",
+        data.insta_id ? data.insta_id : loginuserData.insta_id
+      );
+      urlencoded.append(
         "user_youtube",
         data.user_youtube ? data.user_youtube : loginuserData.user_youtube
       );
-
+      urlencoded.append(
+        "user_dob",
+        data.user_dob ? data.user_dob : loginuserData.user_dob
+      );
       //console.log(formData);
       //fetch(`${API_URL.BASE_URL}/users/profile_update/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/ `, {
       fetch(

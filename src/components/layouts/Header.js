@@ -110,7 +110,7 @@ export default function Header() {
                 <nav className="navbar navbar-expand-lg navbar-light bg-dark1 justify-content-sm-start">
                   <a
                     className="order-1 order-lg-0 ml-lg-0 ml-3 mr-auto"
-                    href="index.html"
+                    href="/"
                   >
                     <img src={logo} alt="" />
                   </a>
@@ -154,7 +154,11 @@ export default function Header() {
                             >
                               Single Job View
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/submit-job"
+                              className="link-item"
+                            >
                               Post a Job
                             </Dropdown.Item>
                           </Dropdown.Menu>
@@ -184,7 +188,11 @@ export default function Header() {
                             >
                               Single Project View
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/submit-project"
+                              className="link-item"
+                            >
                               Post a Project
                             </Dropdown.Item>
                           </Dropdown.Menu>
@@ -254,40 +262,46 @@ export default function Header() {
                             >
                               About
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/our-blog" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/our-blog"
+                              className="link-item"
+                            >
                               Our Blog
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Single Blog View
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/pricing"
+                              className="link-item"
+                            >
                               Pricing Plans
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/checkout"
+                              className="link-item"
+                            >
                               Checkout
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/invoice"
+                              className="link-item"
+                            >
                               Invoice Slip
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/sign-in" className="link-item">
-                              Sign In
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Sign Up
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Sign Up Select Profiles
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Create Freelancer Profile
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Create Company Profile
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/contact-us" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/contact-us"
+                              className="link-item"
+                            >
                               Contact Us
                             </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
+                            <Dropdown.Item
+                              as={a}
+                              to="/help"
+                              className="link-item"
+                            >
                               Help Center
                             </Dropdown.Item>
                           </Dropdown.Menu>
@@ -303,10 +317,10 @@ export default function Header() {
                     >
                       <i className="fas fa-search"></i>
                     </a>
-                    <a href="post_a_job.html" className="add-post">
+                    <a href="/submit-job" className="add-post">
                       Post a Job
                     </a>
-                    <a href="post_a_project.html" className="add-task">
+                    <a href="/submit-project" className="add-task">
                       Post a Task
                     </a>
                   </div>

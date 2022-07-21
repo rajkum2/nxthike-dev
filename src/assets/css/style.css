@@ -7262,7 +7262,6 @@ span.right-cm {
 .nvdate_dt {
   float: left;
   width: 100%;
-  margin-top: 30px;
 }
 
 .nvde_dt45 {
@@ -7313,8 +7312,9 @@ span.right-cm {
 .dff474 {
   float: left;
   width: 100%;
-  margin-top: 50px;
+  margin-top: 30px;
   margin-bottom: 0;
+  margin-left: 2rem;
   font-size: 24px;
   font-weight: 600;
   font-family: "Roboto", sans-serif;
@@ -7330,7 +7330,7 @@ span.right-cm {
 .vhls140 {
   float: left;
   width: 100%;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .vhls140 ul li {
@@ -7348,19 +7348,20 @@ span.right-cm {
   font-family: "Roboto", sans-serif;
   color: #242424;
   text-align: left;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  margin-left: 2rem;
 }
 
 .invoice_table {
   float: left;
   width: 100%;
-  margin-top: 50px;
+  margin-top: 30px;
   background: #f3f3f3;
 }
 
 .invoice_table .table td,
 .invoice_table .table th {
-  padding: 20px !important;
+  padding: 10px 20px !important;
   vertical-align: top !important;
   border-top: 0 !important;
 }

@@ -3,17 +3,17 @@ import { MetaTags } from "react-meta-tags";
 import Breadcrumb from "../layouts/Breadcrumb";
 import Footer from "../layouts/Footer";
 import Header from "../layouts/Header";
-import Content from "../sections/contactus/Content";
-export default class Contact extends Component {
+import Content from "../sections/help/Content";
+export default class HelpCentre extends Component {
   render() {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Contact Us</title>
+          <title>Jobby - Help Centre</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />
-        <Breadcrumb pagename="Contact Us" />
+        <Breadcrumb pagename="Help Centre" />
         <Content />
         <Footer />
       </Fragment>

@@ -351,5 +351,9 @@
     { "label": "Telugu", "value": "Telugu" },
     { "label": "French", "value": "French" },
     { "label": "German", "value": "German" }
+  ],
+  "budget": [
+    { "label": "Hourly Price", "value": "Hourly" },
+    { "label": "Fixed Price", "value": "Fixed" }
   ]
 }

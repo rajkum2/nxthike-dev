@@ -39,7 +39,12 @@ const Info = () => {
                 </p>
               </div>
               <div className="btns15">
-                <button className="btn-152">Post a Job</button>
+                <button
+                  className="btn-152"
+                  onClick={() => window.location.replace("/submit-job")}
+                >
+                  Post a Job
+                </button>
                 <button className="btn-153">Learn More</button>
               </div>
             </div>
@@ -80,7 +85,12 @@ const Info = () => {
                 </p>
               </div>
               <div className="btns15">
-                <button className="btn-152">Get Listed</button>
+                <button
+                  className="btn-152"
+                  onClick={() => window.location.replace("/browse-freelancers")}
+                >
+                  Get Listed
+                </button>
                 <button className="btn-153">Learn More</button>
               </div>
             </div>

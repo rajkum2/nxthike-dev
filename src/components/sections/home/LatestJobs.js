@@ -1,6 +1,7 @@
 import Slider from "react-slick";
 import line from "../../../assets/images/line.svg";
 import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
+import { Link as button } from "react-router-dom";
 
 const CustomNextArrow = (props) => {
   const { className, style, onClick } = props;
@@ -408,9 +409,14 @@ const Jobs = () => {
                 </div>
               </Slider>
               <div className="text-center">
-                <a className="view-links" href="/browse-jobs">
+                <button
+                  className="view-links"
+                  onClick={() => {
+                    window.location.replace("/browse-jobs");
+                  }}
+                >
                   BROWSE ALL JOBS
-                </a>
+                </button>
               </div>
             </div>
           </div>

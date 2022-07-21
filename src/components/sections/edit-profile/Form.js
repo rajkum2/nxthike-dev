@@ -30,6 +30,8 @@ export default function Form(props) {
   const [tab2, setTab2] = useState(false);
   const [user_name, setName] = useState(props.userData.user_name);
   const [email, setEmail] = useState(props.userData.user_email);
+  const [dob, setDOB] = useState(props.userData.user_dob);
+  const [city, setCity] = useState(props.userData.city);
   const [desc, setDesc] = useState(props.userData.user_about_me);
   const [tagline, setTagline] = useState(props.userData.tagline);
   const [skills, setSkills] = useState(props.userData.user_skills);
@@ -93,6 +95,8 @@ export default function Form(props) {
         twitter_id: twitter,
         linkedin_id: linkedin,
         user_youtube: youtube,
+        city: city,
+        user_dob: dob,
       };
       updateLoginUserData(formData);
       window.location.reload(true);
@@ -177,6 +181,32 @@ export default function Form(props) {
                               placeholder="Enter Your Email Address"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                            <label class="label15">Date of Birth</label>
+                            <input
+                              type="date"
+                              class="job-input"
+                              placeholder="Enter Your Date of Birth"
+                              value={dob}
+                              onChange={(e) => setDOB(e.target.value)}
+                              min={"1970-1-1"}
+                              max={"2040-12-31"}
+                            />
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                            <label class="label15">City</label>
+                            <input
+                              type="text"
+                              class="job-input"
+                              placeholder="Enter Your City"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
                             />
                           </div>
                         </div>
