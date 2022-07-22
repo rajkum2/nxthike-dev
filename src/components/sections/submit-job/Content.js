@@ -1,4 +1,6 @@
+import { useContext, useEffect, useState } from "react";
 import Select from "react-select";
+import { UserContext } from "../../../context/LoginContext";
 import options from "../../../data/allJobOptions.json";
 const customStyles = {
   menu: (provided, state) => ({
@@ -12,6 +14,42 @@ const customStyles = {
   }),
 };
 export default function Content() {
+  const { isLoggedIn, loginuserId } = useContext(UserContext);
+
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [subCat, setSubCat] = useState("");
+  const [comp_name, setCompName] = useState("");
+  const [loc, setLoc] = useState("");
+  const [experience, setExp] = useState("");
+  const [salary, setSalary] = useState(0);
+  const [role, setRole] = useState("");
+  const [emply_type, setEmplyType] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [skills, setSkills] = useState("");
+  const [skillsArray, setSkillsArray] = useState([]);
+  const [job_desc, setJobDesc] = useState("");
+  const [comp_det, setCompDet] = useState("");
+
+  const handleSkills = (e) => {
+    setSkillsArray(Array.isArray(e) ? e.map((x) => x.value) : []);
+  };
+
+  const handleFile = (e) => {
+    console.log(e.target.files[0]);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleFile();
+  };
+
+  useEffect(() => {
+    let skillsStr = skillsArray.toString();
+    skillsStr = skillsStr.replace(/,/g, ", ");
+    setSkills(skillsStr);
+  }, [skillsArray]);
+
   return (
     <main class="browse-section">
       <div class="container">
@@ -24,23 +62,37 @@ export default function Content() {
               </div>
             </div>
             <div class="post501">
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div class="row">
-                  <div class="col-lg-12">
+                  <div class="col-lg-6">
                     <div class="form-group">
-                      <label class="label15">Job Name*</label>
+                      <label class="label15">Job Title*</label>
                       <input
                         type="text"
                         class="job-input"
-                        placeholder="Job Name Here"
+                        placeholder="Job Title Here"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
                       />
                     </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label class="label15">Company Name*</label>
+                      <input
+                        type="text"
+                        class="job-input"
+                        placeholder="Company Name Here"
+                      />
+                    </div>
+                  </div>
+                  <div className="col-lg-12">
                     <div class="form-group">
                       <label class="label15">Job Description*</label>
                       <textarea
                         class="textarea_input"
                         placeholder="Type Description"
-                      ></textarea>
+                      />
                     </div>
                   </div>
                   <div class="col-lg-12">
@@ -48,31 +100,45 @@ export default function Content() {
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label class="label15">Job Type*</label>
+                      <label class="label15">Job Category*</label>
                       <Select
-                        options={options.job}
+                        options={options.category}
                         className="skills-search"
-                        isMulti
                         isSearchable
                         placeholder="Job Type"
                         styles={customStyles}
+                        onChange={(e) => setCategory(e.value)}
                       />
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label class="label15">Job Category*</label>
+                      <label class="label15">Job SubCategory*</label>
                       <Select
-                        options={options.category}
+                        options={
+                          category === "cat0644d4cddaf9441f8e600804d47de47c"
+                            ? options.subCategory.design
+                            : category === "cat8f81bcecbd391456b31387589ae3771f"
+                            ? options.subCategory.development
+                            : category === "cat85f22c4a468aab13b4af012e0c9f87a2"
+                            ? options.subCategory.business
+                            : null
+                        }
                         className="skills-search"
-                        isMulti
                         isSearchable
-                        placeholder="Job Category"
+                        placeholder="Job SubCategory"
+                        value={subCat}
+                        isDisabled={
+                          category === "catc62aa3527679073f70b16e22305e2fab"
+                            ? true
+                            : false
+                        }
                         styles={customStyles}
+                        onChange={(e) => setSubCat(e.value)}
                       />
                     </div>
                   </div>
-                  <div class="col-lg-6">
+                  {/* <div class="col-lg-6">
                     <div class="form-group">
                       <label class="label15">Availability*</label>
                       <Select
@@ -84,43 +150,18 @@ export default function Content() {
                         styles={customStyles}
                       />
                     </div>
-                  </div>
+                  </div> */}
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label class="label15">Experience Level*</label>
-                      <Select
-                        options={options.exp}
-                        className="skills-search"
-                        isMulti
-                        isSearchable
-                        placeholder="Experience"
-                        styles={customStyles}
-                      />
+                      <label class="label15">Experience Level</label>
+                      <input type="text" className="job-input" />
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label class="label15">Salary Min*</label>
+                      <label class="label15">Salary</label>
                       <div class="smm_input">
-                        <input
-                          type="text"
-                          class="job-input"
-                          placeholder="Min"
-                        />
-                        <div class="mix_max">Usd</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="form-group">
-                      <label class="label15">Salary Max*</label>
-                      <div class="smm_input">
-                        <input
-                          type="text"
-                          class="job-input"
-                          placeholder="Max"
-                        />
-                        <div class="mix_max">Usd</div>
+                        <input type="text" class="job-input" />
                       </div>
                     </div>
                   </div>
@@ -141,18 +182,6 @@ export default function Content() {
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label class="label15">Languages*</label>
-                      <Select
-                        options={options.languages}
-                        className="skills-search"
-                        isMulti
-                        isSearchable
-                        styles={customStyles}
-                      />
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="form-group">
                       <label class="label15">Skills*</label>
                       <Select
                         options={options.skills}
@@ -160,6 +189,18 @@ export default function Content() {
                         isMulti
                         isSearchable
                         styles={customStyles}
+                        onChange={handleSkills}
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-12">
+                    <div class="form-group">
+                      <label class="label15">About the Company</label>
+                      <textarea
+                        value={comp_det}
+                        class="textarea_input"
+                        placeholder="Type Description"
+                        onChange={(e) => setCompDet(e.target.value)}
                       />
                     </div>
                   </div>
@@ -171,8 +212,8 @@ export default function Content() {
                           class="file-upload-input1"
                           id="file2"
                           type="file"
-                          onchange="readURL(this);"
                           accept="image/*"
+                          onChange={handleFile}
                         />
                         <div class="drag-text1">Upload Files</div>
                       </div>

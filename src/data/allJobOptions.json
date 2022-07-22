@@ -290,50 +290,47 @@
     { "label": "Zimbabwe", "value": "ZW" }
   ],
   "category": [
-    { "label": "Category 01", "value": "cat-01" },
-    { "label": "Category 02", "value": "cat-02" },
-    { "label": "Category 03", "value": "cat-03" },
-    { "label": "Category 04", "value": "cat-04" },
-    { "label": "Category 05", "value": "cat-05" },
-    { "label": "Category 06", "value": "cat-06" },
-    { "label": "Category 07", "value": "cat-07" },
-    { "label": "Category 08", "value": "cat-08" },
-    { "label": "Category 09", "value": "cat-09" },
-    { "label": "Category 10", "value": "cat-10" },
-    { "label": "Category 11", "value": "cat-11" },
-    { "label": "Category 12", "value": "cat-12" },
-    { "label": "Category 13", "value": "cat-13" },
-    { "label": "Category 14", "value": "cat-14" },
-    { "label": "Category 15", "value": "cat-15" }
+    { "label": "Design", "value": "cat0644d4cddaf9441f8e600804d47de47c" },
+    { "label": "Development", "value": "cat8f81bcecbd391456b31387589ae3771f" },
+    { "label": "Business", "value": "cat85f22c4a468aab13b4af012e0c9f87a2" },
+    { "label": "Marketing", "value": "catc62aa3527679073f70b16e22305e2fab" }
   ],
-  "series": [
-    { "label": "A", "value": "A" },
-    { "label": "B", "value": "B" },
-    { "label": "C", "value": "C" },
-    { "label": "D", "value": "D" },
-    { "label": "E", "value": "E" },
-    { "label": "F", "value": "F" },
-    { "label": "G", "value": "G" },
-    { "label": "H", "value": "H" },
-    { "label": "I", "value": "I" },
-    { "label": "J", "value": "J" },
-    { "label": "K", "value": "K" },
-    { "label": "L", "value": "L" },
-    { "label": "M", "value": "M" },
-    { "label": "N", "value": "N" },
-    { "label": "O", "value": "O" },
-    { "label": "P", "value": "P" },
-    { "label": "Q", "value": "Q" },
-    { "label": "R", "value": "R" },
-    { "label": "S", "value": "S" },
-    { "label": "T", "value": "T" },
-    { "label": "U", "value": "U" },
-    { "label": "V", "value": "V" },
-    { "label": "W", "value": "W" },
-    { "label": "X", "value": "X" },
-    { "label": "Y", "value": "Y" },
-    { "label": "Z", "value": "Z" }
-  ],
+  "subCategory": {
+    "design": [
+      {
+        "label": "UI UX Design",
+        "value": "subcat620f638e18e8a3ed1180769a21660691"
+      },
+      {
+        "label": "Web Development",
+        "value": "subcat55441d41145032e1780756ef4533aa65"
+      },
+      {
+        "label": "Web Design",
+        "value": "subcat7142379d11b72f1b8ecfb588a5244067"
+      }
+    ],
+    "development": [
+      {
+        "label": "Web App Development",
+        "value": "subcat03fe9e682690a1ecda25813ea4a2e7e6"
+      },
+      {
+        "label": "Full Stack Development",
+        "value": "subcat4481eb97c637ee4aea661b5941c08f82"
+      }
+    ],
+    "business": [
+      {
+        "label": "Product Management",
+        "value": "subcat04fefc0b602a699640cef5919d266f9a"
+      },
+      {
+        "label": "Digital Marketing",
+        "value": "subcat1f1d0305a0f87f478870b8cbb09ce01c"
+      }
+    ]
+  },
   "availability": [
     { "label": "I am Not Sure", "value": "Not_Sure" },
     { "label": "Full Time", "value": "Full_Time" },

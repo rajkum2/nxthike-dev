@@ -1153,7 +1153,15 @@ span.right-cm {
 }
 
 .overly-bg {
-  opacity: 0.5;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 0;
+}
+.overly-bg:hover {
+  opacity: 0.2;
   background-image: -moz-linear-gradient(transparent, black 85%);
   background-image: -webkit-linear-gradient(transparent, black 85%);
   background-image: -ms-linear-gradient(transparent, black 85%);
@@ -1165,10 +1173,6 @@ span.right-cm {
   top: 0;
   width: 100%;
   z-index: 0;
-}
-
-.overly-bg:hover {
-  opacity: 0.6;
 }
 
 .featured-cities {
