@@ -97,7 +97,7 @@ const Featured = () => {
                       <ul className="link-btn">
                         <li>
                           <a
-                            href="other_freelancer_profile.html"
+                            href="/freelancer-profile"
                             className="link-j1"
                             title="View Profile"
                           >
@@ -158,7 +158,7 @@ const Featured = () => {
                       <ul className="link-btn">
                         <li>
                           <a
-                            href="other_freelancer_profile.html"
+                            href="/freelancer-profile"
                             className="link-j1"
                             title="View Profile"
                           >
@@ -219,7 +219,7 @@ const Featured = () => {
                       <ul className="link-btn">
                         <li>
                           <a
-                            href="other_freelancer_profile.html"
+                            href="/freelancer-profile"
                             className="link-j1"
                             title="View Profile"
                           >
@@ -280,7 +280,7 @@ const Featured = () => {
                       <ul className="link-btn">
                         <li>
                           <a
-                            href="other_freelancer_profile.html"
+                            href="/freelancer-profile"
                             className="link-j1"
                             title="View Profile"
                           >
@@ -341,7 +341,7 @@ const Featured = () => {
                       <ul className="link-btn">
                         <li>
                           <a
-                            href="other_freelancer_profile.html"
+                            href="/freelancer-profile"
                             className="link-j1"
                             title="View Profile"
                           >
@@ -402,7 +402,7 @@ const Featured = () => {
                       <ul className="link-btn">
                         <li>
                           <a
-                            href="other_freelancer_profile.html"
+                            href="/freelancer-profile"
                             className="link-j1"
                             title="View Profile"
                           >

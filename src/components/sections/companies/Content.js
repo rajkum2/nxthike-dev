@@ -97,7 +97,7 @@ export default function Content() {
                         <ul className="link-btn">
                           <li className="cpy-btn">
                             <a
-                              href="other_company_profile.html"
+                              href="/company-profile"
                               className="link-j1"
                               title="View Profile"
                             >
@@ -154,7 +154,7 @@ export default function Content() {
                         <ul className="link-btn">
                           <li className="cpy-btn">
                             <a
-                              href="other_company_profile.html"
+                              href="/company-profile"
                               className="link-j1"
                               title="View Profile"
                             >
@@ -210,7 +210,7 @@ export default function Content() {
                         <ul className="link-btn">
                           <li className="cpy-btn">
                             <a
-                              href="other_company_profile.html"
+                              href="/company-profile"
                               className="link-j1"
                               title="View Profile"
                             >
@@ -266,7 +266,7 @@ export default function Content() {
                         <ul className="link-btn">
                           <li className="cpy-btn">
                             <a
-                              href="other_company_profile.html"
+                              href="/company-profile"
                               className="link-j1"
                               title="View Profile"
                             >
@@ -322,7 +322,7 @@ export default function Content() {
                         <ul className="link-btn">
                           <li className="cpy-btn">
                             <a
-                              href="other_company_profile.html"
+                              href="/company-profile"
                               className="link-j1"
                               title="View Profile"
                             >
@@ -378,7 +378,7 @@ export default function Content() {
                         <ul className="link-btn">
                           <li className="cpy-btn">
                             <a
-                              href="other_company_profile.html"
+                              href="/company-profile"
                               className="link-j1"
                               title="View Profile"
                             >

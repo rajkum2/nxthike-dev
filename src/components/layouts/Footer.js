@@ -106,13 +106,13 @@ const Footer = () => {
                   <a href="/browse-jobs">Browse Jobs</a>
                 </li>
                 <li>
-                  <a href="my_freelancer_jobs.html">Jobs Alerts</a>
+                  <a href="/manage-jobs">Jobs Alerts</a>
                 </li>
                 <li>
-                  <a href="my_freelancer_jobs.html">Applied Jobs</a>
+                  <a href="/manage-jobs">Applied Jobs</a>
                 </li>
                 <li>
-                  <a href="my_freelancer_bookmarks.html">Bookmarks</a>
+                  <a href="/bookmarks">Bookmarks</a>
                 </li>
               </ul>
             </div>

@@ -36,6 +36,12 @@ const Messages = React.lazy(() => import("./components/pages/Messages"));
 const Reviews = React.lazy(() => import("./components/pages/Reviews"));
 const Bids = React.lazy(() => import("./components/pages/Bids"));
 const Payments = React.lazy(() => import("./components/pages/Payments"));
+const CompanyProfile = React.lazy(() =>
+  import("./components/pages/CompanyProfile")
+);
+const FreelancerProfile = React.lazy(() =>
+  import("./components/pages/FreelancerProfile")
+);
 export default function App() {
   return (
     <React.Suspense>
@@ -70,6 +76,8 @@ export default function App() {
         <Route path="/bids" element={<Bids />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/payments" element={<Payments />} />
+        <Route path="/company-profile" element={<CompanyProfile />} />
+        <Route path="/freelancer-profile" element={<FreelancerProfile />} />
       </Routes>
     </React.Suspense>
   );

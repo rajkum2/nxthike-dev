@@ -100,7 +100,7 @@ const Jobs = () => {
                         </li>
                         <li>
                           <a
-                            href="job_single_view.html"
+                            href="/single-job"
                             className="link-j1"
                             title="View Job"
                           >
@@ -159,7 +159,7 @@ const Jobs = () => {
                         </li>
                         <li>
                           <a
-                            href="job_single_view.html"
+                            href="/single-job"
                             className="link-j1"
                             title="View Job"
                           >
@@ -218,7 +218,7 @@ const Jobs = () => {
                         </li>
                         <li>
                           <a
-                            href="job_single_view.html"
+                            href="/single-job"
                             className="link-j1"
                             title="View Job"
                           >
@@ -276,7 +276,7 @@ const Jobs = () => {
                         </li>
                         <li>
                           <a
-                            href="job_single_view.html"
+                            href="/single-job"
                             className="link-j1"
                             title="View Job"
                           >
@@ -332,7 +332,7 @@ const Jobs = () => {
                         </li>
                         <li>
                           <a
-                            href="job_single_view.html"
+                            href="/single-job"
                             className="link-j1"
                             title="View Job"
                           >
@@ -391,7 +391,7 @@ const Jobs = () => {
                         </li>
                         <li>
                           <a
-                            href="job_single_view.html"
+                            href="/single-job"
                             className="link-j1"
                             title="View Job"
                           >

@@ -109,6 +109,7 @@ video {
 
 a {
   text-decoration: none !important;
+  cursor: pointer !important;
 }
 /* HTML5 display-role reset for older browsers */
 article,

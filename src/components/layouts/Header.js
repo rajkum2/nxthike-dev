@@ -125,7 +125,7 @@ export default function Header() {
                     id="navbarSupportedContent"
                   >
                     <ul className="navbar-nav align-self-stretch">
-                      <li className="nav-item active">
+                      <li className="nav-item">
                         <a className="nav-link" href="/">
                           Home
                         </a>
@@ -146,13 +146,6 @@ export default function Header() {
                               className="link-item"
                             >
                               Browse Jobs
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              as={a}
-                              to="/single-job"
-                              className="link-item"
-                            >
-                              Single Job View
                             </Dropdown.Item>
                             <Dropdown.Item
                               as={a}
@@ -183,13 +176,6 @@ export default function Header() {
                             </Dropdown.Item>
                             <Dropdown.Item
                               as={a}
-                              to="/single-project"
-                              className="link-item"
-                            >
-                              Single Project View
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              as={a}
                               to="/submit-project"
                               className="link-item"
                             >
@@ -198,51 +184,15 @@ export default function Header() {
                           </Dropdown.Menu>
                         </Dropdown>
                       </li>
-                      <li className="nav-item dropdown">
-                        <Dropdown>
-                          <Dropdown.Toggle
-                            className="nav-link"
-                            variant=""
-                            size="md"
-                          >
-                            Find Companies
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu className="pages-dropdown">
-                            <Dropdown.Item
-                              as={a}
-                              to="/browse-companies"
-                              className="link-item"
-                            >
-                              Browse Companies
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Company Profile
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
+                      <li className="nav-item">
+                        <a className="nav-link" href="/browse-companies">
+                          Find Companies
+                        </a>
                       </li>
-                      <li className="nav-item dropdown">
-                        <Dropdown>
-                          <Dropdown.Toggle
-                            className="nav-link"
-                            variant=""
-                            size="md"
-                          >
-                            Find Freelancers
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu className="pages-dropdown">
-                            <Dropdown.Item
-                              as={a}
-                              to="/browse-freelancers"
-                              className="link-item"
-                            >
-                              Browse Freelancers
-                            </Dropdown.Item>
-                            <Dropdown.Item as={a} to="/" className="link-item">
-                              Freelancer Profile
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
+                      <li className="nav-item">
+                        <a className="nav-link" href="/browse-freelancers">
+                          Find Freelancers
+                        </a>
                       </li>
                       <li className="nav-item dropdown">
                         <Dropdown>
