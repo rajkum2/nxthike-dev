@@ -2,7 +2,7 @@ import { Component, Fragment, useContext } from "react";
 import { UserContext } from "../../context/LoginContext";
 import userdp from "../../assets/images/user-dp-1.jpg";
 import dp from "../../assets/images/dp.jpg";
-import logo from "../../assets/images/logo.svg";
+import logo from "../../assets/images/nxthike-img.svg";
 import { Dropdown } from "react-bootstrap";
 import { Link as a } from "react-router-dom";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
@@ -131,13 +131,16 @@ export default function Header() {
                         </a>
                       </li>
                       <li className="nav-item dropdown">
-                        <Dropdown>
+                      <a className="nav-link" href="/browse-jobs">
+                          Jobs
+                        </a>
+                        {/* <Dropdown>
                           <Dropdown.Toggle
                             className="nav-link"
                             variant=""
                             size="md"
                           >
-                            Find Jobs
+                            Jobs
                           </Dropdown.Toggle>
                           <Dropdown.Menu className="pages-dropdown">
                             <Dropdown.Item
@@ -155,9 +158,9 @@ export default function Header() {
                               Post a Job
                             </Dropdown.Item>
                           </Dropdown.Menu>
-                        </Dropdown>
+                        </Dropdown> */}
                       </li>
-                      <li className="nav-item dropdown">
+                      {/* <li className="nav-item dropdown">
                         <Dropdown>
                           <Dropdown.Toggle
                             className="nav-link"
@@ -183,10 +186,10 @@ export default function Header() {
                             </Dropdown.Item>
                           </Dropdown.Menu>
                         </Dropdown>
-                      </li>
+                      </li> */}
                       <li className="nav-item">
                         <a className="nav-link" href="/browse-companies">
-                          Find Companies
+                          Companies
                         </a>
                       </li>
                       <li className="nav-item">
@@ -201,7 +204,7 @@ export default function Header() {
                             variant=""
                             size="md"
                           >
-                            Pages
+                            More
                             <i className="fas fa-caret-down p-crt"></i>
                           </Dropdown.Toggle>
                           <Dropdown.Menu className="pages-dropdown">
@@ -219,7 +222,7 @@ export default function Header() {
                             >
                               Our Blog
                             </Dropdown.Item>
-                            <Dropdown.Item
+                            {/* <Dropdown.Item
                               as={a}
                               to="/pricing"
                               className="link-item"
@@ -239,7 +242,7 @@ export default function Header() {
                               className="link-item"
                             >
                               Invoice Slip
-                            </Dropdown.Item>
+                            </Dropdown.Item> */}
                             <Dropdown.Item
                               as={a}
                               to="/contact-us"
@@ -270,9 +273,9 @@ export default function Header() {
                     <a href="/submit-job" className="add-post">
                       Post a Job
                     </a>
-                    <a href="/submit-project" className="add-task">
+                    {/* <a href="/submit-project" className="add-task">
                       Post a Task
-                    </a>
+                    </a> */}
                   </div>
                   <div className="responsive-search order-1">
                     <input
