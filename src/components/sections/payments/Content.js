@@ -134,7 +134,7 @@ export default function Content() {
                                     </div>
                                   </div>
                                   <div class="protection">
-                                    <i class="fas fa-shield-alt"></i>With Jobby
+                                    <i class="fas fa-shield-alt"></i>With NxtHike
                                     payment protection, only pay for work
                                     delivered.
                                   </div>

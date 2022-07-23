@@ -8,7 +8,7 @@ export default function MyProfile() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Account</title>
+        <title>NxtHike - My Account</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

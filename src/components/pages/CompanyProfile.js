@@ -9,7 +9,7 @@ export default class CompanyProfile extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Company Profile</title>
+          <title>NxtHike - Company Profile</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

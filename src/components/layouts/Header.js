@@ -21,7 +21,7 @@ export default function Header() {
                   <div className="top-left-hd">
                     <ul>
                       <li>
-                        <div className="wlcm-text">Welcome to Jobby</div>
+                        <div className="wlcm-text">Welcome to NxtHike</div>
                       </li>
                       <li>
                         <Dropdown>

@@ -9,7 +9,7 @@ export default class Jobs extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Browse Jobs</title>
+          <title>NxtHike - Browse Jobs</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

@@ -172,14 +172,14 @@ export default function Content() {
                 <h4>01. Is there a fee to post a project?</h4>
                 <p>
                   There are pricing plans monthly and yearly for project on
-                  Jobby. It is a paid service that we offer bith for the
+                  NxtHike. It is a paid service that we offer bith for the
                   employer and the freelancer.
                 </p>
               </div>
               <div class="jp_faq_item">
                 <h4>02. How do I find freelancers for my project?</h4>
                 <p>
-                  Posting a project on Jobby will get your project in front of
+                  Posting a project on NxtHike will get your project in front of
                   the most qualified freelancers and agencies by bids. You will
                   then get bids for the project with the applicant’s details and
                   reasons why they are the best fit for the projects. You can

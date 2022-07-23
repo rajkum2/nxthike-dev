@@ -8,7 +8,7 @@ export default function EditProfile() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - About Us</title>
+        <title>NxtHike - About Us</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

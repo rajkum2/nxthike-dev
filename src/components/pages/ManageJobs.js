@@ -8,7 +8,7 @@ export default function ManageJobs() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Jobs</title>
+        <title>NxtHike - My Jobs</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

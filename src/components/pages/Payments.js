@@ -8,7 +8,7 @@ export default function Payments() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Payments</title>
+        <title>NxtHike - My Payments</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

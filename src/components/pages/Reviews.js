@@ -8,7 +8,7 @@ export default function Reviews() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Reviews</title>
+        <title>NxtHike - My Reviews</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

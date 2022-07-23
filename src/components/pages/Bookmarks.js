@@ -8,7 +8,7 @@ export default function Bookmarks() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Bookmarks</title>
+        <title>NxtHike - My Bookmarks</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

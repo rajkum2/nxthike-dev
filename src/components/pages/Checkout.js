@@ -9,7 +9,7 @@ export default class Contact extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Checkout</title>
+          <title>NxtHike - Checkout</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

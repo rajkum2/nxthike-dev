@@ -9,7 +9,7 @@ export default class Privacy extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Privacy Policy</title>
+          <title>NxtHike - Privacy Policy</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

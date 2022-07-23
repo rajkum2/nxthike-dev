@@ -33,7 +33,7 @@ export default function Content() {
                       <span>
                         <i class="fas fa-envelope"></i>Email Address :
                       </span>
-                      Support@jobby.com
+                      Support@NxtHike.com
                     </p>
                   </li>
                 </ul>

@@ -8,7 +8,7 @@ export default function Notifications() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Notifications</title>
+        <title>NxtHike - My Notifications</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

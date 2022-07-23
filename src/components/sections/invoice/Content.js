@@ -74,7 +74,7 @@ export default function Content() {
                         <h4>Supplier</h4>
                         <ul>
                           <li>
-                            <div class="vdt-list">Jobby LTD</div>
+                            <div class="vdt-list">NxtHike LTD</div>
                           </li>
                           <li>
                             <div class="vdt-list">

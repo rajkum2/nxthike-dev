@@ -8,7 +8,7 @@ export default function Portfolio() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Portfolio</title>
+        <title>NxtHike - My Portfolio</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

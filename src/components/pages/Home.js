@@ -8,7 +8,7 @@ export default class Home extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Home</title>
+          <title>NxtHike - Home</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

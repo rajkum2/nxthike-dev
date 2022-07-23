@@ -237,7 +237,7 @@ export default function Content() {
               <div class="jp_faq_item">
                 <h4>01. Is there a fee to post a job?</h4>
                 <p>
-                  There are pricing plans monthly and yearly for jobs on Jobby.
+                  There are pricing plans monthly and yearly for jobs on NxtHike.
                   It is a paid service that we offer bith for the employer and
                   the freelancer.
                 </p>
@@ -245,7 +245,7 @@ export default function Content() {
               <div class="jp_faq_item">
                 <h4>02. How do I find freelancers for my job?</h4>
                 <p>
-                  Posting a job on Jobby will get your job in front of the most
+                  Posting a job on NxtHike will get your job in front of the most
                   qualified freelancers and agencies. You will then get
                   applications for the job with the applicant’s details and
                   reasons why they are the best fit for the job. You can also

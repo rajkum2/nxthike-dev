@@ -8,7 +8,7 @@ export default function Dashboard() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Dashboard</title>
+        <title>NxtHike - My Dashboard</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

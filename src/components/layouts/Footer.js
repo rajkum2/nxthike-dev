@@ -41,7 +41,7 @@ const Footer = () => {
       <div className="container">
         <div className="row">
           <div className="col-lg-3 col-md-3">
-            <div className="about-jobby">
+            <div className="about-NxtHike">
               <a href="/">
                 <img src={logo} alt="" />
               </a>
@@ -125,7 +125,7 @@ const Footer = () => {
             <div className="col-lg-6 col-md-6">
               <div className="copyright">
                 <i className="far fa-copyright"></i>Copyright 2019{" "}
-                <span>Jobby</span> by <a href="#">Gambolthemes</a>. All Right
+                <span>NxtHike</span> by <a href="#">Gambolthemes</a>. All Right
                 Reserved.
               </div>
             </div>

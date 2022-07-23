@@ -200,7 +200,7 @@ const SingleView = () => {
             </div>
             <div className="modal-body">
               <div className="jb_frm">
-                <h3>Attach CV or Apply by Jobby Profile</h3>
+                <h3>Attach CV or Apply by NxtHike Profile</h3>
                 <div className="form_inputs">
                   <div className="form-group">
                     <input
@@ -223,7 +223,7 @@ const SingleView = () => {
                   </div>
                   <div className="ui checkbox apply_check">
                     <input type="checkbox" />
-                    <label>Apply by Jobby Profile.</label>
+                    <label>Apply by NxtHike Profile.</label>
                   </div>
                   <div className="apply_btn150">
                     <button className="apply_job50" type="button">
@@ -271,7 +271,7 @@ const SingleView = () => {
                 </div>
                 <div className="modal-body">
                   <div className="jb_frm">
-                    <h3>Attach File With CV C Apply by Jobby Profile</h3>
+                    <h3>Attach File With CV C Apply by NxtHike Profile</h3>
                     <div className="form_inputs">
                       <div className="form-group">
                         <input
@@ -295,7 +295,7 @@ const SingleView = () => {
                       <div className="ui checkbox apply_check">
                         <input type="checkbox" />
                         <label style={{ color: "#242424" }}>
-                          Apply by Jobby Profile.
+                          Apply by NxtHike Profile.
                         </label>
                       </div>
                       <div className="apply_btn150">

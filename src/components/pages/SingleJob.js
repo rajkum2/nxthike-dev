@@ -9,7 +9,7 @@ export default class SingleJob extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Job Single View</title>
+          <title>NxtHike - Job Single View</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

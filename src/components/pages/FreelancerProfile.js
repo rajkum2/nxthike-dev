@@ -9,7 +9,7 @@ export default class FreelancerProfile extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Freelancer Profile</title>
+          <title>NxtHike - Freelancer Profile</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

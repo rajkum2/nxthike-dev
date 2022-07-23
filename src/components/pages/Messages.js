@@ -8,7 +8,7 @@ export default function Messages() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Messages</title>
+        <title>NxtHike - My Messages</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />

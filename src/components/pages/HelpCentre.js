@@ -9,7 +9,7 @@ export default class HelpCentre extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Help Centre</title>
+          <title>NxtHike - Help Centre</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

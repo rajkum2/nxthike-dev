@@ -9,7 +9,7 @@ export default class Terms extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Terms of Use</title>
+          <title>NxtHike - Terms of Use</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

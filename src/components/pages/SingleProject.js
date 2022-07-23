@@ -9,7 +9,7 @@ export default class SingleProject extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>Jobby - Project Single View</title>
+          <title>NxtHike - Project Single View</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />

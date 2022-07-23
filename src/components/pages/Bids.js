@@ -8,7 +8,7 @@ export default function Bids() {
   return (
     <Fragment>
       <MetaTags>
-        <title>Jobby - My Bids</title>
+        <title>NxtHike - My Bids</title>
         <meta name="description" content="#" />
       </MetaTags>
       <Header />
