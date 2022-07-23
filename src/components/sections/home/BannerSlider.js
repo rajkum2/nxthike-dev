@@ -10,6 +10,7 @@ const BannerSlider = () => {
     autoplay: true,
     autoplaySpeed: 3000,
     cssEase: "linear",
+    arrows: false,
   };
   return (
     <div className="banner-slider">

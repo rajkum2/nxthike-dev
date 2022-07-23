@@ -25,6 +25,7 @@ export default function Content() {
         postData
       )
       .then((response) => {
+        console.log(response.data);
         setItems(response.data);
       })
       .catch((err) => console.log("error", err));
