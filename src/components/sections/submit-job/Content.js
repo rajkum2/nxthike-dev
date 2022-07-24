@@ -54,8 +54,7 @@ export default function Content() {
   });
 
   const removeImg = (i) => {
-    files.splice(i, 1);
-    //console.log(files)
+    setFiles((files) => files.filter((_, idx) => i !== idx));
   };
 
   useEffect(
@@ -65,23 +64,6 @@ export default function Content() {
     },
     [files]
   );
-
-  let thumbs = files.map((file, i) => (
-    <>
-      <div className="thumb" key={file.name}>
-        <div className="thumbInner">
-          <img src={file.preview} alt="img" />
-        </div>
-      </div>
-      <button
-        className="btn btn-outline-danger"
-        onClick={() => removeImg(i)}
-        type="button"
-      >
-        <i class="fas fa-trash" />
-      </button>
-    </>
-  ));
 
   const handleSkills = (e) => {
     setSkillsArray(Array.isArray(e) ? e.map((x) => x.value) : []);
@@ -395,7 +377,26 @@ export default function Content() {
                           {/* <span className="dropzone-msg-desc">This is just a demo dropzone. Selected files are <strong>not</strong> actually uploaded.</span> */}
                         </div>
                       </div>
-                      <aside className="thumbsContainer">{thumbs}</aside>
+                      <aside className="thumbsContainer">
+                        {files.map((file, i) => {
+                          return (
+                            <>
+                              <div className="thumb" key={file.name}>
+                                <div className="thumbInner">
+                                  <img src={file.preview} alt="img" />
+                                </div>
+                              </div>
+                              <button
+                                className="btn btn-outline-danger"
+                                onClick={() => removeImg(i)}
+                                type="button"
+                              >
+                                <i class="fas fa-trash" />
+                              </button>
+                            </>
+                          );
+                        })}
+                      </aside>
                     </div>
                   </div>
                   <div className="col-lg-12">
