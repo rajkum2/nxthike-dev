@@ -92,7 +92,7 @@ const Content = () => {
           </div>
         </div>
       </div>
-      <div className="our_team">
+      {/* <div className="our_team">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
@@ -249,7 +249,7 @@ const Content = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 };

@@ -18,8 +18,8 @@ const Categories = () => {
         <div className="row">
           <div className="col-md-12 col-12">
             <div className="main-heading">
-              <h2>Choose Category</h2>
-              <span>Find quality talent or agencies</span>
+              <h2>Jobs Category</h2>
+              <span>Find quality talent for your specific needs.</span>
               <div className="line-shape1">
                 <img src={line} alt="" />
               </div>
@@ -64,7 +64,7 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
                       <img src={icon11} alt="" />
@@ -72,7 +72,7 @@ const Categories = () => {
                       <p>350 Jobs</p>
                     </a>
                   </div>
-                </div>
+                </div> */}
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
@@ -82,7 +82,7 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
                       <img src={icon14} alt="" />
@@ -90,7 +90,7 @@ const Categories = () => {
                       <p>250 Jobs</p>
                     </a>
                   </div>
-                </div>
+                </div> */}
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
@@ -118,7 +118,7 @@ const Categories = () => {
                     </a>
                   </div>
                 </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
                       <img src={icon17} alt="" />
@@ -126,8 +126,8 @@ const Categories = () => {
                       <p>410 Jobs</p>
                     </a>
                   </div>
-                </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                </div> */}
+                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
                       <img src={icon7} alt="" />
@@ -135,7 +135,7 @@ const Categories = () => {
                       <p>190 Jobs</p>
                     </a>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

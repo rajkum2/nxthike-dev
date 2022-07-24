@@ -36,7 +36,7 @@ const Content = () => {
         <Offer />
         <Jobs />
         <Categories />
-        <Featured />
+        {/* <Featured /> */}
         <Info />
       </main>
       <button

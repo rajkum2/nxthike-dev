@@ -4,15 +4,18 @@ const Achievement = () => {
       <div className="container">
         <div className="row">
           <div className="col-lg-3 col-md-6 col-12">
-            <div className="achive-text">3M Registered Members</div>
+            <div className="achive-text">100+ Members</div>
           </div>
           <div className="col-lg-3 col-md-6 col-12">
-            <div className="achive-text">786k Jobs Found</div>
+            <div className="achive-text">1500+ Jobs Found</div>
           </div>
-          <div className="col-lg-2 col-md-6 col-12">
-            <div className="achive-text">1.2K Best Companies</div>
+          <div className="col-lg-3 col-md-6 col-12">
+            <div className="achive-text">25+ Best Companies</div>
           </div>
-          <div className="col-lg-4 col-md-6 col-12">
+          <div className="col-lg-3 col-md-6 col-12">
+            <div className="achive-text">10+ Cities</div>
+          </div>
+          {/* <div className="col-lg-4 col-md-6 col-12">
             <ul className="post-buttons">
               <li>
                 <button className="add-job">Post a Job</button>
@@ -21,7 +24,7 @@ const Achievement = () => {
                 <button className="add-project">Post a Work</button>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

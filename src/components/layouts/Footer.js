@@ -125,7 +125,7 @@ const Footer = () => {
             <div className="col-lg-6 col-md-6">
               <div className="copyright">
                 <i className="far fa-copyright"></i>Copyright 2019{" "}
-                <span>NxtHike</span> by <a href="#">Gambolthemes</a>. All Right
+                <span>NxtHike</span> by <a href="#">NxtHike WorkSolutions</a>. All Right
                 Reserved.
               </div>
             </div>

@@ -8,7 +8,7 @@ export default class Home extends Component {
     return (
       <Fragment>
         <MetaTags>
-          <title>NxtHike - Home</title>
+          <title>NxtHike - Work Solutions</title>
           <meta name="description" content="#" />
         </MetaTags>
         <Header />
