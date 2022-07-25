@@ -7568,3 +7568,14 @@ span.right-cm {
   width: auto;
   height: 100%;
 }
+
+
+/* Form css */
+label {
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
