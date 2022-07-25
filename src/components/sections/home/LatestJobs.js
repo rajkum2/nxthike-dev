@@ -99,11 +99,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a
-                            href="/single-job"
-                            className="link-j1"
-                            title="View Job"
-                          >
+                          <a href="#" className="link-j1" title="View Job">
                             View Job
                           </a>
                         </li>
@@ -158,11 +154,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a
-                            href="/single-job"
-                            className="link-j1"
-                            title="View Job"
-                          >
+                          <a href="#" className="link-j1" title="View Job">
                             View Job
                           </a>
                         </li>
@@ -217,11 +209,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a
-                            href="/single-job"
-                            className="link-j1"
-                            title="View Job"
-                          >
+                          <a href="#" className="link-j1" title="View Job">
                             View Job
                           </a>
                         </li>
@@ -275,11 +263,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a
-                            href="/single-job"
-                            className="link-j1"
-                            title="View Job"
-                          >
+                          <a href="#" className="link-j1" title="View Job">
                             View Job
                           </a>
                         </li>
@@ -331,11 +315,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a
-                            href="/single-job"
-                            className="link-j1"
-                            title="View Job"
-                          >
+                          <a href="#" className="link-j1" title="View Job">
                             View Job
                           </a>
                         </li>
@@ -390,11 +370,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a
-                            href="/single-job"
-                            className="link-j1"
-                            title="View Job"
-                          >
+                          <a href="#" className="link-j1" title="View Job">
                             View Job
                           </a>
                         </li>
