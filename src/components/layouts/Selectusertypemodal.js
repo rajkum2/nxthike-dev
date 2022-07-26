@@ -19,6 +19,7 @@ const Selectusertypemodal = () => {
           overlay: "customOverlay",
         }}
         onOverlayClick={false}
+        closeOnOverlayClick={false}
         closeIcon={closeIcon}
       >
         <div className="phoneformdiv">
@@ -38,6 +39,7 @@ const Selectusertypemodal = () => {
                     }`}
                     src={profile}
                     alt="Job Seeker"
+
                   />
                   <p>Job Seeker</p>
                 </div>
@@ -76,6 +78,8 @@ const Selectusertypemodal = () => {
                 <button
                   onClick={() => setOpenUserTypeModal(false)}
                   className="btn modalbtn"
+
+                  type="button"
                 >
                   <span style={{ color: "aliceblue", fontWeight: "800" }}>
                     Next

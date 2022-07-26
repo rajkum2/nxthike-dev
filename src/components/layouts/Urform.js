@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "../../context/LoginContext";
 import "./css/modalstyle.css";
 import "react-responsive-modal/styles.css";
+import Modal from "react-responsive-modal";
 
 const Form = (props) => {
   const {
@@ -15,6 +16,7 @@ const Form = (props) => {
     errormsg,
     setErrormsg,
     userType,
+    setContact,
   } = useContext(UserContext);
 
   const [user_name, setUser_name] = useState(
@@ -40,6 +42,7 @@ const Form = (props) => {
         user_type_id: userType,
       };
       updateLoginUserData(formData);
+      setContact(true);
     } else {
       alert("Please Login first.");
     }

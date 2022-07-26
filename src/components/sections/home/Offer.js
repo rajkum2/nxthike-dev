@@ -6,8 +6,8 @@ const Offer = () => {
         <div className="row">
           <div className="col-md-12 col-12">
             <div className="main-heading">
-              <h2>What We Offers</h2>
-              <span>Offering the Best Deal</span>
+              <h2>What We Offer?</h2>
+              <span>NxtHike provides multiple Services in One Platform</span>
               <div className="line-shape1">
                 <img src={line} alt="" />
               </div>
@@ -16,10 +16,9 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Searching the Best Jobs</h4>
+                <h4>Hire Full-time Employees</h4>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Curabitur dictum commodo mi.
+                  We provide candidates based on your specific needs and experience at very affordable price in the market.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>
@@ -30,10 +29,9 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Apply for a Good Job</h4>
+                <h4>Job Searching Assistance</h4>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Curabitur dictum commodo mi.
+                  We provide job search, resume preparation & support services for candidates who are looking for jobs.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>
@@ -44,10 +42,9 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>More Quality Hires</h4>
+                <h4>Hire Freelancers</h4>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Curabitur dictum commodo mi.
+                  Hire expert, pre-screened and verified freelancer on hourly based for your specific technology requirements.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>
@@ -58,10 +55,9 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Choose Working Hours</h4>
+                <h4>Hire a Team</h4>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Curabitur dictum commodo mi.
+                  We provide employees as a team which may include a Developer, Content Writer, Designer & Digital Marketer.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>

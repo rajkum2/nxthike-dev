@@ -8,9 +8,11 @@ import { Dropdown } from "react-bootstrap";
 import { Link as a } from "react-router-dom";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import Modalbox from "../layouts/Modal";
+import ContactModal from "./ContactModal";
 
 export default function Header() {
-  const { firstLogin, isLoggedIn, logoutAction, userType } =
+
+  const { firstLogin, isLoggedIn, logoutAction, successMsg, contact } =
     useContext(UserContext);
   return (
     <Fragment>
@@ -73,6 +75,7 @@ export default function Header() {
                           </Dropdown.Toggle>
                           <Dropdown.Menu style={{ padding: 0 }}>
                             <DropdownItem
+
                               as={a}
                               to="/myprofile"
                               className="link-item"
@@ -86,6 +89,7 @@ export default function Header() {
                               />
                               My Profile
                             </DropdownItem>
+
                             <DropdownItem
                               as={a}
                               to="/"
@@ -104,6 +108,8 @@ export default function Header() {
                           </Dropdown.Menu>
                         </Dropdown>
                         {firstLogin && <Selectusertypemodal />}
+
+                        {contact && <ContactModal first={true} />}
                       </>
                     ) : (
                       <Modalbox />
@@ -142,7 +148,7 @@ export default function Header() {
                         </a>
                       </li>
                       <li className="nav-item dropdown">
-                        <a className="nav-link" href="/browse-jobs">
+                        <a className="nav-link" href="/">
                           Jobs
                         </a>
                         {/* <Dropdown>
@@ -199,12 +205,14 @@ export default function Header() {
                         </Dropdown>
                       </li> */}
                       <li className="nav-item">
-                        <a className="nav-link" href="/browse-companies">
-                          Companies
+                        <a className="nav-link" href="/">
+
+                          Browse Companies
                         </a>
                       </li>
                       <li className="nav-item">
-                        <a className="nav-link" href="/browse-freelancers">
+
+                        <a className="nav-link" href="/">
                           Find Freelancers
                         </a>
                       </li>
@@ -288,6 +296,7 @@ export default function Header() {
                           Post a Job
                         </a>
                       )}
+
                     {/* <a href="/submit-project" className="add-task">
                       Post a Task
                     </a> */}

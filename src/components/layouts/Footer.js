@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import logo from "../../assets/images/logo1.svg";
+import logo from "../../assets/images/nxthike-img.svg";
 import { UserContext } from "../../context/LoginContext";
 import Modalbox from "./Modal";
 
@@ -62,7 +62,7 @@ const Footer = () => {
                 </li>
                 {isLoggedIn ? (
                   <li>
-                    <a href="/my-profile">My Account</a>
+                    <a href="#">My Account</a>
                   </li>
                 ) : (
                   <Modalbox parent="footer" />
@@ -83,17 +83,20 @@ const Footer = () => {
             <div className="footer-links">
               <h4>For Companies</h4>
               <ul>
-                <li>
-                  <a href="/browse-freelancers">Browse Freelancers</a>
+              <li>
+                  <a href="#">Browse Employees</a>
                 </li>
                 <li>
-                  <a href="/submit-job">Post a Job</a>
+                  <a href="#">Browse Freelancers</a>
                 </li>
                 <li>
-                  <a href="/submit-project">Post a Project</a>
+                  <a href="#">Post a Job</a>
                 </li>
                 <li>
-                  <a href="/pricing">Pricing Plans</a>
+                  <a href="#">Post a Project</a>
+                </li>
+                <li>
+                  <a href="#">Pricing Plans</a>
                 </li>
               </ul>
             </div>
@@ -103,16 +106,19 @@ const Footer = () => {
               <h4>For Candidates</h4>
               <ul>
                 <li>
-                  <a href="/browse-jobs">Browse Jobs</a>
+                  <a href="#">Browse Jobs</a>
                 </li>
                 <li>
-                  <a href="/manage-jobs">Jobs Alerts</a>
+                  <a href="#">Jobs Alerts</a>
                 </li>
                 <li>
-                  <a href="/manage-jobs">Applied Jobs</a>
+                  <a href="#">Applied Jobs</a>
                 </li>
                 <li>
-                  <a href="/bookmarks">Bookmarks</a>
+                  <a href="#">Bookmarks</a>
+                </li>
+                <li>
+                  <a href="#">Sitemap</a>
                 </li>
               </ul>
             </div>
@@ -125,33 +131,34 @@ const Footer = () => {
             <div className="col-lg-6 col-md-6">
               <div className="copyright">
                 <i className="far fa-copyright"></i>Copyright 2019{" "}
-                <span>NxtHike</span> by <a href="#">NxtHike WorkSolutions</a>. All Right
-                Reserved.
+                <span>NxtHike</span> by <a href="#">NxtHike WorkSolutions</a>.
+                All Right Reserved.
               </div>
             </div>
             <div className="col-lg-6 col-md-6">
               <div className="social-icons">
                 <ul>
                   <li>
-                    <a href="#">
+                    <a href="https://www.facebook.com/NxtHike-103926969066504">
                       <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
-                    <a href="#">
-                      <i className="fab fa-twitter"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="fab fa-google-plus-g"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
+                    <a href="https://www.linkedin.com/company/nxthike-work-solutions/">
                       <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
+                  <li>
+                    <a href="https://twitter.com/NxtHike">
+                      <i className="fab fa-twitter"></i>
+                    </a>
+                  </li>
+                  {/* <li>
+                    <a href="#">
+                      <i className="fab fa-google-plus-g"></i>
+                    </a>
+                  </li> */}
+                  
                 </ul>
               </div>
             </div>
