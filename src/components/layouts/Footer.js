@@ -83,6 +83,9 @@ const Footer = () => {
             <div className="footer-links">
               <h4>For Companies</h4>
               <ul>
+              <li>
+                  <a href="#">Browse Employees</a>
+                </li>
                 <li>
                   <a href="#">Browse Freelancers</a>
                 </li>
@@ -114,6 +117,9 @@ const Footer = () => {
                 <li>
                   <a href="#">Bookmarks</a>
                 </li>
+                <li>
+                  <a href="#">Sitemap</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -133,25 +139,26 @@ const Footer = () => {
               <div className="social-icons">
                 <ul>
                   <li>
-                    <a href="#">
+                    <a href="https://www.facebook.com/NxtHike-103926969066504">
                       <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
-                    <a href="#">
-                      <i className="fab fa-twitter"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="fab fa-google-plus-g"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
+                    <a href="https://www.linkedin.com/company/nxthike-work-solutions/">
                       <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
+                  <li>
+                    <a href="https://twitter.com/NxtHike">
+                      <i className="fab fa-twitter"></i>
+                    </a>
+                  </li>
+                  {/* <li>
+                    <a href="#">
+                      <i className="fab fa-google-plus-g"></i>
+                    </a>
+                  </li> */}
+                  
                 </ul>
               </div>
             </div>

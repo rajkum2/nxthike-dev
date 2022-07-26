@@ -274,9 +274,9 @@ export default function Header() {
                         </Dropdown>
                       </li>
                     </ul>
-                    <a href="/" className="add-post">
+                    {/* <a href="/" className="add-post">
                       Post a Job
-                    </a>
+                    </a> */}
                     {/* <a href="/submit-project" className="add-task">
                       Post a Task
                     </a> */}

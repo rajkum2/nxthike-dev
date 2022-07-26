@@ -5,37 +5,32 @@ const Info = () => {
         <div className="row">
           <div className="col-md-6 col-12">
             <div className="main-heading text-left">
-              <h2>Post Jobs</h2>
-              <span>Quick and easy way to advertise.</span>
+              <h2>For Employers</h2>
+              <span>We will provide Quick and Easy way to Hire Candidates.</span>
               <div className="line-shape1">
                 <img src="images/line.svg" alt="" />
               </div>
             </div>
             <div className="text152">
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                eu purus et diam blandit vehicula sit amet sed metus. Fusce
-                condimentum non neque at fringilla.
+                We believe in providing the best suitable candidates as per the client needs. We will use all the resources online & offline in hunting and scouting the best candidates.
               </p>
             </div>
             <div className="text-steps">
               <div className="text-step1">
                 <div className="btext-heading">
-                  <i className="far fa-check-circle"></i>Hire for your company.
+                  <i className="far fa-check-circle"></i>Pre-Screening Candidates
                 </div>
                 <p>
-                  Aenean malesuada aliquet tincidunt. Nam a nisl mi. Fusce
-                  ornare fermentum enim, id interdum velit posuere quis.
+                 We validate, verify and pre-screens all the candidates before sending it to the client. This will considerably reduce the time and effort for the clients.
                 </p>
               </div>
               <div className="text-step1">
                 <div className="btext-heading">
-                  <i className="far fa-check-circle"></i>Daily out reach to
-                  qualified matches.
+                  <i className="far fa-check-circle"></i>Easy replacement of Candidates
                 </div>
                 <p>
-                  Aenean malesuada aliquet tincidunt. Nam a nisl mi. Fusce
-                  ornare fermentum enim, id interdum velit posuere quis.
+                  We replace the candidates within 45-90days of placemenent. We adhere to this policy as per the client requirements, incase if the candidate is not performing well or leaves the job.
                 </p>
               </div>
               <div className="btns15">
@@ -46,37 +41,32 @@ const Info = () => {
           </div>
           <div className="col-md-6 col-12">
             <div className="main-heading text-left mt-80">
-              <h2>Talented Candidates</h2>
-              <span>Get discoverd by companies looking to hire remote.</span>
+              <h2>For Job Seekers</h2>
+              <span>Find Fulltime & Part time Jobs.</span>
               <div className="line-shape1">
                 <img src="images/line.svg" alt="" />
               </div>
             </div>
             <div className="text152">
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                eu purus et diam blandit vehicula sit amet sed metus. Fusce
-                condimentum non neque at fringilla.
+                We have partners in various cities in Inida, US & Dubai. We will help candidates to get placed within 30 days of their resume submission.
               </p>
             </div>
             <div className="text-steps">
               <div className="text-step1">
                 <div className="btext-heading">
-                  <i className="far fa-check-circle"></i>Get your profile
-                  listed.
+                  <i className="far fa-check-circle"></i> Search Jobs
                 </div>
                 <p>
-                  Aenean malesuada aliquet tincidunt. Nam a nisl mi. Fusce
-                  ornare fermentum enim, id interdum velit posuere quis.
+                 We have more than 2,000 jobs already in our platform from various companies throughout India. We update the jobs daily in several categories.
                 </p>
               </div>
               <div className="text-step1">
                 <div className="btext-heading">
-                  <i className="far fa-check-circle"></i>Customize your profile.
+                  <i className="far fa-check-circle"></i>Job Support Services
                 </div>
                 <p>
-                  Aenean malesuada aliquet tincidunt. Nam a nisl mi. Fusce
-                  ornare fermentum enim, id interdum velit posuere quis.
+                 We provide services specifically for job seekers which include - Job applying support, Resume Improvisation, Applying jobs in other countries, Dedicated agent etc.
                 </p>
               </div>
               <div className="btns15">
