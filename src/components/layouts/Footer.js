@@ -18,9 +18,8 @@ const Footer = () => {
                     className="btext-heading mt-2"
                     style={{ color: "#acacac", fontSize: "14px" }}
                   >
-                    <i className="fas fa-check-circle"></i>Cras nunc mauris,
-                    rhoncus eu justo at, egestas sagittis felis. Ut sed feugiat
-                    eros.
+                    <i className="fas fa-check-circle"></i>For latest updates, news & articles please subscribe.
+                  
                   </div>
                 </div>
               </div>
@@ -46,10 +45,7 @@ const Footer = () => {
                 <img src={logo} alt="" />
               </a>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                eu purus et diam blandit vehicula sit amet sed metus. Fusce
-                condimentum non neque at fringilla. Aenean malesuada aliquet
-                tincidunt.
+                NxtHike vision is to provide a complete set of Employmentt and Recruitment Services to help Job Seekers, Freelancers & Freshers to connect with Employers and have next step in terms of Hike in their Careers.
               </p>
             </div>
           </div>
