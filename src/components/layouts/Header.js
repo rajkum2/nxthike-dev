@@ -12,7 +12,7 @@ import ContactModal from "./ContactModal";
 
 export default function Header() {
 
-  const { firstLogin, isLoggedIn, logoutAction, successMsg, contact } =
+  const { firstLogin, isLoggedIn, logoutAction, userType,successMsg, contact } =
     useContext(UserContext);
   return (
     <Fragment>
@@ -74,8 +74,8 @@ export default function Header() {
                             />
                           </Dropdown.Toggle>
                           <Dropdown.Menu style={{ padding: 0 }}>
-                            <DropdownItem
 
+                            {/* <DropdownItem
                               as={a}
                               to="/myprofile"
                               className="link-item"
@@ -88,8 +88,7 @@ export default function Header() {
                                 }}
                               />
                               My Profile
-                            </DropdownItem>
-
+                            </DropdownItem> */}
                             <DropdownItem
                               as={a}
                               to="/"
@@ -149,6 +148,7 @@ export default function Header() {
                       </li>
                       <li className="nav-item dropdown">
                         <a className="nav-link" href="/">
+
                           Jobs
                         </a>
                         {/* <Dropdown>
