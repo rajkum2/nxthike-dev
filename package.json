@@ -55,5 +55,25 @@
     ">0.2%",
     "not dead",
     "not op_mini all"
-  ]
+  ],
+  "reactSnap": {
+    "include": [
+      "/",
+      "/browse-jobs",
+      "/browse-companies",
+      "/browse-freelancers",
+      "/about",
+      "/single-job",
+      "/myprofile",
+      "/edit-profile",
+      "/contact-us",
+      "/help",
+      "/our-blog",
+      "/submit-job",
+      "/privacy",
+      "/terms",
+      "/company-profile",
+      "/freelancer-profile"
+    ]
+  }
 }
