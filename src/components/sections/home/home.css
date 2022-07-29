@@ -1,0 +1,140 @@
+/* Testimonial */
+
+.acr-testimonial {
+    margin-bottom: 30px;
+}
+
+.acr-testimonial-body {
+    position: relative;
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 20px;
+}
+
+.acr-testimonial-body::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #f7f9fc;
+}
+
+.acr-testimonial-body h5 {
+    margin-bottom: 5px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.acr-testimonial-body p {
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 28px;
+    color: #515151;
+}
+
+.acr-rating-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.acr-rating {
+    margin-bottom: 5px;
+}
+
+.acr-testimonial-author {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.acr-testimonial-author img {
+    width: 80px;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+.acr-testimonial-author-inner {
+    flex: 1 1;
+}
+
+.acr-testimonial-author-inner h6 {
+    margin-bottom: 0;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.acr-testimonial-author-inner span {
+    line-height: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #848486;
+}
+
+.acr-rating i {
+    margin-right: 5px;
+    font-size: 12px;
+    color: #848486;
+}
+
+.acr-rating i.active {
+    color: #ffa80a;
+}
+
+/* Job Seeker */
+.job-seeker-container {
+    padding-top: 76px;
+}
+
+.acr-jobSeeker {
+    padding: 20px;
+    box-shadow: 0 2px 9px 0px rgb(34 12 43 / 10%);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    text-align: center;
+    border-top: 2px solid #ff4500;
+}
+
+.acr-jobSeeker-body h6 {
+    color: #000;
+    margin-bottom: 20px;
+}
+
+.acr-jobSeeker-body h5 {
+    color: #ff4500;
+}
+
+.acr-jobSeeker-body h5 span {
+    font-size: 13px;
+    color: #515151;
+}
+
+.acr-jobSeeker-body p {
+    margin: 15px 0;
+    text-align: left;
+    font-size: 14px;
+    line-height: 28px;
+    color: #515151;
+}
+
+.acr-jobSeeker-details {
+    font-size: 15px;
+    color: #ff4500;
+    margin: 15px 0;
+}
+
+.acr-jobSeeker-purchase {
+    color: #ff4500;
+    border: 2px solid #ff4500;
+    padding: 7px;
+    border-radius: 3px;
+    font-size: 15px;
+}
+
+.acr-jobSeeker-purchase-saveOffer {
+    margin-top: 20px;
+    font-size: 14px;
+}
