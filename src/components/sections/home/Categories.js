@@ -18,7 +18,7 @@ const Categories = () => {
         <div className="row">
           <div className="col-md-12 col-12">
             <div className="main-heading">
-              <h2>Jobs Category</h2>
+              <h2>Jobs Categories</h2>
               <span>Find quality talent for your specific needs.</span>
               <div className="line-shape1">
                 <img src={line} alt="" />

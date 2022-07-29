@@ -4,14 +4,15 @@ import Breadcrumb from "../layouts/Breadcrumb";
 import Footer from "../layouts/Footer";
 import Header from "../layouts/Header";
 import Content from "../sections/blog/Content";
-export default class Contact extends Component {
+import { Helmet } from "react-helmet";
+export default class Blog extends Component {
   render() {
     return (
       <Fragment>
-        <MetaTags>
+        <Helmet>
           <title>NxtHike - Our Blog</title>
           <meta name="description" content="#" />
-        </MetaTags>
+        </Helmet>
         <Header />
         <Breadcrumb pagename="Our Blog" />
         <Content />

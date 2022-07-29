@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from "react";
-import { MetaTags } from "react-meta-tags";
 import Breadcrumb from "../layouts/Breadcrumb";
 import Footer from "../layouts/Footer";
 import Header from "../layouts/Header";
 import SingleView from "../sections/jobs/Single-view";
+import { Helmet } from "react-helmet";
 export default class SingleJob extends Component {
   render() {
     return (
       <Fragment>
-        <MetaTags>
+        <Helmet>
           <title>NxtHike - Job Single View</title>
           <meta name="description" content="#" />
-        </MetaTags>
+        </Helmet>
         <Header />
         <Breadcrumb pagename="Job Single View" />
         <SingleView />

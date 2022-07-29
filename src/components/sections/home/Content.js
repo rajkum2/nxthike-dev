@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { UserContext } from "../../../context/LoginContext";
+import ContactModal from "../../layouts/ContactModal";
 import Achievement from "./Achievements";
 import BannerSlider from "./BannerSlider";
 import Categories from "./Categories";
@@ -13,6 +15,7 @@ import "./home.css";
 
 const Content = () => {
     const [visible, setVisible] = useState(false);
+    const { isLoggedIn, firstLogin } = useContext(UserContext);
 
     const toggleVisible = () => {
         const scrolled = document.documentElement.scrollTop;
@@ -52,6 +55,7 @@ const Content = () => {
             >
                 <i className="fas fa-arrow-up"></i>
             </button>
+            {isLoggedIn && !firstLogin && <ContactModal first={false} />}
         </>
     );
 };

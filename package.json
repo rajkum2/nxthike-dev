@@ -23,6 +23,7 @@
     "react-bootstrap": "^2.4.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.2",
+    "react-helmet": "^6.1.0",
     "react-meta-tags": "^1.0.1",
     "react-phone-input-2": "^2.15.1",
     "react-redux": "^8.0.2",
@@ -31,6 +32,7 @@
     "react-scripts": "5.0.1",
     "react-select": "^5.4.0",
     "react-slick": "^0.29.0",
+    "react-snap": "^1.23.0",
     "slick-carousel": "^1.8.1",
     "styled-components": "^5.3.5",
     "util": "^0.12.4",
@@ -40,7 +42,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postbuild": "react-snap"
   },
   "eslintConfig": {
     "extends": [
@@ -52,5 +55,25 @@
     ">0.2%",
     "not dead",
     "not op_mini all"
-  ]
+  ],
+  "reactSnap": {
+    "include": [
+      "/",
+      "/browse-jobs",
+      "/browse-companies",
+      "/browse-freelancers",
+      "/about",
+      "/single-job",
+      "/myprofile",
+      "/edit-profile",
+      "/contact-us",
+      "/help",
+      "/our-blog",
+      "/submit-job",
+      "/privacy",
+      "/terms",
+      "/company-profile",
+      "/freelancer-profile"
+    ]
+  }
 }

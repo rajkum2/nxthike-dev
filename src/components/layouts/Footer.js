@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import logo from "../../assets/images/logo1.svg";
+import logo from "../../assets/images/nxthike-img.svg";
 import { UserContext } from "../../context/LoginContext";
 import Modalbox from "./Modal";
 
@@ -18,9 +18,8 @@ const Footer = () => {
                     className="btext-heading mt-2"
                     style={{ color: "#acacac", fontSize: "14px" }}
                   >
-                    <i className="fas fa-check-circle"></i>Cras nunc mauris,
-                    rhoncus eu justo at, egestas sagittis felis. Ut sed feugiat
-                    eros.
+                    <i className="fas fa-check-circle"></i>For latest updates,
+                    news & articles please subscribe.
                   </div>
                 </div>
               </div>
@@ -46,10 +45,10 @@ const Footer = () => {
                 <img src={logo} alt="" />
               </a>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                eu purus et diam blandit vehicula sit amet sed metus. Fusce
-                condimentum non neque at fringilla. Aenean malesuada aliquet
-                tincidunt.
+                NxtHike vision is to provide a complete set of Employmentt and
+                Recruitment Services to help Job Seekers, Freelancers & Freshers
+                to connect with Employers and have next step in terms of Hike in
+                their Careers.
               </p>
             </div>
           </div>
@@ -62,7 +61,7 @@ const Footer = () => {
                 </li>
                 {isLoggedIn ? (
                   <li>
-                    <a href="/my-profile">My Account</a>
+                    <a href="/myprofile">My Account</a>
                   </li>
                 ) : (
                   <Modalbox parent="footer" />
@@ -84,13 +83,13 @@ const Footer = () => {
               <h4>For Companies</h4>
               <ul>
                 <li>
+                  <a href="">Browse Employees</a>
+                </li>
+                <li>
                   <a href="/browse-freelancers">Browse Freelancers</a>
                 </li>
                 <li>
                   <a href="/submit-job">Post a Job</a>
-                </li>
-                <li>
-                  <a href="/submit-project">Post a Project</a>
                 </li>
                 <li>
                   <a href="/pricing">Pricing Plans</a>
@@ -114,6 +113,9 @@ const Footer = () => {
                 <li>
                   <a href="/bookmarks">Bookmarks</a>
                 </li>
+                <li>
+                  <a href="#">Sitemap</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -125,33 +127,33 @@ const Footer = () => {
             <div className="col-lg-6 col-md-6">
               <div className="copyright">
                 <i className="far fa-copyright"></i>Copyright 2019{" "}
-                <span>NxtHike</span> by <a href="#">NxtHike WorkSolutions</a>. All Right
-                Reserved.
+                <span>NxtHike</span> by <a href="/">NxtHike WorkSolutions</a>.
+                All Right Reserved.
               </div>
             </div>
             <div className="col-lg-6 col-md-6">
               <div className="social-icons">
                 <ul>
                   <li>
-                    <a href="#">
+                    <a href="https://www.facebook.com/NxtHike-103926969066504">
                       <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
                   <li>
-                    <a href="#">
-                      <i className="fab fa-twitter"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="fab fa-google-plus-g"></i>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
+                    <a href="https://www.linkedin.com/company/nxthike-work-solutions/">
                       <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
+                  <li>
+                    <a href="https://twitter.com/NxtHike">
+                      <i className="fab fa-twitter"></i>
+                    </a>
+                  </li>
+                  {/* <li>
+                    <a href="#">
+                      <i className="fab fa-google-plus-g"></i>
+                    </a>
+                  </li> */}
                 </ul>
               </div>
             </div>
