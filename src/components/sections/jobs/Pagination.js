@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
+import { UserContext } from "../../../context/LoginContext";
+import axios from "axios";
 
 function Pagination({ data, pageLimit, dataLimit }) {
+  const { loginuserId, isLoggedIn } = useContext(UserContext);
   const [grid, setGrid] = useState(true);
   const [pages] = useState(Math.round(data.length / dataLimit));
   const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState(data);
 
   useEffect(() => {
     window.scrollTo({ behavior: "auto", top: "0px" });
@@ -28,7 +32,7 @@ function Pagination({ data, pageLimit, dataLimit }) {
   const getPaginatedData = () => {
     const startIndex = currentPage * dataLimit - dataLimit;
     const endIndex = currentPage * dataLimit;
-    return data.slice(startIndex, endIndex);
+    return items.slice(startIndex, endIndex);
   };
 
   const getPaginationGroup = () => {
@@ -38,6 +42,38 @@ function Pagination({ data, pageLimit, dataLimit }) {
       pageNumbers.push(i);
     }
     return pageNumbers.slice(start, start + pageLimit);
+  };
+
+  const callFavouriteApi = async (id, idx) => {
+    console.log(id, idx);
+    if (isLoggedIn && loginuserId !== null) {
+      if (items[idx].is_favourited === "1") {
+        items[idx].is_favourited = "0";
+      } else {
+        items[idx].is_favourited = "1";
+      }
+      var data = {
+        item_id: id,
+        user_id: loginuserId,
+      };
+      await axios
+        .post(
+          `${process.env.REACT_APP_API_URL}favourites/press/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`,
+          data
+        )
+        .then((response) => {
+          items[idx].is_favourited = response.data.is_favourited;
+          if (items[idx].is_favourited === "1")
+            alert(items[idx].title + " added to favourites");
+          else alert(items[idx].title + " removed from favourites");
+          console.log(items);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      alert("Please login");
+    }
   };
 
   return (
@@ -126,10 +162,19 @@ function Pagination({ data, pageLimit, dataLimit }) {
                     : item.company_details}
                 </p>
                 <div className="job-skills">
-                  <a>Html</a>
-                  <a>Css</a>
-                  <a>Boostrap</a>
-                  <a className="more-skills">+4</a>
+                  {item.key_skills
+                    .split(", ")
+                    .splice(0, 3)
+                    .map((skill, i) => (
+                      <a key={i} href="#">
+                        {skill}
+                      </a>
+                    ))}
+                  {item.key_skills.split(", ").splice(3).length == 0 ? null : (
+                    <a className="more-skills">
+                      +{item.key_skills.split(", ").splice(3).length}
+                    </a>
+                  )}
                 </div>
               </div>
               <div className="job-buttons">
@@ -140,12 +185,30 @@ function Pagination({ data, pageLimit, dataLimit }) {
                     </a>
                   </li>
                   <li>
-                    <a href="/single-job" className="link-j1" title="View Job">
+                    <a
+                      href={`/single-job/${item.id}`}
+                      className="link-j1"
+                      title="View Job"
+                      target="_blank"
+                    >
                       View Job
                     </a>
                   </li>
                   <li className="bkd-pm">
-                    <button className="bookmark1" title="bookmark">
+                    <button
+                      className={
+                        item.is_favourited === "1"
+                          ? "favourite"
+                          : "not-favourite"
+                      }
+                      title="bookmark"
+                      onClick={() =>
+                        callFavouriteApi(
+                          item.id,
+                          i + (currentPage - 1) * dataLimit
+                        )
+                      }
+                    >
                       <i className="fas fa-heart"></i>
                     </button>
                   </li>

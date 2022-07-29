@@ -11,6 +11,7 @@ import Loader from "../../layouts/Loader";
 export default function Content() {
   const [grid, setGrid] = useState(true);
   const [items, setItems] = useState([]);
+
   useEffect(() => {
     fetchItems();
   }, []);
@@ -30,6 +31,7 @@ export default function Content() {
       })
       .catch((err) => console.log("error", err));
   };
+
   return (
     <>
       {items.length > 0 ? (
