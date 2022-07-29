@@ -18,8 +18,8 @@ const Footer = () => {
                     className="btext-heading mt-2"
                     style={{ color: "#acacac", fontSize: "14px" }}
                   >
-                    <i className="fas fa-check-circle"></i>For latest updates, news & articles please subscribe.
-                  
+                    <i className="fas fa-check-circle"></i>For latest updates,
+                    news & articles please subscribe.
                   </div>
                 </div>
               </div>
@@ -45,7 +45,10 @@ const Footer = () => {
                 <img src={logo} alt="" />
               </a>
               <p>
-                NxtHike vision is to provide a complete set of Employmentt and Recruitment Services to help Job Seekers, Freelancers & Freshers to connect with Employers and have next step in terms of Hike in their Careers.
+                NxtHike vision is to provide a complete set of Employmentt and
+                Recruitment Services to help Job Seekers, Freelancers & Freshers
+                to connect with Employers and have next step in terms of Hike in
+                their Careers.
               </p>
             </div>
           </div>
@@ -58,7 +61,7 @@ const Footer = () => {
                 </li>
                 {isLoggedIn ? (
                   <li>
-                    <a href="#">My Account</a>
+                    <a href="/myprofile">My Account</a>
                   </li>
                 ) : (
                   <Modalbox parent="footer" />
@@ -79,20 +82,17 @@ const Footer = () => {
             <div className="footer-links">
               <h4>For Companies</h4>
               <ul>
-              <li>
-                  <a href="#">Browse Employees</a>
+                <li>
+                  <a href="">Browse Employees</a>
                 </li>
                 <li>
-                  <a href="#">Browse Freelancers</a>
+                  <a href="/browse-freelancers">Browse Freelancers</a>
                 </li>
                 <li>
-                  <a href="#">Post a Job</a>
+                  <a href="/submit-job">Post a Job</a>
                 </li>
                 <li>
-                  <a href="#">Post a Project</a>
-                </li>
-                <li>
-                  <a href="#">Pricing Plans</a>
+                  <a href="/pricing">Pricing Plans</a>
                 </li>
               </ul>
             </div>
@@ -102,16 +102,16 @@ const Footer = () => {
               <h4>For Candidates</h4>
               <ul>
                 <li>
-                  <a href="#">Browse Jobs</a>
+                  <a href="/browse-jobs">Browse Jobs</a>
                 </li>
                 <li>
-                  <a href="#">Jobs Alerts</a>
+                  <a href="/manage-jobs">Jobs Alerts</a>
                 </li>
                 <li>
-                  <a href="#">Applied Jobs</a>
+                  <a href="/manage-jobs">Applied Jobs</a>
                 </li>
                 <li>
-                  <a href="#">Bookmarks</a>
+                  <a href="/bookmarks">Bookmarks</a>
                 </li>
                 <li>
                   <a href="#">Sitemap</a>
@@ -127,7 +127,7 @@ const Footer = () => {
             <div className="col-lg-6 col-md-6">
               <div className="copyright">
                 <i className="far fa-copyright"></i>Copyright 2019{" "}
-                <span>NxtHike</span> by <a href="#">NxtHike WorkSolutions</a>.
+                <span>NxtHike</span> by <a href="/">NxtHike WorkSolutions</a>.
                 All Right Reserved.
               </div>
             </div>
@@ -154,7 +154,6 @@ const Footer = () => {
                       <i className="fab fa-google-plus-g"></i>
                     </a>
                   </li> */}
-                  
                 </ul>
               </div>
             </div>

@@ -11,9 +11,14 @@ import Modalbox from "../layouts/Modal";
 import ContactModal from "./ContactModal";
 
 export default function Header() {
-
-  const { firstLogin, isLoggedIn, logoutAction, userType,successMsg, contact } =
-    useContext(UserContext);
+  const {
+    firstLogin,
+    isLoggedIn,
+    logoutAction,
+    userType,
+    successMsg,
+    contact,
+  } = useContext(UserContext);
   return (
     <Fragment>
       <header>
@@ -74,7 +79,6 @@ export default function Header() {
                             />
                           </Dropdown.Toggle>
                           <Dropdown.Menu style={{ padding: 0 }}>
-
                             {/* <DropdownItem
                               as={a}
                               to="/myprofile"
@@ -147,8 +151,7 @@ export default function Header() {
                         </a>
                       </li>
                       <li className="nav-item dropdown">
-                        <a className="nav-link" href="/">
-
+                        <a className="nav-link" href="/browse-jobs">
                           Jobs
                         </a>
                         {/* <Dropdown>
@@ -205,14 +208,12 @@ export default function Header() {
                         </Dropdown>
                       </li> */}
                       <li className="nav-item">
-                        <a className="nav-link" href="/">
-
+                        <a className="nav-link" href="/browse-companies">
                           Browse Companies
                         </a>
                       </li>
                       <li className="nav-item">
-
-                        <a className="nav-link" href="/">
+                        <a className="nav-link" href="/browse-freelancers">
                           Find Freelancers
                         </a>
                       </li>
@@ -280,34 +281,12 @@ export default function Header() {
                         </Dropdown>
                       </li>
                     </ul>
-                    <a
-                      href="#"
-                      className="search-link"
-                      role="button"
-                      data-toggle="modal"
-                      data-target="#searchModal"
-                    >
-                      <i className="fas fa-search"></i>
+                    <a href="/submit-job" className="add-post">
+                      Post a Job
                     </a>
-                    {isLoggedIn &&
-                      userType ===
-                        "usertype_cf47b94da69344503d8d7af8058c49c7" && (
-                        <a href="/submit-job" className="add-post">
-                          Post a Job
-                        </a>
-                      )}
-
                     {/* <a href="/submit-project" className="add-task">
                       Post a Task
                     </a> */}
-                  </div>
-                  <div className="responsive-search order-1">
-                    <input
-                      type="text"
-                      className="rsp-search"
-                      placeholder="Search..."
-                    />
-                    <i className="fas fa-search r-sh1"></i>
                   </div>
                 </nav>
                 <div className="overlay"></div>

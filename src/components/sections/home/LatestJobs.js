@@ -78,7 +78,11 @@ const Jobs = () => {
                     <div className="job-des-dt">
                       <h4>Reactjs Developer</h4>
                       <p>
-                      Implement UI/UX designs in React and integrate with the API provided.Optimize application for maximum speed and scalability.Assure that all user input is validated before submitting it to the back-end.Collaborate with other team members and stakeholders
+                        Implement UI/UX designs in React and integrate with the
+                        API provided.Optimize application for maximum speed and
+                        scalability.Assure that all user input is validated
+                        before submitting it to the back-end.Collaborate with
+                        other team members and stakeholders
                       </p>
                       <div className="job-skills">
                         <a href="#">Reactjs</a>
@@ -97,7 +101,11 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li>
-                          <a href="#" className="link-j1" title="View Job">
+                          <a
+                            href="/single-job"
+                            className="link-j1"
+                            title="View Job"
+                          >
                             View Job
                           </a>
                         </li>
@@ -132,8 +140,11 @@ const Jobs = () => {
                     <div className="job-des-dt">
                       <h4>Creative Visualiser</h4>
                       <p>
-                      The ideal candidate should live and breathe design, typography, color theory, and
-composition.Should have a solid work experience in copywriting.Should be able to deliver voice-over scripts for product explainers & e-learning videos.Should be able to 
+                        The ideal candidate should live and breathe design,
+                        typography, color theory, and composition.Should have a
+                        solid work experience in copywriting.Should be able to
+                        deliver voice-over scripts for product explainers &
+                        e-learning videos.Should be able to
                       </p>
                       <div className="job-skills">
                         <a href="#">Adobe</a>
@@ -151,7 +162,11 @@ composition.Should have a solid work experience in copywriting.Should be able to
                           </a>
                         </li>
                         <li>
-                          <a href="#" className="link-j1" title="View Job">
+                          <a
+                            href="/single-job"
+                            className="link-j1"
+                            title="View Job"
+                          >
                             View Job
                           </a>
                         </li>
@@ -186,7 +201,12 @@ composition.Should have a solid work experience in copywriting.Should be able to
                     <div className="job-des-dt">
                       <h4>PHP Developer</h4>
                       <p>
-                      We are looking for a PHP Developer responsible for managing back-end services and the interchange of data between the server and the users. Your primary focus will be the development of all server-side logic, definition and maintenance of the central database, and..
+                        We are looking for a PHP Developer responsible for
+                        managing back-end services and the interchange of data
+                        between the server and the users. Your primary focus
+                        will be the development of all server-side logic,
+                        definition and maintenance of the central database,
+                        and..
                       </p>
                       <div className="job-skills">
                         <a href="#">PHP</a>
@@ -205,7 +225,11 @@ composition.Should have a solid work experience in copywriting.Should be able to
                           </a>
                         </li>
                         <li>
-                          <a href="#" className="link-j1" title="View Job">
+                          <a
+                            href="/single-job"
+                            className="link-j1"
+                            title="View Job"
+                          >
                             View Job
                           </a>
                         </li>
@@ -240,8 +264,12 @@ composition.Should have a solid work experience in copywriting.Should be able to
                     <div className="job-des-dt">
                       <h4>HR Recruiter</h4>
                       <p>
-                      Design and implement overall recruiting strategy.Develop and update job descriptions and job specifications.Perform job and task analysis to document job requirements and objectives.Source and recruit candidates by using databases, social media etc
-Screen candidates resumes and job applications
+                        Design and implement overall recruiting strategy.Develop
+                        and update job descriptions and job
+                        specifications.Perform job and task analysis to document
+                        job requirements and objectives.Source and recruit
+                        candidates by using databases, social media etc Screen
+                        candidates resumes and job applications
                       </p>
                       <div className="job-skills">
                         <a href="#">HR</a>
@@ -260,7 +288,11 @@ Screen candidates resumes and job applications
                           </a>
                         </li>
                         <li>
-                          <a href="#" className="link-j1" title="View Job">
+                          <a
+                            href="/single-job"
+                            className="link-j1"
+                            title="View Job"
+                          >
                             View Job
                           </a>
                         </li>
@@ -295,7 +327,11 @@ Screen candidates resumes and job applications
                     <div className="job-des-dt">
                       <h4>Software Quality &amp; Engineer</h4>
                       <p>
-                      Software quality assurance.Provide test plan, test case and execute test for function/performance/stability of system level in network device.Test environment setup and maintenance.Have strong learning ability/communication ability/teamwork ability.
+                        Software quality assurance.Provide test plan, test case
+                        and execute test for function/performance/stability of
+                        system level in network device.Test environment setup
+                        and maintenance.Have strong learning
+                        ability/communication ability/teamwork ability.
                       </p>
                       <div className="job-skills">
                         <a href="#">Delivery</a>
@@ -311,7 +347,11 @@ Screen candidates resumes and job applications
                           </a>
                         </li>
                         <li>
-                          <a href="#" className="link-j1" title="View Job">
+                          <a
+                            href="/single-job"
+                            className="link-j1"
+                            title="View Job"
+                          >
                             View Job
                           </a>
                         </li>
@@ -346,7 +386,11 @@ Screen candidates resumes and job applications
                     <div className="job-des-dt">
                       <h4>Software Development Engineer</h4>
                       <p>
-                      Work on Linux or open source development environment.Work on GCC/G++ and related tool chain.Setup cross-platform development environment.Embedded Linux driver programming.Develop functions and resolve issues reported from internal team and external customers.
+                        Work on Linux or open source development
+                        environment.Work on GCC/G++ and related tool chain.Setup
+                        cross-platform development environment.Embedded Linux
+                        driver programming.Develop functions and resolve issues
+                        reported from internal team and external customers.
                       </p>
                       <div className="job-skills">
                         <a href="#">Linux</a>
@@ -367,7 +411,11 @@ Screen candidates resumes and job applications
                           </a>
                         </li>
                         <li>
-                          <a href="#" className="link-j1" title="View Job">
+                          <a
+                            href="/single-job"
+                            className="link-j1"
+                            title="View Job"
+                          >
                             View Job
                           </a>
                         </li>
@@ -381,15 +429,10 @@ Screen candidates resumes and job applications
                   </div>
                 </div>
               </Slider>
-              <div className="text-center">
-                <button
-                  className="view-links"
-                  onClick={() => {
-                    window.location.replace("/browse-jobs");
-                  }}
-                >
+              <div className="text-center" style={{ marginTop: "40px" }}>
+                <a className="view-links" href="/browse-jobs">
                   BROWSE ALL JOBS
-                </button>
+                </a>
               </div>
             </div>
           </div>
