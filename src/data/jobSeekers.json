@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "img": "assets/images/company/img-1.jpg",
+        "name": "Career Coaching",
+        "post": "One 30-minute call",
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+        "saveOfferText": "Lorem Ipsum Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+    },
+    {
+        "id": 2,
+        "img": "assets/images/company/img-1.jpg",
+        "name": "Resume Review",
+        "post": "One 30-minute call",
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+        "saveOfferText": "Lorem as been the industry's standard dummy text ever since the 1500s,"
+    },
+    {
+        "id": 3,
+        "img": "assets/images/company/img-1.jpg",
+        "name": "Career Coaching & Resume Review Bundle",
+        "post": "One 30-minute call",
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
+        "saveOfferText": "Lorem Ipsum is een the industry's standard dummy text ever since the "
+    }
+]
