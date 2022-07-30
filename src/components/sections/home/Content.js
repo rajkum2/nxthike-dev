@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { UserContext } from "../../../context/LoginContext";
 import ContactModal from "../../layouts/ContactModal";
 import Achievement from "./Achievements";
+import BannerSlide from "./BannerSlide";
 import BannerSlider from "./BannerSlider";
 import Categories from "./Categories";
 import Testimonials from "./Testimonials";
@@ -37,8 +38,9 @@ const Content = () => {
     return (
         <>
             <main className="body-section">
-                {/* <SearchBar /> */}
-                <BannerSlider />
+                <SearchBar />
+                {/* <BannerSlider /> */}
+                <BannerSlide />
                 <Achievement />
                 <Offer />
                 <Jobs />
