@@ -14,25 +14,14 @@ const Content = () => {
             </div>
             <div className="about_des">
               <p>
-                Vivamus tortor nisl, lobortis in, faucibus et, tempus at, dui.
-                Nunc risus. Proin scelerisque augue. Nam ullamcorper. Phasellus
-                id massa. Pellentesque nisl. Pellentesque habitant tuni morbi
-                tristique senectus et netus et malesuada fames ac turpis
-                egestas. Nunc augue. Aenean sed justo non leo vehicula laoreet.
-                Praesent ipsum libero, auctor ac, tempus nec, casion tempor nec,
-                justo cretusi sino zumbua iloseum musumfu lilokuta nabase uchiha
-                itachi suctung from munual pracetamol curom ose testio soel
-                lorem isutm pausm mintest osrit ucii
+                Our vision is to have a single platform for Employers - making easier for hiring, and for Job Seekers & Freelancer - to earn more, across countries seemlesly and easily without any hassle.
               </p>
               <p>
-                Maecenas ullamcorper, odio vel tempus egestas, dui orci faucibus
-                orci, sit amet aliquet lectus dolor et quam. Pellentesque
-                consequat luctus purus. Nunc et risus. Etiam a nibh tunil
-                Phasellus dignissim metus eget nisi. Vestibulum sapien dolor,
-                aliquet nec, porta ac, malesuada a, libero. Praesent feugiat
-                purus eget est. Nulla facilisi. Vestibulum tincidunt sapiens eu
-                velit. Mauris purus. Maecenas eget mauris eu orci accumsan
-                feugiat. Pellentesque eget velit. Nunc tincidunt.
+              Looking for Hiring Talent or Looking for a new Opportunity for your career, we got it covered!
+              NxtHike helps Employers grow their company by hiring the right talend and it helps Job Seekers and Freelancer to get more visibility and opportuninties to work.
+              We provide all the necessary support, paperwork and tools to expand businesses using global talent.
+              India has almost 50% population in young age, and unemployment is a big problem. We seek to explore more partners(companies) across the world
+              to utilize and hire the talent pool from India. 
               </p>
             </div>
           </div>
@@ -44,25 +33,22 @@ const Content = () => {
             <div className="col-lg-6 col-md-12">
               <div className="choose_left">
                 <div className="main-heading bids_heading">
-                  <h2>Why Choose Us</h2>
+                  <h2>Why Choose Us?</h2>
                   <div className="line-shape1">
                     <img src={line} alt="" />
                   </div>
                 </div>
                 <div className="choose_des">
                   <p>
-                    Fusce dictum mauris nec magna consequat, ut semper leo
-                    pulvinar. Cras rhoncus lorem lorem, a fermentum lacus congue
-                    vehicula. Nullam luctus mi eget nisl tincidunt lobortis.
+                    With NxtHike, Hiring & getting Hired is easier now!
                   </p>
                   <ul>
                     <li>
                       <div className="abt142">
                         <i className="fas fa-check-circle"></i>
                         <p>
-                          Cras rhoncus lorem lorem, a fermentum lacus congue
-                          vehicula. Nullam luct us mi eget nisl tincidunt
-                          lobortis.
+                         Job Seekers can avail the support in job applications, resume preparation and acess to global companies.
+                         
                         </p>
                       </div>
                     </li>
