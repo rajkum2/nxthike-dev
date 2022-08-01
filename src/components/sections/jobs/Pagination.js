@@ -186,7 +186,7 @@ function Pagination({ data, pageLimit, dataLimit }) {
                   </li>
                   <li>
                     <a
-                      href={`/single-job/${item.id}`}
+                      href={`/job/${item.id}`}
                       className="link-j1"
                       title="View Job"
                       target="_blank"

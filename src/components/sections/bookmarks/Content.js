@@ -43,9 +43,7 @@ export default function Content({ data, loading }) {
                               <div class="row">
                                 <div class="col-md-10">
                                   <div class="applied_item">
-                                    <a href={`/single-job/${item.id}`}>
-                                      {item.title}
-                                    </a>
+                                    <a href={`/job/${item.id}`}>{item.title}</a>
                                     <ul class="view_dt_job">
                                       <li>
                                         <div class="vw1254">
