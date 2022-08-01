@@ -6,7 +6,7 @@ const JobSeekers = () => {
     return (
         <div className="job-seeker-container">
             <div className="container">
-                <div className="row">
+                <div className="row" style={{justifyContent: 'center'}}>
                     <div className="col-md-12 col-12">
                         <div className="main-heading">
                             <h2>Servies for Job Seekers</h2>

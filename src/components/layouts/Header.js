@@ -127,19 +127,21 @@ export default function Header() {
           <div className="container">
             <div className="row">
               <div className="col-lg-12 col-md-12 col-sm-12">
-                <nav className="navbar navbar-expand-lg navbar-light bg-dark1 justify-content-sm-start">
+                <nav style={{justifyContent: 'start'}} className="navbar navbar-expand-lg navbar-light bg-dark1 justify-content-sm-start">
                   <a
                     className="order-1 order-lg-0 ml-lg-0 ml-3 mr-auto"
                     href="/"
                   >
                     <img src={logo} alt="" />
                   </a>
-                  <button
-                    className="navbar-toggler align-self-start"
-                    type="button"
-                  >
-                    <i className="fas fa-bars"></i>
-                  </button>
+                  <div className="d-flex">
+                    <button 
+                      className="navbar-toggler align-self-start mt-0"
+                      type="button"
+                    >
+                      <i className="fas fa-bars"></i>
+                    </button>
+                  </div>
                   <div
                     className="collapse navbar-collapse d-flex flex-column flex-lg-row flex-xl-row justify-content-lg-end bg-dark1 p-3 p-lg-0 mt1-5 mt-lg-0 mobileMenu"
                     id="navbarSupportedContent"

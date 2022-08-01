@@ -38,9 +38,9 @@ const Content = () => {
     return (
         <>
             <main className="body-section">
-                <SearchBar />
-                {/* <BannerSlider /> */}
-                <BannerSlide />
+                {/* <SearchBar /> */}
+                <BannerSlider />
+                {/* <BannerSlide /> */}
                 <Achievement />
                 <Offer />
                 <Jobs />
