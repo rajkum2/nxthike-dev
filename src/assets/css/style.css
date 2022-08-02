@@ -4898,8 +4898,9 @@ span.right-cm {
 
 .delete_icon {
   float: right;
-  padding-top: 24px;
   color: #847577;
+  border: none;
+  background: none;
 }
 
 .delete_icon:hover {

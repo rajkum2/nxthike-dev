@@ -5,8 +5,32 @@ import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "../../layouts/Profileimg";
 import ProfileHeader from "../../layouts/ProfileHeader";
 import ProfileSideBar from "../../layouts/ProfileSidebar";
+import axios from "axios";
 
 export default function Content({ data, loading }) {
+  const { isLoggedIn, loginuserId } = useContext(UserContext);
+
+  const removeBookmark = async (id) => {
+    if (isLoggedIn && loginuserId !== null) {
+      var data = {
+        item_id: id,
+        user_id: loginuserId,
+      };
+      await axios
+        .post(
+          `${process.env.REACT_APP_API_URL}favourites/press/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`,
+          data
+        )
+        .then((response) => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      alert("Please login");
+    }
+  };
   return (
     <>
       <main className="browse-section">
@@ -73,9 +97,12 @@ export default function Content({ data, loading }) {
                                   </div>
                                 </div>
                                 <div class="col-md-2">
-                                  <a href="#" class="delete_icon">
+                                  <button
+                                    onClick={() => removeBookmark(item.id)}
+                                    class="delete_icon"
+                                  >
                                     <i class="far fa-trash-alt"></i>
-                                  </a>
+                                  </button>
                                 </div>
                               </div>
                             </li>

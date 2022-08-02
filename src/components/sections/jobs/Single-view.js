@@ -1,12 +1,9 @@
 import LatestJobs from "../home/LatestJobs";
 import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
-import "react-responsive-modal/styles.css";
-import { Modal } from "react-responsive-modal";
 import { useContext, useState } from "react";
 import axios from "axios";
 import { UserContext } from "../../../context/LoginContext";
 const SingleView = ({ data }) => {
-  const [open, setOpen] = useState(false);
   const { loginuserId, isLoggedIn } = useContext(UserContext);
 
   const callFavouriteApi = async (id) => {
@@ -37,6 +34,35 @@ const SingleView = ({ data }) => {
       alert("Please login");
     }
   };
+
+  const applyJob = () => {
+    if (isLoggedIn && loginuserId !== null) {
+      const postData = {
+        emp_id: data.added_user_id,
+        item_type_id: data.item_type_id,
+        applicant_id: loginuserId,
+        app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+        item_id: data.id,
+        status: 1,
+      };
+      console.log(postData);
+      axios
+        .post(
+          `${process.env.REACT_APP_API_URL}job_applications/add/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`,
+          postData
+        )
+        .then((response) => {
+          console.log(response.data);
+          alert("You have successfully applied to this job");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      alert("Please Login");
+    }
+  };
+
   return (
     <>
       <main className="browse-section">
@@ -155,11 +181,7 @@ const SingleView = ({ data }) => {
                     </li>
                   </ul>
                 </div>
-                <button
-                  className="apply_job"
-                  type="button"
-                  onClick={() => setOpen(true)}
-                >
+                <button className="apply_job" type="button" onClick={applyJob}>
                   APPLY NOW
                 </button>
               </div>
@@ -168,7 +190,7 @@ const SingleView = ({ data }) => {
               <button
                 className="apply_job_rt mtp_30"
                 type="button"
-                onClick={() => setOpen(true)}
+                onClick={applyJob}
               >
                 APPLY NOW
               </button>
@@ -212,138 +234,8 @@ const SingleView = ({ data }) => {
           </div>
         </div>
       </main>
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        center
-        classNames={{
-          overlay: "customOverlay",
-        }}
-      >
-        <div className="apply_job_form">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Apply Job Now</h5>
-            </div>
-            <div className="modal-body">
-              <div className="jb_frm">
-                <h3>Attach CV or Apply by NxtHike Profile</h3>
-                <div className="form_inputs">
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      className="job-input"
-                      placeholder="Full Name"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="email"
-                      className="job-input"
-                      placeholder="Email Address"
-                    />
-                  </div>
-                  <div className="file-form">
-                    <input type="file" id="file" />
-                    <label for="file">Change Image</label>
-                    <p>Upload your cv / resume file. Max file size : 3MB</p>
-                  </div>
-                  <div className="ui checkbox apply_check">
-                    <input type="checkbox" />
-                    <label>Apply by NxtHike Profile.</label>
-                  </div>
-                  <div className="apply_btn150">
-                    <button className="apply_job50" type="button">
-                      APPLY NOW
-                    </button>
-                    <button
-                      className="apply_job_close"
-                      type="button"
-                      data-dismiss="modal"
-                    >
-                      CANCEL
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Modal>
     </>
   );
 };
-{
-  /* <div className="apply_job_form">
-          <div
-            className="modal fade"
-            id="applyjobModal"
-            tabindex="-1"
-            role="dialog"
-          >
-            <div className="modal-dialog modal-jb" role="document">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title" id="exampleModalLabel">
-                    Apply Job Now
-                  </h5>
-                  <button
-                    type="button"
-                    className="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                  <div className="jb_frm">
-                    <h3>Attach File With CV C Apply by NxtHike Profile</h3>
-                    <div className="form_inputs">
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          className="job-input"
-                          placeholder="Full Name"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <input
-                          type="email"
-                          className="job-input"
-                          placeholder="Email Address"
-                        />
-                      </div>
-                      <div className="file-form">
-                        <input type="file" id="file" />
-                        <label for="file">Change Image</label>
-                        <p>Upload your cv / resume file. Max file size : 3MB</p>
-                      </div>
-                      <div className="ui checkbox apply_check">
-                        <input type="checkbox" />
-                        <label style={{ color: "#242424" }}>
-                          Apply by NxtHike Profile.
-                        </label>
-                      </div>
-                      <div className="apply_btn150">
-                        <button className="apply_job50" type="button">
-                          APPLY NOW
-                        </button>
-                        <button
-                          className="apply_job_close"
-                          type="button"
-                          data-dismiss="modal"
-                        >
-                          CANCEL
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */
-}
 
 export default SingleView;

@@ -19,7 +19,6 @@ const SingleJob = () => {
     const postData = {
       id: params.jobId,
     };
-    console.log(postData);
     await axios
       .post(
         `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
@@ -34,13 +33,13 @@ const SingleJob = () => {
 
   return (
     <Fragment>
-      <Helmet>
-        <title>NxtHike - Job Single View</title>
-        <meta name="description" content="#" />
-      </Helmet>
-      <Header />
       {job !== "" && (
         <>
+          <Helmet>
+            <title>NxtHike - {job.title}</title>
+            <meta name="description" content="#" />
+          </Helmet>
+          <Header />
           <Breadcrumb pagename={job.title} />
           <SingleView data={job} />
         </>
