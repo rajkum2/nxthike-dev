@@ -79,7 +79,7 @@ export default function Header() {
                             />
                           </Dropdown.Toggle>
                           <Dropdown.Menu style={{ padding: 0 }}>
-                            {/* <DropdownItem
+                            <DropdownItem
                               as={a}
                               to="/myprofile"
                               className="link-item"
@@ -92,7 +92,7 @@ export default function Header() {
                                 }}
                               />
                               My Profile
-                            </DropdownItem> */}
+                            </DropdownItem>
                             <DropdownItem
                               as={a}
                               to="/"

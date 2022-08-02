@@ -286,7 +286,7 @@ export default function LoginContext({ children }) {
     if (loginInfo !== null) {
       setIsLoggedIn(loginInfo.loginstatus);
       setLoginuserId(loginInfo.loginuserId);
-      setUserType(loginInfo.user_type_id);
+      setUserType(loginInfo.userType);
     } else {
       setIsLoggedIn(false);
       setLoginuserId(null);
