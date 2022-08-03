@@ -37,7 +37,7 @@ export default function Content({ data, loading }) {
         <div className="container">
           <div className="row">
             <ProfileSideBar />
-            <div class="col-lg-9 col-md-8 mainpage">
+            <div className="col-lg-9 col-md-8 mainpage">
               <ProfileHeader pathname={"bookmarks"} />
               {loading && <h3 className="text-center text-info">Loading...</h3>}
               {!loading && data.length == 0 && (
@@ -56,52 +56,52 @@ export default function Content({ data, loading }) {
                 </div>
               )}
               {data.length > 0 && (
-                <div class="all_bookmarks">
-                  <div class="bookmark_card">
-                    <div class="bookmark_collapse">Bookmarked Jobs</div>
-                    <div id="collapse1" class="collapse show">
-                      <div class="card-body">
-                        <ul class="all_applied_jobs jobs_bookmarks">
+                <div className="all_bookmarks">
+                  <div className="bookmark_card">
+                    <div className="bookmark_collapse">Bookmarked Jobs</div>
+                    <div id="collapse1" className="collapse show">
+                      <div className="card-body">
+                        <ul className="all_applied_jobs jobs_bookmarks">
                           {data.map((item, i) => (
                             <li key={i}>
-                              <div class="row">
-                                <div class="col-md-10">
-                                  <div class="applied_item">
+                              <div className="row">
+                                <div className="col-md-10">
+                                  <div className="applied_item">
                                     <a href={`/job/${item.id}`}>{item.title}</a>
-                                    <ul class="view_dt_job">
+                                    <ul className="view_dt_job">
                                       <li>
-                                        <div class="vw1254">
-                                          <i class="fas fa-map-marker-alt"></i>
+                                        <div className="vw1254">
+                                          <i className="fas fa-map-marker-alt"></i>
                                           {item.location}
                                         </div>
                                       </li>
                                       <li>
-                                        <div class="vw1254">
-                                          <i class="fas fa-briefcase"></i>
+                                        <div className="vw1254">
+                                          <i className="fas fa-briefcase"></i>
                                           {item.employment_type}
                                         </div>
                                       </li>
                                       <li>
-                                        <div class="vw1254">
-                                          <i class="far fa-money-bill-alt"></i>
+                                        <div className="vw1254">
+                                          <i className="far fa-money-bill-alt"></i>
                                           {item.salary}
                                         </div>
                                       </li>
                                       <li>
-                                        <div class="vw1254">
-                                          <i class="far fa-clock"></i>
+                                        <div className="vw1254">
+                                          <i className="far fa-clock"></i>
                                           {item.added_date_str}
                                         </div>
                                       </li>
                                     </ul>
                                   </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div className="col-md-2">
                                   <button
                                     onClick={() => removeBookmark(item.id)}
-                                    class="delete_icon"
+                                    className="delete_icon"
                                   >
-                                    <i class="far fa-trash-alt"></i>
+                                    <i className="far fa-trash-alt"></i>
                                   </button>
                                 </div>
                               </div>

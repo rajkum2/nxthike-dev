@@ -1,12 +1,12 @@
 export default function Profile() {
   return (
     <>
-      <div class="view_chart">
-        <div class="view_chart_header">
+      <div className="view_chart">
+        <div className="view_chart_header">
           <h4>About</h4>
         </div>
-        <div class="view_chart_body">
-          <p class="user_about_des">
+        <div className="view_chart_body">
+          <p className="user_about_des">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc quis
             accumsan mi. Nam nulla lorem, consectetur eu augue nec, laoreet
             viverra augue. Curabitur quis nisi nec enim tempor tincidunt sit
@@ -28,12 +28,12 @@ export default function Profile() {
           </p>
         </div>
       </div>
-      <div class="view_chart">
-        <div class="view_chart_header">
+      <div className="view_chart">
+        <div className="view_chart_header">
           <h4>Skills</h4>
         </div>
-        <div class="view_chart_body">
-          <div class="job-skills">
+        <div className="view_chart_body">
+          <div className="job-skills">
             <a href="#">HTML</a>
             <a href="#">CSS</a>
             <a href="#">Wordpress</a>
@@ -43,19 +43,19 @@ export default function Profile() {
           </div>
         </div>
       </div>
-      <div class="view_chart">
-        <div class="view_chart_header">
+      <div className="view_chart">
+        <div className="view_chart_header">
           <h4>Language</h4>
         </div>
-        <div class="view_chart_body">
-          <div class="job-skills">
-            <a href="#" class="more-skills">
+        <div className="view_chart_body">
+          <div className="job-skills">
+            <a href="#" className="more-skills">
               English
             </a>
-            <a href="#" class="more-skills">
+            <a href="#" className="more-skills">
               Punjabi
             </a>
-            <a href="#" class="more-skills">
+            <a href="#" className="more-skills">
               Hindi
             </a>
           </div>

@@ -28,20 +28,20 @@ export default function Content() {
         <div className="container">
           <div className="row">
             <ProfileSideBar />
-            <div class="col-lg-9 col-md-8 mainpage">
+            <div className="col-lg-9 col-md-8 mainpage">
               <ProfileHeader pathname={"payments"} />
-              <div class="jobs_manage">
-                <div class="row">
-                  <div class="col-lg-3">
-                    <div class="jobs_tabs">
+              <div className="jobs_manage">
+                <div className="row">
+                  <div className="col-lg-3">
+                    <div className="jobs_tabs">
                       <ul
-                        class="nav job_nav nav-tabs"
+                        className="nav job_nav nav-tabs"
                         id="myTab"
                         role="tablist"
                       >
-                        <li class="nav-item">
+                        <li className="nav-item">
                           <a
-                            class="nav-link active"
+                            className="nav-link active"
                             href="#payment"
                             id="payment-tab"
                             data-toggle="tab"
@@ -49,9 +49,9 @@ export default function Content() {
                             Payments
                           </a>
                         </li>
-                        <li class="nav-item job_nav_item">
+                        <li className="nav-item job_nav_item">
                           <a
-                            class="nav-link"
+                            className="nav-link"
                             href="#transaction"
                             id="transaction-tab"
                             data-toggle="tab"
@@ -62,17 +62,20 @@ export default function Content() {
                       </ul>
                     </div>
                   </div>
-                  <div class="col-lg-9">
-                    <div class="tab-content" id="myTabContent">
+                  <div className="col-lg-9">
+                    <div className="tab-content" id="myTabContent">
                       <div
-                        class="tab-pane fade show active"
+                        className="tab-pane fade show active"
                         id="payment"
                         role="tabpanel"
                       >
-                        <div class="add-ons-dt accordion" id="accordionExample">
-                          <div class="bookmark_card">
+                        <div
+                          className="add-ons-dt accordion"
+                          id="accordionExample"
+                        >
+                          <div className="bookmark_card">
                             <button
-                              class="bookmark_collapse"
+                              className="bookmark_collapse"
                               data-toggle="collapse"
                               data-target="#collapse1"
                               aria-expanded="true"
@@ -80,31 +83,31 @@ export default function Content() {
                             >
                               Earnings
                             </button>
-                            <div id="collapse1" class="collapse show">
-                              <div class="card-body">
-                                <div class="payment_dt">
-                                  <div class="earning_dt">
-                                    <div class="earning_left">
+                            <div id="collapse1" className="collapse show">
+                              <div className="card-body">
+                                <div className="payment_dt">
+                                  <div className="earning_dt">
+                                    <div className="earning_left">
                                       <h6>Your Earnings</h6>
-                                      <div class="earn_amount">$1500</div>
+                                      <div className="earn_amount">$1500</div>
                                     </div>
-                                    <div class="earning_right">
+                                    <div className="earning_right">
                                       <p>
                                         Wallet<a href="#">(Change)</a>
                                       </p>
                                       <img src="images/payoneer.png" alt="" />
                                     </div>
                                   </div>
-                                  <button class="withdraw_btn">
+                                  <button className="withdraw_btn">
                                     WITHDRAW PAYMENT
                                   </button>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <div class="bookmark_card">
+                          <div className="bookmark_card">
                             <button
-                              class="bookmark_collapse"
+                              className="bookmark_collapse"
                               data-toggle="collapse"
                               data-target="#collapse2"
                               aria-expanded="true"
@@ -112,34 +115,36 @@ export default function Content() {
                             >
                               Send Payment
                             </button>
-                            <div id="collapse2" class="collapse show">
-                              <div class="card-body">
-                                <div class="send_payment_dt">
-                                  <div class="post_job_body">
-                                    <div class="form-group">
-                                      <label class="label15">Amount*</label>
+                            <div id="collapse2" className="collapse show">
+                              <div className="card-body">
+                                <div className="send_payment_dt">
+                                  <div className="post_job_body">
+                                    <div className="form-group">
+                                      <label className="label15">Amount*</label>
                                       <input
                                         type="text"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Enter Amount"
                                       />
                                     </div>
-                                    <div class="form-group">
-                                      <label class="label15">Send To*</label>
+                                    <div className="form-group">
+                                      <label className="label15">
+                                        Send To*
+                                      </label>
                                       <input
                                         type="email"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Enter Email Address"
                                       />
                                     </div>
                                   </div>
-                                  <div class="protection">
-                                    <i class="fas fa-shield-alt"></i>With NxtHike
-                                    payment protection, only pay for work
-                                    delivered.
+                                  <div className="protection">
+                                    <i className="fas fa-shield-alt"></i>With
+                                    NxtHike payment protection, only pay for
+                                    work delivered.
                                   </div>
-                                  <div class="post_job_body">
-                                    <div class="ui radio checkbox apply_check">
+                                  <div className="post_job_body">
+                                    <div className="ui radio checkbox apply_check">
                                       <input
                                         type="radio"
                                         name="example1"
@@ -151,34 +156,36 @@ export default function Content() {
                                         Credit or Debit Cards
                                       </label>
                                     </div>
-                                    <div class="form-group">
-                                      <label class="label15">
+                                    <div className="form-group">
+                                      <label className="label15">
                                         Card Number*
                                       </label>
                                       <input
                                         type="text"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Enter Card Number"
                                       />
                                     </div>
-                                    <div class="form-group">
-                                      <label class="label15">Full Name*</label>
+                                    <div className="form-group">
+                                      <label className="label15">
+                                        Full Name*
+                                      </label>
                                       <input
                                         type="text"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Enter Full Name"
                                       />
                                     </div>
-                                    <div class="fdsf452">
-                                      <div class="row">
-                                        <div class="col-lg-6">
-                                          <div class="form-group">
-                                            <label class="label15">
+                                    <div className="fdsf452">
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <div className="form-group">
+                                            <label className="label15">
                                               Expiring*
                                             </label>
                                             <input
                                               type="text"
-                                              class="job-input datepicker-here"
+                                              className="job-input datepicker-here"
                                               data-language="en"
                                               data-min-view="months"
                                               data-view="months"
@@ -187,12 +194,14 @@ export default function Content() {
                                             />
                                           </div>
                                         </div>
-                                        <div class="col-lg-6">
-                                          <div class="form-group">
-                                            <label class="label15">Cvv*</label>
+                                        <div className="col-lg-6">
+                                          <div className="form-group">
+                                            <label className="label15">
+                                              Cvv*
+                                            </label>
                                             <input
                                               type="text"
-                                              class="job-input"
+                                              className="job-input"
                                               placeholder="Enter Cvv"
                                             />
                                           </div>
@@ -200,8 +209,8 @@ export default function Content() {
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="post_job_body lineppyl">
-                                    <div class="ui radio checkbox apply_check">
+                                  <div className="post_job_body lineppyl">
+                                    <div className="ui radio checkbox apply_check">
                                       <input type="radio" name="example1" />
                                       <label
                                         style={{ color: "#242424 !important;" }}
@@ -209,17 +218,17 @@ export default function Content() {
                                         Paypal
                                       </label>
                                     </div>
-                                    <div class="form-group">
-                                      <label class="label15">
+                                    <div className="form-group">
+                                      <label className="label15">
                                         Email Address*
                                       </label>
                                       <input
                                         type="email"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Enter Email Address"
                                       />
                                     </div>
-                                    <button class="withdraw_btn">
+                                    <button className="withdraw_btn">
                                       CONTINUE
                                     </button>
                                   </div>
@@ -229,14 +238,14 @@ export default function Content() {
                           </div>
                         </div>
                       </div>
-                      <div class="tab-pane fade" id="transaction">
-                        <div class="view_chart">
-                          <div class="view_chart_header">
+                      <div className="tab-pane fade" id="transaction">
+                        <div className="view_chart">
+                          <div className="view_chart_header">
                             <h4>Transactions</h4>
                           </div>
-                          <div class="transaction_body">
-                            <div class="table-responsive-md">
-                              <table class="table table-striped">
+                          <div className="transaction_body">
+                            <div className="table-responsive-md">
+                              <table className="table table-striped">
                                 <thead>
                                   <tr>
                                     <th scope="col">Users</th>
@@ -248,16 +257,18 @@ export default function Content() {
                                 <tbody>
                                   <tr>
                                     <th scope="row">
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Johnson Doe</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
+                                          Johnson Doe
+                                        </div>
                                         <p>
                                           ID No.<a href="#">123456</a>
                                         </p>
                                       </div>
                                     </th>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
                                           Travel Wordpress Theme
                                         </div>
                                         <p>
@@ -266,27 +277,29 @@ export default function Content() {
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Paypal</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">Paypal</div>
                                         <p>$800</p>
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="trans_badge">Pending</div>
+                                      <div className="trans_badge">Pending</div>
                                     </td>
                                   </tr>
                                   <tr>
                                     <th scope="row">
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Rock William</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
+                                          Rock William
+                                        </div>
                                         <p>
                                           ID No.<a href="#">123450</a>
                                         </p>
                                       </div>
                                     </th>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
                                           Real Estate Psd Template
                                         </div>
                                         <p>
@@ -295,27 +308,33 @@ export default function Content() {
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Credit Card</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
+                                          Credit Card
+                                        </div>
                                         <p>$1200</p>
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="trans_badge">Received</div>
+                                      <div className="trans_badge">
+                                        Received
+                                      </div>
                                     </td>
                                   </tr>
                                   <tr>
                                     <th scope="row">
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Jassica Wiliam</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
+                                          Jassica Wiliam
+                                        </div>
                                         <p>
                                           ID No.<a href="#">123445</a>
                                         </p>
                                       </div>
                                     </th>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
                                           Chatting Android App
                                         </div>
                                         <p>
@@ -324,27 +343,31 @@ export default function Content() {
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Credit Card</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
+                                          Credit Card
+                                        </div>
                                         <p>$2500</p>
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="trans_badge">Send</div>
+                                      <div className="trans_badge">Send</div>
                                     </td>
                                   </tr>
                                   <tr>
                                     <th scope="row">
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Albert Smith</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
+                                          Albert Smith
+                                        </div>
                                         <p>
                                           ID No.<a href="#">123405</a>
                                         </p>
                                       </div>
                                     </th>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">
                                           Hotel Booking Html Template
                                         </div>
                                         <p>
@@ -353,13 +376,13 @@ export default function Content() {
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="user_dt_trans">
-                                        <div class="aadd14">Paypal</div>
+                                      <div className="user_dt_trans">
+                                        <div className="aadd14">Paypal</div>
                                         <p>$2500</p>
                                       </div>
                                     </td>
                                     <td>
-                                      <div class="trans_badge">Send</div>
+                                      <div className="trans_badge">Send</div>
                                     </td>
                                   </tr>
                                 </tbody>

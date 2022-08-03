@@ -28,14 +28,14 @@ export default function Content() {
         <div className="container">
           <div className="row">
             <ProfileSideBar />
-            <div class="col-lg-9 col-md-8 mainpage">
+            <div className="col-lg-9 col-md-8 mainpage">
               <ProfileHeader pathname={"reviews"} />
-              <div class="view_chart">
-                <div class="view_chart_header">
-                  <h4 class="mt-1">All Reviews</h4>
-                  <div class="review_right">
+              <div className="view_chart">
+                <div className="view_chart_header">
+                  <h4 className="mt-1">All Reviews</h4>
+                  <div className="review_right">
                     <button
-                      class="add_review_btn"
+                      className="add_review_btn"
                       type="button"
                       data-toggle="modal"
                       data-target="#addreviewModal"
@@ -44,30 +44,30 @@ export default function Content() {
                     </button>
                   </div>
                 </div>
-                <div class="job_bid_body">
-                  <ul class="all_applied_jobs jobs_bookmarks">
+                <div className="job_bid_body">
+                  <ul className="all_applied_jobs jobs_bookmarks">
                     <li>
-                      <div class="applied_candidates_item">
-                        <div class="row">
-                          <div class="col-xl-7">
-                            <div class="applied_candidates_dt">
-                              <div class="candi_img">
+                      <div className="applied_candidates_item">
+                        <div className="row">
+                          <div className="col-xl-7">
+                            <div className="applied_candidates_dt">
+                              <div className="candi_img">
                                 <img
                                   src="images/homepage/candidates/img-2.jpg"
                                   alt=""
                                 />
                               </div>
-                              <div class="candi_dt">
+                              <div className="candi_dt">
                                 <a href="#">Johnson Dua</a>
-                                <div class="candi_cate">UX Designer</div>
-                                <div class="rating_candi">
+                                <div className="candi_cate">UX Designer</div>
+                                <div className="rating_candi">
                                   Rating
-                                  <div class="star">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                  <div className="star">
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
                                     <span>4.9</span>
                                   </div>
                                 </div>
@@ -75,7 +75,7 @@ export default function Content() {
                             </div>
                           </div>
                         </div>
-                        <div class="btn_link24 review_user">
+                        <div className="btn_link24 review_user">
                           <p>
                             Lorem ipsum dolor sit amet, consectetur adipiscing
                             elit. Aenean elementum, nibh et aliquam
@@ -86,27 +86,27 @@ export default function Content() {
                       </div>
                     </li>
                     <li>
-                      <div class="applied_candidates_item">
-                        <div class="row">
-                          <div class="col-xl-7">
-                            <div class="applied_candidates_dt">
-                              <div class="candi_img">
+                      <div className="applied_candidates_item">
+                        <div className="row">
+                          <div className="col-xl-7">
+                            <div className="applied_candidates_dt">
+                              <div className="candi_img">
                                 <img
                                   src="images/homepage/candidates/img-5.jpg"
                                   alt=""
                                 />
                               </div>
-                              <div class="candi_dt">
+                              <div className="candi_dt">
                                 <a href="#">Jassica William</a>
-                                <div class="candi_cate">Freelancer</div>
-                                <div class="rating_candi">
+                                <div className="candi_cate">Freelancer</div>
+                                <div className="rating_candi">
                                   Rating
-                                  <div class="star">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                  <div className="star">
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
                                     <span>5.0</span>
                                   </div>
                                 </div>
@@ -114,7 +114,7 @@ export default function Content() {
                             </div>
                           </div>
                         </div>
-                        <div class="btn_link24 review_user">
+                        <div className="btn_link24 review_user">
                           <p>
                             Awesome work, definitely will rehire. Poject was
                             completed not only with the requirements, but on
@@ -124,27 +124,27 @@ export default function Content() {
                       </div>
                     </li>
                     <li>
-                      <div class="applied_candidates_item">
-                        <div class="row">
-                          <div class="col-xl-7">
-                            <div class="applied_candidates_dt">
-                              <div class="candi_img">
+                      <div className="applied_candidates_item">
+                        <div className="row">
+                          <div className="col-xl-7">
+                            <div className="applied_candidates_dt">
+                              <div className="candi_img">
                                 <img
                                   src="images/homepage/candidates/img-3.jpg"
                                   alt=""
                                 />
                               </div>
-                              <div class="candi_dt">
+                              <div className="candi_dt">
                                 <a href="#">Joginder Singh</a>
-                                <div class="candi_cate">Employer</div>
-                                <div class="rating_candi">
+                                <div className="candi_cate">Employer</div>
+                                <div className="rating_candi">
                                   Rating
-                                  <div class="star">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                  <div className="star">
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
+                                    <i className="fas fa-star"></i>
                                     <span>4.5</span>
                                   </div>
                                 </div>
@@ -152,7 +152,7 @@ export default function Content() {
                             </div>
                           </div>
                         </div>
-                        <div class="btn_link24 review_user">
+                        <div className="btn_link24 review_user">
                           <p>
                             Fusce sodales consectetur lacus eu vestibulum. Orci
                             varius natoque penatibus et magnis dis parturient

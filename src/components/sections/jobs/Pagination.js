@@ -149,9 +149,9 @@ function Pagination({ data, pageLimit, dataLimit }) {
                     </span>
                   </div>
                 </div>
-                <div class="job-right-dt">
-                  <div class="job-fp">Salary</div>
-                  <div class="job-price">{item.salary}</div>
+                <div className="job-right-dt">
+                  <div className="job-fp">Salary</div>
+                  <div className="job-price">{item.salary}</div>
                 </div>
               </div>
               <div className="job-des-dt">

@@ -28,130 +28,130 @@ export default function Content() {
         <div className="container">
           <div className="row">
             <ProfileSideBar />
-            <div class="col-lg-9 col-md-8 mainpage">
+            <div className="col-lg-9 col-md-8 mainpage">
               <ProfileHeader pathname={"notifications"} />
-              <div class="view_chart">
-                <div class="view_chart_header">
+              <div className="view_chart">
+                <div className="view_chart_header">
                   <h4>Notification</h4>
                 </div>
-                <div class="notification_body">
-                  <div class="user-request-list">
-                    <div class="request-users">
-                      <div class="user-request-dt">
-                        <div class="noti-icon">
-                          <i class="fas fa-users"></i>
+                <div className="notification_body">
+                  <div className="user-request-list">
+                    <div className="request-users">
+                      <div className="user-request-dt">
+                        <div className="noti-icon">
+                          <i className="fas fa-users"></i>
                         </div>
-                        <div class="dash_noti">
-                          <div class="user-title3">Rock William </div>
+                        <div className="dash_noti">
+                          <div className="user-title3">Rock William </div>
                           <p>
                             applied for a{" "}
-                            <a href="#" class="noti-p-link">
+                            <a href="#" className="noti-p-link">
                               Php Developer
                             </a>
                             .
                           </p>
                         </div>
                       </div>
-                      <div class="time5">2 min ago</div>
+                      <div className="time5">2 min ago</div>
                     </div>
                   </div>
-                  <div class="user-request-list">
-                    <div class="request-users">
-                      <div class="user-request-dt">
-                        <div class="noti-icon">
-                          <i class="fas fa-exclamation"></i>
+                  <div className="user-request-list">
+                    <div className="request-users">
+                      <div className="user-request-dt">
+                        <div className="noti-icon">
+                          <i className="fas fa-exclamation"></i>
                         </div>
-                        <div class="dash_noti">
-                          <p class="mt-2">
+                        <div className="dash_noti">
+                          <p className="mt-2">
                             Your job listing
-                            <a href="#" class="noti-p-link">
+                            <a href="#" className="noti-p-link">
                               Wordpress Developer
                             </a>
                             is expiring.
                           </p>
                         </div>
                       </div>
-                      <div class="time5">2 min ago</div>
+                      <div className="time5">2 min ago</div>
                     </div>
                   </div>
-                  <div class="user-request-list">
-                    <div class="request-users">
-                      <div class="user-request-dt">
-                        <div class="noti-icon">
-                          <i class="fas fa-bullseye"></i>
+                  <div className="user-request-list">
+                    <div className="request-users">
+                      <div className="user-request-dt">
+                        <div className="noti-icon">
+                          <i className="fas fa-bullseye"></i>
                         </div>
-                        <div class="dash_noti">
-                          <div class="user-title3">Johnson Smith</div>
+                        <div className="dash_noti">
+                          <div className="user-title3">Johnson Smith</div>
                           <p>
                             placed a bid on your{" "}
-                            <a href="#" class="noti-p-link">
+                            <a href="#" className="noti-p-link">
                               I Need Travel Wordpress Theme
                             </a>
                             project.
                           </p>
                         </div>
                       </div>
-                      <div class="time5">2 min ago</div>
+                      <div className="time5">2 min ago</div>
                     </div>
                   </div>
-                  <div class="user-request-list">
-                    <div class="request-users">
-                      <div class="user-request-dt">
-                        <div class="noti-icon">
-                          <i class="fas fa-hands-helping"></i>
+                  <div className="user-request-list">
+                    <div className="request-users">
+                      <div className="user-request-dt">
+                        <div className="noti-icon">
+                          <i className="fas fa-hands-helping"></i>
                         </div>
-                        <div class="dash_noti">
-                          <div class="user-title3">Joy Doe</div>
+                        <div className="dash_noti">
+                          <div className="user-title3">Joy Doe</div>
                           <p>
                             hired you for a
-                            <a href="#" class="noti-p-link">
+                            <a href="#" className="noti-p-link">
                               Web App Development
                             </a>
                             project.
                           </p>
                         </div>
                       </div>
-                      <div class="time5">2 min ago</div>
+                      <div className="time5">2 min ago</div>
                     </div>
                   </div>
-                  <div class="user-request-list">
-                    <div class="request-users">
-                      <div class="user-request-dt">
-                        <div class="noti-icon">
-                          <i class="fas fa-star"></i>
+                  <div className="user-request-list">
+                    <div className="request-users">
+                      <div className="user-request-dt">
+                        <div className="noti-icon">
+                          <i className="fas fa-star"></i>
                         </div>
-                        <div class="dash_noti">
-                          <div class="user-title3">Jassica</div>
+                        <div className="dash_noti">
+                          <div className="user-title3">Jassica</div>
                           <p>
                             left you a rating after finish a
-                            <a href="#" class="noti-p-link">
+                            <a href="#" className="noti-p-link">
                               Real Estate Wordpress
                             </a>
                             project.
                           </p>
                         </div>
                       </div>
-                      <div class="time5">2 min ago</div>
+                      <div className="time5">2 min ago</div>
                     </div>
                   </div>
-                  <div class="user-request-list">
-                    <div class="request-users">
-                      <div class="user-request-dt">
-                        <div class="noti-icon">
-                          <i class="fas fa-bullseye"></i>
+                  <div className="user-request-list">
+                    <div className="request-users">
+                      <div className="user-request-dt">
+                        <div className="noti-icon">
+                          <i className="fas fa-bullseye"></i>
                         </div>
-                        <div class="dash_noti">
-                          <div class="user-title3">Albert Dua</div>
+                        <div className="dash_noti">
+                          <div className="user-title3">Albert Dua</div>
                           <p>
                             accpted your bid on
-                            <a href="#" class="noti-p-link">
+                            <a href="#" className="noti-p-link">
                               Hotel Andriod App
                             </a>
                             project.
                           </p>
                         </div>
                       </div>
-                      <div class="time5">2 min ago</div>
+                      <div className="time5">2 min ago</div>
                     </div>
                   </div>
                 </div>

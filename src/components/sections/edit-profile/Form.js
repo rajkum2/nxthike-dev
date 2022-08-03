@@ -153,10 +153,10 @@ export default function Form(props) {
                       <h4>My Profile</h4>
                     </div>
                     <div className="post_job_body">
-                      <div class="row">
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">
+                      <div className="row">
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">
                               Name<span style={{ color: "red" }}> *</span>
                             </label>
                             <input
@@ -169,27 +169,27 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">
                               Email Address
                               <span style={{ color: "red" }}> *</span>
                             </label>
                             <input
                               type="email"
-                              class="job-input"
+                              className="job-input"
                               placeholder="Enter Your Email Address"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                             />
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">Date of Birth</label>
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">Date of Birth</label>
                             <input
                               type="date"
-                              class="job-input"
+                              className="job-input"
                               placeholder="Enter Your Date of Birth"
                               value={dob}
                               onChange={(e) => setDOB(e.target.value)}
@@ -198,24 +198,24 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">City</label>
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">City</label>
                             <input
                               type="text"
-                              class="job-input"
+                              className="job-input"
                               placeholder="Enter Your City"
                               value={city}
                               onChange={(e) => setCity(e.target.value)}
                             />
                           </div>
                         </div>
-                        <div class="col-lg-12">
-                          <div class="form-group">
-                            <label class="label15">Description </label>
-                            <div class="description_dtu">
+                        <div className="col-lg-12">
+                          <div className="form-group">
+                            <label className="label15">Description </label>
+                            <div className="description_dtu">
                               <textarea
-                                class="textarea70"
+                                className="textarea70"
                                 placeholder="Describe your experience, skills, etc. In complete details. This is your chance to show off."
                                 value={desc}
                                 onChange={(e) => setDesc(e.target.value)}
@@ -223,21 +223,21 @@ export default function Form(props) {
                             </div>
                           </div>
                         </div>
-                        <div class="col-lg-12">
-                          <div class="form-group">
-                            <label class="label15">Tagline </label>
+                        <div className="col-lg-12">
+                          <div className="form-group">
+                            <label className="label15">Tagline </label>
                             <input
                               type="text"
-                              class="job-input"
+                              className="job-input"
                               placeholder="Wordpress Developer"
                               value={tagline}
                               onChange={(e) => setTagline(e.target.value)}
                             />
                           </div>
                         </div>
-                        <div class="col-lg-12">
-                          <div class="form-group">
-                            <label class="label15">Skills </label>
+                        <div className="col-lg-12">
+                          <div className="form-group">
+                            <label className="label15">Skills </label>
                             <Select
                               styles={customStyles}
                               value={options.skills.filter((skill) =>
@@ -253,9 +253,9 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">Availability </label>
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">Availability </label>
                             <Select
                               styles={customStyles}
                               options={options.availability}
@@ -268,9 +268,9 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">Experience Level </label>
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">Experience Level </label>
                             <Select
                               styles={customStyles}
                               options={options.exp}
@@ -283,23 +283,23 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">Pay Rate ($/hr) </label>
-                            <div class="smm_input">
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">Pay Rate ($/hr) </label>
+                            <div className="smm_input">
                               <input
                                 type="text"
-                                class="job-input"
+                                className="job-input"
                                 placeholder="Enter Your Page Rate"
                                 disabled={true}
                               />
-                              <div class="mix_max">Usd</div>
+                              <div className="mix_max">Usd</div>
                             </div>
                           </div>
                         </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <label class="label15">Languages </label>
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">Languages </label>
                             <Select
                               styles={customStyles}
                               value={options.languages.filter((skill) =>
@@ -315,13 +315,13 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div class="col-lg-12">
-                          <div class="form-group">
-                            <label class="label15">Location </label>
-                            <div class="smm_input">
+                        <div className="col-lg-12">
+                          <div className="form-group">
+                            <label className="label15">Location </label>
+                            <div className="smm_input">
                               <input
                                 type="text"
-                                class="job-input"
+                                className="job-input"
                                 placeholder="Type Address"
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
@@ -329,37 +329,37 @@ export default function Form(props) {
                             </div>
                           </div>
                         </div>
-                        {/*<div class="col-lg-12">
-                                    <div class="form-group">
-                                      <label class="label15">Websites </label>
-                                      <div class="smm_input5">
+                        {/*<div className="col-lg-12">
+                                    <div className="form-group">
+                                      <label className="label15">Websites </label>
+                                      <div className="smm_input5">
                                         <input
                                           type="text"
-                                          class="website-input"
+                                          className="website-input"
                                           placeholder="https://entercompanysite.com"
                                         />
-                                        <div class="loc_icon5">
-                                          <i class="fas fa-globe"></i>
+                                        <div className="loc_icon5">
+                                          <i className="fas fa-globe"></i>
                                         </div>
                                       </div>
-                                      <div class="smm_input5">
+                                      <div className="smm_input5">
                                         <input
                                           type="text"
-                                          class="website-input"
+                                          className="website-input"
                                           placeholder="https://enterblogsite.com"
                                         />
-                                        <div class="loc_icon5">
-                                          <i class="far fa-edit"></i>
+                                        <div className="loc_icon5">
+                                          <i className="far fa-edit"></i>
                                         </div>
                                       </div>
-                                      <div class="smm_input5">
+                                      <div className="smm_input5">
                                         <input
                                           type="text"
-                                          class="website-input"
+                                          className="website-input"
                                           placeholder="https://enterportfoliosite.com"
                                         />
-                                        <div class="loc_icon5">
-                                          <i class="fas fa-columns"></i>
+                                        <div className="loc_icon5">
+                                          <i className="fas fa-columns"></i>
                                         </div>
                                       </div>
                                     </div>
@@ -369,123 +369,123 @@ export default function Form(props) {
                   </div>
                 </Tab.Pane>
                 <Tab.Pane eventKey="tab2">
-                  <div class="view_chart">
-                    <div class="view_chart_header">
+                  <div className="view_chart">
+                    <div className="view_chart_header">
                       <h4>Social Accounts</h4>
                     </div>
-                    <div class="social200">
+                    <div className="social200">
                       <ul>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://facebook.com/johndoe..."
                               value={facebook}
                               onChange={(e) => setFacebook(e.target.value)}
                             />
-                            <div class="icon143 f1">
-                              <i class="fab fa-facebook-f"></i>
+                            <div className="icon143 f1">
+                              <i className="fab fa-facebook-f"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://twitter.com/johndoe..."
                               value={twitter}
                               onChange={(e) => setTwitter(e.target.value)}
                             />
-                            <div class="icon143 t1">
-                              <i class="fab fa-twitter"></i>
+                            <div className="icon143 t1">
+                              <i className="fab fa-twitter"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://youtube.com/johndoe..."
                               value={youtube}
                               onChange={(e) => setYoutube(e.target.value)}
                             />
-                            <div class="icon143 y1">
-                              <i class="fab fa-youtube"></i>
+                            <div className="icon143 y1">
+                              <i className="fab fa-youtube"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://linkedin.com/johndoe..."
                               value={linkedin}
                               onChange={(e) => setLinkedin(e.target.value)}
                             />
-                            <div class="icon143 l1">
-                              <i class="fab fa-linkedin-in l1"></i>
+                            <div className="icon143 l1">
+                              <i className="fab fa-linkedin-in l1"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://instagram.com/johndoe..."
                               value={insta}
                               onChange={(e) => setInsta(e.target.value)}
                             />
-                            <div class="icon143 i1">
-                              <i class="fab fa-instagram"></i>
+                            <div className="icon143 i1">
+                              <i className="fab fa-instagram"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://dribbble.com/johndoe..."
                               disabled={true}
                             />
-                            <div class="icon143 d1">
-                              <i class="fab fa-dribbble d1"></i>
+                            <div className="icon143 d1">
+                              <i className="fab fa-dribbble d1"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://behance.net/johndoe..."
                               disabled={true}
                             />
-                            <div class="icon143 b1">
-                              <i class="fab fa-behance b1"></i>
+                            <div className="icon143 b1">
+                              <i className="fab fa-behance b1"></i>
                             </div>
                           </div>
                         </li>
                         <li>
-                          <div class="social201">
+                          <div className="social201">
                             <input
-                              class="scl_input"
+                              className="scl_input"
                               type="text"
                               placeholder="https://github.com/johndoe..."
                               disabled={true}
                             />
-                            <div class="icon143 g1">
-                              <i class="fab fa-github g1"></i>
+                            <div className="icon143 g1">
+                              <i className="fab fa-github g1"></i>
                             </div>
                           </div>
                         </li>
                       </ul>
-                      <button class="post_jp_btn" type="submit">
+                      <button className="post_jp_btn" type="submit">
                         SAVE CHANGES
                       </button>
 

@@ -28,20 +28,20 @@ export default function Content() {
         <div className="container">
           <div className="row">
             <ProfileSideBar />
-            <div class="col-lg-9 col-md-8 mainpage">
+            <div className="col-lg-9 col-md-8 mainpage">
               <ProfileHeader pathname={"bids"} />
-              <div class="jobs_manage">
-                <div class="row">
-                  <div class="col-lg-3">
-                    <div class="jobs_tabs">
+              <div className="jobs_manage">
+                <div className="row">
+                  <div className="col-lg-3">
+                    <div className="jobs_tabs">
                       <ul
-                        class="nav job_nav nav-tabs"
+                        className="nav job_nav nav-tabs"
                         id="myTab"
                         role="tablist"
                       >
-                        <li class="nav-item">
+                        <li className="nav-item">
                           <a
-                            class="nav-link active"
+                            className="nav-link active"
                             href="#manage_bids"
                             id="manage-bids-tab"
                             data-toggle="tab"
@@ -49,9 +49,9 @@ export default function Content() {
                             Manage Bids
                           </a>
                         </li>
-                        <li class="nav-item job_nav_item">
+                        <li className="nav-item job_nav_item">
                           <a
-                            class="nav-link"
+                            className="nav-link"
                             href="#manage_bidders"
                             id="manage-bidders-tab"
                             data-toggle="tab"
@@ -59,9 +59,9 @@ export default function Content() {
                             Manage Bidders
                           </a>
                         </li>
-                        <li class="nav-item job_nav_item">
+                        <li className="nav-item job_nav_item">
                           <a
-                            class="nav-link"
+                            className="nav-link"
                             href="#active_bids"
                             id="active-bids-tab"
                             data-toggle="tab"
@@ -69,9 +69,9 @@ export default function Content() {
                             My Active Bids
                           </a>
                         </li>
-                        <li class="nav-item job_nav_item">
+                        <li className="nav-item job_nav_item">
                           <a
-                            class="nav-link"
+                            className="nav-link"
                             href="#post_project"
                             id="post-project-tab"
                             data-toggle="tab"
@@ -82,32 +82,33 @@ export default function Content() {
                       </ul>
                     </div>
                   </div>
-                  <div class="col-lg-9">
-                    <div class="tab-content" id="myTabContent">
+                  <div className="col-lg-9">
+                    <div className="tab-content" id="myTabContent">
                       <div
-                        class="tab-pane fade show active"
+                        className="tab-pane fade show active"
                         id="manage_bids"
                         role="tabpanel"
                       >
-                        <div class="view_chart">
-                          <div class="view_chart_header">
+                        <div className="view_chart">
+                          <div className="view_chart_header">
                             <h4>Manage Bids</h4>
                           </div>
-                          <div class="job_bid_body">
-                            <ul class="all_applied_jobs jobs_bookmarks">
+                          <div className="job_bid_body">
+                            <ul className="all_applied_jobs jobs_bookmarks">
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Travel Wordpress Theme</a>
-                                  <span class="badge_alrt">Expiring</span>
-                                  <ul class="view_dt_job">
+                                  <span className="badge_alrt">Expiring</span>
+                                  <ul className="view_dt_job">
                                     <li>
-                                      <div class="vw1254">
-                                        <i class="far fa-clock"></i>5 hours left
+                                      <div className="vw1254">
+                                        <i className="far fa-clock"></i>5 hours
+                                        left
                                       </div>
                                     </li>
                                   </ul>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>3</span>
                                       <ins>Bids</ins>
                                       <span>$120</span>
@@ -116,34 +117,36 @@ export default function Content() {
                                       <ins>Hourly Rate</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
-                                      <span class="badge badge-light">3</span>
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
+                                      <span className="badge badge-light">
+                                        3
+                                      </span>
                                       Bidders
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Restaurant Android App</a>
-                                  <span class="badge_alrt">In Process</span>
-                                  <ul class="view_dt_job">
+                                  <span className="badge_alrt">In Process</span>
+                                  <ul className="view_dt_job">
                                     <li>
-                                      <div class="vw1254">
-                                        <i class="far fa-clock"></i>6 days 5
+                                      <div className="vw1254">
+                                        <i className="far fa-clock"></i>6 days 5
                                         hours left
                                       </div>
                                     </li>
                                   </ul>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>6</span>
                                       <ins>Bids</ins>
                                       <span>$120</span>
@@ -152,34 +155,36 @@ export default function Content() {
                                       <ins>Hourly Rate</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
-                                      <span class="badge badge-light">6</span>
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
+                                      <span className="badge badge-light">
+                                        6
+                                      </span>
                                       Bidders
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Real Estate Psd Template</a>
-                                  <span class="badge_alrt">In Process</span>
-                                  <ul class="view_dt_job">
+                                  <span className="badge_alrt">In Process</span>
+                                  <ul className="view_dt_job">
                                     <li>
-                                      <div class="vw1254">
-                                        <i class="far fa-clock"></i>8 days 2
+                                      <div className="vw1254">
+                                        <i className="far fa-clock"></i>8 days 2
                                         hours left
                                       </div>
                                     </li>
                                   </ul>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>8</span>
                                       <ins>Bids</ins>
                                       <span>$120</span>
@@ -188,16 +193,18 @@ export default function Content() {
                                       <ins>Hourly Rate</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
-                                      <span class="badge badge-light">8</span>
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
+                                      <span className="badge badge-light">
+                                        8
+                                      </span>
                                       Bidders
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
@@ -206,53 +213,53 @@ export default function Content() {
                           </div>
                         </div>
                       </div>
-                      <div class="tab-pane fade" id="manage_bidders">
-                        <div class="view_chart">
-                          <div class="view_chart_header">
+                      <div className="tab-pane fade" id="manage_bidders">
+                        <div className="view_chart">
+                          <div className="view_chart_header">
                             <h4>Manage Bidders</h4>
                           </div>
-                          <div class="job_bid_body">
-                            <ul class="all_applied_jobs jobs_bookmarks">
+                          <div className="job_bid_body">
+                            <ul className="all_applied_jobs jobs_bookmarks">
                               <li>
-                                <div class="applied_candidates_item">
-                                  <div class="row">
-                                    <div class="col-xl-7">
-                                      <div class="applied_candidates_dt">
-                                        <div class="candi_img">
+                                <div className="applied_candidates_item">
+                                  <div className="row">
+                                    <div className="col-xl-7">
+                                      <div className="applied_candidates_dt">
+                                        <div className="candi_img">
                                           <img
                                             src="images/homepage/candidates/img-1.jpg"
                                             alt=""
                                           />
                                         </div>
-                                        <div class="candi_dt">
+                                        <div className="candi_dt">
                                           <a href="#">John Doe</a>
-                                          <div class="candi_cate">
+                                          <div className="candi_cate">
                                             UX Designer
                                           </div>
-                                          <div class="rating_candi">
+                                          <div className="rating_candi">
                                             Rating
-                                            <div class="star">
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
+                                            <div className="star">
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
                                               <span>4.9</span>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="col-xl-5">
-                                      <ul class="fixed_delivery">
+                                    <div className="col-xl-5">
+                                      <ul className="fixed_delivery">
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>$1600</span>
                                             <p>Fixed Price</p>
                                           </div>
                                         </li>
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>5 Days</span>
                                             <p>Delivery Time</p>
                                           </div>
@@ -260,55 +267,59 @@ export default function Content() {
                                       </ul>
                                     </div>
                                   </div>
-                                  <div class="btn_link24">
-                                    <button class="apled_btn50">Accept</button>
-                                    <button class="apled_btn70">Message</button>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                  <div className="btn_link24">
+                                    <button className="apled_btn50">
+                                      Accept
+                                    </button>
+                                    <button className="apled_btn70">
+                                      Message
+                                    </button>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_candidates_item">
-                                  <div class="row">
-                                    <div class="col-xl-7">
-                                      <div class="applied_candidates_dt">
-                                        <div class="candi_img">
+                                <div className="applied_candidates_item">
+                                  <div className="row">
+                                    <div className="col-xl-7">
+                                      <div className="applied_candidates_dt">
+                                        <div className="candi_img">
                                           <img
                                             src="images/homepage/candidates/img-2.jpg"
                                             alt=""
                                           />
                                         </div>
-                                        <div class="candi_dt">
+                                        <div className="candi_dt">
                                           <a href="#">Rock William</a>
-                                          <div class="candi_cate">
+                                          <div className="candi_cate">
                                             Front End Developer
                                           </div>
-                                          <div class="rating_candi">
+                                          <div className="rating_candi">
                                             Rating
-                                            <div class="star">
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
+                                            <div className="star">
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
                                               <span>5.0</span>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="col-xl-5">
-                                      <ul class="fixed_delivery">
+                                    <div className="col-xl-5">
+                                      <ul className="fixed_delivery">
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>$2000</span>
                                             <p>Fixed Price</p>
                                           </div>
                                         </li>
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>8 Days</span>
                                             <p>Delivery Time</p>
                                           </div>
@@ -316,55 +327,59 @@ export default function Content() {
                                       </ul>
                                     </div>
                                   </div>
-                                  <div class="btn_link24">
-                                    <button class="apled_btn50">Accept</button>
-                                    <button class="apled_btn70">Message</button>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                  <div className="btn_link24">
+                                    <button className="apled_btn50">
+                                      Accept
+                                    </button>
+                                    <button className="apled_btn70">
+                                      Message
+                                    </button>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_candidates_item">
-                                  <div class="row">
-                                    <div class="col-xl-7">
-                                      <div class="applied_candidates_dt">
-                                        <div class="candi_img">
+                                <div className="applied_candidates_item">
+                                  <div className="row">
+                                    <div className="col-xl-7">
+                                      <div className="applied_candidates_dt">
+                                        <div className="candi_img">
                                           <img
                                             src="images/homepage/candidates/img-3.jpg"
                                             alt=""
                                           />
                                         </div>
-                                        <div class="candi_dt">
+                                        <div className="candi_dt">
                                           <a href="#">Johnson William</a>
-                                          <div class="candi_cate">
+                                          <div className="candi_cate">
                                             Wordpress Developer
                                           </div>
-                                          <div class="rating_candi">
+                                          <div className="rating_candi">
                                             Rating
-                                            <div class="star">
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
+                                            <div className="star">
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
                                               <span>5.0</span>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="col-xl-5">
-                                      <ul class="fixed_delivery">
+                                    <div className="col-xl-5">
+                                      <ul className="fixed_delivery">
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>$1600</span>
                                             <p>Fixed Price</p>
                                           </div>
                                         </li>
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>13 Days</span>
                                             <p>Delivery Time</p>
                                           </div>
@@ -372,55 +387,59 @@ export default function Content() {
                                       </ul>
                                     </div>
                                   </div>
-                                  <div class="btn_link24">
-                                    <button class="apled_btn50">Accept</button>
-                                    <button class="apled_btn70">Message</button>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                  <div className="btn_link24">
+                                    <button className="apled_btn50">
+                                      Accept
+                                    </button>
+                                    <button className="apled_btn70">
+                                      Message
+                                    </button>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_candidates_item">
-                                  <div class="row">
-                                    <div class="col-xl-7">
-                                      <div class="applied_candidates_dt">
-                                        <div class="candi_img">
+                                <div className="applied_candidates_item">
+                                  <div className="row">
+                                    <div className="col-xl-7">
+                                      <div className="applied_candidates_dt">
+                                        <div className="candi_img">
                                           <img
                                             src="images/homepage/candidates/img-4.jpg"
                                             alt=""
                                           />
                                         </div>
-                                        <div class="candi_dt">
+                                        <div className="candi_dt">
                                           <a href="#">Jass Singh</a>
-                                          <div class="candi_cate">
+                                          <div className="candi_cate">
                                             Php Developer
                                           </div>
-                                          <div class="rating_candi">
+                                          <div className="rating_candi">
                                             Rating
-                                            <div class="star">
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
-                                              <i class="fas fa-star"></i>
+                                            <div className="star">
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
+                                              <i className="fas fa-star"></i>
                                               <span>4.9</span>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="col-xl-5">
-                                      <ul class="fixed_delivery">
+                                    <div className="col-xl-5">
+                                      <ul className="fixed_delivery">
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>$1600</span>
                                             <p>Fixed Price</p>
                                           </div>
                                         </li>
                                         <li>
-                                          <div class="fpd150">
+                                          <div className="fpd150">
                                             <span>5 Days</span>
                                             <p>Delivery Time</p>
                                           </div>
@@ -428,11 +447,15 @@ export default function Content() {
                                       </ul>
                                     </div>
                                   </div>
-                                  <div class="btn_link24">
-                                    <button class="apled_btn50">Accept</button>
-                                    <button class="apled_btn70">Message</button>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                  <div className="btn_link24">
+                                    <button className="apled_btn50">
+                                      Accept
+                                    </button>
+                                    <button className="apled_btn70">
+                                      Message
+                                    </button>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
@@ -441,105 +464,105 @@ export default function Content() {
                           </div>
                         </div>
                       </div>
-                      <div class="tab-pane fade" id="active_bids">
-                        <div class="view_chart">
-                          <div class="view_chart_header">
+                      <div className="tab-pane fade" id="active_bids">
+                        <div className="view_chart">
+                          <div className="view_chart_header">
                             <h4>My Active Bids</h4>
                           </div>
-                          <div class="job_bid_body">
-                            <ul class="all_applied_jobs jobs_bookmarks">
+                          <div className="job_bid_body">
+                            <ul className="all_applied_jobs jobs_bookmarks">
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Travel Wordpress Theme</a>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>$1800</span>
                                       <ins>Fixed Price</ins>
                                       <span>15 Days</span>
                                       <ins>Delivery Time</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
                                       View Project
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Wordpress Installation Issues</a>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>$50</span>
                                       <ins>Hourly Rate</ins>
                                       <span>1 Day</span>
                                       <ins>Delivery Time</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
                                       View Project
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Travel Psd Template</a>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>$500</span>
                                       <ins>Fixed Price</ins>
                                       <span>7 Days</span>
                                       <ins>Delivery Time</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
                                       View Project
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
                               </li>
                               <li>
-                                <div class="applied_item">
+                                <div className="applied_item">
                                   <a href="#">Travel Wordpress Theme</a>
-                                  <div class="bid_dt12">
-                                    <div class="bid_dt13">
+                                  <div className="bid_dt12">
+                                    <div className="bid_dt13">
                                       <span>$1800</span>
                                       <ins>Fixed Price</ins>
                                       <span>15 Days</span>
                                       <ins>Delivery Time</ins>
                                     </div>
                                   </div>
-                                  <div class="btn_link23">
-                                    <button class="apled_btn60">
+                                  <div className="btn_link23">
+                                    <button className="apled_btn60">
                                       View Project
                                     </button>
-                                    <a href="#" class="edit_icon1">
-                                      <i class="far fa-edit"></i>
+                                    <a href="#" className="edit_icon1">
+                                      <i className="far fa-edit"></i>
                                     </a>
-                                    <a href="#" class="delete_icon1">
-                                      <i class="far fa-trash-alt"></i>
+                                    <a href="#" className="delete_icon1">
+                                      <i className="far fa-trash-alt"></i>
                                     </a>
                                   </div>
                                 </div>
@@ -549,152 +572,154 @@ export default function Content() {
                         </div>
                       </div>
                       <div
-                        class="tab-pane fade"
+                        className="tab-pane fade"
                         id="post_project"
                         role="tabpanel"
                       >
-                        <div class="view_chart">
-                          <div class="view_chart_header">
+                        <div className="view_chart">
+                          <div className="view_chart_header">
                             <h4>Post a Project</h4>
                           </div>
-                          <div class="post_job_body">
+                          <div className="post_job_body">
                             <form>
-                              <div class="row">
-                                <div class="col-lg-12">
-                                  <div class="form-group">
-                                    <label class="label15">Project Name*</label>
+                              <div className="row">
+                                <div className="col-lg-12">
+                                  <div className="form-group">
+                                    <label className="label15">
+                                      Project Name*
+                                    </label>
                                     <input
                                       type="text"
-                                      class="job-input"
+                                      className="job-input"
                                       placeholder="Project Name Here"
                                     />
                                   </div>
-                                  <div class="form-group">
-                                    <label class="label15">
+                                  <div className="form-group">
+                                    <label className="label15">
                                       Project Description*
                                     </label>
                                     <textarea
-                                      class="textarea_input"
+                                      className="textarea_input"
                                       placeholder="Type Description"
                                     ></textarea>
                                   </div>
                                 </div>
-                                <div class="col-lg-12">
-                                  <div class="requires">
+                                <div className="col-lg-12">
+                                  <div className="requires">
                                     What are the Project requirements
                                   </div>
                                 </div>
-                                <div class="col-lg-6">
-                                  <div class="form-group">
-                                    <label class="label15">
+                                <div className="col-lg-6">
+                                  <div className="form-group">
+                                    <label className="label15">
                                       Project Category*
                                     </label>
-                                    <div class="ui fluid search selection dropdown skills-search">
+                                    <div className="ui fluid search selection dropdown skills-search">
                                       <input
                                         name="tags"
                                         type="hidden"
                                         value=""
                                       />
-                                      <i class="dropdown icon"></i>
+                                      <i className="dropdown icon"></i>
                                       <input
-                                        class="search"
+                                        className="search"
                                         autocomplete="off"
                                         tabindex="0"
                                       />
-                                      <span class="sizer"></span>
-                                      <div class="default text">
+                                      <span className="sizer"></span>
+                                      <div className="default text">
                                         Select Category
                                       </div>
                                       <div
-                                        class="menu transition hidden"
+                                        className="menu transition hidden"
                                         tabindex="-1"
                                       >
                                         <div
-                                          class="item selected"
+                                          className="item selected"
                                           data-value="Job1"
                                         >
                                           Category 01
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category2"
                                         >
                                           Category 02
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category3"
                                         >
                                           Category 03
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category4"
                                         >
                                           Category 04
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category5"
                                         >
                                           Category 05
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category6"
                                         >
                                           Category 06
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category7"
                                         >
                                           Category 07
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category8"
                                         >
                                           Category 08
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category9"
                                         >
                                           Category 09
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category10"
                                         >
                                           Category 10
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category11"
                                         >
                                           Category 11
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category12"
                                         >
                                           Category 12
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category13"
                                         >
                                           Category 13
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category14"
                                         >
                                           Category 14
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="Category15"
                                         >
                                           Category 15
@@ -703,96 +728,126 @@ export default function Content() {
                                     </div>
                                   </div>
                                 </div>
-                                <div class="col-lg-6">
-                                  <div class="form-group">
-                                    <label class="label15">
+                                <div className="col-lg-6">
+                                  <div className="form-group">
+                                    <label className="label15">
                                       Experience Level*
                                     </label>
-                                    <div class="ui fluid search selection dropdown skills-search">
+                                    <div className="ui fluid search selection dropdown skills-search">
                                       <input
                                         name="tags"
                                         type="hidden"
                                         value=""
                                       />
-                                      <i class="dropdown icon"></i>
+                                      <i className="dropdown icon"></i>
                                       <input
-                                        class="search"
+                                        className="search"
                                         autocomplete="off"
                                         tabindex="0"
                                       />
-                                      <span class="sizer"></span>
-                                      <div class="default text">
+                                      <span className="sizer"></span>
+                                      <div className="default text">
                                         Select Experience Level
                                       </div>
                                       <div
-                                        class="menu transition hidden"
+                                        className="menu transition hidden"
                                         tabindex="-1"
                                       >
-                                        <div class="item" data-value="level1">
+                                        <div
+                                          className="item"
+                                          data-value="level1"
+                                        >
                                           level 01
                                         </div>
-                                        <div class="item" data-value="level2">
+                                        <div
+                                          className="item"
+                                          data-value="level2"
+                                        >
                                           level 02
                                         </div>
-                                        <div class="item" data-value="level3">
+                                        <div
+                                          className="item"
+                                          data-value="level3"
+                                        >
                                           level 03
                                         </div>
-                                        <div class="item" data-value="level4">
+                                        <div
+                                          className="item"
+                                          data-value="level4"
+                                        >
                                           level 04
                                         </div>
-                                        <div class="item" data-value="level5">
+                                        <div
+                                          className="item"
+                                          data-value="level5"
+                                        >
                                           level 05
                                         </div>
-                                        <div class="item" data-value="level6">
+                                        <div
+                                          className="item"
+                                          data-value="level6"
+                                        >
                                           level 06
                                         </div>
-                                        <div class="item" data-value="level7">
+                                        <div
+                                          className="item"
+                                          data-value="level7"
+                                        >
                                           level 07
                                         </div>
-                                        <div class="item" data-value="level8">
+                                        <div
+                                          className="item"
+                                          data-value="level8"
+                                        >
                                           level 08
                                         </div>
-                                        <div class="item" data-value="level9">
+                                        <div
+                                          className="item"
+                                          data-value="level9"
+                                        >
                                           level 09
                                         </div>
-                                        <div class="item" data-value="level10">
+                                        <div
+                                          className="item"
+                                          data-value="level10"
+                                        >
                                           level 10
                                         </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                                <div class="col-lg-12">
-                                  <div class="form-group">
-                                    <label class="label15">Budget*</label>
-                                    <div class="ui fluid search selection dropdown skills-search">
+                                <div className="col-lg-12">
+                                  <div className="form-group">
+                                    <label className="label15">Budget*</label>
+                                    <div className="ui fluid search selection dropdown skills-search">
                                       <input
                                         name="tags"
                                         type="hidden"
                                         value=""
                                       />
-                                      <i class="dropdown icon"></i>
+                                      <i className="dropdown icon"></i>
                                       <input
-                                        class="search"
+                                        className="search"
                                         autocomplete="off"
                                         tabindex="0"
                                       />
-                                      <span class="sizer"></span>
-                                      <div class="default text">
+                                      <span className="sizer"></span>
+                                      <div className="default text">
                                         Hourly Price
                                       </div>
                                       <div
-                                        class="menu transition hidden"
+                                        className="menu transition hidden"
                                         tabindex="-1"
                                       >
                                         <div
-                                          class="item selected"
+                                          className="item selected"
                                           data-value="hp1"
                                         >
                                           Hourly Price
                                         </div>
                                         <div
-                                          class="item selected"
+                                          className="item selected"
                                           data-value="fp2"
                                         >
                                           Fixed Price
@@ -802,150 +857,178 @@ export default function Content() {
                                   </div>
                                 </div>
 
-                                <div class="col-lg-6">
-                                  <div class="form-group">
-                                    <div class="smm_input">
+                                <div className="col-lg-6">
+                                  <div className="form-group">
+                                    <div className="smm_input">
                                       <input
                                         type="text"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Min"
                                       />
-                                      <div class="mix_max">Usd</div>
+                                      <div className="mix_max">Usd</div>
                                     </div>
                                   </div>
                                 </div>
-                                <div class="col-lg-6">
-                                  <div class="form-group">
-                                    <div class="smm_input">
+                                <div className="col-lg-6">
+                                  <div className="form-group">
+                                    <div className="smm_input">
                                       <input
                                         type="text"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Max"
                                       />
-                                      <div class="mix_max">Usd</div>
+                                      <div className="mix_max">Usd</div>
                                     </div>
                                   </div>
                                 </div>
-                                <div class="col-lg-12">
-                                  <div class="form-group">
-                                    <label class="label15">Location*</label>
-                                    <div class="smm_input">
+                                <div className="col-lg-12">
+                                  <div className="form-group">
+                                    <label className="label15">Location*</label>
+                                    <div className="smm_input">
                                       <input
                                         type="text"
-                                        class="job-input"
+                                        className="job-input"
                                         placeholder="Type Address"
                                       />
-                                      <div class="loc_icon">
-                                        <i class="fas fa-map-marker-alt"></i>
+                                      <div className="loc_icon">
+                                        <i className="fas fa-map-marker-alt"></i>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                                <div class="col-lg-12">
-                                  <div class="form-group">
-                                    <label class="label15">Skills*</label>
-                                    <div class="ui fluid multiple search selection dropdown skills-search">
+                                <div className="col-lg-12">
+                                  <div className="form-group">
+                                    <label className="label15">Skills*</label>
+                                    <div className="ui fluid multiple search selection dropdown skills-search">
                                       <input
                                         name="tags"
                                         type="hidden"
                                         value=""
                                       />
-                                      <i class="dropdown icon"></i>
+                                      <i className="dropdown icon"></i>
                                       <input
-                                        class="search"
+                                        className="search"
                                         autocomplete="off"
                                         tabindex="0"
                                       />
-                                      <span class="sizer"></span>
-                                      <div class="default text">Skills</div>
+                                      <span className="sizer"></span>
+                                      <div className="default text">Skills</div>
                                       <div
-                                        class="menu transition hidden"
+                                        className="menu transition hidden"
                                         tabindex="-1"
                                       >
                                         <div
-                                          class="item selected"
+                                          className="item selected"
                                           data-value="angular"
                                         >
                                           Angular
                                         </div>
-                                        <div class="item" data-value="css">
+                                        <div className="item" data-value="css">
                                           CSS
                                         </div>
-                                        <div class="item" data-value="design">
+                                        <div
+                                          className="item"
+                                          data-value="design"
+                                        >
                                           Graphic Design
                                         </div>
-                                        <div class="item" data-value="ember">
+                                        <div
+                                          className="item"
+                                          data-value="ember"
+                                        >
                                           Ember
                                         </div>
-                                        <div class="item" data-value="html">
+                                        <div className="item" data-value="html">
                                           HTML
                                         </div>
-                                        <div class="item" data-value="ia">
+                                        <div className="item" data-value="ia">
                                           Information Architecture
                                         </div>
                                         <div
-                                          class="item"
+                                          className="item"
                                           data-value="javascript"
                                         >
                                           Javascript
                                         </div>
-                                        <div class="item" data-value="mech">
+                                        <div className="item" data-value="mech">
                                           Mechanical Engineering
                                         </div>
-                                        <div class="item" data-value="meteor">
+                                        <div
+                                          className="item"
+                                          data-value="meteor"
+                                        >
                                           Meteor
                                         </div>
-                                        <div class="item" data-value="node">
+                                        <div className="item" data-value="node">
                                           NodeJS
                                         </div>
-                                        <div class="item" data-value="plumbing">
+                                        <div
+                                          className="item"
+                                          data-value="plumbing"
+                                        >
                                           Plumbing
                                         </div>
-                                        <div class="item" data-value="python">
+                                        <div
+                                          className="item"
+                                          data-value="python"
+                                        >
                                           Python
                                         </div>
-                                        <div class="item" data-value="rails">
+                                        <div
+                                          className="item"
+                                          data-value="rails"
+                                        >
                                           Rails
                                         </div>
-                                        <div class="item" data-value="react">
+                                        <div
+                                          className="item"
+                                          data-value="react"
+                                        >
                                           React
                                         </div>
-                                        <div class="item" data-value="repair">
+                                        <div
+                                          className="item"
+                                          data-value="repair"
+                                        >
                                           Kitchen Repair
                                         </div>
-                                        <div class="item" data-value="ruby">
+                                        <div className="item" data-value="ruby">
                                           Ruby
                                         </div>
-                                        <div class="item" data-value="ui">
+                                        <div className="item" data-value="ui">
                                           UI Design
                                         </div>
-                                        <div class="item" data-value="ux">
+                                        <div className="item" data-value="ux">
                                           User Experience
                                         </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                                <div class="col-lg-12">
-                                  <div class="form-group">
-                                    <label class="label15">Upload Files*</label>
-                                    <div class="image-upload-wrap1">
+                                <div className="col-lg-12">
+                                  <div className="form-group">
+                                    <label className="label15">
+                                      Upload Files*
+                                    </label>
+                                    <div className="image-upload-wrap1">
                                       <input
-                                        class="file-upload-input1"
+                                        className="file-upload-input1"
                                         id="file2"
                                         type="file"
                                         onchange="readURL(this);"
                                         accept="image/*"
                                       />
-                                      <div class="drag-text1">Upload Files</div>
+                                      <div className="drag-text1">
+                                        Upload Files
+                                      </div>
                                     </div>
-                                    <p class="upload_dt">
+                                    <p className="upload_dt">
                                       Images, Pdf and MS Word Filess
                                     </p>
                                   </div>
                                 </div>
-                                <div class="col-lg-12">
-                                  <button class="post_jp_btn" type="submit">
+                                <div className="col-lg-12">
+                                  <button className="post_jp_btn" type="submit">
                                     Post a Project
                                   </button>
                                 </div>

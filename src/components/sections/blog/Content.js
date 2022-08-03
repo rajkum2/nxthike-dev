@@ -3,31 +3,31 @@ import logo from "../../../assets/images/blog/blog_logo.svg";
 
 export default function Content() {
   return (
-    <main class="browse-section">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="main-heading">
+    <main className="browse-section">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="main-heading">
               <h2>Our Blog</h2>
-              <div class="line-shape1">
+              <div className="line-shape1">
                 <img src="images/line.svg" alt="" />
               </div>
             </div>
-            <div class="plans150">
-              <div class="row">
-                <div class="col-lg-9 col-md-12">
-                  <div class="blog_item">
-                    <div class="blog_img">
+            <div className="plans150">
+              <div className="row">
+                <div className="col-lg-9 col-md-12">
+                  <div className="blog_item">
+                    <div className="blog_img">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -40,48 +40,48 @@ export default function Content() {
                           scelerisque ex. Vivamus id dignissim tortor. Donec
                           gravida.
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-3 col-md-12">
-                  <div class="subscribe_blog">
-                    <div class="subscribe_body">
-                      <div class="blog_logo">
+                <div className="col-lg-3 col-md-12">
+                  <div className="subscribe_blog">
+                    <div className="subscribe_body">
+                      <div className="blog_logo">
                         <img src={logo} alt="" />
                       </div>
                       <h3>Subscribe and Get Updates</h3>
                       <form>
-                        <div class="form-group">
+                        <div className="form-group">
                           <input
                             type="email"
-                            class="blog10-input"
+                            className="blog10-input"
                             placeholder="Email Address"
                           />
                         </div>
-                        <button class="blogbtn142" type="submit">
+                        <button className="blogbtn142" type="submit">
                           Subscribe Now
                         </button>
                       </form>
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                  <div class="blog_item">
-                    <div class="blog_img1">
+                <div className="col-xl-4 col-lg-6 col-md-6">
+                  <div className="blog_item">
+                    <div className="blog_img1">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -91,26 +91,26 @@ export default function Content() {
                           Mauris sit amet lacus vel purus facilisis cursus sed
                           dignissim dolor. Proin at accumsan augue...
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                  <div class="blog_item">
-                    <div class="blog_img1">
+                <div className="col-xl-4 col-lg-6 col-md-6">
+                  <div className="blog_item">
+                    <div className="blog_img1">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -120,26 +120,26 @@ export default function Content() {
                           Mauris sit amet lacus vel purus facilisis cursus sed
                           dignissim dolor. Proin at accumsan augue...
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                  <div class="blog_item">
-                    <div class="blog_img1">
+                <div className="col-xl-4 col-lg-6 col-md-6">
+                  <div className="blog_item">
+                    <div className="blog_img1">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -149,26 +149,26 @@ export default function Content() {
                           Mauris sit amet lacus vel purus facilisis cursus sed
                           dignissim dolor. Proin at accumsan augue...
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                  <div class="blog_item">
-                    <div class="blog_img1">
+                <div className="col-xl-4 col-lg-6 col-md-6">
+                  <div className="blog_item">
+                    <div className="blog_img1">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -178,26 +178,26 @@ export default function Content() {
                           Mauris sit amet lacus vel purus facilisis cursus sed
                           dignissim dolor. Proin at accumsan augue...
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                  <div class="blog_item">
-                    <div class="blog_img1">
+                <div className="col-xl-4 col-lg-6 col-md-6">
+                  <div className="blog_item">
+                    <div className="blog_img1">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -207,26 +207,26 @@ export default function Content() {
                           Mauris sit amet lacus vel purus facilisis cursus sed
                           dignissim dolor. Proin at accumsan augue...
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                  <div class="blog_item">
-                    <div class="blog_img1">
+                <div className="col-xl-4 col-lg-6 col-md-6">
+                  <div className="blog_item">
+                    <div className="blog_img1">
                       <img src={img1} alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
                         <h4>
@@ -236,44 +236,48 @@ export default function Content() {
                           Mauris sit amet lacus vel purus facilisis cursus sed
                           dignissim dolor. Proin at accumsan augue...
                         </p>
-                        <a href="/blog-single" class="read_btn">
+                        <a href="/blog-single" className="read_btn">
                           Read More
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-md-12">
-                  <div class="main-p-pagination">
+                <div className="col-md-12">
+                  <div className="main-p-pagination">
                     <nav aria-label="Page navigation example">
-                      <ul class="pagination">
-                        <li class="page-item">
-                          <a class="page-link" href="#" aria-label="Previous">
+                      <ul className="pagination">
+                        <li className="page-item">
+                          <a
+                            className="page-link"
+                            href="#"
+                            aria-label="Previous"
+                          >
                             PREV
                           </a>
                         </li>
-                        <li class="page-item">
-                          <a class="page-link active" href="#">
+                        <li className="page-item">
+                          <a className="page-link active" href="#">
                             1
                           </a>
                         </li>
-                        <li class="page-item">
-                          <a class="page-link" href="#">
+                        <li className="page-item">
+                          <a className="page-link" href="#">
                             2
                           </a>
                         </li>
-                        <li class="page-item">
-                          <a class="page-link" href="#">
+                        <li className="page-item">
+                          <a className="page-link" href="#">
                             ...
                           </a>
                         </li>
-                        <li class="page-item">
-                          <a class="page-link" href="#">
+                        <li className="page-item">
+                          <a className="page-link" href="#">
                             24
                           </a>
                         </li>
-                        <li class="page-item">
-                          <a class="page-link" href="#" aria-label="Next">
+                        <li className="page-item">
+                          <a className="page-link" href="#" aria-label="Next">
                             NEXT
                           </a>
                         </li>

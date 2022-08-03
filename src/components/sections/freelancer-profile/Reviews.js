@@ -23,12 +23,12 @@ export default function Reviews() {
   };
   return (
     <>
-      <div class="view_chart">
-        <div class="view_chart_header">
-          <h4 class="mt-1">All Reviews</h4>
-          <div class="review_right">
+      <div className="view_chart">
+        <div className="view_chart_header">
+          <h4 className="mt-1">All Reviews</h4>
+          <div className="review_right">
             <button
-              class="add_review_btn"
+              className="add_review_btn"
               type="button"
               onClick={() => setOpen(true)}
             >
@@ -36,30 +36,30 @@ export default function Reviews() {
             </button>
           </div>
         </div>
-        <div class="job_bid_body">
-          <ul class="all_applied_jobs jobs_bookmarks">
+        <div className="job_bid_body">
+          <ul className="all_applied_jobs jobs_bookmarks">
             <li>
-              <div class="applied_candidates_item">
-                <div class="row">
-                  <div class="col-xl-7">
-                    <div class="applied_candidates_dt">
-                      <div class="candi_img">
+              <div className="applied_candidates_item">
+                <div className="row">
+                  <div className="col-xl-7">
+                    <div className="applied_candidates_dt">
+                      <div className="candi_img">
                         <img
                           src="images/homepage/candidates/img-2.jpg"
                           alt=""
                         />
                       </div>
-                      <div class="candi_dt">
+                      <div className="candi_dt">
                         <a href="#">Johnson Dua</a>
-                        <div class="candi_cate">UX Designer</div>
-                        <div class="rating_candi">
+                        <div className="candi_cate">UX Designer</div>
+                        <div className="rating_candi">
                           Rating
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>4.9</span>
                           </div>
                         </div>
@@ -67,7 +67,7 @@ export default function Reviews() {
                     </div>
                   </div>
                 </div>
-                <div class="btn_link24 review_user">
+                <div className="btn_link24 review_user">
                   <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     Aenean elementum, nibh et aliquam pellentesque, risus libero
@@ -77,27 +77,27 @@ export default function Reviews() {
               </div>
             </li>
             <li>
-              <div class="applied_candidates_item">
-                <div class="row">
-                  <div class="col-xl-7">
-                    <div class="applied_candidates_dt">
-                      <div class="candi_img">
+              <div className="applied_candidates_item">
+                <div className="row">
+                  <div className="col-xl-7">
+                    <div className="applied_candidates_dt">
+                      <div className="candi_img">
                         <img
                           src="images/homepage/candidates/img-5.jpg"
                           alt=""
                         />
                       </div>
-                      <div class="candi_dt">
+                      <div className="candi_dt">
                         <a href="#">Jassica William</a>
-                        <div class="candi_cate">Freelancer</div>
-                        <div class="rating_candi">
+                        <div className="candi_cate">Freelancer</div>
+                        <div className="rating_candi">
                           Rating
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>5.0</span>
                           </div>
                         </div>
@@ -105,7 +105,7 @@ export default function Reviews() {
                     </div>
                   </div>
                 </div>
-                <div class="btn_link24 review_user">
+                <div className="btn_link24 review_user">
                   <p>
                     Awesome work, definitely will rehire. Poject was completed
                     not only with the requirements, but on time, within our
@@ -115,27 +115,27 @@ export default function Reviews() {
               </div>
             </li>
             <li>
-              <div class="applied_candidates_item">
-                <div class="row">
-                  <div class="col-xl-7">
-                    <div class="applied_candidates_dt">
-                      <div class="candi_img">
+              <div className="applied_candidates_item">
+                <div className="row">
+                  <div className="col-xl-7">
+                    <div className="applied_candidates_dt">
+                      <div className="candi_img">
                         <img
                           src="images/homepage/candidates/img-3.jpg"
                           alt=""
                         />
                       </div>
-                      <div class="candi_dt">
+                      <div className="candi_dt">
                         <a href="#">Joginder Singh</a>
-                        <div class="candi_cate">Employer</div>
-                        <div class="rating_candi">
+                        <div className="candi_cate">Employer</div>
+                        <div className="rating_candi">
                           Rating
-                          <div class="star">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                          <div className="star">
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
+                            <i className="fas fa-star"></i>
                             <span>4.5</span>
                           </div>
                         </div>
@@ -143,7 +143,7 @@ export default function Reviews() {
                     </div>
                   </div>
                 </div>
-                <div class="btn_link24 review_user">
+                <div className="btn_link24 review_user">
                   <p>
                     Fusce sodales consectetur lacus eu vestibulum. Orci varius
                     natoque penatibus et magnis dis parturient montes, nascetur
@@ -164,17 +164,17 @@ export default function Reviews() {
           overlay: "customOverlay",
         }}
       >
-        <div class="apply_job_form">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Add Review</h5>
+        <div className="apply_job_form">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Add Review</h5>
             </div>
-            <div class="modal-body">
-              <div class="jb_frm">
+            <div className="modal-body">
+              <div className="jb_frm">
                 <h3>Write Something About Client</h3>
-                <div class="form_inputs">
-                  <div class="form-group">
-                    <label class="label15">Rating*</label>
+                <div className="form_inputs">
+                  <div className="form-group">
+                    <label className="label15">Rating*</label>
                     <Select
                       options={rating}
                       className="skills-search"
@@ -182,14 +182,14 @@ export default function Reviews() {
                       isClearable
                     />
                   </div>
-                  <div class="form-group">
+                  <div className="form-group">
                     <textarea
-                      class="note-input"
+                      className="note-input"
                       placeholder="Type Text"
                     ></textarea>
                   </div>
-                  <div class="apply_btn150">
-                    <button class="apply_job50" type="button">
+                  <div className="apply_btn150">
+                    <button className="apply_job50" type="button">
                       ADD REVIEW
                     </button>
                   </div>

@@ -1,19 +1,19 @@
 export default function Content() {
   return (
-    <main class="browse-section">
-      <div class="container">
-        <div class="row justify-content-md-center">
-          <div class="col-md-9">
-            <div class="main-heading">
+    <main className="browse-section">
+      <div className="container">
+        <div className="row justify-content-md-center">
+          <div className="col-md-9">
+            <div className="main-heading">
               <h2>Checkout</h2>
-              <div class="line-shape1">
+              <div className="line-shape1">
                 <img src="images/line.svg" alt="" />
               </div>
             </div>
-            <div class="statement_table checkout_dt">
-              <div class="statement_body">
-                <div class="table-responsive-md">
-                  <table class="table table-striped">
+            <div className="statement_table checkout_dt">
+              <div className="statement_body">
+                <div className="table-responsive-md">
+                  <table className="table table-striped">
                     <thead>
                       <tr>
                         <th scope="col">Description</th>
@@ -26,27 +26,27 @@ export default function Content() {
                     <tbody>
                       <tr>
                         <th scope="row">
-                          <div class="user_dt_trans">
+                          <div className="user_dt_trans">
                             <p>Professional Plan</p>
                           </div>
                         </th>
                         <td>
-                          <div class="user_dt_trans">
+                          <div className="user_dt_trans">
                             <p>Monthly</p>
                           </div>
                         </td>
                         <td>
-                          <div class="user_dt_trans">
+                          <div className="user_dt_trans">
                             <p>$200.00</p>
                           </div>
                         </td>
                         <td>
-                          <div class="user_dt_trans">
+                          <div className="user_dt_trans">
                             <p>$20.00</p>
                           </div>
                         </td>
                         <td>
-                          <div class="user_dt_trans">
+                          <div className="user_dt_trans">
                             <p>$220.00</p>
                           </div>
                         </td>
@@ -58,56 +58,56 @@ export default function Content() {
             </div>
           </div>
         </div>
-        <div class="row chk_pymnt">
-          <div class="col-md-12">
-            <div class="main-heading">
+        <div className="row chk_pymnt">
+          <div className="col-md-12">
+            <div className="main-heading">
               <h2>Payment Method</h2>
-              <div class="line-shape1">
+              <div className="line-shape1">
                 <img src="images/line.svg" alt="" />
               </div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="view_chart">
-              <div class="view_chart_header">
-                <div class="ui radio checkbox mt-1">
+          <div className="col-md-6">
+            <div className="view_chart">
+              <div className="view_chart_header">
+                <div className="ui radio checkbox mt-1">
                   <input type="radio" name="example1" checked="" />
                   <label
-                    class="chk_method"
+                    className="chk_method"
                     style={{ color: "#242424 !important" }}
                   >
                     Credit or Debit Cards
                   </label>
                 </div>
-                <div class="cards_right">
+                <div className="cards_right">
                   <img src="images/cards.png" alt="" />
                 </div>
               </div>
-              <div class="pymt_mthd_body">
-                <div class="form-group">
-                  <label class="label15">Card Number*</label>
+              <div className="pymt_mthd_body">
+                <div className="form-group">
+                  <label className="label15">Card Number*</label>
                   <input
                     type="text"
-                    class="job-input"
+                    className="job-input"
                     placeholder="Enter Card Number"
                   />
                 </div>
-                <div class="form-group">
-                  <label class="label15">Full Name*</label>
+                <div className="form-group">
+                  <label className="label15">Full Name*</label>
                   <input
                     type="text"
-                    class="job-input"
+                    className="job-input"
                     placeholder="Enter Full Name"
                   />
                 </div>
-                <div class="fdsf452">
-                  <div class="row">
-                    <div class="col-lg-6">
-                      <div class="form-group">
-                        <label class="label15">Expiring*</label>
+                <div className="fdsf452">
+                  <div className="row">
+                    <div className="col-lg-6">
+                      <div className="form-group">
+                        <label className="label15">Expiring*</label>
                         <input
                           type="text"
-                          class="job-input datepicker-here"
+                          className="job-input datepicker-here"
                           data-language="en"
                           data-min-view="months"
                           data-view="months"
@@ -116,12 +116,12 @@ export default function Content() {
                         />
                       </div>
                     </div>
-                    <div class="col-lg-6">
-                      <div class="form-group">
-                        <label class="label15">Cvv*</label>
+                    <div className="col-lg-6">
+                      <div className="form-group">
+                        <label className="label15">Cvv*</label>
                         <input
                           type="text"
-                          class="job-input"
+                          className="job-input"
                           placeholder="Enter Cvv"
                         />
                       </div>
@@ -131,28 +131,28 @@ export default function Content() {
               </div>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="view_chart">
-              <div class="view_chart_header">
-                <div class="ui radio checkbox mt-1">
+          <div className="col-md-6">
+            <div className="view_chart">
+              <div className="view_chart_header">
+                <div className="ui radio checkbox mt-1">
                   <input type="radio" name="example1" />
                   <label
-                    class="chk_method"
+                    className="chk_method"
                     style={{ color: "#242424 !important" }}
                   >
                     Paypal
                   </label>
                 </div>
-                <div class="cards_right">
+                <div className="cards_right">
                   <img src="images/paypal.png" alt="" />
                 </div>
               </div>
-              <div class="pymt_mthd_body">
-                <div class="form-group">
-                  <label class="label15">Email Address*</label>
+              <div className="pymt_mthd_body">
+                <div className="form-group">
+                  <label className="label15">Email Address*</label>
                   <input
                     type="email"
-                    class="job-input"
+                    className="job-input"
                     placeholder="Enter Email Address"
                   />
                 </div>
@@ -160,15 +160,15 @@ export default function Content() {
               </div>
             </div>
           </div>
-          <div class="col-md-12">
-            <div class="ui checkbox apply_check check_out">
-              <input type="checkbox" tabindex="0" class="hidden" />
+          <div className="col-md-12">
+            <div className="ui checkbox apply_check check_out">
+              <input type="checkbox" tabindex="0" className="hidden" />
               <label style={{ color: "#242424 !important" }}>
                 I agree to the Terms and Conditions and the Automatic Renewal
                 Terms
               </label>
             </div>
-            <button class="post_jp_btn" type="submit">
+            <button className="post_jp_btn" type="submit">
               PROCEED PAYMENT
             </button>
           </div>
