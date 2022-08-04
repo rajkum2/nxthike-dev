@@ -1631,7 +1631,7 @@ span.right-cm {
 }
 
 .not-favourite {
-  border: 1px solid #e5e5e5;
+  border: none;
   background: #fff;
   text-align: center;
   font-size: 14px;
@@ -1644,12 +1644,11 @@ span.right-cm {
 .not-favourite:hover {
   background: #ff4500;
   color: #fff !important;
-  border: 1px solid #ff4500;
 }
 .favourite {
   background: #ff4500;
   color: #fff !important;
-  border: 1px solid #ff4500;
+  border: none;
   text-align: center;
   font-size: 14px;
   border-radius: 100%;
@@ -2235,13 +2234,6 @@ span.right-cm {
   border: 1px solid #e5e5e5;
 }
 
-.filter-heading {
-  float: left;
-  width: 100%;
-  padding: 20px 30px;
-  border-bottom: 1px solid #e5e5e5;
-}
-
 .fh-left {
   float: left;
   font-size: 18px;
@@ -2546,7 +2538,6 @@ span.right-cm {
   float: left;
   width: 100%;
   border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 5px;
 }
 
 .mtab-left {
@@ -7602,4 +7593,90 @@ label {
 
 .form-group {
   margin-bottom: 20px;
+}
+
+/*Job Filters*/
+.filter-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #cccccc;
+}
+
+.filter-group {
+  flex: 25%;
+  padding: 10px 20px;
+  position: relative;
+}
+
+.filter-heading {
+  float: left;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.filter-heading-left h5 {
+  float: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: #242424;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.filter-heading-right button {
+  float: right;
+  font-size: 14px;
+  font-weight: 400;
+  color: #757575;
+  margin-bottom: 0;
+  text-align: right;
+  border: none;
+  background-color: transparent;
+}
+
+.filter-btn {
+  flex-basis: 15%;
+  border: none;
+  margin-left: 0px;
+  margin-right: 10px;
+}
+
+.search-input {
+  width: 100%;
+  font-size: 14px;
+  padding: 5px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  display: inline;
+}
+.search-select {
+  width: 100%;
+  font-size: 14px;
+  padding: 7px 5px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  display: inline;
+}
+
+.input-group {
+  height: fit-content;
+  align-content: center;
+}
+
+.search-icon {
+  display: inline;
+  position: absolute;
+  right: 10px;
+  color: #a6a6a6;
+  font-size: 14px;
+  border: none;
+  background-color: transparent;
+  height: 100%;
+}
+
+.search-icon:hover {
+  color: black;
 }
