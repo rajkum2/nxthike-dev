@@ -2833,7 +2833,7 @@ span.right-cm {
 }
 
 .job_dt_1 span {
-  margin-left: 8px;
+  margin-left: 20px;
   color: #757575;
 }
 
@@ -7486,13 +7486,13 @@ span.right-cm {
 }
 
 .job-left-arrow {
-  left: -40px !important;
+  left: -20px !important;
   top: 50% !important;
   background: #242424 !important;
 }
 
 .job-right-arrow {
-  right: -40px !important;
+  right: -20px !important;
   top: 50% !important;
   background: #000 !important;
 }
@@ -7500,6 +7500,15 @@ span.right-cm {
 .job-right-arrow:hover,
 .job-left-arrow:hover {
   background: #ff4500 !important;
+}
+
+@media (max-width: 768px) {
+  .job-left-arrow {
+    left: 0 !important;
+  }
+  .job-right-arrow {
+    right: 0 !important;
+  }
 }
 
 .job-slider .slick-slide {
