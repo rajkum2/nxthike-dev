@@ -1,4 +1,4 @@
-import { Fragment, useContext } from "react";
+import { Fragment, useContext, useRef } from "react";
 import { UserContext } from "../../context/LoginContext";
 import userdp from "../../assets/images/user-dp-1.jpg";
 import dp from "../../assets/images/dp.jpg";
@@ -11,6 +11,13 @@ import Modalbox from "../layouts/Modal";
 import ContactModal from "./ContactModal";
 
 export default function Header() {
+  const navRef = useRef();
+
+  const openResNav = () => {
+    navRef.current && navRef.current.classList.toggle("open");
+    console.log("hi");
+  };
+
   const {
     firstLogin,
     isLoggedIn,
@@ -128,20 +135,12 @@ export default function Header() {
             <div className="row">
               <div className="col-lg-12 col-md-12 col-sm-12">
                 <nav className="navbar navbar-expand-lg navbar-light bg-dark1 justify-content-sm-start">
-                  <a
-                    className="order-1 order-lg-0 ml-lg-0 ml-3 mr-auto"
-                    href="/"
-                  >
+                  <a className="order-lg-0 ml-lg-0 ml-3 mr-auto" href="/">
                     <img src={logo} alt="" />
                   </a>
-                  <button
-                    className="navbar-toggler align-self-start"
-                    type="button"
-                  >
-                    <i className="fas fa-bars"></i>
-                  </button>
                   <div
-                    className="collapse navbar-collapse d-flex flex-column flex-lg-row flex-xl-row justify-content-lg-end bg-dark1 p-3 p-lg-0 mt1-5 mt-lg-0 mobileMenu"
+                    ref={navRef}
+                    className="collapse navbar-collapse d-flex flex-column flex-lg-row flex-xl-row justify-content-lg-end bg-dark1 p-3 p-lg-0 mt-lg-0 mobileMenu"
                     id="navbarSupportedContent"
                   >
                     <ul className="navbar-nav align-self-stretch">
@@ -150,7 +149,7 @@ export default function Header() {
                           Home
                         </a>
                       </li>
-                      <li className="nav-item dropdown">
+                      <li className="nav-item">
                         <a className="nav-link" href="/browse-jobs">
                           Jobs
                         </a>
@@ -288,6 +287,14 @@ export default function Header() {
                       Post a Task
                     </a> */}
                   </div>
+                  <button
+                    onClick={openResNav}
+                    className="navbar-toggler mt-0"
+                    type="button"
+                    style={{ marginLeft: "auto" }}
+                  >
+                    <i className="fas fa-bars"></i>
+                  </button>
                 </nav>
                 <div className="overlay"></div>
               </div>

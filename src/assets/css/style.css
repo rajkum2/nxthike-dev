@@ -747,6 +747,22 @@ header {
   border-bottom: 0 !important;
 }
 
+.login-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: #ff4500;
+  padding: 8px 20px;
+  border-radius: 3px;
+  margin-left: 30px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.login-btn:hover {
+  color: #fff !important;
+  background: #dc4107 !important;
+}
 .add-post {
   font-size: 13px;
   font-weight: 500;
@@ -7608,15 +7624,11 @@ label {
 /*Job Filters*/
 .filter-container {
   width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
   padding: 10px;
   border: 1px solid #cccccc;
 }
 
 .filter-group {
-  flex: 25%;
   padding: 10px 20px;
   position: relative;
 }

@@ -19,6 +19,7 @@ const customStyles = {
 
 export default function BrowseFilter() {
   const {
+    cat,
     changeCat,
     callSearch,
     setSearchTerm,
@@ -28,14 +29,20 @@ export default function BrowseFilter() {
   } = useContext(ItemsContext);
   const [value, setValue] = useState(null);
   return (
-    <div className="filter-container">
-      <div className="filter-group">
+    <div className="filter-container row">
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
         <div className="filter-heading">
           <div className="filter-heading-left">
             <h5>Search</h5>
           </div>
           <div className="filter-heading-right">
-            <button onClick={() => clearSearch()}>Clear</button>
+            <button
+              onClick={() => clearSearch()}
+              disabled={searchTerm === ""}
+              style={{ color: searchTerm === "" ? "#757575" : "red" }}
+            >
+              Clear
+            </button>
           </div>
         </div>
         <div className="input-group">
@@ -51,7 +58,7 @@ export default function BrowseFilter() {
           </button>
         </div>
       </div>
-      <div className="filter-group">
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
         <div className="filter-heading">
           <div className="filter-heading-left">
             <h5>Location</h5>
@@ -75,7 +82,7 @@ export default function BrowseFilter() {
           })}
         />
       </div>
-      <div className="filter-group">
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
         <div className="filter-heading">
           <div className="filter-heading-left">
             <h5>Category</h5>
@@ -86,6 +93,8 @@ export default function BrowseFilter() {
                 clearCat();
                 setValue(null);
               }}
+              disabled={cat === ""}
+              style={{ color: cat === "" ? "#757575" : "red" }}
             >
               Clear
             </button>
@@ -111,7 +120,7 @@ export default function BrowseFilter() {
           }}
         />
       </div>
-      <div className="filter-group">
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
         <div className="filter-heading">
           <div className="filter-heading-left">
             <h5>Experience</h5>
