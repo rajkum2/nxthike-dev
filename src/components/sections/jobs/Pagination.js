@@ -4,13 +4,13 @@ import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 import { UserContext } from "../../../context/LoginContext";
 import axios from "axios";
+import { ItemsContext } from "../../../context/ItemsContext";
 
 function Pagination({ data, pageLimit, dataLimit }) {
-  const { loginuserId, isLoggedIn } = useContext(UserContext);
+  const { callFavouriteApi } = useContext(ItemsContext);
   const [grid, setGrid] = useState(true);
   const [pages] = useState(Math.round(data.length / dataLimit));
   const [currentPage, setCurrentPage] = useState(1);
-  const [items, setItems] = useState(data);
 
   useEffect(() => {
     window.scrollTo({ behavior: "auto", top: "0px" });
@@ -32,7 +32,7 @@ function Pagination({ data, pageLimit, dataLimit }) {
   const getPaginatedData = () => {
     const startIndex = currentPage * dataLimit - dataLimit;
     const endIndex = currentPage * dataLimit;
-    return items.slice(startIndex, endIndex);
+    return data.slice(startIndex, endIndex);
   };
 
   const getPaginationGroup = () => {
@@ -44,41 +44,33 @@ function Pagination({ data, pageLimit, dataLimit }) {
     return pageNumbers.slice(start, start + pageLimit);
   };
 
-  const callFavouriteApi = async (id, idx) => {
-    console.log(id, idx);
-    if (isLoggedIn && loginuserId !== null) {
-      if (items[idx].is_favourited === "1") {
-        items[idx].is_favourited = "0";
-      } else {
-        items[idx].is_favourited = "1";
-      }
-      var data = {
-        item_id: id,
-        user_id: loginuserId,
-      };
-      await axios
-        .post(
-          `${process.env.REACT_APP_API_URL}favourites/press/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`,
-          data
-        )
-        .then((response) => {
-          items[idx].is_favourited = response.data.is_favourited;
-          if (items[idx].is_favourited === "1")
-            alert(items[idx].title + " added to favourites");
-          else alert(items[idx].title + " removed from favourites");
-          console.log(items);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      alert("Please login");
-    }
-  };
-
   return (
     <div className="main-tabs">
       <div className="res-tabs">
+        <div class=" mtab-left">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-1" class="nav-link active" data-toggle="tab">
+                Newest Jobs
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-2" class="nav-link" data-toggle="tab">
+                Full Time
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-3" class="nav-link" data-toggle="tab">
+                Part Time
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-3" class="nav-link" data-toggle="tab">
+                Work from Home
+              </a>
+            </li>
+          </ul>
+        </div>
         <div className=" mtab-right">
           <ul>
             <li className="sort-list-dt">
@@ -118,8 +110,8 @@ function Pagination({ data, pageLimit, dataLimit }) {
           <div
             className={
               grid
-                ? "lg-item col-lg-6 col-xs-6"
-                : "lg-item col-lg-6 col-xs-6 list-group-item1"
+                ? "lg-item col-lg-4 col-xs-6"
+                : "lg-item col-lg-4 col-xs-6 list-group-item1"
             }
           >
             <div className="job-item mt-30">
