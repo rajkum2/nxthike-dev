@@ -36,6 +36,7 @@ export default function Content() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [count, setCount] = useState(0);
 
   const [files, setFiles] = useState([]);
 
@@ -97,7 +98,9 @@ export default function Content() {
         description: job_desc,
         company_details: comp_det,
         app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+        applicants_no: count,
       };
+      console.log(postData);
       axios
         .post(
           process.env.REACT_APP_API_URL +
@@ -340,7 +343,7 @@ export default function Content() {
                       </div>
                     </div>
                   </div>
-                  <div className="col-lg-12">
+                  <div className="col-lg-6">
                     <div className="form-group">
                       <label className="label15">Skills*</label>
                       <Select
@@ -351,6 +354,20 @@ export default function Content() {
                         styles={customStyles}
                         onChange={handleSkills}
                       />
+                    </div>
+                  </div>
+                  <div className="col-lg-6">
+                    <div className="form-group">
+                      <label className="label15">No of Applicants</label>
+                      <div className="smm_input">
+                        <input
+                          type="number"
+                          className="job-input"
+                          placeholder="No of Applicants"
+                          value={count}
+                          onChange={(e) => setCount(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
                   <div className="col-lg-12">
@@ -391,7 +408,7 @@ export default function Content() {
                                 onClick={() => removeImg(i)}
                                 type="button"
                               >
-                                <i class="fas fa-trash" />
+                                <i className="fas fa-trash" />
                               </button>
                             </>
                           );

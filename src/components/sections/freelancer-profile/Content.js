@@ -10,143 +10,144 @@ export default function Content() {
     <main className="browse-section">
       <div className="container">
         <div className="row">
-          <div class="col-lg-3 col-md-4">
-            <div class="account_dt_left">
-              <div class="job-center-dt">
+          <div className="col-lg-3 col-md-4">
+            <div className="account_dt_left">
+              <div className="job-center-dt">
                 <img src="images/homepage/candidates/img-3.jpg" alt="" />
-                <div class="job-urs-dts">
+                <div className="job-urs-dts">
                   <h4>Rock William</h4>
                   <span>UX Designer</span>
-                  <div class="avialable">Available Full Time</div>
+                  <div className="avialable">Available Full Time</div>
                 </div>
-                <ul class="user_btns">
+                <ul className="user_btns">
                   <li>
-                    <button class="hire_btn" type="button">
+                    <button className="hire_btn" type="button">
                       Hire Me
                     </button>
                   </li>
                   <li>
-                    <button class="hire_btn" type="button">
+                    <button className="hire_btn" type="button">
                       Message
                     </button>
                   </li>
                 </ul>
               </div>
-              <div class="my_websites">
+              <div className="my_websites">
                 <ul>
                   <li>
-                    <a href="#" class="web_link">
-                      <i class="fas fa-globe"></i>www.companysite.com
+                    <a href="#" className="web_link">
+                      <i className="fas fa-globe"></i>www.companysite.com
                     </a>
                   </li>
                   <li>
-                    <a href="#" class="web_link">
-                      <i class="far fa-edit"></i>www.blogsite.com
+                    <a href="#" className="web_link">
+                      <i className="far fa-edit"></i>www.blogsite.com
                     </a>
                   </li>
                 </ul>
               </div>
-              <div class="rlt_section">
-                <div class="rtl_left">
+              <div className="rlt_section">
+                <div className="rtl_left">
                   <h6>Rating</h6>
                 </div>
-                <div class="rtl_right">
-                  <div class="star">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+                <div className="rtl_right">
+                  <div className="star">
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
                     <span>4.9</span>
                   </div>
                 </div>
               </div>
-              <div class="rlt_section">
-                <div class="rtl_left">
+              <div className="rlt_section">
+                <div className="rtl_left">
                   <h6>Location</h6>
                 </div>
-                <div class="rtl_right">
+                <div className="rtl_right">
                   <span>
-                    <i class="fas fa-map-marker-alt lc_icon"></i> Ludhiana,
+                    <i className="fas fa-map-marker-alt lc_icon"></i> Ludhiana,
                     India
                   </span>
                 </div>
-                <div class="my_location">
+                <div className="my_location">
                   <div id="map"></div>
                 </div>
-                <ul class="rlt_section2">
+                <ul className="rlt_section2">
                   <li>
-                    <div class="rtl_left2">
+                    <div className="rtl_left2">
                       <h6>Hourly Rate</h6>
                     </div>
-                    <div class="rtl_right2">
+                    <div className="rtl_right2">
                       <span>$50 / hr</span>
                     </div>
                   </li>
                   <li>
-                    <div class="rtl_left2">
+                    <div className="rtl_left2">
                       <h6>Age</h6>
                     </div>
-                    <div class="rtl_right2">
+                    <div className="rtl_right2">
                       <span>30</span>
                     </div>
                   </li>
                   <li>
-                    <div class="rtl_left2">
+                    <div className="rtl_left2">
                       <h6>Experenice</h6>
                     </div>
-                    <div class="rtl_right2">
+                    <div className="rtl_right2">
                       <span>5 Year</span>
                     </div>
                   </li>
                   <li>
-                    <div class="rtl_left2">
+                    <div className="rtl_left2">
                       <h6>Job Done</h6>
                     </div>
-                    <div class="rtl_right2">
+                    <div className="rtl_right2">
                       <span>85</span>
                     </div>
                   </li>
                 </ul>
               </div>
-              <div class="social_section3 mb80">
-                <div class="social_leftt3">
+              <div className="social_section3 mb80">
+                <div className="social_leftt3">
                   <h6>Contact Social Account</h6>
                 </div>
-                <ul class="social_accounts">
+                <ul className="social_accounts">
                   <li>
-                    <a href="#" class="social_links">
-                      <i class="fab fa-facebook-f f1"></i>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-facebook-f f1"></i>
                       http://facebook.com/johndoe
                     </a>
                   </li>
                   <li>
-                    <a href="#" class="social_links">
-                      <i class="fab fa-twitter t1"></i>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-twitter t1"></i>
                       http://twitter.com/johndoe
                     </a>
                   </li>
                   <li>
-                    <a href="#" class="social_links">
-                      <i class="fab fa-linkedin-in l1"></i>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-linkedin-in l1"></i>
                       http://linkedin.com/johndoe
                     </a>
                   </li>
                   <li>
-                    <a href="#" class="social_links">
-                      <i class="fab fa-dribbble d1"></i>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-dribbble d1"></i>
                       http://dribbble.com/johndoe
                     </a>
                   </li>
                   <li>
-                    <a href="#" class="social_links">
-                      <i class="fab fa-behance b1"></i>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-behance b1"></i>
                       http://behance.net/johndoe
                     </a>
                   </li>
                   <li>
-                    <a href="#" class="social_links">
-                      <i class="fab fa-github g1"></i>http://github.com/johndoe
+                    <a href="#" className="social_links">
+                      <i className="fab fa-github g1"></i>
+                      http://github.com/johndoe
                     </a>
                   </li>
                 </ul>

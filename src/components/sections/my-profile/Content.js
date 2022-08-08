@@ -28,34 +28,34 @@ export default function Content() {
         <div className="container">
           <div className="row">
             <ProfileSideBar />
-            <div class="col-lg-9 col-md-8 mainpage">
+            <div className="col-lg-9 col-md-8 mainpage">
               <ProfileHeader pathname={"profile"} />
-              <div class="view_chart">
-                <div class="view_chart_header">
+              <div className="view_chart">
+                <div className="view_chart_header">
                   <h4>About</h4>
                 </div>
-                <div class="view_chart_body">
-                  <p class="user_about_des">
+                <div className="view_chart_body">
+                  <p className="user_about_des">
                     {loginuserData && loginuserData.user_about_me}
                   </p>
                 </div>
               </div>
-              <div class="view_chart">
-                <div class="view_chart_header">
+              <div className="view_chart">
+                <div className="view_chart_header">
                   <h4>Skills</h4>
                 </div>
-                <div class="view_chart_body">
-                  <div class="job-skills">
+                <div className="view_chart_body">
+                  <div className="job-skills">
                     {skillsArray && skillsArray.map((skill) => <a>{skill}</a>)}
                   </div>
                 </div>
               </div>
-              <div class="view_chart">
-                <div class="view_chart_header">
+              <div className="view_chart">
+                <div className="view_chart_header">
                   <h4>Language</h4>
                 </div>
-                <div class="view_chart_body">
-                  <div class="job-skills">
+                <div className="view_chart_body">
+                  <div className="job-skills">
                     {langArray && langArray.map((lang) => <a>{lang}</a>)}
                   </div>
                 </div>

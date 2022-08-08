@@ -110,7 +110,7 @@ const Featured = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -171,7 +171,7 @@ const Featured = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -232,7 +232,7 @@ const Featured = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -293,7 +293,7 @@ const Featured = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -354,7 +354,7 @@ const Featured = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -415,7 +415,7 @@ const Featured = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>

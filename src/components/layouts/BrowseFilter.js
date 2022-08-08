@@ -1,193 +1,148 @@
 import MultiRangeSlider from "./MultirangeSlider";
 import Select from "react-select";
 import options from "../../data/allJobOptions.json";
+import { useContext, useState } from "react";
+import { ItemsContext } from "../../context/ItemsContext";
+import { Dropdown } from "react-bootstrap";
+
 const customStyles = {
-  menu: (provided, state) => ({
-    ...provided,
-    zIndex: 1000,
+  container: (style) => ({
+    boxSize: "border-box",
+    fontSize: "14px",
   }),
-  option: (styles, { isDisabled, isFocused, isSelected }) => ({
-    ...styles,
-    color: "black",
-    //background: state.isSelected ? "#ffc7b3" : "white",
+  menu: (style) => ({
+    ...style,
+    marginTop: "-9px",
+    width: "86%",
   }),
 };
+
 export default function BrowseFilter() {
-  const pathName = window.location.pathname.split("/")[1];
+  const {
+    cat,
+    changeCat,
+    callSearch,
+    setSearchTerm,
+    clearCat,
+    searchTerm,
+    clearSearch,
+  } = useContext(ItemsContext);
+  const [value, setValue] = useState(null);
   return (
-    <div className="col-lg-4 col-md-5">
-      <div className="browser-job-filters">
+    <div className="filter-container row">
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
         <div className="filter-heading">
-          <div className="fh-left">Filters</div>
-          <div className="fh-right">
-            <a href="#">Clear All Filters</a>
+          <div className="filter-heading-left">
+            <h5>Search</h5>
+          </div>
+          <div className="filter-heading-right">
+            <button
+              onClick={() => clearSearch()}
+              disabled={searchTerm === ""}
+              style={{ color: searchTerm === "" ? "#757575" : "red" }}
+            >
+              Clear
+            </button>
           </div>
         </div>
-        <div className="fltr-group">
-          <div className="fltr-items-heading">
-            <div className="fltr-item-left">
-              <h6>Skills</h6>
-            </div>
-            <div className="fltr-item-right">
-              <a href="#">Clear</a>
-            </div>
-          </div>
-          <Select
-            styles={customStyles}
-            options={options.skills}
-            isSearchable={true}
-            className="skills-search"
-            placeholder="Skills"
-            isMulti
-            isClearable={false}
+        <div className="input-group">
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Enter text here"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <button className="search-icon" onClick={callSearch}>
+            <i class="fa fa-search"></i>
+          </button>
         </div>
-        {pathName === "browse-companies" ? (
-          <>
-            <div className="fltr-group">
-              <div className="fltr-items-heading">
-                <div className="fltr-item-left">
-                  <h6>Category</h6>
-                </div>
-                <div className="fltr-item-right">
-                  <a href="#">Clear</a>
-                </div>
-              </div>
-              <Select
-                styles={customStyles}
-                options={options.category}
-                isSearchable
-                isMulti
-                className="skills-search"
-              />
-            </div>
-            <div className="fltr-group">
-              <div className="fltr-items-heading">
-                <div className="fltr-item-left">
-                  <h6>Series (A to Z)</h6>
-                </div>
-                <div className="fltr-item-right">
-                  <a href="#">Clear</a>
-                </div>
-              </div>
-              <Select
-                styles={customStyles}
-                options={options.series}
-                isSearchable
-                isMulti
-                className="skills-search"
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="fltr-group">
-              <div className="fltr-items-heading">
-                <div className="fltr-item-left">
-                  <h6>Availability</h6>
-                </div>
-                <div className="fltr-item-right">
-                  <a href="#">Clear</a>
-                </div>
-              </div>
-              <div className="ui form">
-                <div className="grouped fields">
-                  <div className="field fltr-radio">
-                    <div className="ui radio checkbox">
-                      <input type="radio" name="example2" />
-                      <label>Hourly</label>
-                    </div>
-                  </div>
-                  <div className="field">
-                    <div className="ui radio checkbox">
-                      <input type="radio" name="example2" />
-                      <label>Part Time</label>
-                    </div>
-                  </div>
-                  <div className="field">
-                    <div className="ui radio checkbox">
-                      <input type="radio" name="example2" />
-                      <label className="lst-label">Full Time</label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="fltr-group">
-              <div className="fltr-items-heading">
-                <div className="fltr-item-left">
-                  <h6>Job Type</h6>
-                </div>
-                <div className="fltr-item-right">
-                  <a href="#">Clear</a>
-                </div>
-              </div>
-              <Select
-                options={options.job}
-                isSearchable
-                isMulti
-                className="skills-search"
-                styles={customStyles}
-              />
-            </div>
-            <div className="fltr-group">
-              <div className="fltr-items-heading">
-                <div className="fltr-item-left">
-                  <h6>
-                    Pay Rate <span>($)</span>
-                  </h6>
-                </div>
-                <div className="fltr-item-right">
-                  <a href="#">Clear</a>
-                </div>
-              </div>
-              <MultiRangeSlider
-                min={5}
-                max={5000}
-                onChange={({ min, max }) =>
-                  console.log(`min = ${min}, max = ${max}`)
-                }
-              />
-            </div>
-            <div className="fltr-group">
-              <div className="fltr-items-heading">
-                <div className="fltr-item-left">
-                  <h6>Experience Level</h6>
-                </div>
-                <div className="fltr-item-right">
-                  <a href="#">Clear</a>
-                </div>
-              </div>
-              <Select
-                styles={customStyles}
-                options={options.exp}
-                isSearchable
-                isMulti
-                className="skills-search"
-              />
-            </div>
-          </>
-        )}
-        <div className="fltr-group fltr-gend">
-          <div className="fltr-items-heading">
-            <div className="fltr-item-left">
-              <h6>Location</h6>
-            </div>
-            <div className="fltr-item-right">
-              <a href="#">Clear</a>
-            </div>
+      </div>
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
+        <div className="filter-heading">
+          <div className="filter-heading-left">
+            <h5>Location</h5>
           </div>
-          <Select
-            styles={customStyles}
-            options={options.country}
-            isSearchable
-            isMulti
-            className="skills-search"
-          />
+          <div className="filter-heading-right">
+            <button>Clear</button>
+          </div>
         </div>
-        <div className="filter-button">
-          <button className="flr-btn">Search Now</button>
+        <Select
+          options={options.category}
+          styles={customStyles}
+          theme={(theme) => ({
+            ...theme,
+            borderRadius: 0,
+            colors: {
+              ...theme.colors,
+              primary25: "#ffc7b3",
+              primary: "#e56042",
+              primary50: "#e56042",
+            },
+          })}
+        />
+      </div>
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
+        <div className="filter-heading">
+          <div className="filter-heading-left">
+            <h5>Category</h5>
+          </div>
+          <div className="filter-heading-right">
+            <button
+              onClick={() => {
+                clearCat();
+                setValue(null);
+              }}
+              disabled={cat === ""}
+              style={{ color: cat === "" ? "#757575" : "red" }}
+            >
+              Clear
+            </button>
+          </div>
         </div>
+        <Select
+          options={options.category}
+          styles={customStyles}
+          theme={(theme) => ({
+            ...theme,
+            borderRadius: 0,
+            colors: {
+              ...theme.colors,
+              primary25: "#ffc7b3",
+              primary: "#e56042",
+              primary50: "#e56042",
+            },
+          })}
+          value={value}
+          onChange={(e) => {
+            changeCat(e.value);
+            setValue(e);
+          }}
+        />
+      </div>
+      <div className="filter-group col-lg-3 col-md-6 col-xs-12">
+        <div className="filter-heading">
+          <div className="filter-heading-left">
+            <h5>Experience</h5>
+          </div>
+          <div className="filter-heading-right">
+            <button>Clear</button>
+          </div>
+        </div>
+        <Select
+          options={options.category}
+          styles={customStyles}
+          theme={(theme) => ({
+            ...theme,
+            borderRadius: 0,
+            colors: {
+              ...theme.colors,
+              primary25: "#ffc7b3",
+              primary: "#e56042",
+              primary50: "#e56042",
+            },
+          })}
+        />
       </div>
     </div>
   );

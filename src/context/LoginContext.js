@@ -270,7 +270,11 @@ export default function LoginContext({ children }) {
   const newLocalStorage = (data) => {
     localStorage.setItem(
       "userlogin",
-      JSON.stringify({ loginstatus: true, loginuserId: data.user_id })
+      JSON.stringify({
+        loginstatus: true,
+        loginuserId: data.user_id,
+        userType: data.user_type_id,
+      })
     );
     checkLogin();
   };
@@ -282,6 +286,7 @@ export default function LoginContext({ children }) {
     if (loginInfo !== null) {
       setIsLoggedIn(loginInfo.loginstatus);
       setLoginuserId(loginInfo.loginuserId);
+      setUserType(loginInfo.userType);
     } else {
       setIsLoggedIn(false);
       setLoginuserId(null);

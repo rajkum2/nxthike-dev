@@ -11,19 +11,7 @@ export default function Content() {
       <div className="container">
         <div className="row">
           <BrowseFilter />
-          <div className="col-lg-8 col-md-7 mainpage">
-            <div className="browse-banner">
-              <div className="bbnr-left">
-                <img src={trophy} alt="" />
-                <div className="bbnr-text">
-                  <h4>Upgrade to Pro</h4>
-                  <p>Unlimited Job Posts and Apply.</p>
-                </div>
-              </div>
-              <div className="bbnr-right">
-                <button className="plan-btn">Upgrade Plan</button>
-              </div>
-            </div>
+          <div className=" mainpage">
             <div className="main-tabs">
               <div className="res-tabs">
                 <div className=" mtab-left">
@@ -56,7 +44,7 @@ export default function Content() {
               </div>
               <div className="prjoects-content">
                 <div className="row view-group" id="freelancers">
-                  <div className="lg-item5 col-lg-6 col-xs-6">
+                  <div className="lg-item5 col-lg-4 col-xs-6">
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
@@ -105,7 +93,7 @@ export default function Content() {
                             </a>
                           </li>
                           <li className="bkd-pm">
-                            <button className="bookmark1" title="bookmark">
+                            <button className="not-favourite" title="bookmark">
                               <i className="fas fa-heart"></i>
                             </button>
                           </li>
@@ -113,7 +101,7 @@ export default function Content() {
                       </div>
                     </div>
                   </div>
-                  <div className="lg-item5 col-lg-6 col-xs-6">
+                  <div className="lg-item5 col-lg-4 col-xs-6">
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
@@ -162,7 +150,7 @@ export default function Content() {
                             </a>
                           </li>
                           <li className="bkd-pm">
-                            <button className="bookmark1" title="bookmark">
+                            <button className="not-favourite" title="bookmark">
                               <i className="fas fa-heart"></i>
                             </button>
                           </li>
@@ -170,7 +158,7 @@ export default function Content() {
                       </div>
                     </div>
                   </div>
-                  <div className="lg-item5 col-lg-6 col-xs-6">
+                  <div className="lg-item5 col-lg-4 col-xs-6">
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
@@ -218,7 +206,7 @@ export default function Content() {
                             </a>
                           </li>
                           <li className="bkd-pm">
-                            <button className="bookmark1" title="bookmark">
+                            <button className="not-favourite" title="bookmark">
                               <i className="fas fa-heart"></i>
                             </button>
                           </li>
@@ -226,7 +214,7 @@ export default function Content() {
                       </div>
                     </div>
                   </div>
-                  <div className="lg-item5 col-lg-6 col-xs-6">
+                  <div className="lg-item5 col-lg-4 col-xs-6">
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
@@ -274,7 +262,7 @@ export default function Content() {
                             </a>
                           </li>
                           <li className="bkd-pm">
-                            <button className="bookmark1" title="bookmark">
+                            <button className="not-favourite" title="bookmark">
                               <i className="fas fa-heart"></i>
                             </button>
                           </li>
@@ -282,7 +270,7 @@ export default function Content() {
                       </div>
                     </div>
                   </div>
-                  <div className="lg-item5 col-lg-6 col-xs-6">
+                  <div className="lg-item5 col-lg-4 col-xs-6">
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
@@ -330,7 +318,7 @@ export default function Content() {
                             </a>
                           </li>
                           <li className="bkd-pm">
-                            <button className="bookmark1" title="bookmark">
+                            <button className="not-favourite" title="bookmark">
                               <i className="fas fa-heart"></i>
                             </button>
                           </li>
@@ -338,7 +326,7 @@ export default function Content() {
                       </div>
                     </div>
                   </div>
-                  <div className="lg-item5 col-lg-6 col-xs-6">
+                  <div className="lg-item5 col-lg-4 col-xs-6">
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
@@ -386,7 +374,7 @@ export default function Content() {
                             </a>
                           </li>
                           <li className="bkd-pm">
-                            <button className="bookmark1" title="bookmark">
+                            <button className="not-favourite" title="bookmark">
                               <i className="fas fa-heart"></i>
                             </button>
                           </li>

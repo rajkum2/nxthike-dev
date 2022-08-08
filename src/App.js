@@ -52,7 +52,7 @@ export default function App() {
         <Route path="/browse-companies" element={<Companies />} />
         <Route path="/browse-freelancers" element={<Freelancers />} />
         <Route path="/about" element={<About />} />
-        <Route path="/single-job" element={<SingleJob />} />
+        <Route path="/job/:jobId" element={<SingleJob />} />
         <Route path="/single-project" element={<SingleProject />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/editprofile" element={<EditProfile />} />

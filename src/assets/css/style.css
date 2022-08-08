@@ -747,6 +747,22 @@ header {
   border-bottom: 0 !important;
 }
 
+.login-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: #ff4500;
+  padding: 8px 20px;
+  border-radius: 3px;
+  margin-left: 30px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.login-btn:hover {
+  color: #fff !important;
+  background: #dc4107 !important;
+}
 .add-post {
   font-size: 13px;
   font-weight: 500;
@@ -1557,10 +1573,11 @@ span.right-cm {
   background: #fafafa;
   color: #757575;
   border: 1px solid #e5e5e5;
-  padding: 6px 15px;
-  line-height: 3;
+  padding: 6px;
   margin-right: 8px;
   border-radius: 20px;
+  display: inline-block;
+  margin-block: 5px;
 }
 
 .job-skills a:hover {
@@ -1629,10 +1646,9 @@ span.right-cm {
   padding: 10px 0;
 }
 
-.bookmark1 {
-  border: 1px solid #e5e5e5;
+.not-favourite {
+  border: none;
   background: #fff;
-  padding: 8px 0;
   text-align: center;
   font-size: 14px;
   color: #757575;
@@ -1641,10 +1657,19 @@ span.right-cm {
   width: 30px;
 }
 
-.bookmark1:hover {
+.not-favourite:hover {
   background: #ff4500;
   color: #fff !important;
-  border: 1px solid #ff4500;
+}
+.favourite {
+  background: #ff4500;
+  color: #fff !important;
+  border: none;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 100%;
+  height: 30px;
+  width: 30px;
 }
 
 .jobs-owl .owl-nav .owl-prev {
@@ -2225,13 +2250,6 @@ span.right-cm {
   border: 1px solid #e5e5e5;
 }
 
-.filter-heading {
-  float: left;
-  width: 100%;
-  padding: 20px 30px;
-  border-bottom: 1px solid #e5e5e5;
-}
-
 .fh-left {
   float: left;
   font-size: 18px;
@@ -2536,7 +2554,6 @@ span.right-cm {
   float: left;
   width: 100%;
   border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 5px;
 }
 
 .mtab-left {
@@ -2900,6 +2917,19 @@ span.right-cm {
   margin-bottom: 30px;
   text-align: center;
   padding: 9px 0;
+}
+
+.bookmark_rt:hover {
+  border: 1px solid #ff4500;
+}
+.bookmarked {
+  border: 1px solid #ff4500;
+  color: #ff4500;
+}
+
+.bookmarked:hover {
+  border: 1px solid #e5e5e5;
+  color: #242424;
 }
 
 .social-links {
@@ -4875,8 +4905,9 @@ span.right-cm {
 
 .delete_icon {
   float: right;
-  padding-top: 24px;
   color: #847577;
+  border: none;
+  background: none;
 }
 
 .delete_icon:hover {
@@ -7462,13 +7493,13 @@ span.right-cm {
 }
 
 .job-left-arrow {
-  left: -40px !important;
+  left: -20px !important;
   top: 50% !important;
   background: #242424 !important;
 }
 
 .job-right-arrow {
-  right: -40px !important;
+  right: -20px !important;
   top: 50% !important;
   background: #000 !important;
 }
@@ -7476,6 +7507,15 @@ span.right-cm {
 .job-right-arrow:hover,
 .job-left-arrow:hover {
   background: #ff4500 !important;
+}
+
+@media (max-width: 768px) {
+  .job-left-arrow {
+    left: 0 !important;
+  }
+  .job-right-arrow {
+    right: 0 !important;
+  }
 }
 
 .job-slider .slick-slide {
@@ -7579,4 +7619,86 @@ label {
 
 .form-group {
   margin-bottom: 20px;
+}
+
+/*Job Filters*/
+.filter-container {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cccccc;
+}
+
+.filter-group {
+  padding: 10px 20px;
+  position: relative;
+}
+
+.filter-heading {
+  float: left;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.filter-heading-left h5 {
+  float: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: #242424;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.filter-heading-right button {
+  float: right;
+  font-size: 14px;
+  font-weight: 400;
+  color: #757575;
+  margin-bottom: 0;
+  text-align: right;
+  border: none;
+  background-color: transparent;
+}
+
+.filter-btn {
+  flex-basis: 15%;
+  border: none;
+  margin-left: 0px;
+  margin-right: 10px;
+}
+
+.search-input {
+  width: 100%;
+  font-size: 14px;
+  padding: 5px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  display: inline;
+}
+.search-select {
+  width: 100%;
+  font-size: 14px;
+  padding: 7px 5px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  display: inline;
+}
+
+.input-group {
+  height: fit-content;
+  align-content: center;
+}
+
+.search-icon {
+  display: inline;
+  position: absolute;
+  right: 10px;
+  color: #a6a6a6;
+  font-size: 14px;
+  border: none;
+  background-color: transparent;
+  height: 100%;
+}
+
+.search-icon:hover {
+  color: black;
 }

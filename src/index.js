@@ -15,11 +15,14 @@ import "./assets/fonts/font-awesome/css/all.min.css";
 
 //context
 import LoginContext from "./context/LoginContext";
+import ItemContext from "./context/ItemsContext";
 
 const RootElement = (
   <BrowserRouter>
     <LoginContext>
-      <App />
+      <ItemContext>
+        <App />
+      </ItemContext>
     </LoginContext>
   </BrowserRouter>
 );

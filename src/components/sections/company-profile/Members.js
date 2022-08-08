@@ -1,112 +1,112 @@
 export default function Members() {
   return (
     <>
-      <div class="portfolio_heading">
-        <div class="portfolio_left">
+      <div className="portfolio_heading">
+        <div className="portfolio_left">
           <h4>Portfolio</h4>
         </div>
       </div>
-      <div class="dsh150">
-        <div class="row">
-          <div class="col-lg-4">
-            <div class="portfolio_item">
-              <div class="portfolio_img">
+      <div className="dsh150">
+        <div className="row">
+          <div className="col-lg-4">
+            <div className="portfolio_item">
+              <div className="portfolio_img">
                 <img src="images/portfolio/img-1.jpg" alt="" />
-                <div class="portfolio_overlay">
-                  <div class="overlay_items">
+                <div className="portfolio_overlay">
+                  <div className="overlay_items">
                     <a href="#" target="_blank">
-                      <i class="fas fa-external-link-alt"></i>Live Preview
+                      <i className="fas fa-external-link-alt"></i>Live Preview
                     </a>
                   </div>
                 </div>
               </div>
-              <div class="portfolio_title">
-                <i class="fas fa-image"></i>Portfolio Name Here
+              <div className="portfolio_title">
+                <i className="fas fa-image"></i>Portfolio Name Here
               </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="portfolio_item">
-              <div class="portfolio_img">
+          <div className="col-lg-4">
+            <div className="portfolio_item">
+              <div className="portfolio_img">
                 <img src="images/portfolio/img-2.jpg" alt="" />
-                <div class="portfolio_overlay">
-                  <div class="overlay_items">
+                <div className="portfolio_overlay">
+                  <div className="overlay_items">
                     <a href="#" target="_blank">
-                      <i class="fas fa-external-link-alt"></i>Live Preview
+                      <i className="fas fa-external-link-alt"></i>Live Preview
                     </a>
                   </div>
                 </div>
               </div>
-              <div class="portfolio_title">
-                <i class="fas fa-image"></i>Portfolio Name Here
+              <div className="portfolio_title">
+                <i className="fas fa-image"></i>Portfolio Name Here
               </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="portfolio_item">
-              <div class="portfolio_img">
+          <div className="col-lg-4">
+            <div className="portfolio_item">
+              <div className="portfolio_img">
                 <img src="images/portfolio/img-3.jpg" alt="" />
-                <div class="portfolio_overlay">
-                  <div class="overlay_items">
+                <div className="portfolio_overlay">
+                  <div className="overlay_items">
                     <a href="#" target="_blank">
-                      <i class="fas fa-external-link-alt"></i>Live Preview
+                      <i className="fas fa-external-link-alt"></i>Live Preview
                     </a>
                   </div>
                 </div>
               </div>
-              <div class="portfolio_title">
-                <i class="fas fa-image"></i>Portfolio Name Here
+              <div className="portfolio_title">
+                <i className="fas fa-image"></i>Portfolio Name Here
               </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="portfolio_item">
-              <div class="portfolio_img">
+          <div className="col-lg-4">
+            <div className="portfolio_item">
+              <div className="portfolio_img">
                 <img src="images/portfolio/img-4.jpg" alt="" />
-                <div class="portfolio_overlay">
-                  <div class="overlay_items">
+                <div className="portfolio_overlay">
+                  <div className="overlay_items">
                     <a href="#" target="_blank">
-                      <i class="fas fa-external-link-alt"></i>Live Preview
+                      <i className="fas fa-external-link-alt"></i>Live Preview
                     </a>
                   </div>
                 </div>
               </div>
-              <div class="portfolio_title">
-                <i class="fas fa-image"></i>Portfolio Name Here
+              <div className="portfolio_title">
+                <i className="fas fa-image"></i>Portfolio Name Here
               </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="portfolio_item">
-              <div class="portfolio_img">
+          <div className="col-lg-4">
+            <div className="portfolio_item">
+              <div className="portfolio_img">
                 <img src="images/portfolio/img-5.jpg" alt="" />
-                <div class="portfolio_overlay">
-                  <div class="overlay_items">
+                <div className="portfolio_overlay">
+                  <div className="overlay_items">
                     <a href="#" target="_blank">
-                      <i class="fas fa-external-link-alt"></i>Live Preview
+                      <i className="fas fa-external-link-alt"></i>Live Preview
                     </a>
                   </div>
                 </div>
               </div>
-              <div class="portfolio_title">
-                <i class="fas fa-image"></i>Portfolio Name Here
+              <div className="portfolio_title">
+                <i className="fas fa-image"></i>Portfolio Name Here
               </div>
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="portfolio_item">
-              <div class="portfolio_img">
+          <div className="col-lg-4">
+            <div className="portfolio_item">
+              <div className="portfolio_img">
                 <img src="images/portfolio/img-6.jpg" alt="" />
-                <div class="portfolio_overlay">
-                  <div class="overlay_items">
+                <div className="portfolio_overlay">
+                  <div className="overlay_items">
                     <a href="#" target="_blank">
-                      <i class="fas fa-external-link-alt"></i>Live Preview
+                      <i className="fas fa-external-link-alt"></i>Live Preview
                     </a>
                   </div>
                 </div>
               </div>
-              <div class="portfolio_title">
-                <i class="fas fa-image"></i>Portfolio Name Here
+              <div className="portfolio_title">
+                <i className="fas fa-image"></i>Portfolio Name Here
               </div>
             </div>
           </div>

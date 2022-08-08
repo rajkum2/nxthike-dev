@@ -14,8 +14,8 @@ export default function ProfileSideBar() {
   return (
     <>
       <div className="col-lg-3 col-md-4">
-        <div class="account_dt_left">
-          <div class="job-center-dt">
+        <div className="account_dt_left">
+          <div className="job-center-dt">
             <img
               src={
                 loginuserData !== null
@@ -28,46 +28,46 @@ export default function ProfileSideBar() {
               }
               alt=""
             />
-            <div class="job-urs-dts">
-              <div class="dp_upload">
+            <div className="job-urs-dts">
+              <div className="dp_upload">
                 <button onClick={() => setOpen(true)}>Upload Photo</button>
               </div>
               <h4>{loginuserData !== null && loginuserData.user_name}</h4>
               <span>{loginuserData !== null && loginuserData.tagline}</span>
               <span>
-                <i class="fas fa-map-marker-alt lc_icon" />
+                <i className="fas fa-map-marker-alt lc_icon" />
                 {loginuserData !== null && " " + loginuserData.city}
               </span>
-              <div class="avialable">
+              <div className="avialable">
                 Available Full Time
                 <a href="#">
-                  <i class="far fa-edit"></i>
+                  <i className="far fa-edit"></i>
                 </a>
               </div>
             </div>
           </div>
-          <div class="my_websites">
+          <div className="my_websites">
             <ul>
               <li>
-                <a href="#" class="web_link">
-                  <i class="fas fa-at"></i>
+                <a href="#" className="web_link">
+                  <i className="fas fa-at"></i>
                   {loginuserData !== null && loginuserData.user_email}
                 </a>
               </li>
               <li>
-                <a href="#" class="web_link">
-                  <i class="fas fa-globe"></i>www.blogsite.com
+                <a href="#" className="web_link">
+                  <i className="fas fa-globe"></i>www.blogsite.com
                 </a>
               </li>
             </ul>
           </div>
-          {/* <div class="group_skills_bar">
+          {/* <div className="group_skills_bar">
                 <h6>Profile Completeness</h6>
-                <div class="group_bar1">
+                <div className="group_bar1">
                   <span>85%</span>
-                  <div class="progress skill_process">
+                  <div className="progress skill_process">
                     <div
-                      class="progress-bar progress_bar_skills"
+                      className="progress-bar progress_bar_skills"
                       role="progressbar"
                       style="width: 85%;"
                       aria-valuenow="85"
@@ -76,93 +76,93 @@ export default function ProfileSideBar() {
                     ></div>
                   </div>
                 </div>
-                <a href="#" class="skiils_button">
+                <a href="#" className="skiils_button">
                   Complete Required Skills
                 </a>
               </div> */}
-          {/* <div class="rlt_section">
-                <div class="rtl_left">
+          {/* <div className="rlt_section">
+                <div className="rtl_left">
                   <h6>Rating</h6>
                 </div>
-                <div class="rtl_right">
-                  <div class="star">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+                <div className="rtl_right">
+                  <div className="star">
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
+                    <i className="fas fa-star"></i>
                     <span>4.9</span>
                   </div>
                 </div>
               </div> */}
-          <div class="rlt_section">
-            <ul class="rlt_section2">
+          <div className="rlt_section">
+            <ul className="rlt_section2">
               <li>
-                <div class="rtl_left2">
+                <div className="rtl_left2">
                   <h6>Hourly Rate</h6>
                 </div>
-                <div class="rtl_right2">
+                <div className="rtl_right2">
                   <span>$50 / hr</span>
                 </div>
               </li>
               <li>
-                <div class="rtl_left2">
+                <div className="rtl_left2">
                   <h6>Age</h6>
                 </div>
-                <div class="rtl_right2">
+                <div className="rtl_right2">
                   <span>28</span>
                 </div>
               </li>
               <li>
-                <div class="rtl_left2">
+                <div className="rtl_left2">
                   <h6>Experenice</h6>
                 </div>
-                <div class="rtl_right2">
+                <div className="rtl_right2">
                   <span>5 Year</span>
                 </div>
               </li>
               <li>
-                <div class="rtl_left2">
+                <div className="rtl_left2">
                   <h6>Job Done</h6>
                 </div>
-                <div class="rtl_right2">
+                <div className="rtl_right2">
                   <span>50</span>
                 </div>
               </li>
             </ul>
           </div>
-          <div class="social_section3 mb80">
-            <div class="social_leftt3">
+          <div className="social_section3 mb80">
+            <div className="social_leftt3">
               <h6>Contact Social Account</h6>
             </div>
-            <ul class="social_accounts">
+            <ul className="social_accounts">
               <li>
-                <a href="#" class="social_links">
-                  <i class="fab fa-facebook-f f1"></i>
+                <a href="#" className="social_links">
+                  <i className="fab fa-facebook-f f1"></i>
                   {loginuserData && loginuserData.facebook_id}
                 </a>
               </li>
               <li>
-                <a href="#" class="social_links">
-                  <i class="fab fa-twitter t1"></i>
+                <a href="#" className="social_links">
+                  <i className="fab fa-twitter t1"></i>
                   {loginuserData && loginuserData.twitter_id}
                 </a>
               </li>
               <li>
-                <a href="#" class="social_links">
-                  <i class="fab fa-linkedin-in l1"></i>
+                <a href="#" className="social_links">
+                  <i className="fab fa-linkedin-in l1"></i>
                   {loginuserData && loginuserData.linkedin_id}
                 </a>
               </li>
               <li>
-                <a href="#" class="social_links">
-                  <i class="fab fa-youtube y1"></i>
+                <a href="#" className="social_links">
+                  <i className="fab fa-youtube y1"></i>
                   {loginuserData && loginuserData.user_youtube}
                 </a>
               </li>
               <li>
-                <a href="#" class="social_links">
-                  <i class="fab fa-instagram i1"></i>
+                <a href="#" className="social_links">
+                  <i className="fab fa-instagram i1"></i>
                   {loginuserData && loginuserData.user_youtube}
                 </a>
               </li>

@@ -1,3 +1,26 @@
+.overly-bg {
+    opacity: 0.5;
+    background-image: linear-gradient(transparent, black 85%);
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 0;
+}
+
+.banner-right-arrow,
+.banner-left-arrow {
+    width: 25px;
+    height: 25px;
+}
+
+.banner-right-arrow::before,
+.banner-left-arrow::before {
+    font-size: 25px;
+}
+
 /* Testimonial */
 
 .acr-testimonial {

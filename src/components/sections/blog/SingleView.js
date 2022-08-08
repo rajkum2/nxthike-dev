@@ -1,27 +1,27 @@
 export default function SingleView() {
   return (
-    <main class="browse-section">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="plans150">
-              <div class="row">
-                <div class="col-xl-9 col-lg-8 col-md-12">
-                  <div class="sngle_b12">
-                    <div class="blog_img1">
+    <main className="browse-section">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="plans150">
+              <div className="row">
+                <div className="col-xl-9 col-lg-8 col-md-12">
+                  <div className="sngle_b12">
+                    <div className="blog_img1">
                       <img src="images/blog/big-img.jpg" alt="" />
                     </div>
-                    <div class="blog_dt1">
-                      <div class="blog_body body1458">
-                        <div class="blog_left">
+                    <div className="blog_dt1">
+                      <div className="blog_body body1458">
+                        <div className="blog_left">
                           <p>
                             By <a href="#">John Doe</a>
                           </p>
                         </div>
-                        <div class="blog_right">
+                        <div className="blog_right">
                           <span>2 October 2018</span>
                         </div>
-                        <h4 class="bs_title">
+                        <h4 className="bs_title">
                           Lorem ipsum dolor sit amet, consectetur adipiscing
                           elit.
                         </h4>
@@ -51,7 +51,7 @@ export default function SingleView() {
                           vestibulum nec lorem nec commodo. Proin placerat mi
                           non neque posuere congue.
                         </p>
-                        <p class="pp_14">
+                        <p className="pp_14">
                           “Fusce dictum mauris nec magna consequat, ut semper
                           leo pulvinar. Cras rhoncus lorem lorem, a fermentum
                           lacus congue vehicula. Nullam luctus mi eget nisl
@@ -59,7 +59,7 @@ export default function SingleView() {
                           laoreet. Aenean at ultricies velit. Proin vel mi
                           facilisis, interdum urna vel”
                         </p>
-                        <p class="pp_15">
+                        <p className="pp_15">
                           Cras scelerisque nibh sit amet luctus sollicitudin.
                           Quisque at lacus luctus, lacinia nunc nec, vehicula
                           turpis. In risus est, mollis quis orci in,
@@ -78,51 +78,51 @@ export default function SingleView() {
                         </p>
                       </div>
                     </div>
-                    <div class="share_icons">
+                    <div className="share_icons">
                       <h6>Share :</h6>
                       <a href="#">
-                        <i class="fab fa-facebook-f"></i>
+                        <i className="fab fa-facebook-f"></i>
                       </a>
                       <a href="#">
-                        <i class="fab fa-twitter"></i>
+                        <i className="fab fa-twitter"></i>
                       </a>
                       <a href="#">
-                        <i class="fab fa-google-plus-g"></i>
+                        <i className="fab fa-google-plus-g"></i>
                       </a>
                       <a href="#">
-                        <i class="fab fa-instagram"></i>
+                        <i className="fab fa-instagram"></i>
                       </a>
                       <a href="#">
-                        <i class="fab fa-linkedin-in"></i>
+                        <i className="fab fa-linkedin-in"></i>
                       </a>
                       <a href="#">
-                        <i class="fab fa-pinterest-p"></i>
+                        <i className="fab fa-pinterest-p"></i>
                       </a>
                     </div>
-                    <div class="blog_comments">
-                      <div class="main-heading bids_heading">
+                    <div className="blog_comments">
+                      <div className="main-heading bids_heading">
                         <h2>03 Comments</h2>
-                        <div class="line-shape1">
+                        <div className="line-shape1">
                           <img src="images/line.svg" alt="" />
                         </div>
                       </div>
-                      <div class="all_comments">
-                        <div class="comnt_section">
-                          <div class="comnt_item">
-                            <div class="comnt_img">
+                      <div className="all_comments">
+                        <div className="comnt_section">
+                          <div className="comnt_item">
+                            <div className="comnt_img">
                               <img
                                 src="images/homepage/candidates/img-4.jpg"
                                 alt=""
                               />
                             </div>
-                            <div class="cmmnt_dt">
-                              <div class="cmmnt_dt_left">
+                            <div className="cmmnt_dt">
+                              <div className="cmmnt_dt_left">
                                 <a href="#">John Doe</a>
                                 <span>March 25, 2018 </span>
                               </div>
-                              <div class="cmmnt_dt_right">
+                              <div className="cmmnt_dt_right">
                                 <a href="#reply_input">
-                                  <i class="fas fa-reply"></i> REPLY
+                                  <i className="fas fa-reply"></i> REPLY
                                 </a>
                               </div>
                               <p>
@@ -133,41 +133,41 @@ export default function SingleView() {
                               </p>
                             </div>
                           </div>
-                          <div class="comnt_item">
-                            <div class="comnt_img">
+                          <div className="comnt_item">
+                            <div className="comnt_img">
                               <img
                                 src="images/homepage/candidates/img-5.jpg"
                                 alt=""
                               />
                             </div>
-                            <div class="cmmnt_dt">
-                              <div class="cmmnt_dt_left">
+                            <div className="cmmnt_dt">
+                              <div className="cmmnt_dt_left">
                                 <a href="#">Jassica William</a>
                                 <span>March 25, 2018 </span>
                               </div>
-                              <div class="cmmnt_dt_right">
+                              <div className="cmmnt_dt_right">
                                 <a href="#reply_input">
-                                  <i class="fas fa-reply"></i> REPLY
+                                  <i className="fas fa-reply"></i> REPLY
                                 </a>
                               </div>
                               <p>I bet you’re still using Bootstrap too…</p>
                             </div>
                           </div>
-                          <div class="comnt_item">
-                            <div class="comnt_img">
+                          <div className="comnt_item">
+                            <div className="comnt_img">
                               <img
                                 src="images/homepage/candidates/img-6.jpg"
                                 alt=""
                               />
                             </div>
-                            <div class="cmmnt_dt">
-                              <div class="cmmnt_dt_left">
+                            <div className="cmmnt_dt">
+                              <div className="cmmnt_dt_left">
                                 <a href="#">Johnson smith</a>
                                 <span>March 25, 2018 </span>
                               </div>
-                              <div class="cmmnt_dt_right">
+                              <div className="cmmnt_dt_right">
                                 <a href="#reply_input">
-                                  <i class="fas fa-reply"></i> REPLY
+                                  <i className="fas fa-reply"></i> REPLY
                                 </a>
                               </div>
                               <p>
@@ -179,28 +179,28 @@ export default function SingleView() {
                             </div>
                           </div>
                         </div>
-                        <button class="bb_more_btn">View More</button>
+                        <button className="bb_more_btn">View More</button>
                       </div>
                     </div>
-                    <div class="blog_comments">
-                      <div class="main-heading bids_heading">
+                    <div className="blog_comments">
+                      <div className="main-heading bids_heading">
                         <h2>Leave a Comment</h2>
-                        <div class="line-shape1">
+                        <div className="line-shape1">
                           <img src="images/line.svg" alt="" />
                         </div>
                       </div>
-                      <div class="post_commnt">
+                      <div className="post_commnt">
                         <form>
-                          <div class="post_img">
+                          <div className="post_img">
                             <img src="images/blog/post_dp.jpg" alt="" />
                           </div>
                           <input
-                            class="post_input"
+                            className="post_input"
                             id="reply_input"
                             type="text"
                             placeholder="Write a comment"
                           />
-                          <button class="post_btn" type="submit">
+                          <button className="post_btn" type="submit">
                             Post Comment
                           </button>
                         </form>
@@ -208,21 +208,21 @@ export default function SingleView() {
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-3 col-lg-4 col-md-12">
-                  <div class="blog_search">
+                <div className="col-xl-3 col-lg-4 col-md-12">
+                  <div className="blog_search">
                     <input
-                      class="blog_search_input"
+                      className="blog_search_input"
                       type="text"
                       placeholder="Search Keywords..."
                     />
-                    <i class="fas fa-search bb_srch"></i>
+                    <i className="fas fa-search bb_srch"></i>
                   </div>
-                  <div class="view_chart">
-                    <div class="view_chart_header">
+                  <div className="view_chart">
+                    <div className="view_chart_header">
                       <h4>Categories</h4>
                     </div>
-                    <div class="view_chart_body">
-                      <div class="blog_categrs">
+                    <div className="view_chart_body">
+                      <div className="blog_categrs">
                         <a href="#">Latest</a>
                         <a href="#">Best Articles</a>
                         <a href="#">Productivity</a>
@@ -232,21 +232,21 @@ export default function SingleView() {
                       </div>
                     </div>
                   </div>
-                  <div class="subscribe_blog">
-                    <div class="subscribe_body">
-                      <div class="blog_logo">
+                  <div className="subscribe_blog">
+                    <div className="subscribe_body">
+                      <div className="blog_logo">
                         <img src="images/blog/blog_logo.svg" alt="" />
                       </div>
                       <h3>Subscribe and Get Updates</h3>
                       <form>
-                        <div class="form-group">
+                        <div className="form-group">
                           <input
                             type="email"
-                            class="blog10-input"
+                            className="blog10-input"
                             placeholder="Email Address"
                           />
                         </div>
-                        <button class="blogbtn142" type="submit">
+                        <button className="blogbtn142" type="submit">
                           Subscribe Now
                         </button>
                       </form>

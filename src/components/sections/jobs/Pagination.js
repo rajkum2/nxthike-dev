@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
+import { UserContext } from "../../../context/LoginContext";
+import axios from "axios";
+import { ItemsContext } from "../../../context/ItemsContext";
 
 function Pagination({ data, pageLimit, dataLimit }) {
+  const { callFavouriteApi } = useContext(ItemsContext);
   const [grid, setGrid] = useState(true);
   const [pages] = useState(Math.round(data.length / dataLimit));
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,6 +47,30 @@ function Pagination({ data, pageLimit, dataLimit }) {
   return (
     <div className="main-tabs">
       <div className="res-tabs">
+        <div class=" mtab-left">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-1" class="nav-link active" data-toggle="tab">
+                Newest Jobs
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-2" class="nav-link" data-toggle="tab">
+                Full Time
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-3" class="nav-link" data-toggle="tab">
+                Part Time
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-3" class="nav-link" data-toggle="tab">
+                Work from Home
+              </a>
+            </li>
+          </ul>
+        </div>
         <div className=" mtab-right">
           <ul>
             <li className="sort-list-dt">
@@ -82,8 +110,8 @@ function Pagination({ data, pageLimit, dataLimit }) {
           <div
             className={
               grid
-                ? "lg-item col-lg-6 col-xs-6"
-                : "lg-item col-lg-6 col-xs-6 list-group-item1"
+                ? "lg-item col-lg-4 col-xs-6"
+                : "lg-item col-lg-4 col-xs-6 list-group-item1"
             }
           >
             <div className="job-item mt-30">
@@ -113,9 +141,9 @@ function Pagination({ data, pageLimit, dataLimit }) {
                     </span>
                   </div>
                 </div>
-                <div class="job-right-dt">
-                  <div class="job-fp">Salary</div>
-                  <div class="job-price">{item.salary}</div>
+                <div className="job-right-dt">
+                  <div className="job-fp">Salary</div>
+                  <div className="job-price">{item.salary}</div>
                 </div>
               </div>
               <div className="job-des-dt">
@@ -126,10 +154,19 @@ function Pagination({ data, pageLimit, dataLimit }) {
                     : item.company_details}
                 </p>
                 <div className="job-skills">
-                  <a>Html</a>
-                  <a>Css</a>
-                  <a>Boostrap</a>
-                  <a className="more-skills">+4</a>
+                  {item.key_skills
+                    .split(", ")
+                    .splice(0, 3)
+                    .map((skill, i) => (
+                      <a key={i} href="#">
+                        {skill}
+                      </a>
+                    ))}
+                  {item.key_skills.split(", ").splice(3).length == 0 ? null : (
+                    <a className="more-skills">
+                      +{item.key_skills.split(", ").splice(3).length}
+                    </a>
+                  )}
                 </div>
               </div>
               <div className="job-buttons">
@@ -140,12 +177,30 @@ function Pagination({ data, pageLimit, dataLimit }) {
                     </a>
                   </li>
                   <li>
-                    <a href="/single-job" className="link-j1" title="View Job">
+                    <a
+                      href={`/job/${item.id}`}
+                      className="link-j1"
+                      title="View Job"
+                      target="_blank"
+                    >
                       View Job
                     </a>
                   </li>
                   <li className="bkd-pm">
-                    <button className="bookmark1" title="bookmark">
+                    <button
+                      className={
+                        item.is_favourited === "1"
+                          ? "favourite"
+                          : "not-favourite"
+                      }
+                      title="bookmark"
+                      onClick={() =>
+                        callFavouriteApi(
+                          item.id,
+                          i + (currentPage - 1) * dataLimit
+                        )
+                      }
+                    >
                       <i className="fas fa-heart"></i>
                     </button>
                   </li>

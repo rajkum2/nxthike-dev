@@ -301,7 +301,7 @@ const SingleView = () => {
               PLACE A BID
             </button>
             <div className="bookmark_rt">
-              <button className="bookmark1 mr-3" title="bookmark">
+              <button className="not-favourite mr-3" title="bookmark">
                 <i className="fas fa-heart"></i>
               </button>
               BOOKMARK

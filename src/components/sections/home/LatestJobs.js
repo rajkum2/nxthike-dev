@@ -30,7 +30,7 @@ const Jobs = () => {
         },
       },
       {
-        breakpoint: 480,
+        breakpoint: 768,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
@@ -110,7 +110,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -171,7 +171,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -234,7 +234,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -297,7 +297,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -356,7 +356,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
@@ -420,7 +420,7 @@ const Jobs = () => {
                           </a>
                         </li>
                         <li className="bkd-pm">
-                          <button className="bookmark1" title="bookmark">
+                          <button className="not-favourite" title="bookmark">
                             <i className="fas fa-heart"></i>
                           </button>
                         </li>
