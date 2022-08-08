@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState, useRef } from "react";
 import { UserContext } from "../../context/LoginContext";
 import userdp from "../../assets/images/user-dp-1.jpg";
 import dp from "../../assets/images/dp.jpg";
@@ -30,6 +30,13 @@ export default function Header() {
       fetchLoginUserData(loginuserId);
     }
   }, []);
+
+  const navRef = useRef();
+
+  const openResNav = () => {
+    navRef.current && navRef.current.classList.toggle("open");
+    console.log("hi");
+  };
 
   return (
     <>
@@ -174,6 +181,7 @@ export default function Header() {
                       <i className="fas fa-bars"></i>
                     </button>
                     <div
+                      ref={navRef}
                       className="collapse navbar-collapse d-flex flex-column flex-lg-row flex-xl-row justify-content-lg-end bg-dark1 p-3 p-lg-0 mt1-5 mt-lg-0 mobileMenu"
                       id="navbarSupportedContent"
                     >
