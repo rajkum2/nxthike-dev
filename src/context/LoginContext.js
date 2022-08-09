@@ -18,8 +18,6 @@ export default function LoginContext({ children }) {
   const [verifyMsg, setVerifyMsg] = useState(false);
   const [userType, setUserType] = useState("job-seeker");
 
-  const [contact, setContact] = useState(false);
-
   useEffect(() => {
     checkLogin();
   }, []);
@@ -324,9 +322,6 @@ export default function LoginContext({ children }) {
         newLocalStorage,
         userType,
         setUserType,
-
-        contact,
-        setContact,
       }}
     >
       {children}

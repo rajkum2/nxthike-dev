@@ -8,7 +8,6 @@ import { Dropdown } from "react-bootstrap";
 import { Link as a } from "react-router-dom";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import Modalbox from "../layouts/Modal";
-import ContactModal from "./ContactModal";
 import Modal from "react-responsive-modal";
 
 export default function Header() {
@@ -19,7 +18,6 @@ export default function Header() {
     logoutAction,
     userType,
     successMsg,
-    contact,
     loginuserData,
     fetchLoginUserData,
     loginuserId,
@@ -151,8 +149,6 @@ export default function Header() {
                             </Dropdown.Menu>
                           </Dropdown>
                           {firstLogin && <Selectusertypemodal />}
-
-                          {contact && <ContactModal first={true} />}
                         </>
                       ) : (
                         <Modalbox />
