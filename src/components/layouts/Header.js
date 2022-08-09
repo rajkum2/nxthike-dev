@@ -167,14 +167,19 @@ export default function Header() {
             <div className="container">
               <div className="row">
                 <div className="col-lg-12 col-md-12 col-sm-12">
-                  <nav className="navbar navbar-expand-lg navbar-light bg-dark1 justify-content-sm-start">
+                  <nav
+                    className="navbar navbar-expand-lg navbar-light bg-dark1 justify-content-sm-start"
+                    style={{ justifyContent: "start" }}
+                  >
                     <a
-                      className="order-1 order-lg-0 ml-lg-0 ml-3 mr-auto"
+                      className="order-1 order-lg-0"
                       href="/"
+                      style={{ marginLeft: "1rem" }}
                     >
                       <img src={logo} alt="" />
                     </a>
                     <button
+                      onClick={openResNav}
                       className="navbar-toggler align-self-start"
                       type="button"
                     >

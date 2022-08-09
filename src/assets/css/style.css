@@ -687,7 +687,7 @@ header {
 }
 
 .mt1-5 {
-  margin-top: 94px !important;
+  margin-top: 100px !important;
 }
 
 .page-links {
@@ -1166,6 +1166,11 @@ span.right-cm {
 
 .feature-img {
   position: relative;
+}
+
+.feature-img img {
+  width: 100%;
+  image-resolution: inherit;
 }
 
 .overly-bg {

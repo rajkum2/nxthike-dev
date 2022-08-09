@@ -13,7 +13,7 @@ const customStyles = {
   menu: (style) => ({
     ...style,
     marginTop: "-9px",
-    width: "86%",
+    width: "92%",
   }),
 };
 
@@ -26,8 +26,16 @@ export default function BrowseFilter() {
     clearCat,
     searchTerm,
     clearSearch,
+    exp,
+    changeExp,
+    clearExp,
+    loc,
+    changeLoc,
+    clearLoc,
   } = useContext(ItemsContext);
-  const [value, setValue] = useState(null);
+  const [catValue, setCatValue] = useState(null);
+  const [expValue, setExpValue] = useState(null);
+  const [locValue, setLocValue] = useState(null);
   return (
     <div className="filter-container row">
       <div className="filter-group col-lg-3 col-md-6 col-xs-12">
@@ -64,11 +72,20 @@ export default function BrowseFilter() {
             <h5>Location</h5>
           </div>
           <div className="filter-heading-right">
-            <button>Clear</button>
+            <button
+              onClick={() => {
+                clearLoc();
+                setLocValue(null);
+              }}
+              disabled={loc === ""}
+              style={{ color: loc === "" ? "#757575" : "red" }}
+            >
+              Clear
+            </button>
           </div>
         </div>
         <Select
-          options={options.category}
+          options={options.location}
           styles={customStyles}
           theme={(theme) => ({
             ...theme,
@@ -80,6 +97,11 @@ export default function BrowseFilter() {
               primary50: "#e56042",
             },
           })}
+          value={locValue}
+          onChange={(e) => {
+            changeLoc(e.value);
+            setLocValue(e);
+          }}
         />
       </div>
       <div className="filter-group col-lg-3 col-md-6 col-xs-12">
@@ -91,7 +113,7 @@ export default function BrowseFilter() {
             <button
               onClick={() => {
                 clearCat();
-                setValue(null);
+                setCatValue(null);
               }}
               disabled={cat === ""}
               style={{ color: cat === "" ? "#757575" : "red" }}
@@ -113,10 +135,10 @@ export default function BrowseFilter() {
               primary50: "#e56042",
             },
           })}
-          value={value}
+          value={catValue}
           onChange={(e) => {
             changeCat(e.value);
-            setValue(e);
+            setCatValue(e);
           }}
         />
       </div>
@@ -126,11 +148,20 @@ export default function BrowseFilter() {
             <h5>Experience</h5>
           </div>
           <div className="filter-heading-right">
-            <button>Clear</button>
+            <button
+              onClick={() => {
+                clearExp();
+                setExpValue(null);
+              }}
+              disabled={exp === ""}
+              style={{ color: exp === "" ? "#757575" : "red" }}
+            >
+              Clear
+            </button>
           </div>
         </div>
         <Select
-          options={options.category}
+          options={options.exp}
           styles={customStyles}
           theme={(theme) => ({
             ...theme,
@@ -142,6 +173,11 @@ export default function BrowseFilter() {
               primary50: "#e56042",
             },
           })}
+          value={expValue}
+          onChange={(e) => {
+            changeExp(e.value);
+            setExpValue(e);
+          }}
         />
       </div>
     </div>

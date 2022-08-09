@@ -6,11 +6,20 @@ import Loader from "../../layouts/Loader";
 import { ItemsContext } from "../../../context/ItemsContext";
 
 export default function Content() {
-  const { items, fetchJobs, searching, cat, loading, error } =
-    useContext(ItemsContext);
+  const {
+    items,
+    fetchJobs,
+    searching,
+    cat,
+    loading,
+    error,
+    exp,
+    jobType,
+    loc,
+  } = useContext(ItemsContext);
   useEffect(() => {
     fetchJobs();
-  }, [searching, cat]);
+  }, [searching, cat, exp, jobType, loc]);
   return (
     <>
       <main className="browse-section">

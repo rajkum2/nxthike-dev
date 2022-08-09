@@ -8,6 +8,9 @@ export default function ItemContext({ children }) {
   const { isLoggedIn, loginuserId } = useContext(UserContext);
   const [items, setItems] = useState([]);
   const [cat, setCat] = useState("");
+  const [loc, setLoc] = useState("");
+  const [exp, setExp] = useState("");
+  const [jobType, setJobType] = useState("");
   const [sort, setSort] = useState("");
   const [order_by, setOrder_by] = useState("");
   const [order_type, setOrder_type] = useState("");
@@ -27,6 +30,9 @@ export default function ItemContext({ children }) {
       order_type: order_type,
       searchterm: searchTerm,
       cat_id: cat,
+      item_job_type_id: jobType,
+      item_location_id: loc,
+      item_experience_id: exp,
     };
     axios
       .post(
@@ -54,6 +60,20 @@ export default function ItemContext({ children }) {
     setItems([]);
     setCat(val);
   };
+  const changeExp = (val) => {
+    setItems([]);
+    setExp(val);
+  };
+
+  const changeLoc = (val) => {
+    setItems([]);
+    setLoc(val);
+  };
+
+  const changeJobType = (val) => {
+    setItems([]);
+    setJobType(val);
+  };
 
   const callSearch = () => {
     setItems([]);
@@ -69,6 +89,21 @@ export default function ItemContext({ children }) {
   const clearCat = () => {
     setItems([]);
     setCat("");
+  };
+
+  const clearExp = () => {
+    setItems([]);
+    setExp();
+  };
+
+  const clearLoc = () => {
+    setItems([]);
+    setLoc();
+  };
+
+  const clearJobType = () => {
+    setItems([]);
+    setJobType();
   };
 
   const callFavouriteApi = async (id, idx) => {
@@ -110,6 +145,12 @@ export default function ItemContext({ children }) {
         setItems,
         cat,
         setCat,
+        loc,
+        setLoc,
+        exp,
+        setExp,
+        jobType,
+        setJobType,
         searchTerm,
         setSearchTerm,
         searching,
@@ -130,6 +171,12 @@ export default function ItemContext({ children }) {
         updateItemsState,
         changeCat,
         clearCat,
+        changeExp,
+        clearExp,
+        changeJobType,
+        clearJobType,
+        changeLoc,
+        clearLoc,
         callSearch,
         clearSearch,
         callFavouriteApi,

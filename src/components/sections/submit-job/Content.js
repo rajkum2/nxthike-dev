@@ -5,17 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { Link } from "react-router-dom";
 import options from "../../../data/allJobOptions.json";
 import axios from "axios";
-const customStyles = {
-  menu: (provided, state) => ({
-    ...provided,
-    zIndex: 1000,
-  }),
-  option: (styles, { isDisabled, isFocused, isSelected }) => ({
-    ...styles,
-    color: "black",
-    //background: state.isSelected ? "#ffc7b3" : "white",
-  }),
-};
+
 export default function Content() {
   const { isLoggedIn, loginuserId } = useContext(UserContext);
 
@@ -27,7 +17,7 @@ export default function Content() {
   const [experience, setExp] = useState("");
   const [salary, setSalary] = useState(0);
   const [role, setRole] = useState("");
-  const [emply_type, setEmplyType] = useState("");
+  const [jobType, setJobType] = useState("");
   const [industry, setIndustry] = useState("");
   const [skills, setSkills] = useState("");
   const [skillsArray, setSkillsArray] = useState([]);
@@ -85,14 +75,14 @@ export default function Content() {
         item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
         cat_id: category,
         sub_cat_id: subCat,
-        location: loc,
+        item_location_id: loc,
         title: title,
         company_name: comp_name,
-        experience: experience,
+        item_experience_id: experience,
         salary: salary,
         //function_area: func_area,
         role: role,
-        employment_type: emply_type,
+        item_job_type_id: jobType,
         industry_type: industry,
         key_skills: skills,
         description: job_desc,
@@ -219,10 +209,8 @@ export default function Content() {
                       <label className="label15">Job Category*</label>
                       <Select
                         options={options.category}
-                        className="skills-search"
                         isSearchable
-                        placeholder="Job Type"
-                        styles={customStyles}
+                        placeholder="Job Category"
                         onChange={(e) => setCategory(e.value)}
                       />
                     </div>
@@ -240,7 +228,6 @@ export default function Content() {
                             ? options.subCategory.business
                             : null
                         }
-                        className="skills-search"
                         isSearchable
                         placeholder="Job SubCategory"
                         isDisabled={
@@ -248,7 +235,6 @@ export default function Content() {
                             ? true
                             : false
                         }
-                        styles={customStyles}
                         onChange={(e) => setSubCat(e.value)}
                       />
                     </div>
@@ -258,22 +244,20 @@ export default function Content() {
                       <label className="label15">Availability*</label>
                       <Select
                         options={options.availability}
-                        className="skills-search"
+                        
                         isMulti
                         isSearchable
                         placeholder="Avalability"
-                        styles={customStyles}
+                        
                       />
                     </div>
                   </div> */}
                   <div className="col-lg-6">
                     <div className="form-group">
                       <label className="label15">Experience Level</label>
-                      <input
-                        type="text"
-                        className="job-input"
-                        value={experience}
-                        onChange={(e) => setExp(e.target.value)}
+                      <Select
+                        options={options.exp}
+                        onChange={(e) => setExp(e.value)}
                       />
                     </div>
                   </div>
@@ -305,13 +289,11 @@ export default function Content() {
                   </div>
                   <div className="col-lg-6">
                     <div className="form-group">
-                      <label className="label15">Employment Type</label>
+                      <label className="label15">Job Type</label>
                       <div className="smm_input">
-                        <input
-                          type="text"
-                          className="job-input"
-                          value={emply_type}
-                          onChange={(e) => setEmplyType(e.target.value)}
+                        <Select
+                          options={options.jobType}
+                          onChange={(e) => setJobType(e.value)}
                         />
                       </div>
                     </div>
@@ -333,12 +315,9 @@ export default function Content() {
                     <div className="form-group">
                       <label className="label15">Location</label>
                       <div className="smm_input">
-                        <input
-                          type="text"
-                          className="job-input"
-                          placeholder="Type Address"
-                          value={loc}
-                          onChange={(e) => setLoc(e.target.value)}
+                        <Select
+                          options={options.location}
+                          onChange={(e) => setLoc(e.value)}
                         />
                       </div>
                     </div>
@@ -348,10 +327,8 @@ export default function Content() {
                       <label className="label15">Skills*</label>
                       <Select
                         options={options.skills}
-                        className="skills-search"
                         isMulti
                         isSearchable
-                        styles={customStyles}
                         onChange={handleSkills}
                       />
                     </div>

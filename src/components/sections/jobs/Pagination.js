@@ -5,6 +5,7 @@ import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 import { UserContext } from "../../../context/LoginContext";
 import axios from "axios";
 import { ItemsContext } from "../../../context/ItemsContext";
+import options from "../../../data/allJobOptions.json";
 
 function Pagination({ data, pageLimit, dataLimit }) {
   const { callFavouriteApi } = useContext(ItemsContext);
@@ -49,26 +50,13 @@ function Pagination({ data, pageLimit, dataLimit }) {
       <div className="res-tabs">
         <div class=" mtab-left">
           <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
-              <a href="#tab-1" class="nav-link active" data-toggle="tab">
-                Newest Jobs
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#tab-2" class="nav-link" data-toggle="tab">
-                Full Time
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#tab-3" class="nav-link" data-toggle="tab">
-                Part Time
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#tab-3" class="nav-link" data-toggle="tab">
-                Work from Home
-              </a>
-            </li>
+            {options.jobType.map((type) => (
+              <li class="nav-item">
+                <a href="#tab-1" class="nav-link" data-toggle="tab">
+                  {type.label}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
         <div className=" mtab-right">
