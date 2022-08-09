@@ -1,6 +1,9 @@
 import React from "react";
 import line from "../../../assets/images/line.svg";
 import jobSeekers from "../../../data/jobSeekers.json";
+import img1 from "../../../assets/images/homepage/latest-jobs/1.jpg";
+import img2 from "../../../assets/images/homepage/latest-jobs/2.jpg";
+import img3 from "../../../assets/images/homepage/latest-jobs/3.jpg";
 
 const JobSeekers = () => {
   return (
@@ -23,8 +26,8 @@ const JobSeekers = () => {
                   <div className="acr-dots-wrapper acr-agent-thumb">
                     <div>
                       <img
-                        src={process.env.DEV_URL + item.img}
-                        alt="jobseeker"
+                        className="job-img"
+                        src={i == 0 ? img2 : i == 1 ? img1 : img3}
                       />
                     </div>
                   </div>
