@@ -55,9 +55,12 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Hire a Team</h4>
-                <p>
+                <h4>Post a Job</h4>
+                {/* <p>
                   We provide employees as a team which may include a Developer, Content Writer, Designer & Digital Marketer.
+                </p> */}
+                <p>
+                  Hire candidates by posting your job for Free. Create your Business account and start posting jobs for open positions.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>

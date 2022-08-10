@@ -91,9 +91,9 @@ const Footer = () => {
                 <li>
                   <a href="/submit-job">Post a Job</a>
                 </li>
-                <li>
+                {/* <li>
                   <a href="/pricing">Pricing Plans</a>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>
