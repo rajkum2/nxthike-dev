@@ -1,28 +1,28 @@
 [
     {
         "id": 1,
-        "title": "Perfect service",
-        "comment": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry",
-        "author": "John Mishlen",
-        "post": "Executive CEO at company",
-        "authorimg": "assets/img/people/1.jpg",
+        "title": "Perfect Job Service",
+        "comment": "NxtHike helped me in looking for more opportunities and getting a better salary and position in a new company.",
+        "author": "Srisai",
+        "post": "Devops Engineer",
+        "authorimg": "assets/images/homepage/testimonials/1.png",
         "rating": 5
     },
     {
         "id": 2,
-        "title": "Competitive prices",
-        "comment": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry",
-        "author": "Moe Sondi",
-        "post": "Executive CEO at company",
+        "title": "Easy and Fast Hiring",
+        "comment": "NxtHike HR recruiters are good at hiring candidates fast and smoothly without much hassele.Defintely recommened",
+        "author": "Mani",
+        "post": "Director at 11zense Foods",
         "authorimg": "assets/img/people/2.jpg",
         "rating": 4
     },
     {
         "id": 3,
-        "title": "Great agents",
-        "comment": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry",
-        "author": "Mandy Floss",
-        "post": "Executive CEO at company",
+        "title": "Highly Committed",
+        "comment": "We really like the way NXTHike works with the clients, they are very responsive and understanding in finding what the client needs.",
+        "author": "Shravan",
+        "post": "CTO at Logicarts",
         "authorimg": "assets/img/people/3.jpg",
         "rating": 4
     }

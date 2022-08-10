@@ -23,11 +23,11 @@ const Testimonials = () => {
                                 <div className="acr-testimonial">
                                     <div className="acr-testimonial-body">
                                         <h5>{item.title}</h5>
-                                        <div className="acr-rating-wrapper">
+                                        {/* <div className="acr-rating-wrapper">
                                             <div className="acr-rating">
                                                 {processRatingStars(item.rating)}
                                             </div>
-                                        </div>
+                                        </div> */}
                                         <p>{item.comment}</p>
                                         <div className="acr-testimonial-author">
                                             <img

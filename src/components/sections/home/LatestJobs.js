@@ -1,6 +1,11 @@
 import Slider from "react-slick";
 import line from "../../../assets/images/line.svg";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
+import img1 from "../../../assets/images/homepage/latest-jobs/trantor.svg";
+import img2 from "../../../assets/images/homepage/latest-jobs/Chitrakars.png";
+import img3 from "../../../assets/images/homepage/latest-jobs/itriangle.jpeg";
+import img4 from "../../../assets/images/homepage/latest-jobs/orchid.png";
+import img5 from "../../../assets/images/homepage/latest-jobs/intellixaa.png";
+
 import { Link as button } from "react-router-dom";
 
 const CustomNextArrow = (props) => {
@@ -122,7 +127,7 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img1} alt="" />
+                        <img src={img2} alt="" />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Chitrakars</h4>
@@ -183,7 +188,7 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img1} alt="" />
+                        <img src={img3} alt="" />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>ITriangle</h4>
@@ -246,7 +251,7 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img1} alt="" />
+                        <img src={img4} alt="" />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Orchids</h4>
@@ -309,7 +314,7 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img1} alt="" />
+                        <img src={img5} alt="" />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Intellixaa</h4>
@@ -368,7 +373,7 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img1} alt="" />
+                        <img src={img5} alt="" />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Intelixaa</h4>

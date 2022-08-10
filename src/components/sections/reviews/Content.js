@@ -58,8 +58,8 @@ export default function Content() {
                                 />
                               </div>
                               <div className="candi_dt">
-                                <a href="#">Johnson Dua</a>
-                                <div className="candi_cate">UX Designer</div>
+                                <a href="#">Sri Sai</a>
+                                <div className="candi_cate">Devops Engineer</div>
                                 <div className="rating_candi">
                                   Rating
                                   <div className="star">
@@ -130,7 +130,7 @@ export default function Content() {
                             <div className="applied_candidates_dt">
                               <div className="candi_img">
                                 <img
-                                  src="images/homepage/candidates/img-3.jpg"
+                                  src="images/homepage/testimonials/1.png"
                                   alt=""
                                 />
                               </div>
