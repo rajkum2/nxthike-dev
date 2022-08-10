@@ -2,94 +2,103 @@ import line from "../../../assets/images/line.svg";
 
 export default function Content() {
   return (
-    <main className="contact-section">
-      <div className="contact_info">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-6">
-              <div className="contact_dts">
-                <h6>
-                  Opening a ticket is the fastest and most efficient method of
-                  support.
+    <main class="contact-section">
+      <div class="contact_info">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="contact_dts">
+            
+                <div class="main-heading bids_heading">
+                  <h2>Contact Us</h2>
+                  <h6>
+                We strongly believe we are chosen by our clients not only for our professionalism, but for our commitment to providing them first-class service.
+                <br/>
+                Contact us today and submit a message below! We will contact you momentarily!
                 </h6>
-                <div className="main-heading bids_heading">
-                  <h2>Contact Information</h2>
-                  <div className="line-shape1">
+                  <div class="line-shape1">
                     <img src={line} alt="" />
                   </div>
                 </div>
-                <ul className="cinfo10">
+                <ul class="cinfo10">
                   <li>
                     <p>
                       <span>
-                        <i className="fas fa-map-marker-alt"></i>Address :
+                        <i class="fas fa-map-marker-alt"></i>India Address :
                       </span>
-                      #1234, Sks Nagar, Near MBD Mall, 141001 Ludhiana, Punjab,
-                      India
+                      5th floor, Trifecta Adatto, 21, ITPL Main Rd, Garudachar Palya, Mahadevapura, Bengaluru, Karnataka 560048
                     </p>
                   </li>
                   <li>
                     <p>
                       <span>
-                        <i className="fas fa-envelope"></i>Email Address :
+                        <i class="fas fa-map-marker-alt"></i>US Address :
                       </span>
-                      Support@NxtHike.com
+                      18 W 18th St, New York, NY 10011, United States
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      <span>
+                        <i class="fas fa-envelope"></i>Email Address :
+                      </span>
+                      hi@nxthike.com, support@nxthike.com
                     </p>
                   </li>
                 </ul>
               </div>
             </div>
-            <div className="col-lg-6">
-              <div className="contact_form">
-                <div className="main-heading">
+            <div class="col-lg-6">
+              <div class="contact_form">
+                <div class="main-heading">
                   <h2>Open a Ticket</h2>
-                  <div className="line-shape1">
+                  <div class="line-shape1">
                     <img src={line} alt="" />
                   </div>
                 </div>
                 <form>
-                  <div className="row">
-                    <div className="col-lg-6 col-md-6">
-                      <div className="form-group">
-                        <label className="label15">Name*</label>
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                      <div class="form-group">
+                        <label class="label15">Name*</label>
                         <input
                           type="text"
-                          className="job-input"
+                          class="job-input"
                           placeholder="Enter Name"
                         />
                       </div>
                     </div>
-                    <div className="col-lg-6 col-md-6">
-                      <div className="form-group">
-                        <label className="label15">Email Address*</label>
+                    <div class="col-lg-6 col-md-6">
+                      <div class="form-group">
+                        <label class="label15">Email Address*</label>
                         <input
                           type="email"
-                          className="job-input"
+                          class="job-input"
                           placeholder="Enter Email Address"
                         />
                       </div>
                     </div>
-                    <div className="col-lg-12">
-                      <div className="form-group">
-                        <label className="label15">Subject*</label>
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                        <label class="label15">Subject*</label>
                         <input
                           type="text"
-                          className="job-input"
+                          class="job-input"
                           placeholder="Enter Subject"
                         />
                       </div>
                     </div>
-                    <div className="col-lg-12">
-                      <div className="form-group">
-                        <label className="label15">Message*</label>
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                        <label class="label15">Message*</label>
                         <textarea
-                          className="note-input"
+                          class="note-input"
                           placeholder="Text Message"
                         ></textarea>
                       </div>
                     </div>
-                    <div className="col-lg-12">
-                      <button className="withdraw_btn" type="submit">
+                    <div class="col-lg-12">
+                      <button class="withdraw_btn" type="submit">
                         Send Message
                       </button>
                     </div>
