@@ -2,7 +2,7 @@ import { Fragment, useContext, useEffect, useState, useRef } from "react";
 import { UserContext } from "../../context/LoginContext";
 import userdp from "../../assets/images/user-dp-1.jpg";
 import dp from "../../assets/images/dp.jpg";
-import logo from "../../assets/images/nxthike-img.svg";
+import logo from "../../assets/images/nxt-logo.svg";
 import Selectusertypemodal from "./Selectusertypemodal";
 import { Dropdown } from "react-bootstrap";
 import { Link as a } from "react-router-dom";
