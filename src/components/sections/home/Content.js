@@ -7,8 +7,10 @@ import Categories from "./Categories";
 import Featured from "./Featured";
 import Jobs from "./LatestJobs";
 import Offer from "./Offer";
+import Companies from "./Companies";
 import SearchBar from "./SearchBar";
 import Info from "./SomeInfo";
+import "./home.css";
 const Content = () => {
   const [visible, setVisible] = useState(false);
   const { isLoggedIn, firstLogin } = useContext(UserContext);
@@ -41,6 +43,7 @@ const Content = () => {
         <Categories />
         {/* <Featured /> */}
         <Info />
+        <Companies />
       </main>
       <button
         onClick={scrollToTop}
