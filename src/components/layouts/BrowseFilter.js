@@ -1,9 +1,7 @@
-import MultiRangeSlider from "./MultirangeSlider";
 import Select from "react-select";
 import options from "../../data/allJobOptions.json";
 import { useContext, useState } from "react";
 import { ItemsContext } from "../../context/ItemsContext";
-import { Dropdown } from "react-bootstrap";
 
 const customStyles = {
   container: (style) => ({

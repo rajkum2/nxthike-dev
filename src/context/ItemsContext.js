@@ -93,17 +93,17 @@ export default function ItemContext({ children }) {
 
   const clearExp = () => {
     setItems([]);
-    setExp();
+    setExp("");
   };
 
   const clearLoc = () => {
     setItems([]);
-    setLoc();
+    setLoc("");
   };
 
   const clearJobType = () => {
     setItems([]);
-    setJobType();
+    setJobType("");
   };
 
   const callFavouriteApi = async (id, idx) => {
