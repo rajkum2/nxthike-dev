@@ -41,7 +41,7 @@ const SingleView = ({ data }) => {
         emp_id: data.added_user_id,
         item_type_id: data.item_type_id,
         applicant_id: loginuserId,
-        app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+        app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
         item_id: data.id,
         status: 1,
       };

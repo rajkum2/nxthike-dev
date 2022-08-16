@@ -24,6 +24,7 @@ export default function ItemContext({ children }) {
     setError(false);
     setLoading(true);
     const postData = {
+      app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
       item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
       status: 1,
       order_by: order_by,

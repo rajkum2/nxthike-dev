@@ -64,6 +64,7 @@ export default function Otpform({ otpvrftoken, timeOut, clsmodal }) {
       user_phone: phone_no,
       device_token: device_token,
       phone_id: mobile_id,
+      app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
     };
     loginAction(fireurInfo);
   };
