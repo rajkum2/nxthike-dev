@@ -149,7 +149,7 @@ const Footer = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="#">
+                    <a href="https://instagram.com/nxthike">
                       <i className="fab fa-instagram"></i>
                     </a>
                   </li>
