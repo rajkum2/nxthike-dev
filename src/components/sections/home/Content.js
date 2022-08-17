@@ -10,6 +10,7 @@ import Featured from "./Featured";
 import Jobs from "./LatestJobs";
 import Offer from "./Offer";
 import SearchBar from "./SearchBar";
+import Companies from "./Companies";
 import Info from "./SomeInfo";
 import "./home.css";
 
@@ -46,6 +47,7 @@ const Content = () => {
         <Categories />
         <Testimonials />
         <JobSeekers />
+        <Companies />
         {/* <Featured /> */}
         <Info />
       </main>
