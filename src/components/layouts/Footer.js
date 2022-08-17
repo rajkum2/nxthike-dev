@@ -134,7 +134,7 @@ const Footer = () => {
               <div className="social-icons">
                 <ul>
                   <li>
-                    <a href="https://www.facebook.com/NxtHike-103926969066504">
+                    <a target="_blank" href="https://www.facebook.com/nxthike">
                       <i className="fab fa-facebook-f"></i>
                     </a>
                   </li>
@@ -148,11 +148,11 @@ const Footer = () => {
                       <i className="fab fa-twitter"></i>
                     </a>
                   </li>
-                  {/* <li>
+                  <li>
                     <a href="#">
-                      <i className="fab fa-google-plus-g"></i>
+                      <i className="fab fa-instagram"></i>
                     </a>
-                  </li> */}
+                  </li>
                 </ul>
               </div>
             </div>
