@@ -3301,6 +3301,13 @@ span.right-cm {
   width: 100%;
 }
 
+.lg-out-div {
+  float: left;
+  width: 100%;
+  text-align: center;
+  padding: 40px;
+}
+
 .avialable a {
   color: #ff4500;
   font-size: 14px;
@@ -3656,7 +3663,6 @@ span.right-cm {
 .main_lg_btn {
   color: #fff;
   background: #ff4500;
-  float: right;
   height: 40px;
   padding: 10px 20px;
   font-size: 14px;
@@ -6428,15 +6434,17 @@ span.right-cm {
   color: #242424;
 }
 
+.blog_body h4:hover {
+  color: #ff4500;
+}
+
 .blog_body p {
   float: left;
   font-size: 14px;
   text-align: left;
   font-weight: 400;
   font-family: "Open Sans", sans-serif;
-  line-height: 26px;
   color: #757575;
-  margin-bottom: 0;
 }
 
 .read_btn {

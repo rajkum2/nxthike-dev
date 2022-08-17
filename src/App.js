@@ -58,8 +58,8 @@ export default function App() {
         <Route path="/editprofile" element={<EditProfile />} />
         <Route path="/contact-us" element={<Contact />} />
         <Route path="/help" element={<HelpCentre />} />
-        <Route path="/our-blog" element={<Blog />} />
-        <Route path="/blog-single" element={<BlogSingle />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:blogTitle" element={<BlogSingle />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/invoice" element={<Invoice />} />

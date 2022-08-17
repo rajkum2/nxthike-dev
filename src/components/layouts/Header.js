@@ -225,7 +225,7 @@ export default function Header() {
                                     </Dropdown.Item>
                                     <Dropdown.Item
                                       as={a}
-                                      to="/our-blog"
+                                      to="/blog"
                                       className="link-item"
                                     >
                                       Our Blog
@@ -293,7 +293,7 @@ export default function Header() {
                                     </Dropdown.Item>
                                     <Dropdown.Item
                                       as={a}
-                                      to="/our-blog"
+                                      to="/blog"
                                       className="link-item"
                                     >
                                       Our Blog
@@ -373,7 +373,7 @@ export default function Header() {
                                   </Dropdown.Item>
                                   <Dropdown.Item
                                     as={a}
-                                    to="/our-blog"
+                                    to="/blog"
                                     className="link-item"
                                   >
                                     Our Blog

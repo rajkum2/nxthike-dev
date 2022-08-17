@@ -9,19 +9,12 @@ export default function ProfileHeader({ pathname }) {
         <div className="account_hd_left">
           <h2>Manage Your Account</h2>
         </div>
-        <div className="account_hd_right">
-          <a onClick={logoutAction} href="/" className="main_lg_btn">
-            Logout
-          </a>
-        </div>
       </div>
       <div className="account_tabs">
         <ul className="nav nav-tabs">
           <li className="nav-item">
             <a
-              className={`${
-                pathname === "dashboard" ? "nav-link active" : "nav-link"
-              }`}
+              className={`nav-link${pathname === "dashboard" ? " active" : ""}`}
               href="/dashboard"
             >
               Dashboard
@@ -29,9 +22,7 @@ export default function ProfileHeader({ pathname }) {
           </li>
           <li className="nav-item">
             <a
-              className={`${
-                pathname === "profile" ? "nav-link active" : "nav-link"
-              }`}
+              className={`nav-link${pathname === "profile" ? " active" : ""}`}
               href="/myprofile"
             >
               Profile
@@ -39,15 +30,13 @@ export default function ProfileHeader({ pathname }) {
           </li>
           <li className="nav-item">
             <a
-              className={`${
-                pathname === "portfolio" ? "nav-link active" : "nav-link"
-              }`}
+              className={`nav-link${pathname === "portfolio" ? " active" : ""}`}
               href="/portfolio"
             >
               Portfolio
             </a>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <a
               className={`${
                 pathname === "notifications" ? "nav-link active" : "nav-link"
@@ -66,12 +55,10 @@ export default function ProfileHeader({ pathname }) {
             >
               Messages
             </a>
-          </li>
+          </li> */}
           <li className="nav-item">
             <a
-              className={`${
-                pathname === "bookmarks" ? "nav-link active" : "nav-link"
-              }`}
+              className={`nav-link${pathname === "bookmarks" ? " active" : ""}`}
               href="/bookmarks"
             >
               Bookmarks
@@ -79,15 +66,15 @@ export default function ProfileHeader({ pathname }) {
           </li>
           <li className="nav-item">
             <a
-              className={`${
-                pathname === "manage-jobs" ? "nav-link active" : "nav-link"
+              className={`nav-link${
+                pathname === "manage-jobs" ? " active" : ""
               }`}
               href="/manage-jobs"
             >
               Jobs
             </a>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <a
               className={`${
                 pathname === "bids" ? "nav-link active" : "nav-link"
@@ -116,15 +103,13 @@ export default function ProfileHeader({ pathname }) {
             >
               Payment
             </a>
-          </li>
+          </li> */}
           <li className="nav-item">
             <a
-              className={`${
-                pathname === "setting" ? "nav-link active" : "nav-link"
-              }`}
+              className={`nav-link ${pathname === "setting" ? "active" : ""}`}
               href="/editprofile"
             >
-              <i className="fas fa-cog"></i>
+              <i className="fas fa-cog"></i> Settings
             </a>
           </li>
         </ul>

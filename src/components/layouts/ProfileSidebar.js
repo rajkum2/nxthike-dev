@@ -168,6 +168,11 @@ export default function ProfileSideBar() {
               </li>
             </ul>
           </div>
+          <div className="lg-out-div">
+            <a className="main_lg_btn" onClick={logoutAction} href="/">
+              Logout
+            </a>
+          </div>
         </div>
       </div>
       <Modal

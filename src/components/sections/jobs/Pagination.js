@@ -7,7 +7,7 @@ import { ItemsContext } from "../../../context/ItemsContext";
 function Pagination({ data, pageLimit, dataLimit, grid }) {
   const { callFavouriteApi } = useContext(ItemsContext);
 
-  const [pages] = useState(Math.round(data.length / dataLimit));
+  const [pages] = useState(Math.ceil(data.length / dataLimit));
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
