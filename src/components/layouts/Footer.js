@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import logo from "../../assets/images/nxthike-img.svg";
+import logo from "../../assets/images/nxt-logo.png";
 import { UserContext } from "../../context/LoginContext";
 import Modalbox from "./Modal";
 
