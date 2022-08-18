@@ -33,8 +33,8 @@ const Modalbox = (props) => {
         </li>
       ) : (
         <div className="login__dropDown">
-          <button className="login-btn" onClick={() => setOpen(true)}>
-            Register
+          <button className="login_btn" onClick={() => setOpen(true)}>
+            Login/Singup
           </button>
         </div>
       )}

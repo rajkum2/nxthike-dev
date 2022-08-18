@@ -1,23 +1,23 @@
 [
   {
     "id": 1,
-    "name": "Career Coaching",
-    "post": "One 30-minute call",
-    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-    "saveOfferText": "Lorem Ipsum Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+    "name": "Job Hunting",
+    "post": "Online Support",
+    "text": "We are experts in job searching, job applying and job assistance for freshers and experienced candidates.We will make sure you get into a new job fast.",
+    "saveOfferText": "Helping candidates in Job Hunting for Remote, Freelancing & Full time jobs. "
   },
   {
     "id": 2,
     "name": "Resume Review",
-    "post": "One 30-minute call",
-    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-    "saveOfferText": "Lorem as been the industry's standard dummy text ever since the 1500s,"
+    "post": "Resume Prep Support",
+    "text": "A good resume is the first step to get your job interview. We help you in creating and modifying your resume to look like a higly professional and attractive. ",
+    "saveOfferText": "Get on to a personal call for 30 min to review your resume."
   },
   {
     "id": 3,
-    "name": "Career Coaching & Resume Review Bundle",
-    "post": "One 30-minute call",
-    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-    "saveOfferText": "Lorem Ipsum is een the industry's standard dummy text ever since the "
+    "name": "Career Guidance",
+    "post": "Complete Online Support",
+    "text": "If you are fresher or experienced candidate, we will provide the necessary guidance in getting your new role in your career.Feel free to contact us us for any need.",
+    "saveOfferText": "Career Guidance in New Career paths, Certifications & Trainings"
   }
 ]

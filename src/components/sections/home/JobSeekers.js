@@ -33,14 +33,17 @@ const JobSeekers = () => {
                   </div>
                   <div className="acr-jobSeeker-body">
                     <h6>{item.name}</h6>
-                    <h5>
+                    {/* <h5>
                       $74 / <span>{item.post}</span>
+                    </h5> */}
+                    <h5>
+                       <span>{item.post}</span>
                     </h5>
                     <p>{item.text}</p>
-                    <div className="acr-jobSeeker-details">Show Details</div>
-                    <div className="acr-jobSeeker-purchase">
+                    {/* <div className="acr-jobSeeker-details">Show Details</div> */}
+                    {/* <div className="acr-jobSeeker-purchase">
                       Purchase Bundle
-                    </div>
+                    </div> */}
                     <div className="acr-jobSeeker-purchase-saveOffer">
                       {item.saveOfferText}
                     </div>
