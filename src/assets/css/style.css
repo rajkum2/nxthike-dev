@@ -6209,10 +6209,12 @@ span.right-cm {
   font-weight: 400;
   font-family: "Roboto", sans-serif;
   color: #242424;
+  background: white !important;
 }
 
 .login_btn i {
   margin-right: 5px;
+  display: inline;
 }
 
 .login_btn:hover {
@@ -7503,13 +7505,12 @@ span.right-cm {
   top: 50% !important;
   color: #242424 !important;
   border: 1px solid #e5e5e5 !important;
-  background: #fff!important;
+  background: #fff !important;
   border-radius: 100% !important;
   box-shadow: 0px 2px 2px 0px rgb(0 0 0 / 7%);
   text-align: center;
   height: 25px !important;
   width: 25px !important;
-
 }
 
 .slick-next {
@@ -7520,13 +7521,12 @@ span.right-cm {
   border-radius: 50%;
   color: #242424 !important;
   border: 1px solid #e5e5e5 !important;
-  background: #fff!important;
+  background: #fff !important;
   border-radius: 100% !important;
   box-shadow: 0px 2px 2px 0px rgb(0 0 0 / 7%);
   text-align: center;
   height: 25px !important;
   width: 25px !important;
-
 }
 
 .slick-list {
