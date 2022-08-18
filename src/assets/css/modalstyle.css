@@ -1,8 +1,8 @@
 /* ========== Modal style ================== */
 
 .customOverlay {
-    background:rgba(0, 0, 0, 0.78);
-  }
+  background: rgba(0, 0, 0, 0.78);
+}
 
 /* ========== END Modal style ================== */
 
@@ -15,7 +15,7 @@
   color: #497da2c2;
 }
 
-.otpformdiv input:focus{
+.otpformdiv input:focus {
   outline: none;
 }
 
@@ -40,32 +40,28 @@
 
 /* ========== END Modal titles ============ */
 
-
 /* ========== Modal label style ============ */
 
-.modallabel{
+.modallabel {
   margin-bottom: 5px;
-  margin-top: 20px; 
+  margin-top: 20px;
   font-size: 24px;
 }
 
 /* ========== END Modal label style ============ */
 
-
-
 /* ========== Modal Button style ================== */
 .modalbtn {
-  width:100%;
-  height:44px;
-  background-image: linear-gradient(to top, #353232de , #bb4f59 24%);   
+  width: 100%;
+  height: 44px;
+  background-image: linear-gradient(to top, #353232de, #bb4f59 24%);
 }
 /* ========== END Modal Button style ================== */
 
-
 /* ========== Mobile Login Form style ============ */
-.phoneformdiv{
-    width: 440px;
-    padding: 20px 60px 20px 60px;
+.phoneformdiv {
+  width: 440px;
+  padding: 20px 60px 20px 60px;
 }
 
 /* .MuiFormControl-root {
@@ -73,20 +69,19 @@
 } */
 
 @media only screen and (max-width: 445px) {
-  .phoneformdiv{
-      width: 40%;
-      padding: 40px 0px 0px 0px;
+  .phoneformdiv {
+    width: 100% !important;
+    padding: 20px 10px 10px 0px !important;
   }
 }
 
-
 @media only screen and (max-width: 380px) {
-  .phoneformdiv{
-      width: 90%;
-      background: #ffffff;
-      margin: 1.3rem 1.2rem;
-      padding: 1.3rem 1.2rem;
-      /* box-shadow: 0 12px 15px 0 rgb(0 0 0 / 25%); */
+  .phoneformdiv {
+    width: 90%;
+    background: #ffffff;
+    margin: 0 !important;
+    padding: 1.3rem 1.2rem;
+    /* box-shadow: 0 12px 15px 0 rgb(0 0 0 / 25%); */
   }
   .text-center {
     font-size: 20px;
@@ -103,9 +98,9 @@
     margin-bottom: 28px;
   }
   .modalbtn {
-    width:100%;
-    height:22px;
-    background-image: linear-gradient(to top, #353232de , #bb4f59 24%);   
+    width: 100%;
+    height: 44px !important;
+    background-image: linear-gradient(to top, #353232de, #bb4f59 24%);
   }
 }
 
@@ -115,54 +110,50 @@
   }
 }
 
-
-
 /* ==========END Mobile Login Form style ============ */
 
 /* ========== OTP Form style ============ */
-.otpformdiv{
-    width: 400px;
-    padding: 20px 50px 20px 50px;
+.otpformdiv {
+  width: 400px;
+  padding: 20px 50px 20px 50px;
 }
 
 @media only screen and (max-width: 445px) {
-  .otpformdiv{
-      width: 100%;
-      padding: 20px 0px 0px 0px;
+  .otpformdiv {
+    width: 100%;
+    padding: 20px 0px 0px 0px;
   }
 }
 
 /* ==========END OTP Form style ============ */
 
-.requirementformdiv{
-    width: 600px;
-    padding: 20px 60px 20px 60px;
+.requirementformdiv {
+  width: 600px;
+  padding: 20px 60px 20px 60px;
 }
 
-
 /* ========== Requirement Form style ============ */
-.rq-ur-icon{
+.rq-ur-icon {
   height: 60px;
   width: 60px;
 }
 
-.rq-title{
-   margin-bottom: 26px;
+.rq-title {
+  margin-bottom: 26px;
 }
 
-
 @media only screen and (max-width: 445px) {
-  .requirementformdiv{
-      width: 100%;
-      padding: 20px 0px 0px 0px;
+  .requirementformdiv {
+    width: 100%;
+    padding: 20px 0px 0px 0px;
   }
-  .rq-ur-name{
+  .rq-ur-name {
     font-size: 14px;
   }
-  .rq-title{
+  .rq-title {
     font-size: 16px;
   }
-  .rq-ur-icon{
+  .rq-ur-icon {
     height: 50px;
     width: 50px;
     margin-right: 8px;
@@ -173,12 +164,12 @@
 /* ========== Mobile Menu style ========== */
 
 /****************************Contact us modal*******************************/
-.react-responsive-modal-modal{
+.react-responsive-modal-modal {
   border-radius: 5px;
 }
 
-@media screen and (max-width:600px){
-  .model_form{
+@media screen and (max-width: 600px) {
+  .model_form {
     padding: 0px;
     width: 200px !important;
     margin: 10px;
@@ -186,22 +177,20 @@
   }
 }
 
-.my-facebook-button-class{
-  width:100%;
-  background-color:#3B5998;
+.my-facebook-button-class {
+  width: 100%;
+  background-color: #3b5998;
   background-image: none;
-  border-style: none; 
-  height:38px;
+  border-style: none;
+  height: 38px;
   border-radius: 3px;
   font-size: 16px;
   font-weight: 500;
   color: aliceblue;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25)
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
 }
-.fa-facebook{
+.fa-facebook {
   margin-right: 5px;
 }
-
-
 
 /****************************Contact us modal*******************************/
