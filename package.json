@@ -59,7 +59,7 @@
   "reactSnap": {
     "include": [
       "/",
-      "/browse-jobs",
+      "/jobs",
       "/browse-companies",
       "/browse-freelancers",
       "/about",

@@ -12,14 +12,14 @@ export default function ProfileHeader({ pathname }) {
       </div>
       <div className="account_tabs">
         <ul className="nav nav-tabs">
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <a
               className={`nav-link${pathname === "dashboard" ? " active" : ""}`}
               href="/dashboard"
             >
               Dashboard
             </a>
-          </li>
+          </li> */}
           <li className="nav-item">
             <a
               className={`nav-link${pathname === "profile" ? " active" : ""}`}
@@ -28,7 +28,7 @@ export default function ProfileHeader({ pathname }) {
               Profile
             </a>
           </li>
-          <li className="nav-item">
+          {/*<li className="nav-item">
             <a
               className={`nav-link${pathname === "portfolio" ? " active" : ""}`}
               href="/portfolio"
@@ -36,7 +36,7 @@ export default function ProfileHeader({ pathname }) {
               Portfolio
             </a>
           </li>
-          {/* <li className="nav-item">
+           <li className="nav-item">
             <a
               className={`${
                 pathname === "notifications" ? "nav-link active" : "nav-link"

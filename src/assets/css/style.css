@@ -2881,6 +2881,11 @@ span.right-cm {
   background-color: #242424;
 }
 
+.apply_job:disabled {
+  background-color: #b3b3b3;
+  color: black;
+}
+
 .ptrl_2 {
   padding: 10px 10px 0;
 }
@@ -2906,6 +2911,11 @@ span.right-cm {
 .apply_job_rt:hover {
   color: #fff;
   background-color: #242424;
+}
+
+.apply_job_rt:disabled {
+  background-color: #b3b3b3;
+  color: black;
 }
 
 .bookmark_rt {

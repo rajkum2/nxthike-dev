@@ -140,7 +140,10 @@ export default function LoginContext({ children }) {
         "user_name",
         data.user_name ? data.user_name : loginuserData.user_name
       );
-      urlencoded.append("city", data.city ? data.city : loginuserData.city);
+      urlencoded.append(
+        "user_city",
+        data.user_city ? data.user_city : loginuserData.user_city
+      );
       urlencoded.append(
         "user_email",
         data.user_email ? data.user_email : loginuserData.user_email

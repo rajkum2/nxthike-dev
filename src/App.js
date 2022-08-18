@@ -47,7 +47,7 @@ export default function App() {
     <React.Suspense>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/browse-jobs" element={<Jobs />} />
+        <Route path="/jobs" element={<Jobs />} />
         <Route path="/browse-projects" element={<Projects />} />
         <Route path="/browse-companies" element={<Companies />} />
         <Route path="/browse-freelancers" element={<Freelancers />} />

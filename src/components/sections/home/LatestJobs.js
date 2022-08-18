@@ -435,7 +435,7 @@ const Jobs = () => {
                 </div>
               </Slider>
               <div className="text-center" style={{ marginTop: "40px" }}>
-                <a className="view-links" href="/browse-jobs">
+                <a className="view-links" href="/jobs">
                   BROWSE ALL JOBS
                 </a>
               </div>

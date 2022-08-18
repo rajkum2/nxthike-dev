@@ -20,7 +20,7 @@ export default function Content({ data }) {
       const postData = {
         item_id: item_id,
         emp_id: emp_id,
-        app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+        app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
       };
       axios
         .post(
@@ -59,13 +59,13 @@ export default function Content({ data }) {
                                     <li>
                                       <div className="vw1254">
                                         <i className="fas fa-map-marker-alt"></i>
-                                        {job.location}
+                                        {job.item_location.name}
                                       </div>
                                     </li>
                                     <li>
                                       <div className="vw1254">
                                         <i className="fas fa-briefcase"></i>
-                                        {job.employment_type}
+                                        {job.item_job_type.job_name}
                                       </div>
                                     </li>
                                     <li>
@@ -114,7 +114,12 @@ export default function Content({ data }) {
                             {data.map((job, i) => (
                               <li key={i}>
                                 <div className="applied_item">
-                                  <a href="#">{job.item_type_id.title}</a>
+                                  <a
+                                    href={`/job/${job.item_type_id.id}`}
+                                    target="_blank"
+                                  >
+                                    {job.item_type_id.title}
+                                  </a>
                                   <ul className="view_dt_job">
                                     <li>
                                       <div className="vw1254">

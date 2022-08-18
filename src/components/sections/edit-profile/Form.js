@@ -24,6 +24,7 @@ export default function Form(props) {
     setSuccessMsg,
     errormsg,
     setErrormsg,
+    userType,
   } = useContext(UserContext);
 
   const [tab1, setTab1] = useState(false);
@@ -31,7 +32,7 @@ export default function Form(props) {
   const [user_name, setName] = useState(props.userData.user_name);
   const [email, setEmail] = useState(props.userData.user_email);
   const [dob, setDOB] = useState(props.userData.user_dob);
-  const [city, setCity] = useState(props.userData.city);
+  const [city, setCity] = useState(props.userData.user_city);
   const [desc, setDesc] = useState(props.userData.user_about_me);
   const [tagline, setTagline] = useState(props.userData.tagline);
   const [skills, setSkills] = useState(props.userData.user_skills);
@@ -95,7 +96,7 @@ export default function Form(props) {
         twitter_id: twitter,
         linkedin_id: linkedin,
         user_youtube: youtube,
-        city: city,
+        user_city: city,
         user_dob: dob,
       };
       updateLoginUserData(formData);
@@ -235,86 +236,92 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
-                        <div className="col-lg-12">
-                          <div className="form-group">
-                            <label className="label15">Skills </label>
-                            <Select
-                              styles={customStyles}
-                              value={options.skills.filter((skill) =>
-                                skillsArray.includes(skill.value)
-                              )}
-                              options={options.skills}
-                              isSearchable={true}
-                              className="skills-search"
-                              placeholder="Skills"
-                              isMulti
-                              isClearable={false}
-                              onChange={handleSkills}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <label className="label15">Availability </label>
-                            <Select
-                              styles={customStyles}
-                              options={options.availability}
-                              isSearchable={true}
-                              className="skills-search"
-                              placeholder="Availability"
-                              isMulti
-                              isClearable={false}
-                              isDisabled
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <label className="label15">Experience Level </label>
-                            <Select
-                              styles={customStyles}
-                              options={options.exp}
-                              isSearchable={true}
-                              className="skills-search"
-                              placeholder="Experience Level"
-                              isMulti
-                              isClearable={false}
-                              isDisabled
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <label className="label15">Pay Rate ($/hr) </label>
-                            <div className="smm_input">
-                              <input
-                                type="text"
-                                className="job-input"
-                                placeholder="Enter Your Page Rate"
-                                disabled={true}
-                              />
-                              <div className="mix_max">Usd</div>
+                        {userType !==
+                          "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                          <>
+                            <div className="col-lg-12">
+                              <div className="form-group">
+                                <label className="label15">Skills </label>
+                                <Select
+                                  styles={customStyles}
+                                  value={options.skills.filter((skill) =>
+                                    skillsArray.includes(skill.value)
+                                  )}
+                                  options={options.skills}
+                                  isSearchable={true}
+                                  placeholder="Skills"
+                                  isMulti
+                                  isClearable={false}
+                                  onChange={handleSkills}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
-                            <label className="label15">Languages </label>
-                            <Select
-                              styles={customStyles}
-                              value={options.languages.filter((skill) =>
-                                languagesArray.includes(skill.value)
-                              )}
-                              options={options.languages}
-                              isSearchable={true}
-                              className="skills-search"
-                              placeholder="Languages"
-                              isMulti
-                              isClearable={false}
-                              onChange={handleLanguages}
-                            />
-                          </div>
-                        </div>
+                            <div className="col-lg-6">
+                              <div className="form-group">
+                                <label className="label15">Availability </label>
+                                <Select
+                                  styles={customStyles}
+                                  options={options.availability}
+                                  isSearchable={true}
+                                  className="skills-search"
+                                  placeholder="Availability"
+                                  isMulti
+                                  isClearable={false}
+                                  isDisabled
+                                />
+                              </div>
+                            </div>
+                            <div className="col-lg-6">
+                              <div className="form-group">
+                                <label className="label15">
+                                  Experience Level{" "}
+                                </label>
+                                <Select
+                                  styles={customStyles}
+                                  options={options.exp}
+                                  isSearchable={true}
+                                  placeholder="Experience Level"
+                                  isMulti
+                                  isClearable={false}
+                                  isDisabled
+                                />
+                              </div>
+                            </div>
+                            <div className="col-lg-6">
+                              <div className="form-group">
+                                <label className="label15">
+                                  Pay Rate ($/hr){" "}
+                                </label>
+                                <div className="smm_input">
+                                  <input
+                                    type="text"
+                                    className="job-input"
+                                    placeholder="Enter Your Page Rate"
+                                    disabled={true}
+                                  />
+                                  <div className="mix_max">Usd</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="col-lg-6">
+                              <div className="form-group">
+                                <label className="label15">Languages </label>
+                                <Select
+                                  styles={customStyles}
+                                  value={options.languages.filter((skill) =>
+                                    languagesArray.includes(skill.value)
+                                  )}
+                                  options={options.languages}
+                                  isSearchable={true}
+                                  placeholder="Languages"
+                                  isMulti
+                                  isClearable={false}
+                                  onChange={handleLanguages}
+                                />
+                              </div>
+                            </div>
+                          </>
+                        )}
                         <div className="col-lg-12">
                           <div className="form-group">
                             <label className="label15">Location </label>

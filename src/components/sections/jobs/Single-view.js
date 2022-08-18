@@ -20,11 +20,17 @@ const SingleView = ({ data }) => {
         )
         .then((response) => {
           console.log(response.data);
-          alert(response.data.is_favourited);
+          //alert(response.data.is_favourited);
           if (response.data.is_favourited === "1") {
             btn[0].classList.add("bookmarked");
+            btn[0].innerHTML =
+              '<i class="mx-2 fas fa-heart pt-2"></i><span>BOOKMARKED</span>';
+            alert(`${response.data.title} is added to favourites`);
           } else {
             btn[0].classList.remove("bookmarked");
+            btn[0].innerHTML =
+              '<i class="mx-2 fas fa-heart pt-2"></i><span>BOOKMARK</span>';
+            alert(`${response.data.title} is removed from favourites`);
           }
         })
         .catch((error) => {
@@ -37,6 +43,8 @@ const SingleView = ({ data }) => {
 
   const applyJob = () => {
     if (isLoggedIn && loginuserId !== null) {
+      const button1 = document.getElementsByClassName("apply_job_rt");
+      const button2 = document.getElementsByClassName("apply_job");
       const postData = {
         emp_id: data.added_user_id,
         item_type_id: data.item_type_id,
@@ -54,6 +62,10 @@ const SingleView = ({ data }) => {
         .then((response) => {
           console.log(response.data);
           alert("You have successfully applied to this job");
+          button1[0].disabled = true;
+          button2[0].disabled = true;
+          button1[0].textContent = "Applied";
+          button2[0].textContent = "Applied";
         })
         .catch((error) => {
           console.log(error);
@@ -85,7 +97,7 @@ const SingleView = ({ data }) => {
                       <i className="fas fa-briefcase"></i>
                       <div className="vw_item_text">
                         <h6>Job Type</h6>
-                        <span>{data.employment_type}</span>
+                        <span>{data.item_job_type.job_name}</span>
                       </div>
                     </div>
                   </li>
@@ -134,7 +146,7 @@ const SingleView = ({ data }) => {
                   </div>
                   <div className="job-right-dt">
                     <div className="job-price">{data.salary}</div>
-                    <div className="job-fp">{data.employment_type}</div>
+                    <div className="job-fp">{data.item_job_type.job_name}</div>
                   </div>
                 </div>
                 <div className="job-des-dt">
@@ -158,13 +170,13 @@ const SingleView = ({ data }) => {
                     <li>
                       <div className="job_dt_1">
                         <h6>Availability:</h6>
-                        <span>{data.employment_type}</span>
+                        <span>{data.item_job_type.job_name}</span>
                       </div>
                     </li>
                     <li>
                       <div className="job_dt_1">
                         <h6>Experience Level:</h6>
-                        <span>{data.experience}</span>
+                        <span>{data.item_experience.experience_name}</span>
                       </div>
                     </li>
                     <li>

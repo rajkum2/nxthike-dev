@@ -261,7 +261,7 @@ export default function Header() {
                                 </a>
                               </li>
                               <li className="nav-item dropdown">
-                                <a className="nav-link" href="/browse-jobs">
+                                <a className="nav-link" href="/jobs">
                                   Jobs
                                 </a>
                               </li>

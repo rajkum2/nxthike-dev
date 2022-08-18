@@ -18,6 +18,7 @@ export default function ManageJobs() {
       if (userType === "usertype_cf47b94da69344503d8d7af8058c49c7") {
         const data = {
           added_user_id: loginuserId,
+          app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
         };
         axios
           .post(
@@ -28,7 +29,7 @@ export default function ManageJobs() {
           .catch((err) => console.log(err));
       } else {
         const data = {
-          app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+          app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
           applicant_id: loginuserId,
         };
         axios

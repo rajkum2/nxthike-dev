@@ -5,8 +5,13 @@ import img1 from "../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "./Profileimg";
 
 export default function ProfileSideBar() {
-  const { loginuserId, fetchLoginUserData, loginuserData, logoutAction } =
-    useContext(UserContext);
+  const {
+    loginuserId,
+    fetchLoginUserData,
+    loginuserData,
+    logoutAction,
+    userType,
+  } = useContext(UserContext);
   const [open, setOpen] = useState(false);
   useEffect(() => {
     fetchLoginUserData(loginuserId);
@@ -36,7 +41,7 @@ export default function ProfileSideBar() {
               <span>{loginuserData !== null && loginuserData.tagline}</span>
               <span>
                 <i className="fas fa-map-marker-alt lc_icon" />
-                {loginuserData !== null && " " + loginuserData.city}
+                {loginuserData !== null && " " + loginuserData.user_city}
               </span>
               <div className="avialable">
                 Available Full Time
@@ -95,42 +100,49 @@ export default function ProfileSideBar() {
                   </div>
                 </div>
               </div> */}
-          <div className="rlt_section">
-            <ul className="rlt_section2">
-              <li>
-                <div className="rtl_left2">
-                  <h6>Hourly Rate</h6>
-                </div>
-                <div className="rtl_right2">
-                  <span>$50 / hr</span>
-                </div>
-              </li>
-              <li>
-                <div className="rtl_left2">
-                  <h6>Age</h6>
-                </div>
-                <div className="rtl_right2">
-                  <span>28</span>
-                </div>
-              </li>
-              <li>
-                <div className="rtl_left2">
-                  <h6>Experenice</h6>
-                </div>
-                <div className="rtl_right2">
-                  <span>5 Year</span>
-                </div>
-              </li>
-              <li>
-                <div className="rtl_left2">
-                  <h6>Job Done</h6>
-                </div>
-                <div className="rtl_right2">
-                  <span>50</span>
-                </div>
-              </li>
-            </ul>
-          </div>
+          {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+            <div className="rlt_section">
+              <ul className="rlt_section2">
+                {userType === "usertype_5254c6e9a18079e1bd8165c3e64d368c" ? (
+                  <li>
+                    <div className="rtl_left2">
+                      <h6>Hourly Rate</h6>
+                    </div>
+                    <div className="rtl_right2">
+                      <span>$50 / hr</span>
+                    </div>
+                  </li>
+                ) : (
+                  <>
+                    <li>
+                      <div className="rtl_left2">
+                        <h6>Age</h6>
+                      </div>
+                      <div className="rtl_right2">
+                        <span>28</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="rtl_left2">
+                        <h6>Experenice</h6>
+                      </div>
+                      <div className="rtl_right2">
+                        <span>5 Year</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="rtl_left2">
+                        <h6>Job Done</h6>
+                      </div>
+                      <div className="rtl_right2">
+                        <span>50</span>
+                      </div>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          )}
           <div className="social_section3 mb80">
             <div className="social_leftt3">
               <h6>Contact Social Account</h6>

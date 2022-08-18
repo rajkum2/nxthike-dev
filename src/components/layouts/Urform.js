@@ -37,7 +37,7 @@ const Form = (props) => {
       setLoading(true);
       var formData = {
         user_name: user_name,
-        city: city,
+        user_city: city,
         user_email: user_email,
         user_type_id: userType,
       };

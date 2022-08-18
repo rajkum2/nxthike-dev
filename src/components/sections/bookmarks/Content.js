@@ -48,7 +48,7 @@ export default function Content({ data, loading }) {
                   <h3>You haven't bookmarked any jobs</h3>
                   <h5>
                     Please visit{" "}
-                    <a href="/browse-jobs" style={{ color: "#ff4500" }}>
+                    <a href="/jobs" style={{ color: "#ff4500" }}>
                       Jobs
                     </a>{" "}
                     to bookmark some.
