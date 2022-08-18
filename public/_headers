@@ -1,3 +1,7 @@
-/*
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Origin: https://nxthike.com
+[build]
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
