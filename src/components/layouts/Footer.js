@@ -139,17 +139,17 @@ const Footer = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="https://www.linkedin.com/company/nxthike-work-solutions/">
+                    <a target="_blank" href="https://www.linkedin.com/company/nxthike-work-solutions/">
                       <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>
                   <li>
-                    <a href="https://twitter.com/NxtHike">
+                    <a target="_blank" href="https://twitter.com/NxtHike">
                       <i className="fab fa-twitter"></i>
                     </a>
                   </li>
                   <li>
-                    <a href="https://instagram.com/nxthike">
+                    <a target="_blank" href="https://instagram.com/nxthike">
                       <i className="fab fa-instagram"></i>
                     </a>
                   </li>
