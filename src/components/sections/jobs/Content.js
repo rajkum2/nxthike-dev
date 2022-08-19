@@ -1,16 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
+import { Link } from "react-router-dom";
 import BrowseFilter from "../../layouts/BrowseFilter";
-import Pagination from "./Pagination";
+import { UserContext } from "../../../context/LoginContext";
+import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 import Loader from "../../layouts/Loader";
 import { ItemsContext } from "../../../context/ItemsContext";
 import options from "../../../data/allJobOptions.json";
 export default function Content() {
-  const [grid, setGrid] = useState(true);
+  let appliedId = useRef([]);
+  let favId = useRef([]);
+  const { loginuserId } = useContext(UserContext);
   const {
     items,
+    itemscount,
     fetchJobs,
     searching,
     cat,
@@ -18,13 +23,52 @@ export default function Content() {
     error,
     exp,
     jobType,
+    offset,
     changeJobType,
     clearJobType,
     loc,
+    callFavouriteApi,
+    callLoadMore,
   } = useContext(ItemsContext);
   useEffect(() => {
     fetchJobs();
-  }, [searching, cat, exp, jobType, loc]);
+  }, [searching, cat, exp, jobType, loc, offset]);
+
+  useEffect(() => {
+    fetchApplied();
+    fetchFavourite();
+  }, []);
+
+  const fetchApplied = async () => {
+    const data = {
+      app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+      applicant_id: loginuserId,
+    };
+    await axios
+      .post(
+        `${process.env.REACT_APP_API_URL}job_applications/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
+        data
+      )
+      .then((response) => {
+        console.log(response.data);
+        response.data.forEach((job) => appliedId.current.push(job.item_id));
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const fetchFavourite = async () => {
+    await axios
+      .get(
+        `${process.env.REACT_APP_API_URL}items/get_favourite/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/login_user_id/${loginuserId}/`
+      )
+      .then((response) => {
+        console.log(response.data);
+        response.data.forEach((job) => favId.current.push(job.id));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   return (
     <>
       <main className="browse-section">
@@ -32,8 +76,8 @@ export default function Content() {
           <BrowseFilter />
           <div className="main-tabs">
             <div className="res-tabs">
-              <div class=" mtab-left">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <div className=" mtab-left">
+                <ul className="nav nav-tabs" id="myTab" role="tablist">
                   <li className="nav-item">
                     <button
                       onClick={() => clearJobType()}
@@ -42,8 +86,8 @@ export default function Content() {
                       All
                     </button>
                   </li>
-                  {options.jobType.map((type) => (
-                    <li class="nav-item">
+                  {options.jobType.map((type, i) => (
+                    <li key={i} className="nav-item">
                       <button
                         onClick={() => changeJobType(type.value)}
                         className={`nav-link ${
@@ -73,26 +117,10 @@ export default function Content() {
                       </Dropdown.Menu>
                     </Dropdown>
                   </li>
-                  <li className="grid-list">
-                    <button
-                      className={grid ? "gl-btn-active" : "gl-btn"}
-                      id="grid"
-                      onClick={() => setGrid(true)}
-                    >
-                      <i className="fas fa-th-large"></i>
-                    </button>
-                    <button
-                      className={grid ? "gl-btn" : "gl-btn-active"}
-                      id="list"
-                      onClick={() => setGrid(false)}
-                    >
-                      <i className="fas fa-th-list"></i>
-                    </button>
-                  </li>
                 </ul>
               </div>
             </div>
-            {error && (
+            {offset === 0 && error && (
               <div className="text-center mt-30">
                 <h3>Sorry for the inconvenience.</h3>
                 <h4>No jobs found for the mentioned filter</h4>
@@ -100,14 +128,135 @@ export default function Content() {
             )}
             {loading && <Loader />}
             {items.length > 0 && (
-              <Pagination
-                data={items}
-                pageLimit={4}
-                dataLimit={9}
-                grid={grid}
-              />
+              <div className="row">
+                {items.map((item, i) => (
+                  <div key={i} className="lg-item col-lg-4 col-xs-6">
+                    <div className="job-item mt-30">
+                      <div className="job-top-dt">
+                        <div className="job-left-dt">
+                          <img
+                            src={
+                              item.default_photo.img_path === ""
+                                ? img1
+                                : process.env.REACT_APP_BASE_URL +
+                                  "/uploads/" +
+                                  item.default_photo.img_path
+                            }
+                            alt=""
+                          />
+                          <div className="job-ut-dts">
+                            <a>
+                              <h4>
+                                {item.company_name.length > 20
+                                  ? item.company_name.slice(0, 21) + "..."
+                                  : item.company_name}
+                              </h4>
+                            </a>
+                            <span>
+                              <i className="fas fa-map-marker-alt"></i>
+                              {item.item_location.name}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="job-right-dt">
+                          <div className="job-fp">Salary</div>
+                          <div className="job-price">{item.salary}</div>
+                        </div>
+                      </div>
+                      <div className="job-des-dt">
+                        <h4>{item.title}</h4>
+                        <p>
+                          {item.company_details.length > 80
+                            ? item.company_details.slice(0, 80) + "..."
+                            : item.company_details}
+                        </p>
+                        <div className="job-skills">
+                          {item.key_skills
+                            .split(", ")
+                            .splice(0, 3)
+                            .map((skill, i) => (
+                              <a key={i} href="#">
+                                {skill}
+                              </a>
+                            ))}
+                          {item.key_skills.split(", ").splice(3).length ==
+                          0 ? null : (
+                            <a className="more-skills">
+                              +{item.key_skills.split(", ").splice(3).length}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      <div className="job-buttons">
+                        <ul className="link-btn">
+                          <li>
+                            <a
+                              className={
+                                appliedId.current.find((id) => {
+                                  return id === item.id;
+                                })
+                                  ? "link-j1-disabled"
+                                  : "link-j1"
+                              }
+                              title="Apply Now"
+                            >
+                              {/* APPLY NOW */}
+                              {appliedId.current.find((id) => {
+                                return id === item.id;
+                              })
+                                ? "APPLIED"
+                                : "APPLY NOW"}
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href={`/job/${item.id}`}
+                              className="link-j1"
+                              title="View Job"
+                              target="_blank"
+                            >
+                              View Job
+                            </a>
+                          </li>
+                          <li className="bkd-pm">
+                            <Link
+                              style={
+                                item.is_favourited === "1"
+                                  ? {
+                                      backgroundColor: "#ff4500",
+                                      color: "white",
+                                    }
+                                  : {}
+                              }
+                              to="#"
+                              onClick={() => callFavouriteApi(item.id, i)}
+                            >
+                              <i className="fas fa-heart"></i>
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
-          </div>{" "}
+            <div className="loadmore-div">
+              {itemscount < 9 ? (
+                offset < 9 ? (
+                  itemscount !== 0 ? (
+                    <h5 className="text-danger">No More Records...</h5>
+                  ) : null
+                ) : (
+                  <h5 className="text-danger">No More Records...</h5>
+                )
+              ) : (
+                <button className="loadmore-btn" onClick={() => callLoadMore()}>
+                  {loading ? "Loading..." : "Load More Jobs"}{" "}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </main>
     </>

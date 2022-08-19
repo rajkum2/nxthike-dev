@@ -519,7 +519,7 @@ header {
 }
 
 .top-header {
-  background-color: #fafafa !important;
+  background-color: #fff !important;
   padding: 0;
   float: left;
   width: 100%;
@@ -1473,6 +1473,8 @@ span.right-cm {
   padding: 20px;
   width: 100%;
   float: left;
+  display: flex;
+  justify-content: space-between;
 }
 
 .job-left-dt {
@@ -1516,7 +1518,6 @@ span.right-cm {
 }
 
 .job-price {
-  font-size: 18px;
   color: #242424;
   line-height: 1.2;
   text-align: center;
@@ -1647,11 +1648,29 @@ span.right-cm {
   background: #ff4500;
 }
 
+.link-j1-disabled {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Roboto", sans-serif;
+  color: #242424;
+  background: #b3b3b3;
+  padding: 15px;
+  float: left;
+  text-align: center;
+  width: 100%;
+  text-transform: uppercase;
+  cursor: context-menu !important;
+}
+
+.link-j1-disabled:hover {
+  color: black !important;
+}
+
 .bkd-pm {
   padding: 10px 0;
 }
 
-.not-favourite {
+.bkd-pm a {
   border: none;
   background: #fff;
   text-align: center;
@@ -1660,21 +1679,33 @@ span.right-cm {
   border-radius: 100%;
   height: 30px;
   width: 30px;
+  padding: 5px;
 }
 
-.not-favourite:hover {
-  background: #ff4500;
-  color: #fff !important;
+.bkd-pm a:hover {
+  background-color: #ff4500;
+  color: white !important;
 }
-.favourite {
-  background: #ff4500;
-  color: #fff !important;
+
+.loadmore-div {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.loadmore-btn {
   border: none;
-  text-align: center;
-  font-size: 14px;
-  border-radius: 100%;
-  height: 30px;
-  width: 30px;
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ff4500;
+  color: #ff4500;
+  border-radius: 5px;
+}
+
+.loadmore-btn:hover {
+  background-color: #d9d9d9;
 }
 
 .jobs-owl .owl-nav .owl-prev {
@@ -4064,6 +4095,16 @@ span.right-cm {
 
 .apled_btn50:hover {
   background: #242424;
+}
+
+.edit-job-btn {
+  margin: 20px;
+  color: #fff !important;
+  background-color: #ff4500;
+  padding: 7px 20px;
+  border-radius: 3px;
+  font-size: 12px !important;
+  text-transform: uppercase;
 }
 
 .btn-veiw10 {

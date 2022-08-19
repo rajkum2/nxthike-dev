@@ -24,12 +24,12 @@ const SingleView = ({ data }) => {
           if (response.data.is_favourited === "1") {
             btn[0].classList.add("bookmarked");
             btn[0].innerHTML =
-              '<i class="mx-2 fas fa-heart pt-2"></i><span>BOOKMARKED</span>';
+              '<i className="mx-2 fas fa-heart pt-2"></i><span>BOOKMARKED</span>';
             alert(`${response.data.title} is added to favourites`);
           } else {
             btn[0].classList.remove("bookmarked");
             btn[0].innerHTML =
-              '<i class="mx-2 fas fa-heart pt-2"></i><span>BOOKMARK</span>';
+              '<i className="mx-2 fas fa-heart pt-2"></i><span>BOOKMARK</span>';
             alert(`${response.data.title} is removed from favourites`);
           }
         })

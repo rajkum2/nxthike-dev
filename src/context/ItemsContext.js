@@ -7,6 +7,7 @@ export const ItemsContext = createContext({});
 export default function ItemContext({ children }) {
   const { isLoggedIn, loginuserId } = useContext(UserContext);
   const [items, setItems] = useState([]);
+  const [itemscount, setItemscount] = useState(0);
   const [cat, setCat] = useState("");
   const [loc, setLoc] = useState("");
   const [exp, setExp] = useState("");
@@ -19,6 +20,7 @@ export default function ItemContext({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [searching, setSearching] = useState("");
+  const [offset, setOffset] = useState(0);
 
   const fetchJobs = async () => {
     setError(false);
@@ -37,7 +39,7 @@ export default function ItemContext({ children }) {
     };
     axios
       .post(
-        `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
+        `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`,
         postData
       )
       .then((response) => updateItemsState(response.data))
@@ -46,15 +48,18 @@ export default function ItemContext({ children }) {
 
   const callError = (err) => {
     console.log(err);
-    setError(true);
     setLoading(false);
+    setError(true);
+    setItems([]);
+    setItemscount(0);
   };
 
   const updateItemsState = (data) => {
     console.log(data);
     setError(false);
     setLoading(false);
-    setItems(data);
+    setItems(items.concat(data));
+    setItemscount(data.length);
   };
 
   const changeCat = (val) => {
@@ -107,36 +112,46 @@ export default function ItemContext({ children }) {
     setJobType("");
   };
 
-  const callFavouriteApi = async (id, idx) => {
-    console.log(id, idx);
+  const callFavouriteApi = async (id, key) => {
     if (isLoggedIn && loginuserId !== null) {
-      if (items[idx].is_favourited === "1") {
-        items[idx].is_favourited = "0";
+      if (items[key].is_favourited === "1") {
+        items[key].is_favourited = "0";
+        console.log(items[key]);
       } else {
-        items[idx].is_favourited = "1";
+        items[key].is_favourited = "1";
+        console.log(items[key]);
       }
-      var data = {
+      var Data = {
         item_id: id,
         user_id: loginuserId,
       };
+      //await axios.post(`${API_URL.BASE_URL}/favourites/press/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`, Data)
       await axios
         .post(
           `${process.env.REACT_APP_API_URL}favourites/press/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`,
-          data
+          Data
         )
         .then((response) => {
-          items[idx].is_favourited = response.data.is_favourited;
-          if (items[idx].is_favourited === "1")
-            alert(items[idx].title + " added to favourites");
-          else alert(items[idx].title + " removed from favourites");
-          console.log(items);
+          items[key].is_favourited = response.data.is_favourited;
+          if (items[key].is_favourited === "1")
+            alert(items[key].title + " added to favourites");
+          else alert(items[key].title + " removed from favourites");
+          console.log(items[key]);
         })
         .catch((error) => {
-          console.log(error);
+          if (items[key].is_favourited === "1") {
+            items[key].is_favourited = "0";
+          } else {
+            items[key].is_favourited = "1";
+          }
         });
     } else {
-      alert("Please login");
+      alert("Please Login...");
     }
+  };
+
+  const callLoadMore = () => {
+    setOffset(offset + 9);
   };
 
   return (
@@ -144,6 +159,8 @@ export default function ItemContext({ children }) {
       value={{
         items,
         setItems,
+        itemscount,
+        setItemscount,
         cat,
         setCat,
         loc,
@@ -168,6 +185,8 @@ export default function ItemContext({ children }) {
         setLoading,
         error,
         setError,
+        offset,
+        setOffset,
         fetchJobs,
         updateItemsState,
         changeCat,
@@ -181,6 +200,7 @@ export default function ItemContext({ children }) {
         callSearch,
         clearSearch,
         callFavouriteApi,
+        callLoadMore,
       }}
     >
       {children}

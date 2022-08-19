@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { UserContext } from "../../../context/LoginContext";
 import { Modal } from "react-responsive-modal";
+import { Link } from "react-router-dom";
+import { UserContext } from "../../../context/LoginContext";
 import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "../../layouts/Profileimg";
 import ProfileHeader from "../../layouts/ProfileHeader";
@@ -95,6 +96,13 @@ export default function Content({ data }) {
                                       <span>{job.application_count}</span>{" "}
                                       Applicants
                                     </button>
+                                    <Link
+                                      className="edit-job-btn"
+                                      to="/edit-job"
+                                      state={{ jobData: job }}
+                                    >
+                                      Edit Job
+                                    </Link>
                                   </div>
                                 </div>
                               </li>

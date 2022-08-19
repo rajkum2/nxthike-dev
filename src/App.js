@@ -42,6 +42,7 @@ const CompanyProfile = React.lazy(() =>
 const FreelancerProfile = React.lazy(() =>
   import("./components/pages/FreelancerProfile")
 );
+const EditJob = React.lazy(() => import("./components/pages/EditJob"));
 export default function App() {
   return (
     <React.Suspense>
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/payments" element={<Payments />} />
         <Route path="/company-profile" element={<CompanyProfile />} />
         <Route path="/freelancer-profile" element={<FreelancerProfile />} />
+        <Route path="/edit-job" element={<EditJob />} />
       </Routes>
     </React.Suspense>
   );

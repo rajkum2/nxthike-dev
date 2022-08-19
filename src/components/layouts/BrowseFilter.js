@@ -60,7 +60,7 @@ export default function BrowseFilter() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button className="search-icon" onClick={callSearch}>
-            <i class="fa fa-search"></i>
+            <i className="fa fa-search"></i>
           </button>
         </div>
       </div>
