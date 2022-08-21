@@ -1,12 +1,20 @@
-import React, { Component, Fragment, useEffect, useState } from "react";
+import React, {
+  Component,
+  Fragment,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import axios from "axios";
+import { Helmet } from "react-helmet";
+import { useParams } from "react-router-dom";
+import { UserContext } from "../../context/LoginContext";
 import Breadcrumb from "../layouts/Breadcrumb";
 import Footer from "../layouts/Footer";
 import Header from "../layouts/Header";
 import SingleView from "../sections/jobs/Single-view";
-import { Helmet } from "react-helmet";
-import axios from "axios";
-import { useParams } from "react-router-dom";
 const SingleJob = () => {
+  const { isLoggedIn, loginuserId } = useContext(UserContext);
   const [job, setJob] = useState("");
 
   let params = useParams();
@@ -16,19 +24,22 @@ const SingleJob = () => {
   }, []);
 
   const fetchJob = async () => {
-    const postData = {
-      id: params.jobId,
-    };
-    await axios
-      .post(
+    if (isLoggedIn && loginuserId !== null) {
+      var urlencoded = new URLSearchParams();
+      urlencoded.append("id", params.jobId);
+      urlencoded.append("logged_in_user", loginuserId);
+      urlencoded.append("app_list_id", "app_6e2fa0fac7804b1441afd451e800b36a");
+      await fetch(
         `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
-        postData
+        { method: "POST", body: urlencoded, redirect: "follow" }
       )
-      .then((response) => {
-        console.log(response);
-        setJob(response.data[0]);
-      })
-      .catch((err) => console.log("error", err));
+        .then((response) => response.text())
+        .then((result) => {
+          const data = JSON.parse(result);
+          setJob(data[0]);
+        })
+        .catch((err) => console.log("error", err));
+    }
   };
 
   return (

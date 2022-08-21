@@ -25,7 +25,10 @@ export default function ManageJobs() {
             `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
             data
           )
-          .then((response) => setJobs(response.data))
+          .then((response) => {
+            console.log(response.data);
+            setJobs(response.data);
+          })
           .catch((err) => console.log(err));
       } else {
         const data = {
@@ -37,7 +40,10 @@ export default function ManageJobs() {
             `${process.env.REACT_APP_API_URL}job_applications/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
             data
           )
-          .then((response) => setJobs(response.data))
+          .then((response) => {
+            console.log(response.data);
+            setJobs(response.data);
+          })
           .catch((err) => console.log(err));
       }
     } else {

@@ -1670,7 +1670,7 @@ span.right-cm {
   padding: 10px 0;
 }
 
-.bkd-pm a {
+.bkd-btn {
   border: none;
   background: #fff;
   text-align: center;
@@ -1682,8 +1682,15 @@ span.right-cm {
   padding: 5px;
 }
 
-.bkd-pm a:hover {
-  background-color: #ff4500;
+.bkd-btn:hover {
+  color: #757575 !important;
+}
+
+.bkd-active {
+  background: #ff4500;
+  color: white;
+}
+.bkd-active:hover {
   color: white !important;
 }
 
@@ -2964,18 +2971,9 @@ span.right-cm {
   text-align: center;
   padding: 9px 0;
 }
-
-.bookmark_rt:hover {
-  border: 1px solid #ff4500;
-}
 .bookmarked {
   border: 1px solid #ff4500;
   color: #ff4500;
-}
-
-.bookmarked:hover {
-  border: 1px solid #e5e5e5;
-  color: #242424;
 }
 
 .social-links {

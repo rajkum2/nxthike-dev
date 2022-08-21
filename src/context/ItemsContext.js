@@ -23,27 +23,47 @@ export default function ItemContext({ children }) {
   const [offset, setOffset] = useState(0);
 
   const fetchJobs = async () => {
-    setError(false);
-    setLoading(true);
-    const postData = {
-      app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
-      item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
-      status: 1,
-      order_by: order_by,
-      order_type: order_type,
-      searchterm: searchTerm,
-      cat_id: cat,
-      item_job_type_id: jobType,
-      item_location_id: loc,
-      item_experience_id: exp,
-    };
-    axios
-      .post(
+    if (isLoggedIn && loginuserId !== null) {
+      setError(false);
+      setLoading(true);
+      // const postData = {
+      //   app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+      //   item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
+      //   status: 1,
+      //   order_by: order_by,
+      //   order_type: order_type,
+      //   searchterm: searchTerm,
+      //   cat_id: cat,
+      //   item_job_type_id: jobType,
+      //   item_location_id: loc,
+      //   item_experience_id: exp,
+      //   logged_in_user: loginuserId,
+      // };
+      var urlencoded = new URLSearchParams();
+      urlencoded.append("app_list_id", "app_6e2fa0fac7804b1441afd451e800b36a");
+      urlencoded.append(
+        "item_type_id",
+        "itm_type802efadc164a64d26fbd964f1b50405d"
+      );
+      urlencoded.append("status", 1);
+      urlencoded.append("order_by", order_by);
+      urlencoded.append("order_type", order_type);
+      urlencoded.append("searchterm", searchTerm);
+      urlencoded.append("cat_id", cat);
+      urlencoded.append("item_job_type_id", jobType);
+      urlencoded.append("item_location_id", loc);
+      urlencoded.append("item_experience_id", exp);
+      urlencoded.append("logged_in_user", loginuserId);
+      fetch(
         `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`,
-        postData
+        { method: "POST", body: urlencoded, redirect: "follow" }
       )
-      .then((response) => updateItemsState(response.data))
-      .catch((err) => callError(err));
+        .then((response) => response.text())
+        .then((result) => updateItemsState(result))
+        .catch((err) => callError(err));
+    } else {
+      alert("Please login");
+    }
   };
 
   const callError = (err) => {
@@ -54,7 +74,8 @@ export default function ItemContext({ children }) {
     setItemscount(0);
   };
 
-  const updateItemsState = (data) => {
+  const updateItemsState = (result) => {
+    const data = JSON.parse(result);
     console.log(data);
     setError(false);
     setLoading(false);
@@ -114,13 +135,6 @@ export default function ItemContext({ children }) {
 
   const callFavouriteApi = async (id, key) => {
     if (isLoggedIn && loginuserId !== null) {
-      if (items[key].is_favourited === "1") {
-        items[key].is_favourited = "0";
-        console.log(items[key]);
-      } else {
-        items[key].is_favourited = "1";
-        console.log(items[key]);
-      }
       var Data = {
         item_id: id,
         user_id: loginuserId,
@@ -132,19 +146,11 @@ export default function ItemContext({ children }) {
           Data
         )
         .then((response) => {
-          items[key].is_favourited = response.data.is_favourited;
-          if (items[key].is_favourited === "1")
+          if (response.data.is_favourited === "1")
             alert(items[key].title + " added to favourites");
           else alert(items[key].title + " removed from favourites");
-          console.log(items[key]);
         })
-        .catch((error) => {
-          if (items[key].is_favourited === "1") {
-            items[key].is_favourited = "0";
-          } else {
-            items[key].is_favourited = "1";
-          }
-        });
+        .catch((error) => console.log(error));
     } else {
       alert("Please Login...");
     }

@@ -33,42 +33,6 @@ export default function Content() {
   useEffect(() => {
     fetchJobs();
   }, [searching, cat, exp, jobType, loc, offset]);
-
-  useEffect(() => {
-    fetchApplied();
-    fetchFavourite();
-  }, []);
-
-  const fetchApplied = async () => {
-    const data = {
-      app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
-      applicant_id: loginuserId,
-    };
-    await axios
-      .post(
-        `${process.env.REACT_APP_API_URL}job_applications/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}`,
-        data
-      )
-      .then((response) => {
-        console.log(response.data);
-        response.data.forEach((job) => appliedId.current.push(job.item_id));
-      })
-      .catch((err) => console.log(err));
-  };
-
-  const fetchFavourite = async () => {
-    await axios
-      .get(
-        `${process.env.REACT_APP_API_URL}items/get_favourite/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/login_user_id/${loginuserId}/`
-      )
-      .then((response) => {
-        console.log(response.data);
-        response.data.forEach((job) => favId.current.push(job.id));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
   return (
     <>
       <main className="browse-section">
@@ -192,18 +156,14 @@ export default function Content() {
                           <li>
                             <a
                               className={
-                                appliedId.current.find((id) => {
-                                  return id === item.id;
-                                })
+                                item.is_applied === "1"
                                   ? "link-j1-disabled"
                                   : "link-j1"
                               }
                               title="Apply Now"
                             >
                               {/* APPLY NOW */}
-                              {appliedId.current.find((id) => {
-                                return id === item.id;
-                              })
+                              {item.is_applied === "1"
                                 ? "APPLIED"
                                 : "APPLY NOW"}
                             </a>
@@ -220,16 +180,24 @@ export default function Content() {
                           </li>
                           <li className="bkd-pm">
                             <Link
-                              style={
+                              className={
                                 item.is_favourited === "1"
-                                  ? {
-                                      backgroundColor: "#ff4500",
-                                      color: "white",
-                                    }
-                                  : {}
+                                  ? "bkd-btn bkd-active"
+                                  : "bkd-btn"
                               }
                               to="#"
-                              onClick={() => callFavouriteApi(item.id, i)}
+                              onClick={(e) => {
+                                if (item.is_favourited === "1") {
+                                  item.is_favourited = "0";
+                                  e.currentTarget.classList.remove(
+                                    "bkd-active"
+                                  );
+                                } else {
+                                  item.is_favourited = "1";
+                                  e.currentTarget.classList.add("bkd-active");
+                                }
+                                callFavouriteApi(item.id, i);
+                              }}
                             >
                               <i className="fas fa-heart"></i>
                             </Link>

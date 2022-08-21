@@ -24,12 +24,12 @@ const SingleView = ({ data }) => {
           if (response.data.is_favourited === "1") {
             btn[0].classList.add("bookmarked");
             btn[0].innerHTML =
-              '<i className="mx-2 fas fa-heart pt-2"></i><span>BOOKMARKED</span>';
+              '<i class="mx-2 fas fa-heart pt-2"></i><span>BOOKMARKED</span>';
             alert(`${response.data.title} is added to favourites`);
           } else {
             btn[0].classList.remove("bookmarked");
             btn[0].innerHTML =
-              '<i className="mx-2 fas fa-heart pt-2"></i><span>BOOKMARK</span>';
+              '<i class="mx-2 fas fa-heart pt-2"></i><span>BOOKMARK</span>';
             alert(`${response.data.title} is removed from favourites`);
           }
         })
@@ -193,8 +193,13 @@ const SingleView = ({ data }) => {
                     </li>
                   </ul>
                 </div>
-                <button className="apply_job" type="button" onClick={applyJob}>
-                  APPLY NOW
+                <button
+                  className="apply_job"
+                  type="button"
+                  onClick={applyJob}
+                  disabled={data.is_applied === "1"}
+                >
+                  {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
                 </button>
               </div>
             </div>
@@ -203,8 +208,9 @@ const SingleView = ({ data }) => {
                 className="apply_job_rt mtp_30"
                 type="button"
                 onClick={applyJob}
+                disabled={data.is_applied === "1"}
               >
-                APPLY NOW
+                {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
               </button>
               <button
                 className={
@@ -215,7 +221,11 @@ const SingleView = ({ data }) => {
                 onClick={() => callFavouriteApi(data.id)}
               >
                 <i className="mx-2 fas fa-heart pt-2"></i>
-                <span>BOOKMARK</span>
+                {data.is_favourited === "1" ? (
+                  <span>BOOKMARKED</span>
+                ) : (
+                  <span>BOOKMARK</span>
+                )}
               </button>
               <ul className="social-links">
                 <li>
