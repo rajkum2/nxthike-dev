@@ -7,8 +7,13 @@ import ProfileHeader from "../../layouts/ProfileHeader";
 import ProfileSideBar from "../../layouts/ProfileSidebar";
 
 export default function Content() {
-  const { loginuserId, fetchLoginUserData, loginuserData, logoutAction } =
-    useContext(UserContext);
+  const {
+    loginuserId,
+    fetchLoginUserData,
+    loginuserData,
+    logoutAction,
+    userType,
+  } = useContext(UserContext);
   useEffect(() => {
     fetchLoginUserData(loginuserId);
   }, []);
@@ -40,30 +45,45 @@ export default function Content() {
                   </p>
                 </div>
               </div>
-              <div className="view_chart">
-                <div className="view_chart_header">
-                  <h4>Skills</h4>
-                </div>
-                <div className="view_chart_body">
-                  <div className="job-skills">
-                    {skillsArray && skillsArray.map((skill) => <a>{skill}</a>)}
+              {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                <>
+                  <div className="view_chart">
+                    <div className="view_chart_header">
+                      <h4>Skills</h4>
+                    </div>
+                    <div className="view_chart_body">
+                      <div className="job-skills">
+                        {skillsArray &&
+                          skillsArray.map((skill) => <a>{skill}</a>)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="view_chart">
-                <div className="view_chart_header">
-                  <h4>Language</h4>
-                </div>
-                <div className="view_chart_body">
-                  <div className="job-skills">
-                    {langArray && langArray.map((lang) => <a>{lang}</a>)}
+                  <div className="view_chart">
+                    <div className="view_chart_header">
+                      <h4>Language</h4>
+                    </div>
+                    <div className="view_chart_body">
+                      <div className="job-skills">
+                        {langArray && langArray.map((lang) => <a>{lang}</a>)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
       </main>
+      <Modal
+        open={loginuserData && loginuserData.is_user_verified === "0"}
+        center
+        closeIcon={<div></div>}
+        classNames={{ overlay: "customOverlay" }}
+      >
+        <h4 className="text-info">
+          Please wait until your profile is verified by our team
+        </h4>
+      </Modal>
     </>
   );
 }

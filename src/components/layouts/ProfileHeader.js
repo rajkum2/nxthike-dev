@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { UserContext } from "../../context/LoginContext";
 
 export default function ProfileHeader({ pathname }) {
-  const { logoutAction } = useContext(UserContext);
+  const { logoutAction, userType } = useContext(UserContext);
   return (
     <>
       <div className="account_heading">
@@ -56,6 +56,18 @@ export default function ProfileHeader({ pathname }) {
               Messages
             </a>
           </li> */}
+          {userType === "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+            <li className="nav-item">
+              <a
+                className={`nav-link${
+                  pathname === "manage-jobs" ? " active" : ""
+                }`}
+                href="/manage-jobs"
+              >
+                Jobs
+              </a>
+            </li>
+          )}
           <li className="nav-item">
             <a
               className={`nav-link${pathname === "bookmarks" ? " active" : ""}`}
@@ -64,16 +76,18 @@ export default function ProfileHeader({ pathname }) {
               Bookmarks
             </a>
           </li>
-          <li className="nav-item">
-            <a
-              className={`nav-link${
-                pathname === "manage-jobs" ? " active" : ""
-              }`}
-              href="/manage-jobs"
-            >
-              Jobs
-            </a>
-          </li>
+          {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+            <li className="nav-item">
+              <a
+                className={`nav-link${
+                  pathname === "manage-jobs" ? " active" : ""
+                }`}
+                href="/manage-jobs"
+              >
+                Jobs
+              </a>
+            </li>
+          )}
           {/* <li className="nav-item">
             <a
               className={`${

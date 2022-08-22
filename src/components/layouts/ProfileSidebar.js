@@ -44,10 +44,19 @@ export default function ProfileSideBar() {
                 {loginuserData !== null && " " + loginuserData.user_city}
               </span>
               <div className="avialable">
-                Available Full Time
-                <a href="#">
-                  <i className="far fa-edit"></i>
-                </a>
+                {userType === "usertype_cf47b94da69344503d8d7af8058c49c7" ? (
+                  <>
+                    <span>No of Openings: </span>
+                    <span>
+                      {loginuserData &&
+                        loginuserData.listings_count -
+                          loginuserData.pendings_count -
+                          loginuserData.rejected_count}
+                    </span>
+                  </>
+                ) : (
+                  <span>Available Full Time</span>
+                )}
               </div>
             </div>
           </div>

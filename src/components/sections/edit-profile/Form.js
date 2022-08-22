@@ -30,6 +30,7 @@ export default function Form(props) {
   const [tab1, setTab1] = useState(false);
   const [tab2, setTab2] = useState(false);
   const [user_name, setName] = useState(props.userData.user_name);
+  const [comp_name, setCompName] = useState("");
   const [email, setEmail] = useState(props.userData.user_email);
   const [dob, setDOB] = useState(props.userData.user_dob);
   const [city, setCity] = useState(props.userData.user_city);
@@ -155,10 +156,36 @@ export default function Form(props) {
                     </div>
                     <div className="post_job_body">
                       <div className="row">
+                        {userType ===
+                          "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                          <div className="col-lg-12">
+                            <div className="form-group">
+                              <label className="label15">Company Name</label>
+                              <input
+                                type="text"
+                                className="job-input"
+                                placeholder="Company's Name"
+                                value={comp_name}
+                                onChange={(e) => setCompName(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
                         <div className="col-lg-6">
                           <div className="form-group">
                             <label className="label15">
-                              Name<span style={{ color: "red" }}> *</span>
+                              {userType ===
+                              "usertype_cf47b94da69344503d8d7af8058c49c7" ? (
+                                <>
+                                  <span>Contact's Name</span>
+                                  <span style={{ color: "red" }}> *</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Name</span>
+                                  <span style={{ color: "red" }}> *</span>
+                                </>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -167,6 +194,21 @@ export default function Form(props) {
                               value={user_name}
                               onChange={(e) => setName(e.target.value)}
                               required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-lg-6">
+                          <div className="form-group">
+                            <label className="label15">
+                              Phone Number
+                              <span style={{ color: "red" }}> *</span>
+                            </label>
+                            <input
+                              type="email"
+                              className="job-input"
+                              placeholder="Enter Your Email Address"
+                              value={props.userData.user_phone}
+                              disabled
                             />
                           </div>
                         </div>
@@ -187,20 +229,6 @@ export default function Form(props) {
                         </div>
                         <div className="col-lg-6">
                           <div className="form-group">
-                            <label className="label15">Date of Birth</label>
-                            <input
-                              type="date"
-                              className="job-input"
-                              placeholder="Enter Your Date of Birth"
-                              value={dob}
-                              onChange={(e) => setDOB(e.target.value)}
-                              min={"1970-1-1"}
-                              max={"2040-12-31"}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-6">
-                          <div className="form-group">
                             <label className="label15">City</label>
                             <input
                               type="text"
@@ -211,6 +239,22 @@ export default function Form(props) {
                             />
                           </div>
                         </div>
+                        {/*
+                          <div className="col-lg-6">
+                            <div className="form-group">
+                              <label className="label15">Date of Birth</label>
+                              <input
+                                type="date"
+                                className="job-input"
+                                placeholder="Enter Your Date of Birth"
+                                value={dob}
+                                onChange={(e) => setDOB(e.target.value)}
+                                min={"1970-1-1"}
+                                max={"2040-12-31"}
+                              />
+                            </div>
+                          </div>
+                        */}
                         <div className="col-lg-12">
                           <div className="form-group">
                             <label className="label15">Description </label>
@@ -322,7 +366,7 @@ export default function Form(props) {
                             </div>
                           </>
                         )}
-                        <div className="col-lg-12">
+                        {/* <div className="col-lg-12">
                           <div className="form-group">
                             <label className="label15">Location </label>
                             <div className="smm_input">
@@ -335,43 +379,61 @@ export default function Form(props) {
                               />
                             </div>
                           </div>
-                        </div>
-                        {/*<div className="col-lg-12">
-                                    <div className="form-group">
-                                      <label className="label15">Websites </label>
-                                      <div className="smm_input5">
-                                        <input
-                                          type="text"
-                                          className="website-input"
-                                          placeholder="https://entercompanysite.com"
-                                        />
-                                        <div className="loc_icon5">
-                                          <i className="fas fa-globe"></i>
-                                        </div>
-                                      </div>
-                                      <div className="smm_input5">
-                                        <input
-                                          type="text"
-                                          className="website-input"
-                                          placeholder="https://enterblogsite.com"
-                                        />
-                                        <div className="loc_icon5">
-                                          <i className="far fa-edit"></i>
-                                        </div>
-                                      </div>
-                                      <div className="smm_input5">
-                                        <input
-                                          type="text"
-                                          className="website-input"
-                                          placeholder="https://enterportfoliosite.com"
-                                        />
-                                        <div className="loc_icon5">
-                                          <i className="fas fa-columns"></i>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>  */}
+                        </div> */}
+                        {userType ===
+                          "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                          <div className="col-lg-12">
+                            <div className="form-group">
+                              <label className="label15">Websites </label>
+                              <div className="smm_input5">
+                                <input
+                                  type="text"
+                                  className="website-input"
+                                  placeholder="https://entercompanysite.com"
+                                />
+                                <div className="loc_icon5">
+                                  <i className="fas fa-globe"></i>
+                                </div>
+                              </div>
+                              <div className="smm_input5">
+                                <input
+                                  type="text"
+                                  className="website-input"
+                                  placeholder="https://enterblogsite.com"
+                                />
+                                <div className="loc_icon5">
+                                  <i className="far fa-edit"></i>
+                                </div>
+                              </div>
+                              <div className="smm_input5">
+                                <input
+                                  type="text"
+                                  className="website-input"
+                                  placeholder="https://enterportfoliosite.com"
+                                />
+                                <div className="loc_icon5">
+                                  <i className="fas fa-columns"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
+                      <button className="post_jp_btn" type="submit">
+                        SAVE CHANGES
+                      </button>
+
+                      {loading && <h5 className="text-info">Loading...</h5>}
+                      {errormsg && (
+                        <h5 className="text-danger">
+                          Operation Failed Try Again
+                        </h5>
+                      )}
+                      {successMsg && (
+                        <h5 className="text-success">
+                          User Profile Successfully Updated.
+                        </h5>
+                      )}
                     </div>
                   </div>
                 </Tab.Pane>

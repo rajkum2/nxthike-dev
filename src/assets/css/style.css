@@ -195,7 +195,7 @@ input {
   outline: none;
 }
 input:disabled {
-  background-color: #928e8e;
+  background-color: #b3b3b3;
 }
 
 textarea {
@@ -1884,7 +1884,7 @@ span.right-cm {
   display: block;
 }
 
-.job-urs-dts .avialable {
+.job-urs-dts .avialable span {
   font-size: 14px;
   color: #ff4500;
   font-weight: 400;
@@ -1892,6 +1892,7 @@ span.right-cm {
   margin-bottom: 0px;
   margin-top: 8px;
   text-decoration: none;
+  display: inline;
 }
 
 .job-urs-dts .c-link {
