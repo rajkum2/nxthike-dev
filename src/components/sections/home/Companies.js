@@ -9,7 +9,7 @@ const Companies = () => {
                 <div className="row">
                     <div className="col-md-12 col-12">
                         <div className="main-heading">
-                            <h2>More than 20+ Companies trust NxtHike</h2>
+                            <h2>More than 10+ Companies trust NxtHike</h2>
                         </div>
                     </div>
                     <div className="companies__container">

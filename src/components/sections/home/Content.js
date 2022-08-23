@@ -47,9 +47,9 @@ const Content = () => {
         <Categories />
         <Testimonials />
         <JobSeekers />
-        <Companies />
         {/* <Featured /> */}
         <Info />
+        <Companies />
       </main>
       <button
         onClick={scrollToTop}
