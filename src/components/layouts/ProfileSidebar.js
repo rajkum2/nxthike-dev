@@ -139,14 +139,6 @@ export default function ProfileSideBar() {
                         <span>5 Year</span>
                       </div>
                     </li>
-                    <li>
-                      <div className="rtl_left2">
-                        <h6>Job Done</h6>
-                      </div>
-                      <div className="rtl_right2">
-                        <span>50</span>
-                      </div>
-                    </li>
                   </>
                 )}
               </ul>
@@ -175,18 +167,22 @@ export default function ProfileSideBar() {
                   {loginuserData && loginuserData.linkedin_id}
                 </a>
               </li>
-              <li>
-                <a href="#" className="social_links">
-                  <i className="fab fa-youtube y1"></i>
-                  {loginuserData && loginuserData.user_youtube}
-                </a>
-              </li>
-              <li>
-                <a href="#" className="social_links">
-                  <i className="fab fa-instagram i1"></i>
-                  {loginuserData && loginuserData.user_youtube}
-                </a>
-              </li>
+              {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                <>
+                  <li>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-youtube y1"></i>
+                      {loginuserData && loginuserData.user_youtube}
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="social_links">
+                      <i className="fab fa-instagram i1"></i>
+                      {loginuserData && loginuserData.insta_id}
+                    </a>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
           <div className="lg-out-div">

@@ -35,6 +35,7 @@ export default function Form(props) {
   const [dob, setDOB] = useState(props.userData.user_dob);
   const [city, setCity] = useState(props.userData.user_city);
   const [desc, setDesc] = useState(props.userData.user_about_me);
+  const [exp, setExp] = useState("");
   const [tagline, setTagline] = useState(props.userData.tagline);
   const [skills, setSkills] = useState(props.userData.user_skills);
   const [languages, setLanguages] = useState(props.userData.user_languages);
@@ -98,7 +99,6 @@ export default function Form(props) {
         linkedin_id: linkedin,
         user_youtube: youtube,
         user_city: city,
-        user_dob: dob,
       };
       updateLoginUserData(formData);
       if (successMsg) window.location.reload(true);
@@ -300,7 +300,7 @@ export default function Form(props) {
                                 />
                               </div>
                             </div>
-                            <div className="col-lg-6">
+                            {/* <div className="col-lg-6">
                               <div className="form-group">
                                 <label className="label15">Availability </label>
                                 <Select
@@ -314,39 +314,40 @@ export default function Form(props) {
                                   isDisabled
                                 />
                               </div>
-                            </div>
+                            </div> */}
                             <div className="col-lg-6">
                               <div className="form-group">
                                 <label className="label15">
                                   Experience Level{" "}
                                 </label>
-                                <Select
-                                  styles={customStyles}
-                                  options={options.exp}
-                                  isSearchable={true}
-                                  placeholder="Experience Level"
-                                  isMulti
-                                  isClearable={false}
-                                  isDisabled
+                                <input
+                                  type="text"
+                                  className="job-input"
+                                  placeholder="Experience"
+                                  value={exp}
+                                  onChange={(e) => setExp(e.target.value)}
                                 />
                               </div>
                             </div>
-                            <div className="col-lg-6">
-                              <div className="form-group">
-                                <label className="label15">
-                                  Pay Rate ($/hr){" "}
-                                </label>
-                                <div className="smm_input">
-                                  <input
-                                    type="text"
-                                    className="job-input"
-                                    placeholder="Enter Your Page Rate"
-                                    disabled={true}
-                                  />
-                                  <div className="mix_max">Usd</div>
+                            {userType ===
+                              "usertype_5254c6e9a18079e1bd8165c3e64d368c" && (
+                              <div className="col-lg-6">
+                                <div className="form-group">
+                                  <label className="label15">
+                                    Pay Rate ($/hr){" "}
+                                  </label>
+                                  <div className="smm_input">
+                                    <input
+                                      type="text"
+                                      className="job-input"
+                                      placeholder="Enter Your Page Rate"
+                                      disabled={true}
+                                    />
+                                    <div className="mix_max">Usd</div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
                             <div className="col-lg-6">
                               <div className="form-group">
                                 <label className="label15">Languages </label>
@@ -384,7 +385,7 @@ export default function Form(props) {
                           "usertype_cf47b94da69344503d8d7af8058c49c7" && (
                           <div className="col-lg-12">
                             <div className="form-group">
-                              <label className="label15">Websites </label>
+                              <label className="label15">Website </label>
                               <div className="smm_input5">
                                 <input
                                   type="text"
@@ -393,26 +394,6 @@ export default function Form(props) {
                                 />
                                 <div className="loc_icon5">
                                   <i className="fas fa-globe"></i>
-                                </div>
-                              </div>
-                              <div className="smm_input5">
-                                <input
-                                  type="text"
-                                  className="website-input"
-                                  placeholder="https://enterblogsite.com"
-                                />
-                                <div className="loc_icon5">
-                                  <i className="far fa-edit"></i>
-                                </div>
-                              </div>
-                              <div className="smm_input5">
-                                <input
-                                  type="text"
-                                  className="website-input"
-                                  placeholder="https://enterportfoliosite.com"
-                                />
-                                <div className="loc_icon5">
-                                  <i className="fas fa-columns"></i>
                                 </div>
                               </div>
                             </div>
@@ -477,20 +458,6 @@ export default function Form(props) {
                             <input
                               className="scl_input"
                               type="text"
-                              placeholder="https://youtube.com/johndoe..."
-                              value={youtube}
-                              onChange={(e) => setYoutube(e.target.value)}
-                            />
-                            <div className="icon143 y1">
-                              <i className="fab fa-youtube"></i>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="social201">
-                            <input
-                              className="scl_input"
-                              type="text"
                               placeholder="https://linkedin.com/johndoe..."
                               value={linkedin}
                               onChange={(e) => setLinkedin(e.target.value)}
@@ -500,59 +467,52 @@ export default function Form(props) {
                             </div>
                           </div>
                         </li>
-                        <li>
-                          <div className="social201">
-                            <input
-                              className="scl_input"
-                              type="text"
-                              placeholder="https://instagram.com/johndoe..."
-                              value={insta}
-                              onChange={(e) => setInsta(e.target.value)}
-                            />
-                            <div className="icon143 i1">
-                              <i className="fab fa-instagram"></i>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="social201">
-                            <input
-                              className="scl_input"
-                              type="text"
-                              placeholder="https://dribbble.com/johndoe..."
-                              disabled={true}
-                            />
-                            <div className="icon143 d1">
-                              <i className="fab fa-dribbble d1"></i>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="social201">
-                            <input
-                              className="scl_input"
-                              type="text"
-                              placeholder="https://behance.net/johndoe..."
-                              disabled={true}
-                            />
-                            <div className="icon143 b1">
-                              <i className="fab fa-behance b1"></i>
-                            </div>
-                          </div>
-                        </li>
-                        <li>
-                          <div className="social201">
-                            <input
-                              className="scl_input"
-                              type="text"
-                              placeholder="https://github.com/johndoe..."
-                              disabled={true}
-                            />
-                            <div className="icon143 g1">
-                              <i className="fab fa-github g1"></i>
-                            </div>
-                          </div>
-                        </li>
+                        {userType !==
+                          "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                          <>
+                            <li>
+                              <div className="social201">
+                                <input
+                                  className="scl_input"
+                                  type="text"
+                                  placeholder="https://youtube.com/johndoe..."
+                                  value={youtube}
+                                  onChange={(e) => setYoutube(e.target.value)}
+                                />
+                                <div className="icon143 y1">
+                                  <i className="fab fa-youtube"></i>
+                                </div>
+                              </div>
+                            </li>
+
+                            <li>
+                              <div className="social201">
+                                <input
+                                  className="scl_input"
+                                  type="text"
+                                  placeholder="https://instagram.com/johndoe..."
+                                  value={insta}
+                                  onChange={(e) => setInsta(e.target.value)}
+                                />
+                                <div className="icon143 i1">
+                                  <i className="fab fa-instagram"></i>
+                                </div>
+                              </div>
+                            </li>
+                            <li>
+                              <div className="social201">
+                                <input
+                                  className="scl_input"
+                                  type="text"
+                                  placeholder="https://github.com/johndoe..."
+                                />
+                                <div className="icon143 g1">
+                                  <i className="fab fa-github g1"></i>
+                                </div>
+                              </div>
+                            </li>
+                          </>
+                        )}
                       </ul>
                       <button className="post_jp_btn" type="submit">
                         SAVE CHANGES

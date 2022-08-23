@@ -193,20 +193,24 @@
   padding: 8px 15px;
 }
 
+.company__img img {
+  width: 80%;
+}
+
 @media (max-width: 992px) {
   .companies {
-      flex-basis: 20%;
+    flex-basis: 20%;
   }
 }
 
 @media (max-width: 768px) {
   .companies {
-      flex-basis: 25%;
+    flex-basis: 25%;
   }
 }
 
 @media (max-width: 600px) {
   .companies {
-      flex-basis: calc(100% / 3);
+    flex-basis: calc(100% / 3);
   }
 }
