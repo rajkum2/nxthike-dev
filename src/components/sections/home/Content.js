@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { UserContext } from "../../../context/LoginContext";
 import Achievement from "./Achievements";
 import BannerSlide from "./BannerSlide";

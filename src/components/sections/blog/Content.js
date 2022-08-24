@@ -1,10 +1,7 @@
-import img1 from "../../../assets/images/blog/img-1.jpg";
-import logo from "../../../assets/images/blog/blog_logo.svg";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Pagination from "./Pagination";
 import Loader from "../../layouts/Loader";
+import Pagination from "./Pagination";
 
 export default function Content() {
   const [blogs, setBlogs] = useState([]);

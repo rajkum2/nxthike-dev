@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../../context/LoginContext";
 import { Modal } from "react-responsive-modal";
-import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "../../layouts/Profileimg";
 import ProfileHeader from "../../layouts/ProfileHeader";
 import ProfileSideBar from "../../layouts/ProfileSidebar";

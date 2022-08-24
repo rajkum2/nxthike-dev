@@ -31,6 +31,7 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
     "react-select": "^5.4.0",
+    "react-share": "^4.4.0",
     "react-slick": "^0.29.0",
     "react-snap": "^1.13.1",
     "slick-carousel": "^1.8.1",

@@ -4,20 +4,23 @@
     "name": "Job Hunting",
     "post": "Online Support",
     "text": "We are experts in job searching, job applying and job assistance for freshers and experienced candidates.We will make sure you get into a new job fast.",
-    "saveOfferText": "Helping candidates in Job Hunting for Remote, Freelancing & Full time jobs. "
+    "saveOfferText": "Helping candidates in Job Hunting for Remote, Freelancing & Full time jobs. ",
+    "img": "assets/images/homepage/latest-jobs/2.jpg"
   },
   {
     "id": 2,
     "name": "Resume Review",
     "post": "Resume Prep Support",
     "text": "A good resume is the first step to get your job interview. We help you in creating and modifying your resume to look like a higly professional and attractive. ",
-    "saveOfferText": "Get on to a personal call for 30 min to review your resume."
+    "saveOfferText": "Get on to a personal call for 30 min to review your resume.",
+    "img": "assets/images/homepage/latest-jobs/1.jpg"
   },
   {
     "id": 3,
     "name": "Career Guidance",
     "post": "Complete Online Support",
     "text": "If you are fresher or experienced candidate, we will provide the necessary guidance in getting your new role in your career.Feel free to contact us us for any need.",
-    "saveOfferText": "Career Guidance in New Career paths, Certifications & Trainings"
+    "saveOfferText": "Career Guidance in New Career paths, Certifications & Trainings",
+    "img": "assets/images/homepage/latest-jobs/3.jpg"
   }
 ]

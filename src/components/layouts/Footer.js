@@ -1,3 +1,4 @@
+import React from "react";
 import { useContext } from "react";
 import logo from "../../assets/images/nxt-logo.png";
 import { UserContext } from "../../context/LoginContext";
@@ -139,7 +140,10 @@ const Footer = () => {
                     </a>
                   </li>
                   <li>
-                    <a target="_blank" href="https://www.linkedin.com/company/nxthike-work-solutions/">
+                    <a
+                      target="_blank"
+                      href="https://www.linkedin.com/company/nxthike-work-solutions/"
+                    >
                       <i className="fab fa-linkedin-in"></i>
                     </a>
                   </li>

@@ -1,6 +1,5 @@
 import React from "react";
 import htmr from "htmr";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 
 export default function SingleView({ data }) {
   return (
@@ -15,7 +14,8 @@ export default function SingleView({ data }) {
                     <img
                       src={
                         data.default_photo.img_path === ""
-                          ? img1
+                          ? process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
                           : //: API_URL.IMG_URL+item.default_photo.img_path
                             process.env.REACT_APP_BASE_URL +
                             "/uploads/" +

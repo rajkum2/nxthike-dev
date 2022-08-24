@@ -1,8 +1,8 @@
+import React, { useState } from "react";
 import { Tab, Nav } from "react-bootstrap";
 import Profile from "./Profile";
 import Members from "./Members";
 import Reviews from "./Reviews";
-import { useState } from "react";
 
 export default function Content() {
   const [activeKey, setActiveKey] = useState("tab1");

@@ -2825,6 +2825,11 @@ span.right-cm {
 
 /* === Job Single View === */
 
+.job-title {
+  padding-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
 .vw_item_text {
   text-align: left;
   margin-left: 10px;
@@ -2986,13 +2991,13 @@ span.right-cm {
   display: inline-block;
 }
 
-.social-links li a {
-  font-size: 14px;
-  padding: 0 10px;
-  color: #b1b1b1;
+.social-links li .ind-link {
+  font-size: 14px !important;
+  padding: 0 10px !important;
+  color: #b1b1b1 !important;
 }
 
-.social-links li a:hover {
+.social-links li .ind-link:hover {
   color: #242424 !important;
 }
 

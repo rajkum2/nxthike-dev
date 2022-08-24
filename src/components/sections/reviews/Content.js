@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../../context/LoginContext";
 import { Modal } from "react-responsive-modal";
-import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "../../layouts/Profileimg";
 import ProfileHeader from "../../layouts/ProfileHeader";
 import ProfileSideBar from "../../layouts/ProfileSidebar";
@@ -59,7 +58,9 @@ export default function Content() {
                               </div>
                               <div className="candi_dt">
                                 <a href="#">Sri Sai</a>
-                                <div className="candi_cate">Devops Engineer</div>
+                                <div className="candi_cate">
+                                  Devops Engineer
+                                </div>
                                 <div className="rating_candi">
                                   Rating
                                   <div className="star">

@@ -3,7 +3,6 @@ import axios from "axios";
 import { Modal } from "react-responsive-modal";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../../context/LoginContext";
-import img1 from "../../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "../../layouts/Profileimg";
 import ProfileHeader from "../../layouts/ProfileHeader";
 import ProfileSideBar from "../../layouts/ProfileSidebar";

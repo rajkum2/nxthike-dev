@@ -1,5 +1,4 @@
-import line from "../../../assets/images/line.svg";
-
+import React from "react";
 export default function Content() {
   return (
     <main className="browse-section">
@@ -9,7 +8,10 @@ export default function Content() {
             <div className="main-heading">
               <h2>Help Center</h2>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
             <div className="search_help">
@@ -63,7 +65,12 @@ export default function Content() {
                     <div className="faq_heading">
                       <h4>Getting Started</h4>
                       <div className="line-shape1">
-                        <img src={line} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL + "/assets/images/line.svg"
+                          }
+                          alt=""
+                        />
                       </div>
                     </div>
                     <div className="faq_more">
@@ -108,7 +115,12 @@ export default function Content() {
                     <div className="faq_heading">
                       <h4>Companies</h4>
                       <div className="line-shape1">
-                        <img src={line} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL + "/assets/images/line.svg"
+                          }
+                          alt=""
+                        />
                       </div>
                     </div>
                     <div className="faq_more">
@@ -153,7 +165,12 @@ export default function Content() {
                     <div className="faq_heading">
                       <h4>Freelancers</h4>
                       <div className="line-shape1">
-                        <img src={line} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL + "/assets/images/line.svg"
+                          }
+                          alt=""
+                        />
                       </div>
                     </div>
                     <div className="faq_more">
@@ -198,7 +215,12 @@ export default function Content() {
                     <div className="faq_heading">
                       <h4>Jobs</h4>
                       <div className="line-shape1">
-                        <img src={line} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL + "/assets/images/line.svg"
+                          }
+                          alt=""
+                        />
                       </div>
                     </div>
                     <div className="faq_more">

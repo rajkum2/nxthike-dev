@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../context/LoginContext";
 import { Modal } from "react-responsive-modal";
-import img1 from "../../assets/images/homepage/candidates/img-1.jpg";
 import Profileimg from "./Profileimg";
 
 export default function ProfileSideBar() {
@@ -25,11 +24,13 @@ export default function ProfileSideBar() {
               src={
                 loginuserData !== null
                   ? loginuserData.user_profile_photo === ""
-                    ? img1
+                    ? process.env.PUBLIC_URL +
+                      "/assets/images/homepage/candidates/img-1.jpg"
                     : process.env.REACT_APP_BASE_URL +
                       "/uploads/" +
                       loginuserData.user_profile_photo
-                  : img1
+                  : process.env.PUBLIC_URL +
+                    "/assets/images/homepage/candidates/img-1.jpg"
               }
               alt=""
             />
@@ -37,7 +38,11 @@ export default function ProfileSideBar() {
               <div className="dp_upload">
                 <button onClick={() => setOpen(true)}>Upload Photo</button>
               </div>
-              <h4>{loginuserData !== null && loginuserData.user_name}</h4>
+              <h4>
+                {userType === "usertype_cf47b94da69344503d8d7af8058c49c7"
+                  ? loginuserData !== null && loginuserData.company_name
+                  : loginuserData !== null && loginuserData.user_name}
+              </h4>
               <span>{loginuserData !== null && loginuserData.tagline}</span>
               <span>
                 <i className="fas fa-map-marker-alt lc_icon" />
@@ -68,11 +73,14 @@ export default function ProfileSideBar() {
                   {loginuserData !== null && loginuserData.user_email}
                 </a>
               </li>
-              <li>
-                <a href="#" className="web_link">
-                  <i className="fas fa-globe"></i>www.blogsite.com
-                </a>
-              </li>
+              {userType === "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                <li>
+                  <a href="#" className="web_link">
+                    <i className="fas fa-globe"></i>
+                    {loginuserData && loginuserData.website_url}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
           {/* <div className="group_skills_bar">

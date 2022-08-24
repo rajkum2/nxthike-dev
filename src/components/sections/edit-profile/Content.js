@@ -1,6 +1,6 @@
+import React, { useContext, useEffect, useState } from "react";
 import ProfileSideBar from "../../layouts/ProfileSidebar";
 import { Tab, Nav } from "react-bootstrap";
-import { useContext, useEffect, useState } from "react";
 import ProfileHeader from "../../layouts/ProfileHeader";
 import Select from "react-select";
 import options from "../../../data/allJobOptions.json";

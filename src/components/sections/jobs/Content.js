@@ -5,7 +5,6 @@ import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import { Link } from "react-router-dom";
 import BrowseFilter from "../../layouts/BrowseFilter";
 import { UserContext } from "../../../context/LoginContext";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 import Loader from "../../layouts/Loader";
 import { ItemsContext } from "../../../context/ItemsContext";
 import options from "../../../data/allJobOptions.json";
@@ -101,7 +100,8 @@ export default function Content() {
                           <img
                             src={
                               item.default_photo.img_path === ""
-                                ? img1
+                                ? process.env.PUBLIC_URL +
+                                  "/assets/images/homepage/latest-jobs/img-1.png"
                                 : process.env.REACT_APP_BASE_URL +
                                   "/uploads/" +
                                   item.default_photo.img_path

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
 import trophy from "../../../assets/images/browse/trophy.png";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 import BrowseFilter from "../../layouts/BrowseFilter";
 
 export default function Content() {
@@ -48,7 +47,13 @@ export default function Content() {
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
-                          <img src={img1} alt="" />
+                          <img
+                            src={
+                              process.env.PUBLIC_URL +
+                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                            }
+                            alt=""
+                          />
                           <div className="job-urs-dts">
                             <a href="#">
                               <h4>Gambol Themes</h4>
@@ -105,7 +110,13 @@ export default function Content() {
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
-                          <img src={img1} alt="" />
+                          <img
+                            src={
+                              process.env.PUBLIC_URL +
+                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                            }
+                            alt=""
+                          />
                           <div className="job-urs-dts">
                             <a href="#">
                               <h4>Plame Designs</h4>
@@ -162,7 +173,13 @@ export default function Content() {
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
-                          <img src={img1} alt="" />
+                          <img
+                            src={
+                              process.env.PUBLIC_URL +
+                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                            }
+                            alt=""
+                          />
                           <div className="job-urs-dts">
                             <a href="#">
                               <h4>Logomaker</h4>
@@ -218,7 +235,13 @@ export default function Content() {
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
-                          <img src={img1} alt="" />
+                          <img
+                            src={
+                              process.env.PUBLIC_URL +
+                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                            }
+                            alt=""
+                          />
                           <div className="job-urs-dts">
                             <a href="#">
                               <h4>Sofwebtech</h4>
@@ -274,7 +297,13 @@ export default function Content() {
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
-                          <img src={img1} alt="" />
+                          <img
+                            src={
+                              process.env.PUBLIC_URL +
+                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                            }
+                            alt=""
+                          />
                           <div className="job-urs-dts">
                             <a href="#">
                               <h4>WPMarket</h4>
@@ -330,7 +359,13 @@ export default function Content() {
                     <div className="job-item mt-30">
                       <div className="job-top-dt1 text-center">
                         <div className="job-center-dt">
-                          <img src={img1} alt="" />
+                          <img
+                            src={
+                              process.env.PUBLIC_URL +
+                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                            }
+                            alt=""
+                          />
                           <div className="job-urs-dts">
                             <a href="#">
                               <h4>Multimedia Web</h4>

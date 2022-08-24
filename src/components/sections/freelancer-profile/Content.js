@@ -1,4 +1,4 @@
-import { Tab, Nav } from "react-bootstrap";
+import React, { Tab, Nav } from "react-bootstrap";
 import Profile from "./Profile";
 import Portfolio from "./Portfolio";
 import Reviews from "./Reviews";

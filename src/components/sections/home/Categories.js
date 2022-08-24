@@ -1,16 +1,4 @@
-import line from "../../../assets/images/line.svg";
-import icon5 from "../../../assets/images/homepage/categories/icon-5.svg";
-import icon2 from "../../../assets/images/homepage/categories/icon-2.svg";
-import icon3 from "../../../assets/images/homepage/categories/icon-3.svg";
-import icon4 from "../../../assets/images/homepage/categories/icon-4.svg";
-import icon11 from "../../../assets/images/homepage/categories/icon-11.svg";
-import icon13 from "../../../assets/images/homepage/categories/icon-13.svg";
-import icon14 from "../../../assets/images/homepage/categories/icon-14.svg";
-import icon15 from "../../../assets/images/homepage/categories/icon-15.svg";
-import icon9 from "../../../assets/images/homepage/categories/icon-9.svg";
-import icon16 from "../../../assets/images/homepage/categories/icon-16.svg";
-import icon17 from "../../../assets/images/homepage/categories/icon-17.svg";
-import icon7 from "../../../assets/images/homepage/categories/icon-7.svg";
+import React from "react";
 const Categories = () => {
   return (
     <div className="all-categories">
@@ -21,7 +9,10 @@ const Categories = () => {
               <h2>Jobs Categories</h2>
               <span>Find quality talent for your specific needs.</span>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
           </div>
@@ -31,7 +22,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon5} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-5.svg"
+                        }
+                        alt=""
+                      />
                       <span>Web, Mobile &amp; Software Dev</span>
                       <p>150 Jobs</p>
                     </a>
@@ -40,7 +37,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon2} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-2.svg"
+                        }
+                        alt=""
+                      />
                       <span>Data Science &amp; Analytics</span>
                       <p>120 Jobs</p>
                     </a>
@@ -49,7 +52,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon3} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-3.svg"
+                        }
+                        alt=""
+                      />
                       <span>Admin Support</span>
                       <p>290 Jobs</p>
                     </a>
@@ -58,7 +67,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon4} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-4.svg"
+                        }
+                        alt=""
+                      />
                       <span>Design &amp; Creative</span>
                       <p>250 Jobs</p>
                     </a>
@@ -76,7 +91,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon13} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-13.svg"
+                        }
+                        alt=""
+                      />
                       <span>Writing</span>
                       <p>90 Jobs</p>
                     </a>
@@ -94,7 +115,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon15} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-15.svg"
+                        }
+                        alt=""
+                      />
                       <span>IT &amp; Networking</span>
                       <p>150 Jobs</p>
                     </a>
@@ -103,7 +130,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon9} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-9.svg"
+                        }
+                        alt=""
+                      />
                       <span>Sales &amp; Marketing</span>
                       <p>110 Jobs</p>
                     </a>
@@ -112,7 +145,13 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
-                      <img src={icon16} alt="" />
+                      <img
+                        src={
+                          process.env.PUBLIC_URL +
+                          "/assets/images/homepage/categories/icon-16.svg"
+                        }
+                        alt=""
+                      />
                       <span>Customer Service</span>
                       <p>310 Jobs</p>
                     </a>

@@ -1,10 +1,14 @@
-import LatestJobs from "../home/LatestJobs";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
-import { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  LinkedinShareButton,
+} from "react-share";
 import { UserContext } from "../../../context/LoginContext";
+import LatestJobs from "../home/LatestJobs";
 const SingleView = ({ data }) => {
-  const { loginuserId, isLoggedIn } = useContext(UserContext);
+  const { loginuserId, isLoggedIn, userType } = useContext(UserContext);
 
   const callFavouriteApi = async (id) => {
     const btn = document.getElementsByClassName("bookmark_rt");
@@ -82,6 +86,7 @@ const SingleView = ({ data }) => {
           <div className="row">
             <div className="col-lg-9 col-md-8">
               <div className="view_details">
+                <h4 className="job-title">{data.title}</h4>
                 <ul>
                   <li>
                     <div className="vw_items">
@@ -127,7 +132,8 @@ const SingleView = ({ data }) => {
                     <img
                       src={
                         data.default_photo.img_path === ""
-                          ? img1
+                          ? process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.png"
                           : process.env.REACT_APP_BASE_URL +
                             "/uploads/" +
                             data.default_photo.img_path
@@ -193,66 +199,79 @@ const SingleView = ({ data }) => {
                     </li>
                   </ul>
                 </div>
-                <button
-                  className="apply_job"
-                  type="button"
-                  onClick={applyJob}
-                  disabled={data.is_applied === "1"}
-                >
-                  {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
-                </button>
+                {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                  <button
+                    className="apply_job"
+                    type="button"
+                    onClick={applyJob}
+                    disabled={data.is_applied === "1"}
+                  >
+                    {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
+                  </button>
+                )}
               </div>
             </div>
-            <div className="col-lg-3 col-md-4 mainpage">
-              <button
-                className="apply_job_rt mtp_30"
-                type="button"
-                onClick={applyJob}
-                disabled={data.is_applied === "1"}
-              >
-                {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
-              </button>
-              <button
-                className={
-                  data.is_favourited === "1"
-                    ? "bookmark_rt bookmarked"
-                    : "bookmark_rt"
-                }
-                onClick={() => callFavouriteApi(data.id)}
-              >
-                <i className="mx-2 fas fa-heart pt-2"></i>
-                {data.is_favourited === "1" ? (
-                  <span>BOOKMARKED</span>
-                ) : (
-                  <span>BOOKMARK</span>
-                )}
-              </button>
-              <ul className="social-links">
-                <li>
-                  <a href="#">
-                    <i className="fab fa-facebook-f"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <i className="fab fa-twitter"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <i className="fab fa-google-plus-g"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <i className="fab fa-linkedin-in"></i>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="col-12">
-              <LatestJobs />
-            </div>
+            {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+              <>
+                <div className="col-lg-3 col-md-4 mainpage">
+                  <button
+                    className="apply_job_rt mtp_30"
+                    type="button"
+                    onClick={applyJob}
+                    disabled={data.is_applied === "1"}
+                  >
+                    {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
+                  </button>
+                  <button
+                    className={
+                      data.is_favourited === "1"
+                        ? "bookmark_rt bookmarked"
+                        : "bookmark_rt"
+                    }
+                    onClick={() => callFavouriteApi(data.id)}
+                  >
+                    <i className="mx-2 fas fa-heart pt-2"></i>
+                    {data.is_favourited === "1" ? (
+                      <span>BOOKMARKED</span>
+                    ) : (
+                      <span>BOOKMARK</span>
+                    )}
+                  </button>
+                  <ul className="social-links">
+                    <li>
+                      <FacebookShareButton
+                        url={window.location.href}
+                        className="ind-link"
+                        windowHeight={0.75 * window.innerHeight}
+                      >
+                        <i className="fab fa-facebook-f"></i>
+                      </FacebookShareButton>
+                    </li>
+                    <li>
+                      <TwitterShareButton
+                        className="ind-link"
+                        url={window.location.href}
+                        windowHeight={0.75 * window.innerHeight}
+                      >
+                        <i className="fab fa-twitter"></i>
+                      </TwitterShareButton>
+                    </li>
+                    <li>
+                      <LinkedinShareButton
+                        className="ind-link"
+                        url={window.location.href}
+                        windowHeight={0.75 * window.innerHeight}
+                      >
+                        <i className="fab fa-linkedin-in"></i>
+                      </LinkedinShareButton>
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-12">
+                  <LatestJobs />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>

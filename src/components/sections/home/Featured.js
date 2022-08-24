@@ -1,6 +1,5 @@
+import React from "react";
 import Slider from "react-slick";
-import line from "../../../assets/images/line.svg";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
 
 const Featured = () => {
   const CustomNextArrow = (props) => {
@@ -49,7 +48,10 @@ const Featured = () => {
                 Freelancer & Full Time Candidates.
               </span>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
           </div>
@@ -60,7 +62,13 @@ const Featured = () => {
                   <div className="job-item">
                     <div className="job-top-dt1 text-center">
                       <div className="job-center-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          }
+                          alt=""
+                        />
                         <div className="job-urs-dts">
                           <a href="#">
                             <h4>John Doe</h4>
@@ -122,7 +130,13 @@ const Featured = () => {
                   <div className="job-item">
                     <div className="job-top-dt1 text-center">
                       <div className="job-center-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          }
+                          alt=""
+                        />
                         <div className="job-urs-dts">
                           <a href="#">
                             <h4>Albert Dua</h4>
@@ -183,7 +197,13 @@ const Featured = () => {
                   <div className="job-item">
                     <div className="job-top-dt1 text-center">
                       <div className="job-center-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          }
+                          alt=""
+                        />
                         <div className="job-urs-dts">
                           <a href="#">
                             <h4>Rock William</h4>
@@ -244,7 +264,13 @@ const Featured = () => {
                   <div className="job-item">
                     <div className="job-top-dt1 text-center">
                       <div className="job-center-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          }
+                          alt=""
+                        />
                         <div className="job-urs-dts">
                           <a href="#">
                             <h4>Joy Smith</h4>
@@ -305,7 +331,13 @@ const Featured = () => {
                   <div className="job-item">
                     <div className="job-top-dt1 text-center">
                       <div className="job-center-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          }
+                          alt=""
+                        />
                         <div className="job-urs-dts">
                           <a href="#">
                             <h4>Sanaya Sharma</h4>
@@ -366,7 +398,13 @@ const Featured = () => {
                   <div className="job-item">
                     <div className="job-top-dt1 text-center">
                       <div className="job-center-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          }
+                          alt=""
+                        />
                         <div className="job-urs-dts">
                           <a href="#">
                             <h4>Jass Singh</h4>

@@ -1,9 +1,5 @@
 import React from "react";
-import line from "../../../assets/images/line.svg";
 import jobSeekers from "../../../data/jobSeekers.json";
-import img1 from "../../../assets/images/homepage/latest-jobs/1.jpg";
-import img2 from "../../../assets/images/homepage/latest-jobs/2.jpg";
-import img3 from "../../../assets/images/homepage/latest-jobs/3.jpg";
 
 const JobSeekers = () => {
   return (
@@ -15,7 +11,10 @@ const JobSeekers = () => {
               <h2>Servies for Job Seekers</h2>
               <span>Get a Job Quickly {"&"} Easily</span>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
           </div>
@@ -27,7 +26,7 @@ const JobSeekers = () => {
                     <div>
                       <img
                         className="job-img"
-                        src={i == 0 ? img2 : i == 1 ? img1 : img3}
+                        src={process.env.PUBLIC_URL + item.img}
                       />
                     </div>
                   </div>
@@ -37,7 +36,7 @@ const JobSeekers = () => {
                       $74 / <span>{item.post}</span>
                     </h5> */}
                     <h5>
-                       <span>{item.post}</span>
+                      <span>{item.post}</span>
                     </h5>
                     <p>{item.text}</p>
                     {/* <div className="acr-jobSeeker-details">Show Details</div> */}

@@ -1,3 +1,4 @@
+import React from "react";
 import Select from "react-select";
 import options from "../../data/allJobOptions.json";
 import { useContext, useState } from "react";

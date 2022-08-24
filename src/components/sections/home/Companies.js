@@ -1,5 +1,4 @@
 import React from "react";
-import img1 from "../../../assets/images/company/sample-img.png";
 import data from "../../../data/companies.json";
 
 const Companies = () => {
@@ -16,7 +15,10 @@ const Companies = () => {
             {data.map((company) => (
               <div key={company.id} className="companies">
                 <div className="company__img">
-                  <img src={img1} alt="img" />
+                  <img
+                    src={process.env.PUBLIC_URL + "/" + company.img}
+                    alt="img"
+                  />
                 </div>
               </div>
             ))}

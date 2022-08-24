@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Tab, Nav } from "react-bootstrap";
 import Select from "react-select";
 import { UserContext } from "../../../context/LoginContext";
@@ -30,7 +30,7 @@ export default function Form(props) {
   const [tab1, setTab1] = useState(false);
   const [tab2, setTab2] = useState(false);
   const [user_name, setName] = useState(props.userData.user_name);
-  const [comp_name, setCompName] = useState("");
+  const [comp_name, setCompName] = useState(props.userData.company_name);
   const [email, setEmail] = useState(props.userData.user_email);
   const [dob, setDOB] = useState(props.userData.user_dob);
   const [city, setCity] = useState(props.userData.user_city);
@@ -38,6 +38,7 @@ export default function Form(props) {
   const [exp, setExp] = useState("");
   const [tagline, setTagline] = useState(props.userData.tagline);
   const [skills, setSkills] = useState(props.userData.user_skills);
+  const [pay_rate, setRate] = useState(props.userData.pay_rate);
   const [languages, setLanguages] = useState(props.userData.user_languages);
   const [skillsArray, setSkillsArray] = useState(
     skills !== "" ? skills.split(", ") : []
@@ -45,6 +46,7 @@ export default function Form(props) {
   const [languagesArray, setLanguagesArray] = useState(
     languages !== "" ? languages.split(", ") : []
   );
+  const [website, setWebsite] = useState(props.userData.website_url);
   const [address, setAddress] = useState(props.userData.user_address);
   const [facebook, setFacebook] = useState(props.userData.facebook_id);
   const [insta, setInsta] = useState(props.userData.insta_id);
@@ -99,6 +101,9 @@ export default function Form(props) {
         linkedin_id: linkedin,
         user_youtube: youtube,
         user_city: city,
+        company_name: comp_name,
+        pay_rate: pay_rate,
+        website_url: website,
       };
       updateLoginUserData(formData);
       if (successMsg) window.location.reload(true);
@@ -125,6 +130,11 @@ export default function Form(props) {
                         className={`${
                           activeKey === "tab1" ? "nav-link active" : "nav-link"
                         }`}
+                        onClick={() => {
+                          setLoading(false);
+                          setErrormsg(false);
+                          setSuccessMsg(false);
+                        }}
                       >
                         My Profile
                       </Nav.Link>
@@ -137,6 +147,11 @@ export default function Form(props) {
                         className={`${
                           activeKey === "tab2" ? "nav-link active" : "nav-link"
                         }`}
+                        onClick={() => {
+                          setLoading(false);
+                          setErrormsg(false);
+                          setSuccessMsg(false);
+                        }}
                       >
                         Social Accounts
                       </Nav.Link>
@@ -334,16 +349,17 @@ export default function Form(props) {
                               <div className="col-lg-6">
                                 <div className="form-group">
                                   <label className="label15">
-                                    Pay Rate ($/hr){" "}
+                                    Pay Rate (₹/hr){" "}
                                   </label>
                                   <div className="smm_input">
                                     <input
+                                      value={pay_rate}
                                       type="text"
                                       className="job-input"
-                                      placeholder="Enter Your Page Rate"
-                                      disabled={true}
+                                      placeholder="Enter Your Pay Rate"
+                                      onChange={(e) => setRate(e.target.value)}
                                     />
-                                    <div className="mix_max">Usd</div>
+                                    <div className="mix_max">Rupees</div>
                                   </div>
                                 </div>
                               </div>
@@ -388,9 +404,11 @@ export default function Form(props) {
                               <label className="label15">Website </label>
                               <div className="smm_input5">
                                 <input
+                                  value={website}
                                   type="text"
                                   className="website-input"
                                   placeholder="https://entercompanysite.com"
+                                  onChange={(e) => setWebsite(e.target.value)}
                                 />
                                 <div className="loc_icon5">
                                   <i className="fas fa-globe"></i>

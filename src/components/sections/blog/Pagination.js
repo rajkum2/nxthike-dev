@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import img1 from "../../../assets/images/homepage/latest-jobs/img-1.jpg";
+import React, { useEffect, useState } from "react";
 
 function Pagination({ data, pageLimit, dataLimit }) {
   let pages = 1;
@@ -60,7 +59,8 @@ function Pagination({ data, pageLimit, dataLimit }) {
                         <img
                           src={
                             item.default_photo.img_path === ""
-                              ? img1
+                              ? process.env.PUBLIC_URL +
+                                "/assets/images/homepage/latest-jobs/img-1.jpg"
                               : //: API_URL.IMG_URL+item.default_photo.img_path
                                 process.env.REACT_APP_BASE_URL +
                                 "/uploads/" +

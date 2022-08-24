@@ -189,12 +189,20 @@ export default function LoginContext({ children }) {
         data.user_youtube ? data.user_youtube : loginuserData.user_youtube
       );
       urlencoded.append(
-        "user_dob",
-        data.user_dob ? data.user_dob : loginuserData.user_dob
-      );
-      urlencoded.append(
         "user_type_id",
         data.user_type_id ? data.user_type_id : loginuserData.user_type_id
+      );
+      urlencoded.append(
+        "company_name",
+        data.company_name ? data.company_name : loginuserData.company_name
+      );
+      urlencoded.append(
+        "pay_rate",
+        data.pay_rate ? data.pay_rate : loginuserData.pay_rate
+      );
+      urlencoded.append(
+        "website_url",
+        data.website_url ? data.website_url : loginuserData.website_url
       );
       //console.log(formData);
       //fetch(`${API_URL.BASE_URL}/users/profile_update/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/ `, {

@@ -1,4 +1,4 @@
-import line from "../../../assets/images/line.svg";
+import React from "react";
 const Offer = () => {
   return (
     <div className="we-offers">
@@ -9,7 +9,10 @@ const Offer = () => {
               <h2>What We Offer?</h2>
               <span>NxtHike provides multiple Services in One Platform</span>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
           </div>
@@ -18,7 +21,8 @@ const Offer = () => {
               <div className="offer-text-dt">
                 <h4>Hire Full-time Employees</h4>
                 <p>
-                  We provide candidates based on your specific needs and experience at very affordable price in the market.
+                  We provide candidates based on your specific needs and
+                  experience at very affordable price in the market.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>
@@ -31,7 +35,8 @@ const Offer = () => {
               <div className="offer-text-dt">
                 <h4>Job Searching Assistance</h4>
                 <p>
-                  We provide job search, resume preparation & support services for candidates who are looking for jobs.
+                  We provide job search, resume preparation & support services
+                  for candidates who are looking for jobs.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>
@@ -44,7 +49,8 @@ const Offer = () => {
               <div className="offer-text-dt">
                 <h4>Hire Freelancers</h4>
                 <p>
-                  Hire expert, pre-screened and verified freelancer on hourly based for your specific technology requirements.
+                  Hire expert, pre-screened and verified freelancer on hourly
+                  based for your specific technology requirements.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>
@@ -60,7 +66,8 @@ const Offer = () => {
                   We provide employees as a team which may include a Developer, Content Writer, Designer & Digital Marketer.
                 </p> */}
                 <p>
-                  Hire candidates by posting your job for Free. Create your Business account and start posting jobs for open positions.
+                  Hire candidates by posting your job for Free. Create your
+                  Business account and start posting jobs for open positions.
                 </p>
                 <a href="#">
                   Read More<i className="fas fa-angle-double-right"></i>

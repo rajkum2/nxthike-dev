@@ -1,3 +1,4 @@
+import React from "react";
 import MultiRangeSlider from "../../layouts/MultirangeSlider";
 import Select from "react-select";
 const dlvrydays = [

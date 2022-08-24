@@ -1,4 +1,4 @@
-import line from "../../../assets/images/line.svg";
+import React from "react";
 
 export default function Content() {
   return (
@@ -19,7 +19,10 @@ export default function Content() {
                     you momentarily!
                   </h6>
                   <div className="line-shape1">
-                    <img src={line} alt="" />
+                    <img
+                      src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                      alt=""
+                    />
                   </div>
                 </div>
                 <ul className="cinfo10">
@@ -56,7 +59,10 @@ export default function Content() {
                 <div className="main-heading">
                   <h2>Open a Ticket</h2>
                   <div className="line-shape1">
-                    <img src={line} alt="" />
+                    <img
+                      src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                      alt=""
+                    />
                   </div>
                 </div>
                 <form>

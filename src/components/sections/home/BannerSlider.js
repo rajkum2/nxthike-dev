@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import Slider from "react-slick";
-import img1 from "../../../assets/images/homepage/banner/1.png";
-import img2 from "../../../assets/images/homepage/banner/2.png";
 const BannerSlider = () => {
   const settings = {
     infinite: true,
@@ -18,12 +16,22 @@ const BannerSlider = () => {
       <Slider {...settings}>
         <div className="featured-cities">
           <div className="feature-img">
-            <img src={img1} alt="" />
+            <img
+              src={
+                process.env.PUBLIC_URL + "/assets/images/homepage/banner/1.png"
+              }
+              alt=""
+            />
           </div>
         </div>
         <div className="featured-cities">
           <div className="feature-img">
-            <img src={img2} alt="" />
+            <img
+              src={
+                process.env.PUBLIC_URL + "/assets/images/homepage/banner/2.png"
+              }
+              alt=""
+            />
           </div>
         </div>
       </Slider>

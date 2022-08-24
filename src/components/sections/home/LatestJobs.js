@@ -1,10 +1,5 @@
+import React from "react";
 import Slider from "react-slick";
-import line from "../../../assets/images/line.svg";
-import img1 from "../../../assets/images/homepage/latest-jobs/trantor.svg";
-import img2 from "../../../assets/images/homepage/latest-jobs/Chitrakars.png";
-import img3 from "../../../assets/images/homepage/latest-jobs/itriangle.jpeg";
-import img4 from "../../../assets/images/homepage/latest-jobs/orchid.png";
-import img5 from "../../../assets/images/homepage/latest-jobs/intellixaa.png";
 
 import { Link as button } from "react-router-dom";
 
@@ -54,7 +49,10 @@ const Jobs = () => {
               <h2>Jobs List</h2>
               <span>Your Job for a Future</span>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
           </div>
@@ -65,7 +63,13 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img1} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/trantor.svg"
+                          }
+                          alt=""
+                        />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Trantor</h4>
@@ -127,7 +131,13 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img2} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/Chitrakars.png"
+                          }
+                          alt=""
+                        />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Chitrakars</h4>
@@ -188,7 +198,13 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img3} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/itriangle.jpeg"
+                          }
+                          alt=""
+                        />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>ITriangle</h4>
@@ -251,7 +267,13 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img4} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/orchid.png"
+                          }
+                          alt=""
+                        />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Orchids</h4>
@@ -314,7 +336,13 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img5} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/intellixaa.png"
+                          }
+                          alt=""
+                        />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Intellixaa</h4>
@@ -373,7 +401,13 @@ const Jobs = () => {
                   <div className="job-item">
                     <div className="job-top-dt">
                       <div className="job-left-dt">
-                        <img src={img5} alt="" />
+                        <img
+                          src={
+                            process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/intellixaa.png"
+                          }
+                          alt=""
+                        />
                         <div className="job-ut-dts">
                           <a href="#">
                             <h4>Intelixaa</h4>

@@ -1,7 +1,5 @@
 import React from "react";
-import line from "../../../assets/images/line.svg";
 import testimonial from "../../../data/testimonial.json";
-import { processRatingStars } from "./processRating";
 
 const Testimonials = () => {
   return (
@@ -13,7 +11,10 @@ const Testimonials = () => {
               <h2>Reviews</h2>
               <span>What are people saying</span>
               <div className="line-shape1">
-                <img src={line} alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
           </div>
