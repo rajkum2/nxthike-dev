@@ -72,7 +72,7 @@ export default function Content() {
     if (isLoggedIn && loginuserId !== null) {
       var postData = {
         added_user_id: loginuserId,
-        item_type_id: "itm_typec0bb1aef36ee7a1dc693302a27eabab3",
+        item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
         cat_id: category,
         sub_cat_id: subCat,
         item_location_id: loc,
