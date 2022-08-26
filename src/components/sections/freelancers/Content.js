@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import DropdownItem from "react-bootstrap/esm/DropdownItem";
+import { Link } from "react-router-dom";
 import trophy from "../../../assets/images/browse/trophy.png";
 import BrowseFilter from "../../layouts/BrowseFilter";
 
-export default function Content() {
+export default function Content({ data }) {
   return (
     <main className="browse-section">
       <div className="container">
@@ -16,7 +17,7 @@ export default function Content() {
                 <div className=" mtab-left">
                   <ul className="browsr-project">
                     <li>
-                      <span className="nav-link">Results 170</span>
+                      <span className="nav-link">Results {data.length}</span>
                     </li>
                   </ul>
                 </div>
@@ -43,453 +44,80 @@ export default function Content() {
               </div>
               <div className="prjoects-content">
                 <div className="row">
-                  <div className="lg-item5 col-lg-4 col-xs-6">
-                    <div className="job-item mt-30">
-                      <div className="job-top-dt1 text-center">
-                        <div className="job-center-dt">
-                          <img
-                            src={
-                              process.env.PUBLIC_URL +
-                              "/assets/images/homepage/latest-jobs/img-1.jpg"
-                            }
-                            alt=""
-                          />
-                          <div className="job-urs-dts">
-                            <a href="#">
-                              <h4>John Doe</h4>
-                            </a>
-                            <span>UX Designer</span>
-                            <div className="avialable">Available Full Time</div>
+                  {data.map((user, i) => (
+                    <div className="lg-item5 col-lg-4 col-xs-6">
+                      <div className="job-item mt-30">
+                        <div className="job-top-dt1 text-center">
+                          <div className="job-center-dt">
+                            <img
+                              src={
+                                user.user_profile_photo === ""
+                                  ? process.env.PUBLIC_URL +
+                                    "/assets/images/homepage/latest-jobs/img-1.jpg"
+                                  : process.env.REACT_APP_BASE_URL +
+                                    "/uploads/" +
+                                    user.user_profile_photo
+                              }
+                              alt=""
+                            />
+                            <div className="job-urs-dts">
+                              <a href="#">
+                                <h4>{user.user_name}</h4>
+                              </a>
+                              <span>{user.tagline}</span>
+                              <div className="avialable">
+                                <span>
+                                  <i className="fas fa-map-marker-alt"></i>{" "}
+                                  {user.user_city}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="job-price hire-price">
+                            ₹{user.pay_rate ? user.pay_rate : 0}/hr
+                          </div>
+                          <div className="job-skills">
+                            {user.user_skills
+                              .split(", ")
+                              .splice(0, 3)
+                              .map((skill, i) => (
+                                <a key={i} href="#">
+                                  {skill}
+                                </a>
+                              ))}
+                            {user.user_skills.split(", ").splice(3).length ==
+                            0 ? null : (
+                              <a className="more-skills">
+                                +{user.user_skills.split(", ").splice(3).length}
+                              </a>
+                            )}
                           </div>
                         </div>
-                        <div className="job-price hire-price">$50/hr</div>
-                      </div>
-                      <div className="rating-location">
-                        <div className="left-rating">
-                          <div className="rtitle">Rating</div>
-                          <div className="star">
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <span>4.9</span>
-                          </div>
+                        <div className="job-buttons">
+                          <ul className="link-btn">
+                            <li>
+                              <Link
+                                to={"/freelancer-profile/" + user.user_id}
+                                className="link-j1"
+                              >
+                                View Profile
+                              </Link>
+                            </li>
+                            <li>
+                              <a href="#" className="link-j1" title="Hire Me">
+                                Hire Me
+                              </a>
+                            </li>
+                            <li className="bkd-pm">
+                              <button className="bkd-btn" title="bookmark">
+                                <i className="fas fa-heart"></i>
+                              </button>
+                            </li>
+                          </ul>
                         </div>
-                        <div className="right-location">
-                          <div className="text-left">
-                            <div className="rtitle">Location</div>
-                            <span>
-                              <i className="fas fa-map-marker-alt"></i> New York
-                              City
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="job-buttons">
-                        <ul className="link-btn">
-                          <li>
-                            <a
-                              href="/freelancer-profile"
-                              className="link-j1"
-                              title="View Profile"
-                            >
-                              View Profile
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#" className="link-j1" title="Hire Me">
-                              Hire Me
-                            </a>
-                          </li>
-                          <li className="bkd-pm">
-                            <button className="not-favourite" title="bookmark">
-                              <i className="fas fa-heart"></i>
-                            </button>
-                          </li>
-                        </ul>
                       </div>
                     </div>
-                  </div>
-                  <div className="lg-item5 col-lg-4 col-xs-6">
-                    <div className="job-item mt-30">
-                      <div className="job-top-dt1 text-center">
-                        <div className="job-center-dt">
-                          <img
-                            src={
-                              process.env.PUBLIC_URL +
-                              "/assets/images/homepage/latest-jobs/img-1.jpg"
-                            }
-                            alt=""
-                          />
-                          <div className="job-urs-dts">
-                            <a href="#">
-                              <h4>Albert Dua</h4>
-                            </a>
-                            <span>Wordpress Developer</span>
-                            <div className="avialable">Available Full Time</div>
-                          </div>
-                        </div>
-                        <div className="job-price hire-price">$50/hr</div>
-                      </div>
-                      <div className="rating-location">
-                        <div className="left-rating">
-                          <div className="rtitle">Rating</div>
-                          <div className="star">
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <span>4.9</span>
-                          </div>
-                        </div>
-                        <div className="right-location">
-                          <div className="text-left">
-                            <div className="rtitle">Location</div>
-                            <span>
-                              <i className="fas fa-map-marker-alt"></i>{" "}
-                              Australia
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="job-buttons">
-                        <ul className="link-btn">
-                          <li>
-                            <a
-                              href="/freelancer-profile"
-                              className="link-j1"
-                              title="View Profile"
-                            >
-                              View Profile
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#" className="link-j1" title="Hire Me">
-                              Hire Me
-                            </a>
-                          </li>
-                          <li className="bkd-pm">
-                            <button className="not-favourite" title="bookmark">
-                              <i className="fas fa-heart"></i>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="lg-item5 col-lg-4 col-xs-6">
-                    <div className="job-item mt-30">
-                      <div className="job-top-dt1 text-center">
-                        <div className="job-center-dt">
-                          <img
-                            src={
-                              process.env.PUBLIC_URL +
-                              "/assets/images/homepage/latest-jobs/img-1.jpg"
-                            }
-                            alt=""
-                          />
-                          <div className="job-urs-dts">
-                            <a href="#">
-                              <h4>Rock William</h4>
-                            </a>
-                            <span>Php Developer</span>
-                            <div className="avialable">Available Full Time</div>
-                          </div>
-                        </div>
-                        <div className="job-price hire-price">$60/hr</div>
-                      </div>
-                      <div className="rating-location">
-                        <div className="left-rating">
-                          <div className="rtitle">Rating</div>
-                          <div className="star">
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <span>5.0</span>
-                          </div>
-                        </div>
-                        <div className="right-location">
-                          <div className="text-left">
-                            <div className="rtitle">Location</div>
-                            <span>
-                              <i className="fas fa-map-marker-alt"></i> India
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="job-buttons">
-                        <ul className="link-btn">
-                          <li>
-                            <a
-                              href="/freelancer-profile"
-                              className="link-j1"
-                              title="View Profile"
-                            >
-                              View Profile
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#" className="link-j1" title="Hire Me">
-                              Hire Me
-                            </a>
-                          </li>
-                          <li className="bkd-pm">
-                            <button className="not-favourite" title="bookmark">
-                              <i className="fas fa-heart"></i>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="lg-item5 col-lg-4 col-xs-6">
-                    <div className="job-item mt-30">
-                      <div className="job-top-dt1 text-center">
-                        <div className="job-center-dt">
-                          <img
-                            src={
-                              process.env.PUBLIC_URL +
-                              "/assets/images/homepage/latest-jobs/img-1.jpg"
-                            }
-                            alt=""
-                          />
-                          <div className="job-urs-dts">
-                            <a href="#">
-                              <h4>Joy Smith</h4>
-                            </a>
-                            <span>Android Developer</span>
-                            <div className="avialable">Available Full Time</div>
-                          </div>
-                        </div>
-                        <div className="job-price hire-price">$60/hr</div>
-                      </div>
-                      <div className="rating-location">
-                        <div className="left-rating">
-                          <div className="rtitle">Rating</div>
-                          <div className="star">
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <span>5.0</span>
-                          </div>
-                        </div>
-                        <div className="right-location">
-                          <div className="text-left">
-                            <div className="rtitle">Location</div>
-                            <span>
-                              <i className="fas fa-map-marker-alt"></i> India
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="job-buttons">
-                        <ul className="link-btn">
-                          <li>
-                            <a
-                              href="/freelancer-profile"
-                              className="link-j1"
-                              title="View Profile"
-                            >
-                              View Profile
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#" className="link-j1" title="Hire Me">
-                              Hire Me
-                            </a>
-                          </li>
-                          <li className="bkd-pm">
-                            <button className="not-favourite" title="bookmark">
-                              <i className="fas fa-heart"></i>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="lg-item5 col-lg-4 col-xs-6">
-                    <div className="job-item mt-30">
-                      <div className="job-top-dt1 text-center">
-                        <div className="job-center-dt">
-                          <img
-                            src={
-                              process.env.PUBLIC_URL +
-                              "/assets/images/homepage/latest-jobs/img-1.jpg"
-                            }
-                            alt=""
-                          />
-                          <div className="job-urs-dts">
-                            <a href="#">
-                              <h4>Sanaya Sharma</h4>
-                            </a>
-                            <span>Accountant manager</span>
-                            <div className="avialable">Available Full Time</div>
-                          </div>
-                        </div>
-                        <div className="job-price hire-price">$30/hr</div>
-                      </div>
-                      <div className="rating-location">
-                        <div className="left-rating">
-                          <div className="rtitle">Rating</div>
-                          <div className="star">
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <span>4.0</span>
-                          </div>
-                        </div>
-                        <div className="right-location">
-                          <div className="text-left">
-                            <div className="rtitle">Location</div>
-                            <span>
-                              <i className="fas fa-map-marker-alt"></i> India
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="job-buttons">
-                        <ul className="link-btn">
-                          <li>
-                            <a
-                              href="/freelancer-profile"
-                              className="link-j1"
-                              title="View Profile"
-                            >
-                              View Profile
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#" className="link-j1" title="Hire Me">
-                              Hire Me
-                            </a>
-                          </li>
-                          <li className="bkd-pm">
-                            <button className="not-favourite" title="bookmark">
-                              <i className="fas fa-heart"></i>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="lg-item5 col-lg-4 col-xs-6">
-                    <div className="job-item mt-30">
-                      <div className="job-top-dt1 text-center">
-                        <div className="job-center-dt">
-                          <img
-                            src={
-                              process.env.PUBLIC_URL +
-                              "/assets/images/homepage/latest-jobs/img-1.jpg"
-                            }
-                            alt=""
-                          />
-                          <div className="job-urs-dts">
-                            <a href="#">
-                              <h4>Jass Singh</h4>
-                            </a>
-                            <span>Front End Developer</span>
-                            <div className="avialable">Available Full Time</div>
-                          </div>
-                        </div>
-                        <div className="job-price hire-price">$25/hr</div>
-                      </div>
-                      <div className="rating-location">
-                        <div className="left-rating">
-                          <div className="rtitle">Rating</div>
-                          <div className="star">
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <i className="fas fa-star"></i>
-                            <span>5.0</span>
-                          </div>
-                        </div>
-                        <div className="right-location">
-                          <div className="text-left">
-                            <div className="rtitle">Location</div>
-                            <span>
-                              <i className="fas fa-map-marker-alt"></i> India
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="job-buttons">
-                        <ul className="link-btn">
-                          <li>
-                            <a
-                              href="/freelancer-profile"
-                              className="link-j1"
-                              title="View Profile"
-                            >
-                              View Profile
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#" className="link-j1" title="Hire Me">
-                              Hire Me
-                            </a>
-                          </li>
-                          <li className="bkd-pm">
-                            <button className="not-favourite" title="bookmark">
-                              <i className="fas fa-heart"></i>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-12">
-                    <div className="main-p-pagination">
-                      <nav aria-label="Page navigation example">
-                        <ul className="pagination">
-                          <li className="page-item">
-                            <a
-                              className="page-link"
-                              href="#"
-                              aria-label="Previous"
-                            >
-                              PREV
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link active" href="#">
-                              1
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              2
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              ...
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              24
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#" aria-label="Next">
-                              NEXT
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

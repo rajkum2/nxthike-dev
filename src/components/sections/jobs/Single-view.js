@@ -133,7 +133,7 @@ const SingleView = ({ data }) => {
                       src={
                         data.default_photo.img_path === ""
                           ? process.env.PUBLIC_URL +
-                            "/assets/images/homepage/latest-jobs/img-1.png"
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
                           : process.env.REACT_APP_BASE_URL +
                             "/uploads/" +
                             data.default_photo.img_path

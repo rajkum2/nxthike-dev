@@ -204,10 +204,7 @@ export default function Header() {
                                 </a>
                               </li>
                               <li className="nav-item">
-                                <a
-                                  className="nav-link"
-                                  href="/browse-freelancers"
-                                >
+                                <a className="nav-link" href="/freelancers">
                                   Find Freelancers
                                 </a>
                               </li>

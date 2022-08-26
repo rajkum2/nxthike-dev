@@ -51,7 +51,7 @@ export default function App() {
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/browse-projects" element={<Projects />} />
         <Route path="/browse-companies" element={<Companies />} />
-        <Route path="/browse-freelancers" element={<Freelancers />} />
+        <Route path="/freelancers" element={<Freelancers />} />
         <Route path="/about" element={<About />} />
         <Route path="/job/:jobId" element={<SingleJob />} />
         <Route path="/single-project" element={<SingleProject />} />
@@ -78,7 +78,10 @@ export default function App() {
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/payments" element={<Payments />} />
         <Route path="/company-profile" element={<CompanyProfile />} />
-        <Route path="/freelancer-profile" element={<FreelancerProfile />} />
+        <Route
+          path="/freelancer-profile/:userId"
+          element={<FreelancerProfile />}
+        />
         <Route path="/edit-job" element={<EditJob />} />
       </Routes>
     </React.Suspense>

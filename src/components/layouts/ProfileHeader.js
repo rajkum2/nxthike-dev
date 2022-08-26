@@ -68,25 +68,30 @@ export default function ProfileHeader({ pathname }) {
               </a>
             </li>
           )}
-          <li className="nav-item">
-            <a
-              className={`nav-link${pathname === "bookmarks" ? " active" : ""}`}
-              href="/bookmarks"
-            >
-              Bookmarks
-            </a>
-          </li>
           {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
-            <li className="nav-item">
-              <a
-                className={`nav-link${
-                  pathname === "manage-jobs" ? " active" : ""
-                }`}
-                href="/manage-jobs"
-              >
-                Jobs
-              </a>
-            </li>
+            <>
+              <li className="nav-item">
+                <a
+                  className={`nav-link${
+                    pathname === "bookmarks" ? " active" : ""
+                  }`}
+                  href="/bookmarks"
+                >
+                  Bookmarks
+                </a>
+              </li>
+
+              <li className="nav-item">
+                <a
+                  className={`nav-link${
+                    pathname === "manage-jobs" ? " active" : ""
+                  }`}
+                  href="/manage-jobs"
+                >
+                  Jobs
+                </a>
+              </li>
+            </>
           )}
           {/* <li className="nav-item">
             <a

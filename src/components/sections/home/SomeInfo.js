@@ -89,7 +89,7 @@ const Info = () => {
                 </p>
               </div>
               <div className="btns15">
-                <a className="btn-152" href="/browse-freelancers">
+                <a className="btn-152" href="/freelancers">
                   Get Listed
                 </a>
                 <button className="btn-153">Learn More</button>
