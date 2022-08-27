@@ -67,35 +67,24 @@ export default function Content({ userData }) {
                   </div>
                 </div>
               </div> */}
-              <div className="rlt_section">
-                <div className="rtl_left">
-                  <h6>Location</h6>
-                </div>
-                <div className="rtl_right">
-                  <span>
-                    <i className="fas fa-map-marker-alt lc_icon"></i>{" "}
-                    {userData.user_city}
-                  </span>
-                </div>
-                <ul className="rlt_section2">
-                  <li>
-                    <div className="rtl_left2">
-                      <h6>Hourly Rate</h6>
-                    </div>
-                    <div className="rtl_right2">
-                      <span>₹{userData.pay_rate} / hr</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="rtl_left2">
-                      <h6>Experenice</h6>
-                    </div>
-                    <div className="rtl_right2">
-                      <span>5 Year</span>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+              <ul className="rlt_section2">
+                <li>
+                  <div className="rtl_left2">
+                    <h6>Hourly Rate</h6>
+                  </div>
+                  <div className="rtl_right2">
+                    <span>₹{userData.pay_rate} / hr</span>
+                  </div>
+                </li>
+                <li>
+                  <div className="rtl_left2">
+                    <h6>Experenice</h6>
+                  </div>
+                  <div className="rtl_right2">
+                    <span>5 Year</span>
+                  </div>
+                </li>
+              </ul>
               <div className="social_section3 mb80">
                 <div className="social_leftt3">
                   <h6>Contact Social Account</h6>

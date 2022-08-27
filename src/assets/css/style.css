@@ -3532,6 +3532,8 @@ span.right-cm {
   float: left;
   width: 100%;
   padding-top: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .rtl_left2 {
