@@ -26,7 +26,7 @@ const JobSeekers = () => {
                     <div>
                       <img
                         className="job-img"
-                        src={process.env.PUBLIC_URL + item.img}
+                        src={process.env.PUBLIC_URL + "/" + item.img}
                       />
                     </div>
                   </div>

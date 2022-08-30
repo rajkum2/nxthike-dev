@@ -19,6 +19,7 @@ export default function ManageJobs() {
         const data = {
           added_user_id: loginuserId,
           app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+          status: "all",
         };
         axios
           .post(

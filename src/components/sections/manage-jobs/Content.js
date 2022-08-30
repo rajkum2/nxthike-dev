@@ -52,9 +52,28 @@ export default function Content({ data }) {
                             {data.map((job, i) => (
                               <li key={i}>
                                 <div className="applied_item">
-                                  <a href={`/job/${job.id}`} target="_blank">
+                                  <a
+                                    href={`/job/${job.id}`}
+                                    target="_blank"
+                                    style={
+                                      job.status === "0"
+                                        ? { pointerEvents: "none" }
+                                        : {}
+                                    }
+                                  >
                                     {job.title}
                                   </a>
+                                  <p
+                                    className={`job-status ${
+                                      job.status === "0"
+                                        ? "text-warning"
+                                        : "text-success"
+                                    }`}
+                                  >
+                                    {job.status === "0"
+                                      ? "Pending"
+                                      : "Approved"}
+                                  </p>
                                   <ul className="view_dt_job">
                                     <li>
                                       <div className="vw1254">
