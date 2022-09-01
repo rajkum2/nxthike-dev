@@ -202,7 +202,16 @@ export default function Content({ data }) {
                                   <div className="applied_candidates_dt">
                                     <div className="candi_img">
                                       <img
-                                        src="images/homepage/candidates/img-1.jpg"
+                                        src={
+                                          data.applicant_id
+                                            .user_profile_photo === ""
+                                            ? process.env.PUBLIC_URL +
+                                              "/assets/images/homepage/candidates/img-1.jpg"
+                                            : process.env.REACT_APP_BASE_URL +
+                                              "/uploads/" +
+                                              data.applicant_id
+                                                .user_profile_photo
+                                        }
                                         alt=""
                                       />
                                     </div>
