@@ -52,7 +52,7 @@ export default function Content() {
                             <div className="applied_candidates_dt">
                               <div className="candi_img">
                                 <img
-                                  src="images/homepage/candidates/img-2.jpg"
+                                  src="images/homepage/candidates/pic1.png"
                                   alt=""
                                 />
                               </div>
@@ -93,7 +93,7 @@ export default function Content() {
                             <div className="applied_candidates_dt">
                               <div className="candi_img">
                                 <img
-                                  src="images/homepage/candidates/img-5.jpg"
+                                  src="images/homepage/candidates/pic1.png"
                                   alt=""
                                 />
                               </div>
@@ -131,7 +131,7 @@ export default function Content() {
                             <div className="applied_candidates_dt">
                               <div className="candi_img">
                                 <img
-                                  src="images/homepage/testimonials/1.png"
+                                  src="images/homepage/testimonials/pic1.png"
                                   alt=""
                                 />
                               </div>

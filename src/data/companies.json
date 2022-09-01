@@ -1,26 +1,26 @@
 [
   {
     "id": 1,
-    "img": "assets/images/paypal.png"
+    "img": "assets/images/company/logicarts.png"
   },
   {
     "id": 2,
-    "img": "assets/images/paypal.png"
+    "img": "assets/images/company/nagas.png"
   },
   {
     "id": 3,
-    "img": "assets/images/paypal.png"
+    "img": "assets/images/company/42spirit.png"
   },
   {
     "id": 4,
-    "img": "assets/images/paypal.png"
+    "img": "assets/images/company/zypher.png"
   },
   {
     "id": 5,
-    "img": "assets/images/paypal.png"
+    "img": "assets/images/company/backend.png"
   },
   {
     "id": 6,
-    "img": "assets/images/paypal.png"
+    "img": "assets/images/company/emusk.png"
   }
 ]

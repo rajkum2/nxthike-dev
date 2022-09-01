@@ -9,11 +9,11 @@ export default class Companies extends Component {
     return (
       <Fragment>
         <Helmet>
-          <title>NxtHike - Browse Companies</title>
+          <title>NxtHike - Companies</title>
           <meta name="description" content="#" />
         </Helmet>
         <Header />
-        <Breadcrumb pagename="Browse Companies" />
+        <Breadcrumb pagename="Companies" />
         <Content />
         <Footer />
       </Fragment>
