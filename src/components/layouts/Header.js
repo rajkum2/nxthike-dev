@@ -205,7 +205,7 @@ export default function Header() {
                               </li>
                               <li className="nav-item">
                                 <a className="nav-link" href="/freelancers">
-                                  Find Freelancers
+                                 Freelancers
                                 </a>
                               </li>
                               <li className="nav-item dropdown">
@@ -273,7 +273,7 @@ export default function Header() {
                                   className="nav-link"
                                   href="/browse-companies"
                                 >
-                                  Browse Companies
+                                  Companies
                                 </a>
                               </li>
                               <li className="nav-item dropdown">
@@ -344,7 +344,7 @@ export default function Header() {
                                 href="#"
                                 onClick={() => setOpen(true)}
                               >
-                                Browse Companies
+                                Companies
                               </a>
                             </li>
                             <li className="nav-item">
@@ -353,7 +353,7 @@ export default function Header() {
                                 href="#"
                                 onClick={() => setOpen(true)}
                               >
-                                Find Freelancers
+                                Talents
                               </a>
                             </li>
                             <li className="nav-item dropdown">
