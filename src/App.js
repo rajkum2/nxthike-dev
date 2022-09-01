@@ -50,7 +50,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/browse-projects" element={<Projects />} />
-        <Route path="/browse-companies" element={<Companies />} />
+        <Route path="/companies" element={<Companies />} />
         <Route path="/freelancers" element={<Freelancers />} />
         <Route path="/about" element={<About />} />
         <Route path="/job/:jobId" element={<SingleJob />} />
@@ -66,7 +66,7 @@ export default function App() {
         <Route path="/invoice" element={<Invoice />} />
         <Route path="/submit-job" element={<SubmitJob />} />
         <Route path="/submit-project" element={<SubmitProject />} />
-        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/privacy-policy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/portfolio" element={<Portfolio />} />
