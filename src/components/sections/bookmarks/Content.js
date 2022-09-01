@@ -72,13 +72,13 @@ export default function Content({ data, loading }) {
                                       <li>
                                         <div className="vw1254">
                                           <i className="fas fa-map-marker-alt"></i>
-                                          {item.location}
+                                          {item.item_location.name}
                                         </div>
                                       </li>
                                       <li>
                                         <div className="vw1254">
                                           <i className="fas fa-briefcase"></i>
-                                          {item.employment_type}
+                                          {item.item_job_type.job_name}
                                         </div>
                                       </li>
                                       <li>

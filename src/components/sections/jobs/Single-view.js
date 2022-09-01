@@ -146,7 +146,7 @@ const SingleView = ({ data }) => {
                       </a>
                       <span>
                         <i className="fas fa-map-marker-alt"></i>{" "}
-                        {data.location}
+                        {data.item_location.name}
                       </span>
                     </div>
                   </div>
