@@ -5,7 +5,7 @@ const Achievement = () => {
       <div className="container">
         <div className="row">
           <div className="col-lg-3 col-md-6 col-12">
-            <div className="achive-text">100+ Members</div>
+            <div className="achive-text">150+ Members</div>
           </div>
           <div className="col-lg-3 col-md-6 col-12">
             <div className="achive-text">1500+ Jobs Found</div>
