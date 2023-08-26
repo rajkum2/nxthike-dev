@@ -1,6 +1,6 @@
 import React from "react";
 import App from "./App";
-import { hydrate, render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 
@@ -16,22 +16,19 @@ import "./assets/fonts/font-awesome/css/all.min.css";
 import LoginContext from "./context/LoginContext";
 import ItemContext from "./context/ItemsContext";
 
-const RootElement = (
-  <BrowserRouter>
-    <LoginContext>
-      <ItemContext>
-        <App />
-      </ItemContext>
-    </LoginContext>
-  </BrowserRouter>
-);
+const root = createRoot(document.getElementById("root"));
 
-const root = document.getElementById("root");
-if (root.hasChildNodes()) {
-  hydrate(RootElement, root);
-} else {
-  render(RootElement, root);
-}
+root.render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <LoginContext>
+                <ItemContext>
+                    <App />
+                </ItemContext>
+            </LoginContext>
+        </BrowserRouter>
+    </React.StrictMode>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
