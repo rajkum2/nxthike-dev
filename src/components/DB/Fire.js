@@ -3,12 +3,13 @@ import "firebase/auth";
 import "firebase/database";
 
 var Config = {
-  apiKey: "AIzaSyAJn9H2fPPAnVgW1j6ie9JKUq1sUiOV1aY",
-  authDomain: "spirit-5c98d.firebaseapp.com",
-  projectId: "spirit-5c98d",
-  storageBucket: "spirit-5c98d.appspot.com",
-  messagingSenderId: "369865356990",
-  appId: "1:369865356990:web:f50fe48b8f3b052c98d0ef",
+  apiKey: "AIzaSyBdXTzir2U8fCQOpz_Ofa06hmzmwQa2XYw",
+  authDomain: "nxthike-dev.firebaseapp.com",
+  projectId: "nxthike-dev",
+  storageBucket: "nxthike-dev.appspot.com",
+  messagingSenderId: "832531981490",
+  appId: "1:832531981490:web:597cefa5e116b3c42a95ab",
+  measurementId: "G-447CR583VN"
 };
 
 firebase.initializeApp(Config);
