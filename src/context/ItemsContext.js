@@ -61,8 +61,8 @@ export default function ItemContext({ children }) {
         } else {
             try {
                 const url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
-                const res = await fetch(url);
-                const data = await res.json();
+                const response = await axios.get(url);
+                const data = response.data;
                 updateItemsState_(data);
             } catch (err) {
                 callError(err);
