@@ -1,6 +1,6 @@
 import axios from "axios";
+import { createContext, useState, useContext } from "react";
 import { UserContext } from "./LoginContext";
-const { createContext, useState, useContext } = require("react");
 
 export const ItemsContext = createContext({});
 
@@ -23,47 +23,36 @@ export default function ItemContext({ children }) {
     const [offset, setOffset] = useState(0);
 
     const fetchJobs = async () => {
+        setError(false);
+        setLoading(true);
         if (isLoggedIn && loginuserId !== null) {
-            setError(false);
-            setLoading(true);
-            // const postData = {
-            //     app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
-            //     item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
-            //     status: 1,
-            //     order_by: order_by,
-            //     order_type: order_type,
-            //     searchterm: searchTerm,
-            //     cat_id: cat,
-            //     item_job_type_id: jobType,
-            //     item_location_id: loc,
-            //     item_experience_id: exp,
-            //     logged_in_user: loginuserId,
-            // };
-            var urlencoded = new URLSearchParams();
-            urlencoded.append("app_list_id", "app_6e2fa0fac7804b1441afd451e800b36a");
-            urlencoded.append("item_type_id", "itm_type802efadc164a64d26fbd964f1b50405d");
-            urlencoded.append("status", 1);
-            urlencoded.append("order_by", order_by);
-            urlencoded.append("order_type", order_type);
-            urlencoded.append("searchterm", searchTerm);
-            urlencoded.append("cat_id", cat);
-            urlencoded.append("item_job_type_id", jobType);
-            urlencoded.append("item_location_id", loc);
-            urlencoded.append("item_experience_id", exp);
-            urlencoded.append("logged_in_user", loginuserId);
-            fetch(
-                `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`,
-                { method: "POST", body: urlencoded, redirect: "follow" }
-            )
-                .then((response) => response.text())
-                .then((result) => updateItemsState(result))
-                .catch((err) => callError(err));
+            const postData = {
+                app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+                item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
+                status: 1,
+                order_by: order_by,
+                order_type: order_type,
+                searchterm: searchTerm,
+                cat_id: cat,
+                item_job_type_id: jobType,
+                item_location_id: loc,
+                item_experience_id: exp,
+                logged_in_user: loginuserId,
+            };
+            try {
+                const url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                const response = await axios.post(url, postData);
+                const data = response.data;
+                updateItemsState(data);
+            } catch (err) {
+                callError(err);
+            }
         } else {
             try {
                 const url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
                 const response = await axios.get(url);
                 const data = response.data;
-                updateItemsState_(data);
+                updateItemsState(data);
             } catch (err) {
                 callError(err);
             }
@@ -71,23 +60,13 @@ export default function ItemContext({ children }) {
     };
 
     const callError = (err) => {
-        console.log(err);
         setLoading(false);
         setError(true);
         setItems([]);
         setItemscount(0);
     };
 
-    const updateItemsState = (result) => {
-        const data = JSON.parse(result);
-        console.log(data);
-        setError(false);
-        setLoading(false);
-        setItems(items.concat(data));
-        setItemscount(data.length);
-    };
-
-    const updateItemsState_ = (data) => {
+    const updateItemsState = (data) => {
         setError(false);
         setLoading(false);
         setItems(items.concat(data));

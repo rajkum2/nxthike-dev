@@ -263,12 +263,12 @@ export default function Header() {
                                                                 </Link>
                                                             </li>
                                                             <li className="nav-item dropdown">
-                                                                <Link
+                                                                <a
                                                                     className="nav-link"
-                                                                    to="/jobs"
+                                                                    href="/jobs"
                                                                 >
                                                                     Jobs
-                                                                </Link>
+                                                                </a>
                                                             </li>
                                                             <li className="nav-item">
                                                                 <a
@@ -332,9 +332,9 @@ export default function Header() {
                                                             </Link>
                                                         </li>
                                                         <li className="nav-item dropdown">
-                                                            <Link className="nav-link" to="/jobs">
+                                                            <a className="nav-link" href="/jobs">
                                                                 Jobs
-                                                            </Link>
+                                                            </a>
                                                         </li>
                                                         <li className="nav-item">
                                                             <a
