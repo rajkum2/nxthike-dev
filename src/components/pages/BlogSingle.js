@@ -8,46 +8,46 @@ import Header from "../layouts/Header";
 import SingleView from "../sections/blog/SingleView";
 import axios from "axios";
 import { useEffect } from "react";
+
 const BlogSingle = () => {
-  const [blog, setBlog] = useState("");
+    const [blog, setBlog] = useState("");
 
-  let params = useParams();
+    let params = useParams();
 
-  useEffect(() => {
-    fetchBlog();
-  }, []);
+    useEffect(() => {
+        fetchBlog();
+    }, []);
 
-  const fetchBlog = async () => {
-    const postData = {
-      title: params.blogTitle,
+    const fetchBlog = async () => {
+        const postData = {
+            name: params.blogTitle,
+        };
+        try {
+            const url = `${process.env.REACT_APP_API_URL}/feeds/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_c2384a045194a4e3f86572390edb6372`;
+            const response = await axios.post(url, postData);
+            const data = response.data;
+            setBlog(data[0]);
+        } catch (err) {
+            console.log("error", err);
+        }
     };
-    await axios
-      .post(
-        `${process.env.REACT_APP_API_URL}/feeds/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`,
-        postData
-      )
-      .then((response) => {
-        console.log(response.data);
-        setBlog(response.data[0]);
-      });
-  };
 
-  return (
-    <Fragment>
-      {blog && (
-        <>
-          <Helmet>
-            <title>NxtHike - {blog.name}</title>
-            <meta name="description" content="#" />
-          </Helmet>
-          <Header />
-          <Breadcrumb pagename={blog.name} />
-          <SingleView data={blog} />
-        </>
-      )}
-      <Footer />
-    </Fragment>
-  );
+    return (
+        <Fragment>
+            {blog && (
+                <>
+                    <Helmet>
+                        <title>NxtHike - {blog.name}</title>
+                        <meta name="description" content="#" />
+                    </Helmet>
+                    <Header />
+                    <Breadcrumb pagename={blog.name} />
+                    <SingleView data={blog} />
+                </>
+            )}
+            <Footer />
+        </Fragment>
+    );
 };
 
 export default BlogSingle;
