@@ -27,7 +27,7 @@ const Modalbox = (props) => {
 
   return (
     <>
-      {props.parent === "footer" ? (
+      {/* {props.parent === "footer" ? (
         <li onClick={() => setOpen(true)}>
           <a href="#">Login</a>
         </li>
@@ -38,7 +38,7 @@ const Modalbox = (props) => {
             Login/Singup
           </button>
         </div>
-      )}
+      )} */}
       <Modal
         open={open}
         onClose={() => setOpen(false)}
