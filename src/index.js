@@ -12,7 +12,7 @@ import "../node_modules/slick-carousel/slick/slick-theme.css";
 import "./assets/fonts/flaticon/flaticon.css";
 import "./assets/fonts/font-awesome/css/all.min.css";
 
-//context
+//context api's
 import LoginContext from "./context/LoginContext";
 import ItemContext from "./context/ItemsContext";
 
