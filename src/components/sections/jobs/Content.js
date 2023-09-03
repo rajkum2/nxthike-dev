@@ -99,12 +99,12 @@ export default function Content() {
                         <div className="job-left-dt">
                           <img
                             src={
-                              item.default_photo.img_path === ""
+                              item.category.default_photo.img_path === ""
                                 ? process.env.PUBLIC_URL +
                                   "/assets/images/homepage/latest-jobs/img-1.jpg"
                                 : process.env.REACT_APP_BASE_URL +
-                                  "/uploads/" +
-                                  item.default_photo.img_path
+                                  "uploads/" +
+                                  item.category.default_photo.img_path
                             }
                             alt=""
                           />
@@ -122,10 +122,11 @@ export default function Content() {
                             </span>
                           </div>
                         </div>
-                        <div className="job-right-dt">
+                        {item.salary ? <div className="job-right-dt">
+                          <div className="job-price">{item.item_currency.currency_symbol} {item.salary}</div>
                           <div className="job-fp">Salary</div>
-                          <div className="job-price">{item.salary}</div>
-                        </div>
+                        </div> : ''}
+                        
                       </div>
                       <div className="job-des-dt">
                         <h4>{item.title}</h4>
