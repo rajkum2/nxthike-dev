@@ -137,17 +137,17 @@ export default function Content() {
                         </p>
                         <div className="job-skills">
                           {item.key_skills
-                            .split(", ")
+                            .split(",")
                             .splice(0, 3)
                             .map((skill, i) => (
                               <a key={i} href="#">
                                 {skill}
                               </a>
                             ))}
-                          {item.key_skills.split(", ").splice(3).length ==
+                          {item.key_skills.split(",").splice(3).length ==
                           0 ? null : (
                             <a className="more-skills">
-                              +{item.key_skills.split(", ").splice(3).length}
+                              +{item.key_skills.split(",").splice(3).length}
                             </a>
                           )}
                         </div>
