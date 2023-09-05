@@ -22,6 +22,8 @@ export default function ItemContext({ children }) {
     const [searching, setSearching] = useState("");
     const [offset, setOffset] = useState(0);
 
+    console.log(exp);
+
     const fetchJobs = async () => {
         setError(false);
         setLoading(true);
@@ -49,7 +51,13 @@ export default function ItemContext({ children }) {
             }
         } else {
             try {
-                const url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                let url;
+                if(searchTerm == '' & loc == '' & cat == '' & exp == ''){
+                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                }else{
+                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}?title=${searchTerm}&item_location_id=${loc}&cat_id=${cat}&item_experience_id=${exp}`;
+                }
+                // console.log(url)
                 const response = await axios.get(url);
                 const data = response.data;
                 updateItemsState(data);
