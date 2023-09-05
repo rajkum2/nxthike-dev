@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import Modal from "react-responsive-modal";
 
 const ApplyModal = ({ modalOpen, setModalOpen, user, setUser }) => {
@@ -8,9 +9,35 @@ const ApplyModal = ({ modalOpen, setModalOpen, user, setUser }) => {
         setModalOpen(false);
     };
 
-    const submitApplication = () => {
-        console.log(user);
-        setModalOpen(false);
+    const emailValidation = (email) => {
+        let regex = new RegExp(
+            "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])"
+        );
+        return regex.test(email);
+    };
+
+    const submitApplication = async () => {
+        if (!user.name || !user.email) {
+            alert("All details are required");
+            return;
+        }
+        if (!emailValidation(user.email)) {
+            alert("Please enter a valid email");
+            return;
+        }
+        const postData = {
+            app_list_id: 1,
+            registration_name: user.name,
+            registration_email: user.email,
+            registration_description: "user.description",
+        };
+        try {
+            const url = `${process.env.REACT_APP_API_URL}registrations/add/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`;
+            await axios.post(url, postData);
+            setModalOpen(false);
+        } catch (err) {
+            console.log(err);
+        }
     };
 
     return (
