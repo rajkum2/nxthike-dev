@@ -23,6 +23,7 @@ export default function ItemContext({ children }) {
     const [offset, setOffset] = useState(0);
 
     const fetchJobs = async () => {
+        // console.log(jobType)
         setError(false);
         setLoading(true);
         if (isLoggedIn && loginuserId !== null) {
@@ -49,7 +50,12 @@ export default function ItemContext({ children }) {
             }
         } else {
             try {
-                const url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                let url;
+                if(jobType === ''){
+                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                }else{
+                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}?item_job_type_id=${jobType}`;
+                }
                 const response = await axios.get(url);
                 const data = response.data;
                 updateItemsState(data);
