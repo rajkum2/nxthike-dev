@@ -422,7 +422,7 @@ export default function Header() {
                 center
                 classNames={{ overlay: "customOverlay" }}
             >
-                <h3 className="text-info">Please Login or SignUp to view the pages</h3>
+                <h3 className="text-info">Coming Soon...</h3>
             </Modal>
         </>
     );
