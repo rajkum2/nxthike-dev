@@ -66,7 +66,7 @@ export default function App() {
         <Route path="/invoice" element={<Invoice />} />
         <Route path="/submit-job" element={<SubmitJob />} />
         <Route path="/submit-project" element={<SubmitProject />} />
-        <Route path="/privacy-policy" element={<Privacy />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/portfolio" element={<Portfolio />} />
