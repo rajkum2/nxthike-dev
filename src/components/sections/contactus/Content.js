@@ -40,7 +40,7 @@ export default function Content() {
                       <span>
                         <i className="fas fa-map-marker-alt"></i>US Address :
                       </span>
-                      18 W 18th St, New York, NY 10011, United States
+                      2975 John F. Kennedy Blvd, Jersey City, NJ 07306
                     </p>
                   </li>
                   <li>
