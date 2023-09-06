@@ -108,12 +108,12 @@ const Footer = () => {
                 <li>
                   <a href="/manage-jobs">Jobs Alerts</a>
                 </li>
-                <li>
+                {/* <li>
                   <a href="/manage-jobs">Applied Jobs</a>
                 </li>
                 <li>
                   <a href="/bookmarks">Bookmarks</a>
-                </li>
+                </li> */}
                 <li>
                   <a href="#">Sitemap</a>
                 </li>

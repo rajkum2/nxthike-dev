@@ -7798,3 +7798,7 @@ label {
 .search-icon:hover {
   color: black;
 }
+
+.job-rmt {
+  background-color: #bf7609 !important;
+}
