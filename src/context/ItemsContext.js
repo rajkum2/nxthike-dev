@@ -22,10 +22,7 @@ export default function ItemContext({ children }) {
     const [searching, setSearching] = useState("");
     const [offset, setOffset] = useState(0);
 
-    console.log(exp);
-
     const fetchJobs = async () => {
-        // console.log(jobType)
         setError(false);
         setLoading(true);
         if (isLoggedIn && loginuserId !== null) {
@@ -53,18 +50,23 @@ export default function ItemContext({ children }) {
         } else {
             try {
                 let url;
-                if(searchTerm == '' & loc == '' & cat == '' & exp == ''){
-                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                let response;
+                if(searchTerm == '' & loc == '' & cat == '' & exp == '' & jobType == ''){
+                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                    response = await axios.post(url);
                 }else{
-                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}?title=${searchTerm}&item_location_id=${loc}&cat_id=${cat}&item_experience_id=${exp}`;
+                    const postData = {
+                        app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+                        status: 1,
+                        searchterm: searchTerm,
+                        cat_id: cat,
+                        item_location_id: loc,
+                        item_experience_id: exp,
+                        item_job_type_id: jobType,
+                    };
+                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                    response = await axios.post(url, postData);
                 }
-                // console.log(url)
-                if(jobType === ''){
-                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
-                }else{
-                    url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}?item_job_type_id=${jobType}`;
-                }
-                const response = await axios.get(url);
                 const data = response.data;
                 updateItemsState(data);
             } catch (err) {
