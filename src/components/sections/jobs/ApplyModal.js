@@ -3,7 +3,14 @@ import axios from "axios";
 import Modal from "react-responsive-modal";
 
 const ApplyModal = ({ modalOpen, setModalOpen, user, setUser }) => {
-    const handleJobApplication = (e) => setUser({ ...user, [e.target.name]: e.target.value });
+    const handleJobApplication = (e) => {
+        if (e.target.files) {
+            // console.log(e.target.files[0].name);
+            setUser({ ...user, [e.target.name]: e.target.files[0] });
+        } else {
+            setUser({ ...user, [e.target.name]: e.target.value });
+        }
+    };
 
     const cancelApplication = () => {
         setModalOpen(false);
@@ -30,10 +37,12 @@ const ApplyModal = ({ modalOpen, setModalOpen, user, setUser }) => {
             registration_name: user.name,
             registration_email: user.email,
             registration_description: "user.description",
+            registration_file: user.resume,
         };
         try {
             const url = `${process.env.REACT_APP_API_URL}registrations/add/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/`;
-            await axios.post(url, postData);
+            const response = await axios.post(url, postData);
+            const data = response.data;
             setModalOpen(false);
         } catch (err) {
             console.log(err);
@@ -82,8 +91,14 @@ const ApplyModal = ({ modalOpen, setModalOpen, user, setUser }) => {
                                                 />
                                             </div>
                                             <div className="file-form">
-                                                <input type="file" id="file" />
-                                                <label for="file">Change Image</label>
+                                                <input
+                                                    type="file"
+                                                    id="file"
+                                                    name="resume"
+                                                    onChange={handleJobApplication}
+                                                    accept=".pdf"
+                                                />
+                                                <label htmlFor="file">Change Resume</label>
                                                 <p>
                                                     Upload your cv / resume file. Max file size :
                                                     3MB

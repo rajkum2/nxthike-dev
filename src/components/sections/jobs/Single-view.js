@@ -9,7 +9,7 @@ const SingleView = ({ data }) => {
     const { loginuserId, isLoggedIn, userType } = useContext(UserContext);
 
     const [modalOpen, setModalOpen] = useState(false);
-    const [user, setUser] = useState({ name: "", email: "" });
+    const [user, setUser] = useState({ name: "", email: "", resume: [] });
 
     const callFavouriteApi = async (id) => {
         const btn = document.getElementsByClassName("bookmark_rt");
