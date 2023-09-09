@@ -9,7 +9,6 @@ export default function ItemContext({ children }) {
     const [items, setItems] = useState([]);
     const [itemscount, setItemscount] = useState(0);
     const [cat, setCat] = useState("");
-    const [subCat, setSubCat] = useState("");
     const [loc, setLoc] = useState("");
     const [exp, setExp] = useState("");
     const [jobType, setJobType] = useState("");
@@ -76,28 +75,6 @@ export default function ItemContext({ children }) {
         }
     };
 
-    const fetchJobsByCategories = async (subCatId) => {
-        setError(false);
-        setLoading(true);
-        try {
-            let url;
-            let response;
-            if(subCatId !== ''){
-                const postData = {
-                    app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
-                    status: 1,
-                    sub_cat_id: subCatId,
-                };
-                url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
-                response = await axios.post(url, postData);
-            }
-            const data = response.data;
-            updateItemsState(data);
-        } catch (err) {
-            callError(err);
-        }
-    };
-
     const callError = (err) => {
         setLoading(false);
         setError(true);
@@ -115,10 +92,6 @@ export default function ItemContext({ children }) {
     const changeCat = (val) => {
         setItems([]);
         setCat(val);
-    };
-    const changeSubCat = (val) => {
-        setItems([]);
-        setSubCat(val);
     };
     const changeExp = (val) => {
         setItems([]);
@@ -202,8 +175,6 @@ export default function ItemContext({ children }) {
                 setItemscount,
                 cat,
                 setCat,
-                subCat,
-                setSubCat,
                 loc,
                 setLoc,
                 exp,
@@ -229,10 +200,8 @@ export default function ItemContext({ children }) {
                 offset,
                 setOffset,
                 fetchJobs,
-                fetchJobsByCategories,
                 updateItemsState,
                 changeCat,
-                changeSubCat,
                 clearCat,
                 changeExp,
                 clearExp,

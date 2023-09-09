@@ -6,7 +6,7 @@ import {
   LinkedinShareButton,
 } from "react-share";
 import { UserContext } from "../../../context/LoginContext";
-import RelatedJobs from "../home/RelatedJobs";
+import LatestJobs from "../home/LatestJobs";
 const SingleView = ({ data }) => {
   const { loginuserId, isLoggedIn, userType } = useContext(UserContext);
 
@@ -268,7 +268,7 @@ const SingleView = ({ data }) => {
                   </ul>
                 </div>
                 <div className="col-12">
-                  <RelatedJobs subCatId = {data.sub_cat_id}/>
+                  <LatestJobs />
                 </div>
               </>
             )}
