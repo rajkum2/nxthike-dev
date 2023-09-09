@@ -20,7 +20,7 @@ const Jobs = (props) => {
   const {
     items,
     itemscount,
-    fetchJobs,
+    fetchJobsByCategories,
     searching,
     cat,
     loading,
@@ -34,7 +34,7 @@ const Jobs = (props) => {
     callLoadMore,
   } = useContext(ItemsContext);
   useEffect(() => {
-    fetchJobs();
+    fetchJobsByCategories(subCatId);
   }, [offset]);
 
   const settings = {
@@ -87,7 +87,7 @@ const Jobs = (props) => {
               <Slider {...settings} className="job-slider" initialSlide={0}>
                 {items.map((item, i) => (
                     <div className="item">
-                    <div className="job-item">
+                      <div className="job-item">
                       <div className="job-top-dt">
                         <div className="job-left-dt">
                         <img
