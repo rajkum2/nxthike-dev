@@ -6,6 +6,7 @@ const Categories = () => {
     itemscount,
     categories,
     categoriescount,
+    fetchJobs,
     fetchCategories,
     searching,
     cat,
@@ -22,6 +23,7 @@ const Categories = () => {
   } = useContext(ItemsContext);
   useEffect(() => {
     fetchCategories();
+    fetchJobs();
    console.log(categories)
   }, []);
   
@@ -46,9 +48,11 @@ const Categories = () => {
             {categories.length > 0 && (
               <div className="row no-gutters">
                 {categories.map((category, i) => (
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6 mar-bot10">
                   <div className="p-category">
-                    <a href="#" title="">
+                    <a 
+                    href={`/job/${category.cat_id}`}
+                    title="">
                       <img
                         src={
                           category.default_photo.img_path === "" 
@@ -62,9 +66,10 @@ const Categories = () => {
                         className="category-img-width"
                       />
                       <span>{category.cat_name}</span>
-                      <p>150 Jobs</p>
-                    </a>
+                        {/* <p>0 Jobs</p> */}
+                     </a>
                   </div>
+                  <br/>
                 </div>
                  ))}
               </div>
