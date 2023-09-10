@@ -51,7 +51,8 @@ const Categories = () => {
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6 mar-bot10">
                   <div className="p-category">
                     <a 
-                    href={`/job/${category.cat_id}`}
+                    href={`/cat/job/${category.cat_id}`}
+                    target="_blank"
                     title="">
                       <img
                         src={
