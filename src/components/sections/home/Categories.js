@@ -1,5 +1,30 @@
-import React from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ItemsContext } from "../../../context/ItemsContext";
 const Categories = () => {
+  const {
+    items,
+    itemscount,
+    categories,
+    categoriescount,
+    fetchCategories,
+    searching,
+    cat,
+    loading,
+    error,
+    exp,
+    jobType,
+    offset,
+    changeJobType,
+    clearJobType,
+    loc,
+    callFavouriteApi,
+    callLoadMore,
+  } = useContext(ItemsContext);
+  useEffect(() => {
+    fetchCategories();
+   console.log(categories)
+  }, []);
+  
   return (
     <div className="all-categories">
       <div className="container">
@@ -18,164 +43,32 @@ const Categories = () => {
           </div>
           <div className="col-md-12 col-12">
             <div className="job-categories mt-30">
+            {categories.length > 0 && (
               <div className="row no-gutters">
+                {categories.map((category, i) => (
                 <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
                   <div className="p-category">
                     <a href="#" title="">
                       <img
                         src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-5.svg"
+                          category.default_photo.img_path === "" 
+                          ? process.env.PUBLIC_URL +
+                          "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          :  process.env.REACT_APP_BASE_URL +
+                          "uploads/" +
+                          category.default_photo.img_path
                         }
                         alt=""
+                        className="category-img-width"
                       />
-                      <span>Web, Mobile &amp; Software Dev</span>
+                      <span>{category.cat_name}</span>
                       <p>150 Jobs</p>
                     </a>
                   </div>
                 </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-2.svg"
-                        }
-                        alt=""
-                      />
-                      <span>Data Science &amp; Analytics</span>
-                      <p>120 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-3.svg"
-                        }
-                        alt=""
-                      />
-                      <span>Admin Support</span>
-                      <p>290 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-4.svg"
-                        }
-                        alt=""
-                      />
-                      <span>Design &amp; Creative</span>
-                      <p>250 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img src={icon11} alt="" />
-                      <span>Accounting &amp; Consulting</span>
-                      <p>350 Jobs</p>
-                    </a>
-                  </div>
-                </div> */}
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-13.svg"
-                        }
-                        alt=""
-                      />
-                      <span>Writing</span>
-                      <p>90 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img src={icon14} alt="" />
-                      <span>Legal</span>
-                      <p>250 Jobs</p>
-                    </a>
-                  </div>
-                </div> */}
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-15.svg"
-                        }
-                        alt=""
-                      />
-                      <span>IT &amp; Networking</span>
-                      <p>150 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-9.svg"
-                        }
-                        alt=""
-                      />
-                      <span>Sales &amp; Marketing</span>
-                      <p>110 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img
-                        src={
-                          process.env.PUBLIC_URL +
-                          "/assets/images/homepage/categories/icon-16.svg"
-                        }
-                        alt=""
-                      />
-                      <span>Customer Service</span>
-                      <p>310 Jobs</p>
-                    </a>
-                  </div>
-                </div>
-                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img src={icon17} alt="" />
-                      <span>Translation</span>
-                      <p>410 Jobs</p>
-                    </a>
-                  </div>
-                </div> */}
-                {/* <div className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
-                  <div className="p-category">
-                    <a href="#" title="">
-                      <img src={icon7} alt="" />
-                      <span>Engineering &amp; Architecture</span>
-                      <p>190 Jobs</p>
-                    </a>
-                  </div>
-                </div> */}
+                 ))}
               </div>
+               )}
             </div>
           </div>
         </div>
