@@ -7802,3 +7802,10 @@ label {
 .job-rmt {
   background-color: #bf7609 !important;
 }
+
+.category-img-width{
+  width: 30px;
+}
+.mar-bot10{
+  margin-bottom: 10px;
+}
