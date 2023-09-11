@@ -8,6 +8,8 @@ export default function ItemContext({ children }) {
     const { isLoggedIn, loginuserId } = useContext(UserContext);
     const [items, setItems] = useState([]);
     const [itemscount, setItemscount] = useState(0);
+    const [categories, setCategories] = useState([]);
+    const [categoriescount, setCategoriescount] = useState(0);
     const [cat, setCat] = useState("");
     const [subCat, setSubCat] = useState("");
     const [loc, setLoc] = useState("");
@@ -97,6 +99,19 @@ export default function ItemContext({ children }) {
             callError(err);
         }
     };
+    
+    const fetchCategories = async () => {
+        setError(false);
+        setLoading(true);
+        try {
+            const url = `${process.env.REACT_APP_API_URL}categories/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_3bc06fa714c48378fe253c0e59913b7d/limit/8`;
+            const response = await axios.get(url);
+            const data = response.data;
+            updateCategoriesState(data);
+        } catch (err) {
+            callError(err);
+        }
+    };
 
     const callError = (err) => {
         setLoading(false);
@@ -110,6 +125,13 @@ export default function ItemContext({ children }) {
         setLoading(false);
         setItems(items.concat(data));
         setItemscount(data.length);
+    };
+
+    const updateCategoriesState = (data) => {
+        setError(false);
+        setLoading(false);
+        setCategories(categories.concat(data));
+        setCategoriescount(data.length);
     };
 
     const changeCat = (val) => {
@@ -228,9 +250,15 @@ export default function ItemContext({ children }) {
                 setError,
                 offset,
                 setOffset,
+                categories,
+                setCategories,
+                categoriescount,
+                setCategoriescount,
                 fetchJobs,
                 fetchJobsByCategories,
+                fetchCategories,
                 updateItemsState,
+                updateCategoriesState,
                 changeCat,
                 changeSubCat,
                 clearCat,
