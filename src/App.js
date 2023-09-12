@@ -44,6 +44,13 @@ const FreelancerProfile = React.lazy(() =>
   import("./components/pages/FreelancerProfile")
 );
 const EditJob = React.lazy(() => import("./components/pages/EditJob"));
+
+const ForEmployeers = React.lazy(() => import("./components/pages/ForEmployeers"));
+const ForJobSeekers = React.lazy(() => import("./components/pages/ForJobSeekers"));
+const HireFreelancers = React.lazy(() => import("./components/pages/HireFreelancers"));
+const HireFullTimeEmployees = React.lazy(() => import("./components/pages/HireFullTimeEmployees"));
+const JobSearchingAssistance = React.lazy(() => import("./components/pages/JobSearchingAssistance"));
+const PostJob = React.lazy(() => import("./components/pages/PostJob"));
 export default function App() {
   return (
     <React.Suspense>
@@ -85,6 +92,12 @@ export default function App() {
           element={<FreelancerProfile />}
         />
         <Route path="/edit-job" element={<EditJob />} />
+        <Route path="/for-employers" element={<ForEmployeers />} />
+        <Route path="/for-job-seekers" element={<ForJobSeekers />} />
+        <Route path="/hire-temp-workers" element={<HireFreelancers />} />
+        <Route path="/hire-fulltime-employees" element={<HireFullTimeEmployees />} />
+        <Route path="/job-searching-assistance" element={<JobSearchingAssistance />} />
+        <Route path="/post-a-job" element={<PostJob />} />
       </Routes>
     </React.Suspense>
   );

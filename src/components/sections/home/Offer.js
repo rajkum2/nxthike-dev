@@ -24,7 +24,7 @@ const Offer = () => {
                   We provide candidates based on your specific needs and
                   experience at very affordable price in the market.
                 </p>
-                <a href="#">
+                <a href="/hire-fulltime-employees">
                   Read More<i className="fas fa-angle-double-right"></i>
                 </a>
               </div>
@@ -38,7 +38,7 @@ const Offer = () => {
                   We provide job search, resume preparation & support services
                   for candidates who are looking for jobs.
                 </p>
-                <a href="#">
+                <a href="/job-searching-assistance">
                   Read More<i className="fas fa-angle-double-right"></i>
                 </a>
               </div>
@@ -52,7 +52,7 @@ const Offer = () => {
                   Hire expert, pre-screened and verified freelancer on hourly
                   based for your specific technology requirements.
                 </p>
-                <a href="#">
+                <a href="/hire-temp-workers">
                   Read More<i className="fas fa-angle-double-right"></i>
                 </a>
               </div>
@@ -69,7 +69,7 @@ const Offer = () => {
                   Hire candidates by posting your job for Free. Create your
                   Business account and start posting jobs for open positions.
                 </p>
-                <a href="#">
+                <a href="/post-a-job">
                   Read More<i className="fas fa-angle-double-right"></i>
                 </a>
               </div>
