@@ -1,5 +1,13 @@
 import React from "react";
 const Info = () => {
+  const handleForEmployersButtonClick = () => {
+    window.location.href = '/for-employers';
+  };
+
+  const handleForJobSeekersButtonClick = () => {
+    window.location.href = '/for-job-seekers';
+  };
+
   return (
     <div className="all-categories">
       <div className="container">
@@ -48,7 +56,7 @@ const Info = () => {
                 <a className="btn-152" href="/submit-job">
                   Post a Job
                 </a>
-                <button className="btn-153">Learn More</button>
+                <button className="btn-153" onClick={handleForEmployersButtonClick}>Learn More</button>
               </div>
             </div>
           </div>
@@ -92,7 +100,7 @@ const Info = () => {
                 <a className="btn-152" href="/freelancers">
                   Get Listed
                 </a>
-                <button className="btn-153">Learn More</button>
+                <button className="btn-153"onClick={handleForJobSeekersButtonClick}>Learn More</button>
               </div>
             </div>
           </div>
