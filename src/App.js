@@ -53,6 +53,9 @@ const JobSearchingAssistance = React.lazy(() => import("./components/pages/JobSe
 const PostJob = React.lazy(() => import("./components/pages/PostJob"));
 
 const Events = React.lazy(() => import("./components/pages/Events"));
+const SingleEvent = React.lazy(() => import("./components/pages/SingleEvent"));
+const Cart = React.lazy(() => import("./components/pages/Cart"));
+
 export default function App() {
   return (
     <React.Suspense>
@@ -101,6 +104,8 @@ export default function App() {
         <Route path="/job-searching-assistance" element={<JobSearchingAssistance />} />
         <Route path="/post-a-job" element={<PostJob />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/event_details" element={<SingleEvent />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </React.Suspense>
   );
