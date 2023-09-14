@@ -7809,3 +7809,11 @@ label {
 .mar-bot10{
   margin-bottom: 10px;
 }
+
+.view-event-details-btn{
+  width: 80% !important;
+}
+
+.event-width100{
+  width: 100%;
+}

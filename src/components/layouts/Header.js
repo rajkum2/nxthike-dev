@@ -278,6 +278,14 @@ export default function Header() {
                                                                     Companies
                                                                 </a>
                                                             </li>
+                                                            <li className="nav-item">
+                                                                <a
+                                                                    className="nav-link"
+                                                                    href="/events"
+                                                                >
+                                                                    Events
+                                                                </a>
+                                                            </li>
                                                             <li className="nav-item dropdown">
                                                                 <Dropdown>
                                                                     <Dropdown.Toggle
@@ -352,6 +360,14 @@ export default function Header() {
                                                                 onClick={() => setOpen(true)}
                                                             >
                                                                 Talents
+                                                            </a>
+                                                        </li>
+                                                        <li className="nav-item">
+                                                            <a
+                                                                className="nav-link"
+                                                                href="/events"
+                                                            >
+                                                                Events
                                                             </a>
                                                         </li>
                                                         <li className="nav-item dropdown">

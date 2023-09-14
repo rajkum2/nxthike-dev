@@ -51,6 +51,8 @@ const HireFreelancers = React.lazy(() => import("./components/pages/HireFreelanc
 const HireFullTimeEmployees = React.lazy(() => import("./components/pages/HireFullTimeEmployees"));
 const JobSearchingAssistance = React.lazy(() => import("./components/pages/JobSearchingAssistance"));
 const PostJob = React.lazy(() => import("./components/pages/PostJob"));
+
+const Events = React.lazy(() => import("./components/pages/Events"));
 export default function App() {
   return (
     <React.Suspense>
@@ -98,6 +100,7 @@ export default function App() {
         <Route path="/hire-fulltime-employees" element={<HireFullTimeEmployees />} />
         <Route path="/job-searching-assistance" element={<JobSearchingAssistance />} />
         <Route path="/post-a-job" element={<PostJob />} />
+        <Route path="/events" element={<Events />} />
       </Routes>
     </React.Suspense>
   );
