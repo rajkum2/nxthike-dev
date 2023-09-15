@@ -57,7 +57,7 @@ export default function Content() {
                   </div>
                 </div>
                 <div class="job-des-dt">
-                  <h4>UX Designer</h4>
+                  <a href="/event_details" target="_blank"><a href="/event_details" target="_blank"><h4>UX Designer</h4></a></a>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
                   
                 </div>
@@ -81,7 +81,7 @@ export default function Content() {
                   </div>
                 </div>
                 <div class="job-des-dt">
-                  <h4>UX Designer</h4>
+                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
                   
                 </div>
@@ -105,7 +105,7 @@ export default function Content() {
                   </div>
                 </div>
                 <div class="job-des-dt">
-                  <h4>UX Designer</h4>
+                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
                   
                 </div>
@@ -129,7 +129,7 @@ export default function Content() {
                   </div>
                 </div>
                 <div class="job-des-dt">
-                  <h4>UX Designer</h4>
+                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
                   
                 </div>
@@ -153,7 +153,7 @@ export default function Content() {
                   </div>
                 </div>
                 <div class="job-des-dt">
-                  <h4>UX Designer</h4>
+                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
                   
                 </div>
@@ -177,7 +177,7 @@ export default function Content() {
                   </div>
                 </div>
                 <div class="job-des-dt">
-                  <h4>UX Designer</h4>
+                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
                   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
                   
                 </div>

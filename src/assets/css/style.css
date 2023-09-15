@@ -7816,4 +7816,24 @@ label {
 
 .event-width100{
   width: 100%;
+  border-radius: 2%;
+}
+
+.tabs-about-pad{
+  padding: 3%;
+}
+
+.cart-form{
+  float: left;
+  width: 100%;
+  padding: 15px 30px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+}
+
+.pull-right{
+  float: right;
+}
+.text-left{
+  text-align: left;
 }
