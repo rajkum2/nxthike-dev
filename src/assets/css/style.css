@@ -7798,3 +7798,42 @@ label {
 .search-icon:hover {
   color: black;
 }
+
+.job-rmt {
+  background-color: #bf7609 !important;
+}
+
+.category-img-width{
+  width: 30px;
+}
+.mar-bot10{
+  margin-bottom: 10px;
+}
+
+.view-event-details-btn{
+  width: 80% !important;
+}
+
+.event-width100{
+  width: 100%;
+  border-radius: 2%;
+}
+
+.tabs-about-pad{
+  padding: 3%;
+}
+
+.cart-form{
+  float: left;
+  width: 100%;
+  padding: 15px 30px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+}
+
+.pull-right{
+  float: right;
+}
+.text-left{
+  text-align: left;
+}
