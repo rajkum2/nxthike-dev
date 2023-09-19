@@ -278,6 +278,14 @@ export default function Header() {
                                                                     Companies
                                                                 </a>
                                                             </li>
+                                                            <li className="nav-item">
+                                                                <a
+                                                                    className="nav-link"
+                                                                    href="/events"
+                                                                >
+                                                                    Events
+                                                                </a>
+                                                            </li>
                                                             <li className="nav-item dropdown">
                                                                 <Dropdown>
                                                                     <Dropdown.Toggle
@@ -354,6 +362,14 @@ export default function Header() {
                                                                 Talents
                                                             </a>
                                                         </li>
+                                                        <li className="nav-item">
+                                                            <a
+                                                                className="nav-link"
+                                                                href="/events"
+                                                            >
+                                                                Events
+                                                            </a>
+                                                        </li>
                                                         <li className="nav-item dropdown">
                                                             <Dropdown>
                                                                 <Dropdown.Toggle
@@ -422,7 +438,7 @@ export default function Header() {
                 center
                 classNames={{ overlay: "customOverlay" }}
             >
-                <h3 className="text-info">Please Login or SignUp to view the pages</h3>
+                <h3 className="text-info">Coming Soon...</h3>
             </Modal>
         </>
     );

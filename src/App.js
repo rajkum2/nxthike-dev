@@ -7,6 +7,7 @@ const Companies = React.lazy(() => import("./components/pages/Companies"));
 const Freelancers = React.lazy(() => import("./components/pages/Freelancers"));
 const About = React.lazy(() => import("./components/pages/About"));
 const SingleJob = React.lazy(() => import("./components/pages/SingleJob"));
+const CategoryJobs = React.lazy(() => import("./components/pages/CategoryJobs"));
 const Contact = React.lazy(() => import("./components/pages/Contactus"));
 const SingleProject = React.lazy(() =>
   import("./components/pages/SingleProject")
@@ -43,6 +44,18 @@ const FreelancerProfile = React.lazy(() =>
   import("./components/pages/FreelancerProfile")
 );
 const EditJob = React.lazy(() => import("./components/pages/EditJob"));
+
+const ForEmployeers = React.lazy(() => import("./components/pages/ForEmployeers"));
+const ForJobSeekers = React.lazy(() => import("./components/pages/ForJobSeekers"));
+const HireFreelancers = React.lazy(() => import("./components/pages/HireFreelancers"));
+const HireFullTimeEmployees = React.lazy(() => import("./components/pages/HireFullTimeEmployees"));
+const JobSearchingAssistance = React.lazy(() => import("./components/pages/JobSearchingAssistance"));
+const PostJob = React.lazy(() => import("./components/pages/PostJob"));
+
+const Events = React.lazy(() => import("./components/pages/Events"));
+const SingleEvent = React.lazy(() => import("./components/pages/SingleEvent"));
+const Cart = React.lazy(() => import("./components/pages/Cart"));
+
 export default function App() {
   return (
     <React.Suspense>
@@ -54,6 +67,7 @@ export default function App() {
         <Route path="/freelancers" element={<Freelancers />} />
         <Route path="/about" element={<About />} />
         <Route path="/job/:jobId" element={<SingleJob />} />
+        <Route path="/cat/job/:catId" element={<CategoryJobs />} />
         <Route path="/single-project" element={<SingleProject />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/editprofile" element={<EditProfile />} />
@@ -66,7 +80,7 @@ export default function App() {
         <Route path="/invoice" element={<Invoice />} />
         <Route path="/submit-job" element={<SubmitJob />} />
         <Route path="/submit-project" element={<SubmitProject />} />
-        <Route path="/privacy-policy" element={<Privacy />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/portfolio" element={<Portfolio />} />
@@ -83,6 +97,15 @@ export default function App() {
           element={<FreelancerProfile />}
         />
         <Route path="/edit-job" element={<EditJob />} />
+        <Route path="/for-employers" element={<ForEmployeers />} />
+        <Route path="/for-job-seekers" element={<ForJobSeekers />} />
+        <Route path="/hire-temp-workers" element={<HireFreelancers />} />
+        <Route path="/hire-fulltime-employees" element={<HireFullTimeEmployees />} />
+        <Route path="/job-searching-assistance" element={<JobSearchingAssistance />} />
+        <Route path="/post-a-job" element={<PostJob />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/event_details" element={<SingleEvent />} />
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </React.Suspense>
   );

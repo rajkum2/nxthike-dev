@@ -124,7 +124,9 @@ export default function Content() {
                         </div>
                         {item.salary ? <div className="job-right-dt">
                           <div className="job-price">{item.item_currency.currency_symbol} {item.salary}</div>
-                          <div className="job-fp">Salary</div>
+                            {item.item_job_type_id == "itm_jobtypeb543ea3a2871b7b297fa3774f634563c" ? <div className="job-fp">{item.employment_type}</div> : ''}
+                          {item.item_job_type_id == "itm_jobtype2f3cedc22a070f69b2e0397851b5252b" ? <div className="job-fp job-prt">Part Time</div> : ''}
+                          {item.item_job_type_id == "itm_jobtype33300b5f993ae26c5e554253da0b6336" ? <div className="job-fp job-rmt">Remote</div> : ''}
                         </div> : ''}
                         
                       </div>
