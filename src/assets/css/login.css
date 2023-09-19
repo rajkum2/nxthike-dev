@@ -50,3 +50,114 @@
     font-weight: 600;
     background-image:linear-gradient(to top, #353232de , #bb4f59 24%);
 }
+
+/* Signin Page */
+.login-page {
+    display: grid;
+    place-items: center;
+    margin: 0 auto 0;
+    padding-top: 5%;
+  }
+  .form {
+    background: #FFFFFF;
+    margin: 0 auto 0;
+    padding: 45px;
+    width: 500px;
+    border-style: solid;
+    border-color: #bbbbbb;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  }
+  .form .form-control {
+    font-family: "Roboto", sans-serif;
+    width: 100%;
+    height: 40px;
+    margin: 0 0 20px;
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  .form button {
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    outline: 0;
+    background: #EF3B3A;
+    width: 100%;
+    height: 40px;
+    margin-top: 20px;
+    border: 0;
+    border-radius: 4px;
+    padding: 10px;
+    color: #FFFFFF;
+    font-size: 14px;
+    -webkit-transition: all 0.3 ease;
+    transition: all 0.3 ease;
+    cursor: pointer;
+  }
+  .form .message1 {
+    margin: 20px 0 0;
+    font-size: 14px;
+    color: black;
+  }
+  .form .message1 a {
+    color: #EF3B3A;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .form .register-form {
+    display: none;
+  }
+  .message1, .message2{
+    display: inline-block;
+  }
+  .message2{
+    margin: 20px 0 0;
+    color: black;
+    float: right;
+  }
+  .login-form h1{
+    font-size: 25px;
+    text-align: center;
+    font-weight: bolder;
+  }
+
+  /* SignUp Profile */
+
+  .signup-page {
+    display: grid;
+    place-items: center;
+    margin: 0 auto 0;
+    padding-top: 2%;
+
+  }
+  .card {
+    background: #FFFFFF;
+    margin: 0 auto 0;
+    padding: 25px;
+    width: 350px;
+    border-style: solid;
+    border-color: #bbbbbb;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    align-items: center;
+  }
+  .card button {
+    font-family: "Roboto", sans-serif;
+    text-transform: uppercase;
+    outline: 0;
+    background: #EF3B3A;
+    width: 100%;
+    height: 40px;
+    margin-top: 20px;
+    border: 0;
+    border-radius: 4px;
+    padding: 10px;
+    color: #FFFFFF;
+    font-size: 14px;
+    -webkit-transition: all 0.3 ease;
+    transition: all 0.3 ease;
+    cursor: pointer;
+  }
+  @media (max-width: 992px) {
+    .container {
+        flex-direction: column;
+    }
+}

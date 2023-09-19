@@ -11,6 +11,9 @@ const Contact = React.lazy(() => import("./components/pages/Contactus"));
 const SingleProject = React.lazy(() =>
   import("./components/pages/SingleProject")
 );
+const Signin = React.lazy(() => import("./components/pages/Signin"));
+const Signup = React.lazy(() => import("./components/pages/Signup"));
+const SignupProfile = React.lazy(() => import("./components/pages/SignupProfile"));
 const MyProfile = React.lazy(() => import("./components/pages/MyProfile"));
 const EditProfile = React.lazy(() => import("./components/pages/EditProfile"));
 const HelpCentre = React.lazy(() => import("./components/pages/HelpCentre"));
@@ -83,6 +86,9 @@ export default function App() {
           element={<FreelancerProfile />}
         />
         <Route path="/edit-job" element={<EditJob />} />
+        <Route path="/sign-in" element={<Signin />} />
+        <Route path="/sign-up" element={<Signup />} />
+        <Route path="/sign-up-profile" element={<SignupProfile />} />
       </Routes>
     </React.Suspense>
   );
