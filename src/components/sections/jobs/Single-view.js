@@ -174,7 +174,7 @@ const SingleView = ({ data }) => {
                   </p>
                   <h4>Key Skills:</h4>
                   <div className="job-skills">
-                    {data.key_skills.split(", ").map((skill, i) => (
+                    {data.key_skills.split("," || ", ").map((skill, i) => (
                       <a key={i} href="#">
                         {skill}
                       </a>
