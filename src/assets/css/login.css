@@ -50,3 +50,8 @@
     font-weight: 600;
     background-image:linear-gradient(to top, #353232de , #bb4f59 24%);
 }
+
+
+.login__dropDown {
+    width: 100%;
+}
