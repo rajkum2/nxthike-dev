@@ -30,8 +30,8 @@ export default function ItemContext({ children }) {
         setLoading(true);
         if (isLoggedIn && loginuserId !== null) {
             const postData = {
-                app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
-                item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
+                app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+                item_type_id: "itm_jobtypecd6004b5b4c297362cfe6df42849e58a",
                 status: 1,
                 order_by: order_by,
                 order_type: order_type,
@@ -43,7 +43,7 @@ export default function ItemContext({ children }) {
                 logged_in_user: loginuserId,
             };
             try {
-                const url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                const url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
                 const response = await axios.post(url, postData);
                 const data = response.data;
                 updateItemsState(data);
@@ -55,11 +55,11 @@ export default function ItemContext({ children }) {
                 let url;
                 let response;
                 if(searchTerm == '' & loc == '' & cat == '' & exp == '' & jobType == ''){
-                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
                     response = await axios.post(url);
                 }else{
                     const postData = {
-                        app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+                        app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
                         status: 1,
                         searchterm: searchTerm,
                         cat_id: cat,
@@ -67,7 +67,7 @@ export default function ItemContext({ children }) {
                         item_experience_id: exp,
                         item_job_type_id: jobType,
                     };
-                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
                     response = await axios.post(url, postData);
                 }
                 const data = response.data;
@@ -86,11 +86,11 @@ export default function ItemContext({ children }) {
             let response;
             if(subCatId !== ''){
                 const postData = {
-                    app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+                    app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
                     status: 1,
                     sub_cat_id: subCatId,
                 };
-                url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
                 response = await axios.post(url, postData);
             }
             const data = response.data;
@@ -104,7 +104,7 @@ export default function ItemContext({ children }) {
         setError(false);
         setLoading(true);
         try {
-            const url = `${process.env.REACT_APP_API_URL}categories/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_3bc06fa714c48378fe253c0e59913b7d/limit/8`;
+            const url = `${process.env.REACT_APP_API_URL}categories/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a/limit/8`;
             const response = await axios.get(url);
             const data = response.data;
             updateCategoriesState(data);

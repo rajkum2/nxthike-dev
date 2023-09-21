@@ -11,7 +11,7 @@ export default function Content() {
     }, []);
 
     async function fetchBlogs() {
-        const url = `${process.env.REACT_APP_API_URL}feeds/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_c2384a045194a4e3f86572390edb6372`;
+        const url = `${process.env.REACT_APP_API_URL}feeds/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
         try {
             const response = await axios.get(url);
             const data = response.data;

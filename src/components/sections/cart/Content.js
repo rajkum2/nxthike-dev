@@ -12,7 +12,7 @@ export default function Content() {
     setLoading(true);
     e.preventDefault();
       var postData = {
-        app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
+        app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
         registration_name: name,
         registration_email: email,
         registration_description: message,
