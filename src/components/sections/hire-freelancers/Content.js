@@ -6,7 +6,7 @@ const Content = () => {
         <div className="row">
           <div className="col-md-12">
             <div className="main-heading">
-              <h2>Hire Freelancers</h2>
+              <h2>Hire Temporary Workers</h2>
               <div className="line-shape1">
                 <img
                   src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
