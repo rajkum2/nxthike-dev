@@ -223,8 +223,9 @@ const SingleView = ({ data }) => {
                   </ul>
                 </div>
                 <div className="job_dts">
-                <h4>About Sterlite Technologies</h4>
-                <p>About Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite Technologies</p>
+                <br/>
+                  <h4>About {data.company_name}</h4>
+                  <p>{data.company_details}</p>
                 </div>
                 
                 {/* {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
