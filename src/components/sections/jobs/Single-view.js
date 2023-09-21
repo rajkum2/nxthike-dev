@@ -9,9 +9,12 @@ import { UserContext } from "../../../context/LoginContext";
 import RelatedJobs from "../home/RelatedJobs";
 const SingleView = ({ data }) => {
   const { loginuserId, isLoggedIn, userType } = useContext(UserContext);
+  let date = new Date(data.posted_date);
+  const postedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
 
   const callFavouriteApi = async (id) => {
     const btn = document.getElementsByClassName("bookmark_rt");
+    
     if (isLoggedIn && loginuserId !== null) {
       var data = {
         item_id: id,
@@ -103,7 +106,7 @@ const SingleView = ({ data }) => {
                       <i className="fas fa-briefcase"></i>
                       <div className="vw_item_text">
                         <h6>Employment Type</h6>
-                        <span>{data.item_id}</span>
+                        <span>{data.employment_type}</span>
                       </div>
                     </div>
                   </li>
@@ -130,7 +133,7 @@ const SingleView = ({ data }) => {
                       <i className="far fa-clock"></i>
                       <div className="vw_item_text">
                         <h6>Post Date</h6>
-                        <span>{data.added_date_str}</span>
+                        <span>{postedDate}</span>
                       </div>
                     </div>
                   </li>
@@ -187,7 +190,7 @@ const SingleView = ({ data }) => {
                     <li>
                       <div className="job_dt_1">
                         <h6>Role:</h6>
-                        <span>{data.item_job_type.job_name}</span>
+                        <span>{data.role}</span>
                       </div>
                     </li>
                     <li>
@@ -199,7 +202,7 @@ const SingleView = ({ data }) => {
                     <li>
                       <div className="job_dt_1">
                         <h6>Employment Type:</h6>
-                        <span>English</span>
+                        <span>{data.employment_type}</span>
                       </div>
                     </li>
                     <li>
@@ -211,13 +214,13 @@ const SingleView = ({ data }) => {
                     <li>
                       <div className="job_dt_1">
                         <h6>Industry Type:</h6>
-                        <span>Bachelor Degree</span>
+                        <span>{data.industry_type}</span>
                       </div>
                     </li>
                     <li>
                       <div className="job_dt_1">
                         <h6>Posted Date:</h6>
-                        <span>Bachelor Degree</span>
+                        <span>{postedDate}</span>
                       </div>
                     </li>
                   </ul>
