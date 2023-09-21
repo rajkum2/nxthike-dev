@@ -88,15 +88,7 @@ const SingleView = ({ data }) => {
               <div className="view_details">
                 <h4 className="job-title">{data.title}</h4>
                 <ul>
-                  <li>
-                    <div className="vw_items">
-                      <i className="fas fa-users"></i>
-                      <div className="vw_item_text">
-                        <h6>Applicants</h6>
-                        <span>{data.applicants_no}</span>
-                      </div>
-                    </div>
-                  </li>
+                  
                   <li>
                     <div className="vw_items">
                       <i className="fas fa-briefcase"></i>
@@ -108,10 +100,28 @@ const SingleView = ({ data }) => {
                   </li>
                   <li>
                     <div className="vw_items">
+                      <i className="fas fa-briefcase"></i>
+                      <div className="vw_item_text">
+                        <h6>Employment Type</h6>
+                        <span>{data.item_id}</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="vw_items">
                       <i className="far fa-money-bill-alt"></i>
                       <div className="vw_item_text">
                         <h6>Salary</h6>
                         <span>{data.salary}</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="vw_items">
+                      <i className="fas fa-users"></i>
+                      <div className="vw_item_text">
+                        <h6>Applicants</h6>
+                        <span>{data.applicants_no}</span>
                       </div>
                     </div>
                   </li>
@@ -162,6 +172,7 @@ const SingleView = ({ data }) => {
                       <p key={i}>{desc}</p>
                     ))}
                   </p>
+                  <h4>Key Skills:</h4>
                   <div className="job-skills">
                     {data.key_skills.split(", ").map((skill, i) => (
                       <a key={i} href="#">
@@ -175,31 +186,48 @@ const SingleView = ({ data }) => {
                   <ul>
                     <li>
                       <div className="job_dt_1">
-                        <h6>Availability:</h6>
+                        <h6>Role:</h6>
                         <span>{data.item_job_type.job_name}</span>
                       </div>
                     </li>
                     <li>
                       <div className="job_dt_1">
-                        <h6>Experience Level:</h6>
+                        <h6>Role Category:</h6>
                         <span>{data.item_experience.experience_name}</span>
                       </div>
                     </li>
                     <li>
                       <div className="job_dt_1">
-                        <h6>Languages:</h6>
+                        <h6>Employment Type:</h6>
                         <span>English</span>
                       </div>
                     </li>
                     <li>
                       <div className="job_dt_1">
-                        <h6>Qualification:</h6>
+                        <h6>Education:</h6>
+                        <span>Bachelor Degree</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="job_dt_1">
+                        <h6>Industry Type:</h6>
+                        <span>Bachelor Degree</span>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="job_dt_1">
+                        <h6>Posted Date:</h6>
                         <span>Bachelor Degree</span>
                       </div>
                     </li>
                   </ul>
                 </div>
-                {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
+                <div className="job_dts">
+                <h4>About Sterlite Technologies</h4>
+                <p>About Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite TechnologiesAbout Sterlite Technologies</p>
+                </div>
+                
+                {/* {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
                   <button
                     className="apply_job"
                     type="button"
@@ -208,14 +236,14 @@ const SingleView = ({ data }) => {
                   >
                     {data.is_applied === "1" ? "APPLIED" : "APPLY NOW"}
                   </button>
-                )}
+                )} */}
               </div>
             </div>
             {userType !== "usertype_cf47b94da69344503d8d7af8058c49c7" && (
               <>
                 <div className="col-lg-3 col-md-4 mainpage">
                   <button
-                    className="apply_job_rt mtp_30"
+                    className="apply_job_rt mtp_20"
                     type="button"
                     onClick={applyJob}
                     disabled={data.is_applied === "1"}
