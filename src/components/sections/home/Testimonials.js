@@ -44,9 +44,9 @@ const Testimonials = () => {
                 </div>
               </div>
             ))}
-            <div className="text-center">
+            {/* <div className="text-center">
               <button className="view-links">READ MORE</button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
