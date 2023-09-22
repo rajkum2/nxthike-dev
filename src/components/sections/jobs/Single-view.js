@@ -295,6 +295,32 @@ const SingleView = ({ data }) => {
                       </LinkedinShareButton>
                     </li>
                   </ul>
+                  <br/>
+                  <div className="contact-employer-form">
+                    <div className="main-heading text-left">
+                      <h5>Contact Employer</h5>
+                    </div>
+                    <div className="contact-employer-name">
+                  <div className="job-left-dt">
+                    <img
+                      src="https://media.istockphoto.com/id/1412901513/vector/modern-hand-technology-logo-design.jpg?s=612x612&w=0&k=20&c=zZ4Kh-J2BV_oLfx8Tfd65aUFdTNlCvjmWxLOT4sEeVs="
+                      alt=""
+                    />
+                    <div className="job-ut-dts">
+                      <a href="#">
+                        <h4> Ravi kiran</h4>
+                      </a>
+                      <span>
+                         Recruiter
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <a href="#">View Profile</a>
+                </div>
+                    
+                  </div>
                 </div>
                 <div className="col-12">
                   <RelatedJobs subCatId = {data.sub_cat_id}/>
