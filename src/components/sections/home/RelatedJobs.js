@@ -19,6 +19,7 @@ const Jobs = (props) => {
   const subCatId = props.subCatId;
   const {
     items,
+    subCategoryItems,
     itemscount,
     fetchJobsByCategories,
     searching,
@@ -82,10 +83,10 @@ const Jobs = (props) => {
           </div>
           <div className="col-md-12 col-12">
           {loading && <Loader />}
-          {items.length > 0 && (
+          {subCategoryItems.length > 0 && (
             <div className="lts-jobs-slider">
               <Slider {...settings} className="job-slider" initialSlide={0}>
-                {items.map((item, i) => (
+                {subCategoryItems.map((item, i) => (
                     <div className="item">
                       <div className="job-item">
                       <div className="job-top-dt">
