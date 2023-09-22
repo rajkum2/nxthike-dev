@@ -257,11 +257,6 @@ export default function Header() {
                                                 ) : (
                                                     <>
                                                         <ul className="navbar-nav align-self-stretch">
-                                                            <li className="nav-item">
-                                                                <Link className="nav-link" to="/">
-                                                                    Home
-                                                                </Link>
-                                                            </li>
                                                             <li className="nav-item dropdown">
                                                                 <a
                                                                     className="nav-link"
@@ -269,6 +264,11 @@ export default function Header() {
                                                                 >
                                                                     Jobs
                                                                 </a>
+                                                            </li>
+                                                            <li className="nav-item">
+                                                                <Link className="nav-link" to="/">
+                                                                    Services
+                                                                </Link>
                                                             </li>
                                                             <li className="nav-item">
                                                                 <a
