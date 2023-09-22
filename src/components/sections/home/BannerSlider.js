@@ -38,7 +38,7 @@ const BannerSlider = () => {
           <div className="feature-img">
             <img
               src={
-                process.env.PUBLIC_URL + "/assets/images/homepage/banner/4.png"
+                process.env.PUBLIC_URL + "/assets/images/homepage/banner/3.png"
               }
               alt=""
             />

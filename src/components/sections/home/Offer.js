@@ -47,7 +47,7 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Hire Freelancers</h4>
+                <h4>Hire Temporary workers</h4>
                 <p>
                   Hire expert, pre-screened and verified freelancer on hourly
                   based for your specific technology requirements.
@@ -61,7 +61,7 @@ const Offer = () => {
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Post a Job</h4>
+                <h4>Job Postings</h4>
                 {/* <p>
                   We provide employees as a team which may include a Developer, Content Writer, Designer & Digital Marketer.
                 </p> */}

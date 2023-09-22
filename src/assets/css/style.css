@@ -7836,3 +7836,23 @@ label {
 .text-left{
   text-align: left;
 }
+
+.contact-employer-form {
+  float: left;
+  width: 100%;
+  padding: 30px 15px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+}
+
+.contact-employer-name {
+  padding: 5px;
+  width: 100%;
+  float: left;
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-right{
+  text-align: right !important;
+}
