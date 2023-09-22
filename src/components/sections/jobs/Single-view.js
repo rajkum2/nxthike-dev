@@ -295,6 +295,39 @@ const SingleView = ({ data }) => {
                       </LinkedinShareButton>
                     </li>
                   </ul>
+                  <br/>
+                  <div className="contact-employer-form">
+                    <div className="main-heading text-left">
+                      <h5>Contact Employer</h5>
+                    </div>
+                    <div className="contact-employer-name">
+                  <div className="job-left-dt">
+                    <img
+                      src={
+                        data.default_photo.img_path === ""
+                          ? process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          : process.env.REACT_APP_BASE_URL +
+                            "/uploads/" +
+                            data.default_photo.img_path
+                      }
+                      alt=""
+                    />
+                    <div className="job-ut-dts">
+                      <a href="#">
+                        <h4> Ravi kiran</h4>
+                      </a>
+                      <span>
+                         Recruiter
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <a href="#">View Profile</a>
+                </div>
+                    
+                  </div>
                 </div>
                 <div className="col-12">
                   <RelatedJobs subCatId = {data.sub_cat_id}/>
