@@ -303,14 +303,7 @@ const SingleView = ({ data }) => {
                     <div className="contact-employer-name">
                   <div className="job-left-dt">
                     <img
-                      src={
-                        data.default_photo.img_path === ""
-                          ? process.env.PUBLIC_URL +
-                            "/assets/images/homepage/latest-jobs/img-1.jpg"
-                          : process.env.REACT_APP_BASE_URL +
-                            "/uploads/" +
-                            data.default_photo.img_path
-                      }
+                      src="https://media.istockphoto.com/id/1412901513/vector/modern-hand-technology-logo-design.jpg?s=612x612&w=0&k=20&c=zZ4Kh-J2BV_oLfx8Tfd65aUFdTNlCvjmWxLOT4sEeVs="
                       alt=""
                     />
                     <div className="job-ut-dts">
