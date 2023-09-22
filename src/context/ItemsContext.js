@@ -10,6 +10,7 @@ export default function ItemContext({ children }) {
     const [itemscount, setItemscount] = useState(0);
     const [categories, setCategories] = useState([]);
     const [categoriescount, setCategoriescount] = useState(0);
+    const [subCategoryItems, setSubCategoryItems] = useState([]);
     const [cat, setCat] = useState("");
     const [subCat, setSubCat] = useState("");
     const [loc, setLoc] = useState("");
@@ -94,7 +95,7 @@ export default function ItemContext({ children }) {
                 response = await axios.post(url, postData);
             }
             const data = response.data;
-            updateItemsState(data);
+            updateSubCateogryItemsState(data);
         } catch (err) {
             callError(err);
         }
@@ -125,6 +126,12 @@ export default function ItemContext({ children }) {
         setLoading(false);
         setItems(items.concat(data));
         setItemscount(data.length);
+    };
+
+    const updateSubCateogryItemsState = (data) => {
+        setError(false);
+        setLoading(false);
+        setSubCategoryItems(subCategoryItems.concat(data));
     };
 
     const updateCategoriesState = (data) => {
@@ -226,6 +233,8 @@ export default function ItemContext({ children }) {
                 setCat,
                 subCat,
                 setSubCat,
+                subCategoryItems,
+                setSubCategoryItems,
                 loc,
                 setLoc,
                 exp,
@@ -258,6 +267,7 @@ export default function ItemContext({ children }) {
                 fetchJobsByCategories,
                 fetchCategories,
                 updateItemsState,
+                updateSubCateogryItemsState,
                 updateCategoriesState,
                 changeCat,
                 changeSubCat,

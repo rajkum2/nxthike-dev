@@ -24,7 +24,6 @@ const Categories = () => {
   useEffect(() => {
     fetchCategories();
     fetchJobs();
-   console.log(categories)
   }, []);
   
   return (

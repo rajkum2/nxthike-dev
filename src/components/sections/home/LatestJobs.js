@@ -15,8 +15,7 @@ const CustomPrevArrow = (props) => {
   return <div className="job-left-arrow slick-prev" onClick={onClick}></div>;
 };
 
-const Jobs = (props) => {
-  const subCatId = props.subCatId;
+const Jobs = () => {
   const {
     items,
     itemscount,
