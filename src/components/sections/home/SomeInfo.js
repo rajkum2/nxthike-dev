@@ -16,7 +16,7 @@ const Info = () => {
             <div className="main-heading text-left">
               <h2>For Employers</h2>
               <span>
-                We will provide Quick and Easy way to Hire Candidates.
+                We will provide Quick & Easy way to Hire Candidates.
               </span>
               <div className="line-shape1">
                 <img
