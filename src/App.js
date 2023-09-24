@@ -68,7 +68,7 @@ export default function App() {
         <Route path="/freelancers" element={<Freelancers />} />
         <Route path="/about" element={<About />} />
         <Route path="/job/:jobId" element={<SingleJob />} />
-        <Route path="/cat/job/:catId" element={<CategoryJobs />} />
+        <Route path="/category_jobs/:catId" element={<CategoryJobs />} />
         <Route path="/single-project" element={<SingleProject />} />
         <Route path="/myprofile" element={<MyProfile />} />
         <Route path="/editprofile" element={<EditProfile />} />
