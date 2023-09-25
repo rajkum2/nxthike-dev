@@ -172,7 +172,6 @@ export default function Header() {
                                         <a
                                             className="order-1 order-lg-0"
                                             href="/"
-                                            style={{ marginLeft: "1rem" }}
                                         >
                                             <img src={logo} alt="" />
                                         </a>
