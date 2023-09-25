@@ -96,7 +96,7 @@ const Jobs = () => {
                                   "/assets/images/homepage/latest-jobs/img-1.jpg"
                                 : process.env.REACT_APP_BASE_URL +
                                   "uploads/" +
-                                  item.category.default_photo.img_path
+                                  item.default_photo.img_path
                             }
                             alt=""
                           />
