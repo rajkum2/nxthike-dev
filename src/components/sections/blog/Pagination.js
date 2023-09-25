@@ -60,12 +60,9 @@ function Pagination({ data, pageLimit, dataLimit }) {
                                                 <img
                                                     src={
                                                         item.default_photo.img_path === ""
-                                                            ? process.env.PUBLIC_URL +
-                                                              "/assets/images/homepage/latest-jobs/img-1.jpg"
+                                                            ? process.env.PUBLIC_URL + "/assets/img/blog/8.jpg"
                                                             : //: API_URL.IMG_URL+item.default_photo.img_path
-                                                              process.env.REACT_APP_BASE_URL +
-                                                              "/uploads/" +
-                                                              item.default_photo.img_path
+                                                              process.env.REACT_APP_BASE_URL + "/uploads/" + item.default_photo.img_path
                                                     }
                                                     alt="blog post"
                                                 />

@@ -20,10 +20,15 @@ export default function Content() {
             console.log(err);
         }
     }
-
-    if (blogs?.length === 0) {
-        return <Loader />;
-    }
-
-    return <Pagination data={blogs} dataLimit={6} pageLimit={5} />;
+    return (
+        <div>
+            {blogs.length > 0 ? (
+                <>
+                    <Pagination data={blogs} pageLimit={4} dataLimit={3} />
+                </>
+            ) : (
+                <Loader />
+            )}
+        </div>
+    );
 }
