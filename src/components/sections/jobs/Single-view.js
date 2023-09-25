@@ -196,7 +196,7 @@ const SingleView = ({ data }) => {
                     <li>
                       <div className="job_dt_1">
                         <h6>Role Category:</h6>
-                        <span>{data.item_experience.experience_name}</span>
+                        <span>{data.category.cat_name}</span>
                       </div>
                     </li>
                     <li>

@@ -133,9 +133,9 @@ export default function Content() {
                       <div className="job-des-dt">
                         <h4>{item.title}</h4>
                         <p>
-                          {item.company_details.length > 80
-                            ? item.company_details.slice(0, 80) + "..."
-                            : item.company_details}
+                          {item.description.length > 80
+                            ? item.description.slice(0, 80) + "..."
+                            : item.description}
                         </p>
                         <div className="job-skills">
                           {item.key_skills
