@@ -280,7 +280,7 @@ export default function Header() {
                                                             <li className="nav-item">
                                                                 <a
                                                                     className="nav-link"
-                                                                    href="/events"
+                                                                    href="/"
                                                                 >
                                                                     Events
                                                                 </a>
