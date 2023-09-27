@@ -105,7 +105,7 @@ export default function App() {
         <Route path="/job-searching-assistance" element={<JobSearchingAssistance />} />
         <Route path="/post-a-job" element={<PostJob />} />
         <Route path="/events" element={<Events />} />
-        <Route path="/event_details" element={<SingleEvent />} />
+        <Route path="/events/:eventId" element={<SingleEvent />} />
         <Route path="/cart" element={<Cart />} />
       </Routes>
     </React.Suspense>
