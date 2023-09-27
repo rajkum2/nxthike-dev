@@ -25,6 +25,8 @@ export default function ItemContext({ children }) {
     const [error, setError] = useState(false);
     const [searching, setSearching] = useState("");
     const [offset, setOffset] = useState(0);
+    const [events, setEvents] = useState([]);
+    const [eventsCount, setEventsCount] = useState(0);
 
     const fetchJobs = async () => {
         setError(false);
@@ -114,6 +116,21 @@ export default function ItemContext({ children }) {
         }
     };
 
+    const fetchEvents = async () => {
+        setError(false);
+        setLoading(true);
+        let url;
+        let response;
+        const postData = {
+            status: 1,
+            item_type_id: 'itm_typee3b3962e64d22ada05d062607f8ad655'
+        };
+        url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
+        response = await axios.post(url, postData);
+        const data = response.data;
+        updateEventsState(data);
+    };
+
     const callError = (err) => {
         setLoading(false);
         setError(true);
@@ -139,6 +156,13 @@ export default function ItemContext({ children }) {
         setLoading(false);
         setCategories(categories.concat(data));
         setCategoriescount(data.length);
+    };
+
+    const updateEventsState = (data) => {
+        setError(false);
+        setLoading(false);
+        setEvents(items.concat(data));
+        setEventsCount(data.length);
     };
 
     const changeCat = (val) => {
@@ -263,12 +287,18 @@ export default function ItemContext({ children }) {
                 setCategories,
                 categoriescount,
                 setCategoriescount,
+                events,
+                setEvents,
+                eventsCount,
+                setEventsCount,
                 fetchJobs,
                 fetchJobsByCategories,
                 fetchCategories,
+                fetchEvents,
                 updateItemsState,
                 updateSubCateogryItemsState,
                 updateCategoriesState,
+                updateEventsState,
                 changeCat,
                 changeSubCat,
                 clearCat,

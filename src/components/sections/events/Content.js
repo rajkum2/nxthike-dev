@@ -8,14 +8,15 @@ import { UserContext } from "../../../context/LoginContext";
 import Loader from "../../layouts/Loader";
 import { ItemsContext } from "../../../context/ItemsContext";
 import options from "../../../data/allJobOptions.json";
+import { event } from "jquery";
 export default function Content() {
   let appliedId = useRef([]);
   let favId = useRef([]);
   const { loginuserId } = useContext(UserContext);
   const {
-    items,
-    itemscount,
-    fetchJobs,
+    events,
+    eventsCount,
+    fetchEvents,
     searching,
     cat,
     loading,
@@ -30,8 +31,9 @@ export default function Content() {
     callLoadMore,
   } = useContext(ItemsContext);
   useEffect(() => {
-    fetchJobs();
-  }, [searching, cat, exp, jobType, loc, offset]);
+    fetchEvents();
+    console.log(events);
+  }, [offset]);
   return (
     <>
       <main className="browse-section">
@@ -40,150 +42,43 @@ export default function Content() {
             <div className="col-lg-12">
                   <h1 className="text-center">Events</h1>
             </div>
-            <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
-              <div class="job-item mt-30">
-                  <div>
-                    <img className="event-width100" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="" />
-                  </div>
-                <div class="job-top-dt">
-                  <div class="job-left-dt">
-                    <div class="job-ut-dts">
-                      <a href="#"><h4>John Doe</h4></a>
-                      <span><i class="fas fa-map-marker-alt"></i> IT Department</span>
+            {loading && <Loader />}
+            {events.length > 0 && events.map((event) => (
+              <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
+                  <div class="job-item mt-30">
+                    <div>
+                      <img className="event-width100"
+                       src={
+                        event.category.default_photo.img_path === ""
+                          ? process.env.PUBLIC_URL +
+                            "/assets/images/homepage/latest-jobs/img-1.jpg"
+                          : process.env.REACT_APP_BASE_URL +
+                            "uploads/" +
+                            event.category.default_photo.img_path
+                      }
+                       alt="" />
+                    </div>
+                  <div class="job-top-dt">
+                    <div class="job-left-dt">
+                      <div class="job-ut-dts">
+                        <a href={`/events/${event.id}`} target="_blank"><h4>{event.title}</h4></a>
+                        <span>{event.category.cat_name}</span>
+                      </div>
+                    </div>
+                    <div class="job-right-dt">
+                      <div class="job-price">{event.item_currency.currency_symbol} {event.price}</div>
                     </div>
                   </div>
-                  <div class="job-right-dt">
-                    <div class="job-price">$599</div>
+                  <div class="job-des-dt">
+                    <h6>Description</h6>
+                    <p>{event.description.length > 80
+                            ? event.description.slice(0, 80) + "..."
+                            : event.description}</p>
+                    
                   </div>
-                </div>
-                <div class="job-des-dt">
-                  <a href="/event_details" target="_blank"><a href="/event_details" target="_blank"><h4>UX Designer</h4></a></a>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
-                  
                 </div>
               </div>
-            </div>
-            
-            <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
-              <div class="job-item mt-30">
-                  <div>
-                    <img className="event-width100" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="" />
-                  </div>
-                <div class="job-top-dt">
-                  <div class="job-left-dt">
-                    <div class="job-ut-dts">
-                      <a href="#"><h4>John Doe</h4></a>
-                      <span><i class="fas fa-map-marker-alt"></i> IT Department</span>
-                    </div>
-                  </div>
-                  <div class="job-right-dt">
-                    <div class="job-price">$599</div>
-                  </div>
-                </div>
-                <div class="job-des-dt">
-                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
-                  
-                </div>
-              </div>
-            </div>
-
-            <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
-              <div class="job-item mt-30">
-                  <div>
-                    <img className="event-width100" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="" />
-                  </div>
-                <div class="job-top-dt">
-                  <div class="job-left-dt">
-                    <div class="job-ut-dts">
-                      <a href="#"><h4>John Doe</h4></a>
-                      <span><i class="fas fa-map-marker-alt"></i> IT Department</span>
-                    </div>
-                  </div>
-                  <div class="job-right-dt">
-                    <div class="job-price">$599</div>
-                  </div>
-                </div>
-                <div class="job-des-dt">
-                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
-                  
-                </div>
-              </div>
-            </div>
-
-            <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
-              <div class="job-item mt-30">
-                  <div>
-                    <img className="event-width100" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="" />
-                  </div>
-                <div class="job-top-dt">
-                  <div class="job-left-dt">
-                    <div class="job-ut-dts">
-                      <a href="#"><h4>John Doe</h4></a>
-                      <span><i class="fas fa-map-marker-alt"></i> IT Department</span>
-                    </div>
-                  </div>
-                  <div class="job-right-dt">
-                    <div class="job-price">$599</div>
-                  </div>
-                </div>
-                <div class="job-des-dt">
-                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
-                  
-                </div>
-              </div>
-            </div>
-
-            <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
-              <div class="job-item mt-30">
-                  <div>
-                    <img className="event-width100" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="" />
-                  </div>
-                <div class="job-top-dt">
-                  <div class="job-left-dt">
-                    <div class="job-ut-dts">
-                      <a href="#"><h4>John Doe</h4></a>
-                      <span><i class="fas fa-map-marker-alt"></i> IT Department</span>
-                    </div>
-                  </div>
-                  <div class="job-right-dt">
-                    <div class="job-price">$599</div>
-                  </div>
-                </div>
-                <div class="job-des-dt">
-                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
-                  
-                </div>
-              </div>
-            </div>
-
-            <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
-              <div class="job-item mt-30">
-                  <div>
-                    <img className="event-width100" src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="" />
-                  </div>
-                <div class="job-top-dt">
-                  <div class="job-left-dt">
-                    <div class="job-ut-dts">
-                      <a href="#"><h4>John Doe</h4></a>
-                      <span><i class="fas fa-map-marker-alt"></i> IT Department</span>
-                    </div>
-                  </div>
-                  <div class="job-right-dt">
-                    <div class="job-price">$599</div>
-                  </div>
-                </div>
-                <div class="job-des-dt">
-                  <a href="/event_details" target="_blank"><h4>UX Designer</h4></a>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam cursus pulvinar dolor nec...</p>
-                  
-                </div>
-              </div>
-            </div>
-            
+            ))}
           </div>
         </div>
       </main>
