@@ -259,7 +259,7 @@ export default function Header() {
                                                             <li className="nav-item dropdown">
                                                                 <a
                                                                     className="nav-link"
-                                                                    href="/jobs"
+                                                                    href="/"
                                                                 >
                                                                     Jobs
                                                                 </a>
@@ -280,7 +280,7 @@ export default function Header() {
                                                             <li className="nav-item">
                                                                 <a
                                                                     className="nav-link"
-                                                                    href="/events"
+                                                                    href="/"
                                                                 >
                                                                     Events
                                                                 </a>
