@@ -53,7 +53,7 @@ const Footer = () => {
               </p>
             </div>
           </div>
-          <div className="col-lg-3 col-md-3">
+          <div className="col-lg-2 col-md-2">
             <div className="footer-links">
               <h4>About</h4>
               <ul>
@@ -81,6 +81,34 @@ const Footer = () => {
           </div>
           <div className="col-lg-3 col-md-3">
             <div className="footer-links">
+              <h4>Jobs By Location</h4>
+              <ul>
+                <li>
+                  <a href="">Jobs in California</a>
+                </li>
+                <li>
+                  <a href="">Jobs in Texas</a>
+                </li>
+                <li>
+                  <a href="">Jobs in Massachusetts</a>
+                </li>
+                <li>
+                  <a href="">Jobs in Florida</a>
+                </li>
+                <li>
+                  <a href="">Jobs in Atlanda</a>
+                </li>
+                <li>
+                  <a href="">Jobs in Pennsylvania</a>
+                </li>
+                <li>
+                  <a href="">Jobs in New York</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="col-lg-2 col-md-2">
+            <div className="footer-links">
               <h4>For Companies</h4>
               <ul>
                 <li>
@@ -98,7 +126,7 @@ const Footer = () => {
               </ul>
             </div>
           </div>
-          <div className="col-lg-3 col-md-3">
+          <div className="col-lg-2 col-md-2">
             <div className="footer-links">
               <h4>For Candidates</h4>
               <ul>

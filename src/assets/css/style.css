@@ -7856,3 +7856,7 @@ label {
 .text-right{
   text-align: right !important;
 }
+
+.footer-links ul li a {
+  font-size: 13px;
+}
