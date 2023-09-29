@@ -38,12 +38,19 @@ export default function Content() {
     <>
       <main className="browse-section">
         <div className="container">
-          <div class="row  view-group" id="products">
+        {offset === 0 && error && (
+            <div className="text-center mt-30">
+              <h3>Sorry for the inconvenience.</h3>
+              <h4>No events found</h4>
+            </div>
+          )}
+        {loading && <Loader />}
+        {events.length > 0 && (
+          <div class="row">
             <div className="col-lg-12">
                   <h1 className="text-center">Events</h1>
             </div>
-            {loading && <Loader />}
-            {events.length > 0 && events.map((event) => (
+            {events.map((event) => (
               <div class="lg-item col-lg-4 col-xs-6 grid-group-item1">
                   <div class="job-item mt-30">
                     <div>
@@ -80,6 +87,7 @@ export default function Content() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </main>
     </>
