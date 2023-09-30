@@ -13,7 +13,7 @@ export default class ForEmployers extends Component {
           <meta name="description" content="#" />
         </Helmet>
         <Header />
-        <Breadcrumb pagename="For Employers" />
+        {/* <Breadcrumb pagename="For Employers" /> */}
         <Content />
         <Footer />
       </Fragment>
