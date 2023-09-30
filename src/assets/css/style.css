@@ -7834,7 +7834,7 @@ label {
   float: right;
 }
 .text-left{
-  text-align: left;
+  text-align: left!important;
 }
 
 .contact-employer-form {
@@ -7859,4 +7859,32 @@ label {
 
 .footer-links ul li a {
   font-size: 13px;
+}
+
+.width100{
+  width: 100%;
+}
+
+.clr-red{
+  color: red!important;
+}
+
+.company_counts{
+  font-size: 5.5rem;
+    text-align: center;
+    color: #BE3432;
+}
+
+.company-description{
+  font-size: 1.5rem;
+  padding-top: 5%;
+  text-align: center;
+}
+
+.pad-top6per{
+  padding-top: 6%;
+}
+
+.for-employers-content{
+  font-size: 1.5rem!important;
 }
