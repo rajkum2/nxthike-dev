@@ -8,7 +8,11 @@ export default function ItemContext({ children }) {
     const { isLoggedIn, loginuserId } = useContext(UserContext);
     const [items, setItems] = useState([]);
     const [itemscount, setItemscount] = useState(0);
+    const [categories, setCategories] = useState([]);
+    const [categoriescount, setCategoriescount] = useState(0);
+    const [subCategoryItems, setSubCategoryItems] = useState([]);
     const [cat, setCat] = useState("");
+    const [subCat, setSubCat] = useState("");
     const [loc, setLoc] = useState("");
     const [exp, setExp] = useState("");
     const [jobType, setJobType] = useState("");
@@ -21,14 +25,16 @@ export default function ItemContext({ children }) {
     const [error, setError] = useState(false);
     const [searching, setSearching] = useState("");
     const [offset, setOffset] = useState(0);
+    const [events, setEvents] = useState([]);
+    const [eventsCount, setEventsCount] = useState(0);
 
     const fetchJobs = async () => {
         setError(false);
         setLoading(true);
         if (isLoggedIn && loginuserId !== null) {
             const postData = {
-                app_list_id: "app_3bc06fa714c48378fe253c0e59913b7d",
-                item_type_id: "itm_type802efadc164a64d26fbd964f1b50405d",
+                app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+                item_type_id: "itm_jobtypecd6004b5b4c297362cfe6df42849e58a",
                 status: 1,
                 order_by: order_by,
                 order_type: order_type,
@@ -40,7 +46,7 @@ export default function ItemContext({ children }) {
                 logged_in_user: loginuserId,
             };
             try {
-                const url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
+                const url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
                 const response = await axios.post(url, postData);
                 const data = response.data;
                 updateItemsState(data);
@@ -49,14 +55,80 @@ export default function ItemContext({ children }) {
             }
         } else {
             try {
-                const url = `${process.env.REACT_APP_API_URL}items/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}`;
-                const response = await axios.get(url);
+                let url;
+                let response;
+                if(searchTerm == '' & loc == '' & cat == '' & exp == '' & jobType == ''){
+                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
+                    response = await axios.post(url);
+                }else{
+                    const postData = {
+                        app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+                        status: 1,
+                        searchterm: searchTerm,
+                        cat_id: cat,
+                        item_location_id: loc,
+                        item_experience_id: exp,
+                        item_job_type_id: jobType,
+                    };
+                    url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
+                    response = await axios.post(url, postData);
+                }
                 const data = response.data;
                 updateItemsState(data);
             } catch (err) {
                 callError(err);
             }
         }
+    };
+
+    const fetchJobsByCategories = async (subCatId) => {
+        setError(false);
+        setLoading(true);
+        try {
+            let url;
+            let response;
+            if(subCatId !== ''){
+                const postData = {
+                    app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+                    status: 1,
+                    sub_cat_id: subCatId,
+                };
+                url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
+                response = await axios.post(url, postData);
+            }
+            const data = response.data;
+            updateSubCateogryItemsState(data);
+        } catch (err) {
+            callError(err);
+        }
+    };
+    
+    const fetchCategories = async () => {
+        setError(false);
+        setLoading(true);
+        try {
+            const url = `${process.env.REACT_APP_API_URL}categories/get/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a/limit/8`;
+            const response = await axios.get(url);
+            const data = response.data;
+            updateCategoriesState(data);
+        } catch (err) {
+            callError(err);
+        }
+    };
+
+    const fetchEvents = async () => {
+        setError(false);
+        setLoading(true);
+        let url;
+        let response;
+        const postData = {
+            status: 1,
+            item_type_id: 'itm_typee3b3962e64d22ada05d062607f8ad655'
+        };
+        url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
+        response = await axios.post(url, postData);
+        const data = response.data;
+        updateEventsState(data);
     };
 
     const callError = (err) => {
@@ -73,9 +145,33 @@ export default function ItemContext({ children }) {
         setItemscount(data.length);
     };
 
+    const updateSubCateogryItemsState = (data) => {
+        setError(false);
+        setLoading(false);
+        setSubCategoryItems(subCategoryItems.concat(data));
+    };
+
+    const updateCategoriesState = (data) => {
+        setError(false);
+        setLoading(false);
+        setCategories(categories.concat(data));
+        setCategoriescount(data.length);
+    };
+
+    const updateEventsState = (data) => {
+        setError(false);
+        setLoading(false);
+        setEvents(items.concat(data));
+        setEventsCount(data.length);
+    };
+
     const changeCat = (val) => {
         setItems([]);
         setCat(val);
+    };
+    const changeSubCat = (val) => {
+        setItems([]);
+        setSubCat(val);
     };
     const changeExp = (val) => {
         setItems([]);
@@ -159,6 +255,10 @@ export default function ItemContext({ children }) {
                 setItemscount,
                 cat,
                 setCat,
+                subCat,
+                setSubCat,
+                subCategoryItems,
+                setSubCategoryItems,
                 loc,
                 setLoc,
                 exp,
@@ -183,9 +283,24 @@ export default function ItemContext({ children }) {
                 setError,
                 offset,
                 setOffset,
+                categories,
+                setCategories,
+                categoriescount,
+                setCategoriescount,
+                events,
+                setEvents,
+                eventsCount,
+                setEventsCount,
                 fetchJobs,
+                fetchJobsByCategories,
+                fetchCategories,
+                fetchEvents,
                 updateItemsState,
+                updateSubCateogryItemsState,
+                updateCategoriesState,
+                updateEventsState,
                 changeCat,
+                changeSubCat,
                 clearCat,
                 changeExp,
                 clearExp,

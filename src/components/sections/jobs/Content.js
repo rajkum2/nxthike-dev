@@ -99,12 +99,12 @@ export default function Content() {
                         <div className="job-left-dt">
                           <img
                             src={
-                              item.default_photo.img_path === ""
+                              item.category.default_photo.img_path === ""
                                 ? process.env.PUBLIC_URL +
                                   "/assets/images/homepage/latest-jobs/img-1.jpg"
                                 : process.env.REACT_APP_BASE_URL +
-                                  "/uploads/" +
-                                  item.default_photo.img_path
+                                  "uploads/" +
+                                  item.category.default_photo.img_path
                             }
                             alt=""
                           />
@@ -122,31 +122,34 @@ export default function Content() {
                             </span>
                           </div>
                         </div>
-                        <div className="job-right-dt">
-                          <div className="job-fp">Salary</div>
-                          <div className="job-price">{item.salary}</div>
-                        </div>
+                        {item.salary ? <div className="job-right-dt">
+                          <div className="job-price">{item.item_currency.currency_symbol} {item.salary}</div>
+                            {item.item_job_type_id == "itm_jobtypeb543ea3a2871b7b297fa3774f634563c" ? <div className="job-fp">{item.employment_type}</div> : ''}
+                          {item.item_job_type_id == "itm_jobtype2f3cedc22a070f69b2e0397851b5252b" ? <div className="job-fp job-prt">Part Time</div> : ''}
+                          {item.item_job_type_id == "itm_jobtype33300b5f993ae26c5e554253da0b6336" ? <div className="job-fp job-rmt">Remote</div> : ''}
+                        </div> : ''}
+                        
                       </div>
                       <div className="job-des-dt">
                         <h4>{item.title}</h4>
                         <p>
-                          {item.company_details.length > 80
-                            ? item.company_details.slice(0, 80) + "..."
-                            : item.company_details}
+                          {item.description.length > 80
+                            ? item.description.slice(0, 80) + "..."
+                            : item.description}
                         </p>
                         <div className="job-skills">
                           {item.key_skills
-                            .split(", ")
+                            .split(",")
                             .splice(0, 3)
                             .map((skill, i) => (
                               <a key={i} href="#">
                                 {skill}
                               </a>
                             ))}
-                          {item.key_skills.split(", ").splice(3).length ==
+                          {item.key_skills.split(",").splice(3).length ==
                           0 ? null : (
                             <a className="more-skills">
-                              +{item.key_skills.split(", ").splice(3).length}
+                              +{item.key_skills.split(",").splice(3).length}
                             </a>
                           )}
                         </div>

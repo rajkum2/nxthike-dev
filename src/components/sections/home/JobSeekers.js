@@ -8,7 +8,7 @@ const JobSeekers = () => {
         <div className="row" style={{ justifyContent: "center" }}>
           <div className="col-md-12 col-12">
             <div className="main-heading">
-              <h2>Servies for Job Seekers</h2>
+              <h2>Services for Job Seekers</h2>
               <span>Get a Job Quickly {"&"} Easily</span>
               <div className="line-shape1">
                 <img

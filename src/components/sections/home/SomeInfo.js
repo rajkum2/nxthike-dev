@@ -1,5 +1,13 @@
 import React from "react";
 const Info = () => {
+  const handleForEmployersButtonClick = () => {
+    window.location.href = '/for-employers';
+  };
+
+  const handleForJobSeekersButtonClick = () => {
+    window.location.href = '/for-job-seekers';
+  };
+
   return (
     <div className="all-categories">
       <div className="container">
@@ -8,10 +16,13 @@ const Info = () => {
             <div className="main-heading text-left">
               <h2>For Employers</h2>
               <span>
-                We will provide Quick and Easy way to Hire Candidates.
+                We will provide Quick & Easy way to Hire Candidates.
               </span>
               <div className="line-shape1">
-                <img src="images/line.svg" alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
             <div className="text152">
@@ -44,12 +55,12 @@ const Info = () => {
                   if the candidate is not performing well or leaves the job.
                 </p>
               </div>
-              <div className="btns15">
+              {/* <div className="btns15">
                 <a className="btn-152" href="/submit-job">
                   Post a Job
                 </a>
-                <button className="btn-153">Learn More</button>
-              </div>
+                <button className="btn-153" onClick={handleForEmployersButtonClick}>Learn More</button>
+              </div> */}
             </div>
           </div>
           <div className="col-md-6 col-12">
@@ -57,7 +68,10 @@ const Info = () => {
               <h2>For Job Seekers</h2>
               <span>Find Fulltime & Part time Jobs.</span>
               <div className="line-shape1">
-                <img src="images/line.svg" alt="" />
+                <img
+                  src={process.env.PUBLIC_URL + "/assets/images/line.svg"}
+                  alt=""
+                />
               </div>
             </div>
             <div className="text152">
@@ -88,12 +102,12 @@ const Info = () => {
                   other countries, Dedicated agent etc.
                 </p>
               </div>
-              <div className="btns15">
+              {/* <div className="btns15">
                 <a className="btn-152" href="/freelancers">
                   Get Listed
                 </a>
-                <button className="btn-153">Learn More</button>
-              </div>
+                <button className="btn-153"onClick={handleForJobSeekersButtonClick}>Learn More</button>
+              </div> */}
             </div>
           </div>
         </div>

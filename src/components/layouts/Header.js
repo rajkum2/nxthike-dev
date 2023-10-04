@@ -172,7 +172,6 @@ export default function Header() {
                                         <a
                                             className="order-1 order-lg-0"
                                             href="/"
-                                            style={{ marginLeft: "1rem" }}
                                         >
                                             <img src={logo} alt="" />
                                         </a>
@@ -250,32 +249,40 @@ export default function Header() {
                                                                 </Dropdown>
                                                             </li>
                                                         </ul>
-                                                        <a href="/submit-job" className="add-post">
+                                                        {/* <a href="/submit-job" className="add-post">
                                                             Post a Job
-                                                        </a>
+                                                        </a> */}
                                                     </>
                                                 ) : (
                                                     <>
                                                         <ul className="navbar-nav align-self-stretch">
-                                                            <li className="nav-item">
-                                                                <Link className="nav-link" to="/">
-                                                                    Home
-                                                                </Link>
-                                                            </li>
                                                             <li className="nav-item dropdown">
                                                                 <a
                                                                     className="nav-link"
-                                                                    href="/jobs"
+                                                                    href="/"
                                                                 >
                                                                     Jobs
                                                                 </a>
                                                             </li>
                                                             <li className="nav-item">
+                                                                <Link className="nav-link" to="/">
+                                                                    Services
+                                                                </Link>
+                                                            </li>
+                                                            {/* <li className="nav-item">
                                                                 <a
                                                                     className="nav-link"
                                                                     href="/browse-companies"
                                                                 >
                                                                     Companies
+                                                                </a>
+                                                            </li> */}
+                                                            <li className="nav-item">
+                                                                <a
+                                                                    className="nav-link"
+                                                                    href="/"
+                                                                >
+                                                                    Events
                                                                 </a>
                                                             </li>
                                                             <li className="nav-item dropdown">
@@ -326,17 +333,17 @@ export default function Header() {
                                             ) : (
                                                 <>
                                                     <ul className="navbar-nav align-self-stretch">
-                                                        <li className="nav-item">
+                                                        {/* <li className="nav-item">
                                                             <Link className="nav-link" to="/">
                                                                 Home
                                                             </Link>
-                                                        </li>
+                                                        </li> */}
                                                         <li className="nav-item dropdown">
                                                             <a className="nav-link" href="/jobs">
                                                                 Jobs
                                                             </a>
                                                         </li>
-                                                        <li className="nav-item">
+                                                        {/* <li className="nav-item">
                                                             <a
                                                                 className="nav-link"
                                                                 href="#"
@@ -344,14 +351,30 @@ export default function Header() {
                                                             >
                                                                 Companies
                                                             </a>
-                                                        </li>
-                                                        <li className="nav-item">
+                                                        </li> */}
+                                                        {/* <li className="nav-item">
                                                             <a
                                                                 className="nav-link"
                                                                 href="#"
                                                                 onClick={() => setOpen(true)}
                                                             >
                                                                 Talents
+                                                            </a>
+                                                        </li> */}
+                                                        <li className="nav-item">
+                                                            <a
+                                                                className="nav-link"
+                                                                href="/events"
+                                                            >
+                                                                Events
+                                                            </a>
+                                                        </li>
+                                                        <li className="nav-item">
+                                                            <a
+                                                                className="nav-link"
+                                                                href="/blog"
+                                                            >
+                                                                Blog
                                                             </a>
                                                         </li>
                                                         <li className="nav-item dropdown">
@@ -372,13 +395,7 @@ export default function Header() {
                                                                     >
                                                                         About
                                                                     </Dropdown.Item>
-                                                                    <Dropdown.Item
-                                                                        as={a}
-                                                                        to="/blog"
-                                                                        className="link-item"
-                                                                    >
-                                                                        Our Blog
-                                                                    </Dropdown.Item>
+                                                                   
                                                                     <Dropdown.Item
                                                                         as={a}
                                                                         to="/contact-us"
@@ -397,13 +414,13 @@ export default function Header() {
                                                             </Dropdown>
                                                         </li>
                                                     </ul>
-                                                    <a
+                                                    {/* <a
                                                         href="#"
                                                         className="add-post"
                                                         onClick={() => setOpen(true)}
                                                     >
                                                         Post a Job
-                                                    </a>
+                                                    </a> */}
                                                 </>
                                             )}
                                         </div>
@@ -422,7 +439,7 @@ export default function Header() {
                 center
                 classNames={{ overlay: "customOverlay" }}
             >
-                <h3 className="text-info">Please Login or SignUp to view the pages</h3>
+                <h3 className="text-info">Coming Soon...</h3>
             </Modal>
         </>
     );

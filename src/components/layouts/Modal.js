@@ -29,13 +29,17 @@ const Modalbox = (props) => {
     <>
       {props.parent === "footer" ? (
         <li onClick={() => setOpen(true)}>
-          <a href="#">Login</a>
+          <a href="#">Candidate Login</a>
         </li>
       ) : (
         <div className="login__dropDown">
+          <a href="/for-employers" className="login_btn">
+            <i className="fas fa-user"></i>
+           For Employers &nbsp;&nbsp;&nbsp;
+          </a>
           <button className="login_btn" onClick={() => setOpen(true)}>
             <i className="fas fa-lock"></i>
-            Login/Singup
+           Candidate Login
           </button>
         </div>
       )}

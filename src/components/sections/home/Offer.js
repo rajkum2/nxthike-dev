@@ -24,9 +24,9 @@ const Offer = () => {
                   We provide candidates based on your specific needs and
                   experience at very affordable price in the market.
                 </p>
-                <a href="#">
+                {/* <a href="/hire-fulltime-employees">
                   Read More<i className="fas fa-angle-double-right"></i>
-                </a>
+                </a> */}
               </div>
             </div>
           </div>
@@ -38,30 +38,30 @@ const Offer = () => {
                   We provide job search, resume preparation & support services
                   for candidates who are looking for jobs.
                 </p>
-                <a href="#">
+                {/* <a href="/job-searching-assistance">
                   Read More<i className="fas fa-angle-double-right"></i>
-                </a>
+                </a> */}
               </div>
             </div>
           </div>
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Hire Freelancers</h4>
+                <h4>Hire Temporary workers</h4>
                 <p>
                   Hire expert, pre-screened and verified freelancer on hourly
                   based for your specific technology requirements.
                 </p>
-                <a href="#">
+                {/* <a href="/hire-temp-workers">
                   Read More<i className="fas fa-angle-double-right"></i>
-                </a>
+                </a> */}
               </div>
             </div>
           </div>
           <div className="col-lg-3 col-md-6 col-12">
             <div className="offer-step">
               <div className="offer-text-dt">
-                <h4>Post a Job</h4>
+                <h4>Job Postings</h4>
                 {/* <p>
                   We provide employees as a team which may include a Developer, Content Writer, Designer & Digital Marketer.
                 </p> */}
@@ -69,9 +69,9 @@ const Offer = () => {
                   Hire candidates by posting your job for Free. Create your
                   Business account and start posting jobs for open positions.
                 </p>
-                <a href="#">
+                {/* <a href="/post-a-job">
                   Read More<i className="fas fa-angle-double-right"></i>
-                </a>
+                </a> */}
               </div>
             </div>
           </div>

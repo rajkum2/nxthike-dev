@@ -1,6 +1,42 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Content() {
+  const [name, setName] = useState();
+  const [email, setEmail] = useState();
+  const [message, setMessage] = useState();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e) => {
+    setLoading(true);
+    e.preventDefault();
+      var postData = {
+        app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+        registration_name: name,
+        registration_email: email,
+        registration_description: message,
+      };
+      axios
+        .post(
+          process.env.REACT_APP_API_URL +
+            "registrations/add/api_key/" +
+            process.env.REACT_APP_API_SECURITY_KEY +
+            "/",
+          postData
+        )
+        .then((response) => response.data)
+        .then((data) => {
+          console.log(data);
+          alert(data.message);
+        })
+        .catch((err) => {
+          setLoading(false);
+          setError(true);
+          console.log("error", err);
+        });
+  };
+
   return (
     <main className="contact-section">
       <div className="contact_info">
@@ -65,7 +101,7 @@ export default function Content() {
                     />
                   </div>
                 </div>
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="row">
                     <div className="col-lg-6 col-md-6">
                       <div className="form-group">
@@ -74,6 +110,8 @@ export default function Content() {
                           type="text"
                           className="job-input"
                           placeholder="Enter Name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
                         />
                       </div>
                     </div>
@@ -84,10 +122,12 @@ export default function Content() {
                           type="email"
                           className="job-input"
                           placeholder="Enter Email Address"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                         />
                       </div>
                     </div>
-                    <div className="col-lg-12">
+                    {/* <div className="col-lg-12">
                       <div className="form-group">
                         <label className="label15">Subject*</label>
                         <input
@@ -96,13 +136,15 @@ export default function Content() {
                           placeholder="Enter Subject"
                         />
                       </div>
-                    </div>
+                    </div> */}
                     <div className="col-lg-12">
                       <div className="form-group">
                         <label className="label15">Message*</label>
                         <textarea
                           className="note-input"
                           placeholder="Text Message"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
                         ></textarea>
                       </div>
                     </div>

@@ -3,6 +3,7 @@ import ApplyModal from "./ApplyModal";
 import axios from "axios";
 import { FacebookShareButton, TwitterShareButton, LinkedinShareButton } from "react-share";
 import { UserContext } from "../../../context/LoginContext";
+import RelatedJobs from "../home/RelatedJobs";
 import LatestJobs from "../home/LatestJobs";
 
 const SingleView = ({ data }) => {

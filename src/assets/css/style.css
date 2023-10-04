@@ -1170,7 +1170,6 @@ span.right-cm {
 
 .feature-img img {
   width: 100%;
-  aspect-ratio: 16/6;
 }
 
 .overly-bg {
@@ -7797,4 +7796,95 @@ label {
 
 .search-icon:hover {
   color: black;
+}
+
+.job-rmt {
+  background-color: #bf7609 !important;
+}
+
+.category-img-width{
+  width: 30px;
+}
+.mar-bot10{
+  margin-bottom: 10px;
+}
+
+.view-event-details-btn{
+  width: 80% !important;
+}
+
+.event-width100{
+  width: 100%;
+  border-radius: 2%;
+}
+
+.tabs-about-pad{
+  padding: 3%;
+}
+
+.cart-form{
+  float: left;
+  width: 100%;
+  padding: 15px 30px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+}
+
+.pull-right{
+  float: right;
+}
+.text-left{
+  text-align: left!important;
+}
+
+.contact-employer-form {
+  float: left;
+  width: 100%;
+  padding: 30px 15px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+}
+
+.contact-employer-name {
+  padding: 5px;
+  width: 100%;
+  float: left;
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-right{
+  text-align: right !important;
+}
+
+.footer-links ul li a {
+  font-size: 13px;
+}
+
+.width100{
+  width: 100%;
+}
+
+.clr-red{
+  color: red!important;
+}
+
+.company_counts{
+  font-size: 5.5rem;
+    text-align: center;
+    color: #BE3432;
+}
+
+.company-description{
+  font-size: 1.5rem;
+  padding-top: 5%;
+  text-align: center;
+}
+
+.pad-top6per{
+  padding-top: 6%;
+}
+
+.for-employers-content{
+  font-size: 1.5rem!important;
 }

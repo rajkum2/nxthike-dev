@@ -38,7 +38,7 @@ const Content = () => {
   return (
     <>
       <main className="body-section">
-        {/* <SearchBar /> */}
+        <SearchBar />
         <BannerSlider />
         {/* <BannerSlide /> */}
         <Achievement />
@@ -49,7 +49,7 @@ const Content = () => {
         <JobSeekers />
         {/* <Featured /> */}
         <Info />
-        <Companies />
+        {/* <Companies /> */}
       </main>
       <button
         onClick={scrollToTop}
