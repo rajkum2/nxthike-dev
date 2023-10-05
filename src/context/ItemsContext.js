@@ -58,11 +58,15 @@ export default function ItemContext({ children }) {
                 let url;
                 let response;
                 if(searchTerm == '' & loc == '' & cat == '' & exp == '' & jobType == ''){
+                    const postData = {
+                        item_type_id: "itm_typec0bb1aef36ee7a1dc693302a27eabab3",
+                    };
                     url = `${process.env.REACT_APP_API_URL}items/search/api_key/${process.env.REACT_APP_API_SECURITY_KEY}/limit/9/offset/${offset}/app_list_id/app_6e2fa0fac7804b1441afd451e800b36a`;
-                    response = await axios.post(url);
+                    response = await axios.post(url, postData);
                 }else{
                     const postData = {
                         app_list_id: "app_6e2fa0fac7804b1441afd451e800b36a",
+                        item_type_id: "itm_typec0bb1aef36ee7a1dc693302a27eabab3",
                         status: 1,
                         searchterm: searchTerm,
                         cat_id: cat,
