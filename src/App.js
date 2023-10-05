@@ -56,6 +56,7 @@ const Events = React.lazy(() => import("./components/pages/Events"));
 const SingleEvent = React.lazy(() => import("./components/pages/SingleEvent"));
 const Cart = React.lazy(() => import("./components/pages/Cart"));
 
+const HrServiceConsulting = React.lazy(() => import("./components/pages/HrServiceConsulting"));
 export default function App() {
   return (
     <React.Suspense>
@@ -107,6 +108,7 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:eventId" element={<SingleEvent />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/hrserviceconsulting" element={<HrServiceConsulting />} />
       </Routes>
     </React.Suspense>
   );
