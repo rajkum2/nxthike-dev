@@ -34,7 +34,7 @@ const CallToAction: React.FC = () => {
                 Ready to Kickstart Your Career?
               </h2>
               <p className="text-base md:text-lg text-gray-600 mb-4 md:mb-6">
-                Join thousands of students and professionals who have found their dream opportunities through CareerPortal.
+                Join thousands of students and professionals who have found their dream opportunities through NxtHike.
               </p>
               
               <div className="mb-6 md:mb-8">

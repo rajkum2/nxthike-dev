@@ -8,7 +8,7 @@ const testimonials = [
     name: 'Alex Johnson',
     role: 'Software Engineer at Google',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    content: 'CareerPortal helped me land my dream job at Google. The platform made it easy to find relevant opportunities and the resume upload feature got me noticed by recruiters.',
+    content: 'NxtHike helped me land my dream job at Google. The platform made it easy to find relevant opportunities and the resume upload feature got me noticed by recruiters.',
     rating: 5
   },
   {
@@ -16,7 +16,7 @@ const testimonials = [
     name: 'Sophia Chen',
     role: 'Marketing Intern at Nike',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    content: 'I found my marketing internship through CareerPortal during my junior year. The application process was smooth, and I received multiple offers within weeks!',
+    content: 'I found my marketing internship through NxtHike during my junior year. The application process was smooth, and I received multiple offers within weeks!',
     rating: 5
   },
   {
@@ -24,7 +24,7 @@ const testimonials = [
     name: 'Marcus Williams',
     role: 'Data Scientist at Amazon',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    content: 'The courses on CareerPortal prepared me for my career in data science. The skills I learned were directly applicable to my job interviews and current role.',
+    content: 'The courses on NxtHike prepared me for my career in data science. The skills I learned were directly applicable to my job interviews and current role.',
     rating: 4
   },
   {
@@ -32,7 +32,7 @@ const testimonials = [
     name: 'Emma Rodriguez',
     role: 'UX Designer at Adobe',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    content: "CareerPortal's networking events connected me with industry professionals who mentored me and eventually referred me for my current position at Adobe.",
+    content: "NxtHike's networking events connected me with industry professionals who mentored me and eventually referred me for my current position at Adobe.",
     rating: 5
   }
 ];

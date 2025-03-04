@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
           <div>
             <div className="flex items-center mb-4">
               <Briefcase className="h-6 w-6 md:h-8 md:w-8 text-blue-400" />
-              <span className="ml-2 text-lg md:text-xl font-bold">CareerPortal</span>
+              <span className="ml-2 text-lg md:text-xl font-bold">CareNxtHikeerPortal</span>
             </div>
             <p className="text-sm md:text-base text-gray-400 mb-4">
               Connecting students and professionals with the best opportunities for growth and success.
@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center">
                 <Mail className="h-4 w-4 md:h-5 md:w-5 text-blue-400 mr-2" />
-                <span className="text-sm md:text-base text-gray-400">contact@careerportal.com</span>
+                <span className="text-sm md:text-base text-gray-400">contact@nxthike.com</span>
               </div>
               <div className="flex items-center">
                 <Phone className="h-4 w-4 md:h-5 md:w-5 text-blue-400 mr-2" />
@@ -140,7 +140,7 @@ const Footer: React.FC = () => {
         
         <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs md:text-sm text-gray-400 mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} CareerPortal. All rights reserved.
+            &copy; {new Date().getFullYear()} NxtHike. All rights reserved.
           </p>
           
           <div className="flex space-x-4 md:space-x-6">
