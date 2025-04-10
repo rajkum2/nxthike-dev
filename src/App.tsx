@@ -12,6 +12,7 @@ import CourseDetailsPage from './pages/CourseDetailsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { useAuthStore } from './store/authStore';
+import MetricoolTracker from './components/MetricoolTracker';
 
 function App() {
   const { fetchUser } = useAuthStore();
@@ -22,6 +23,7 @@ function App() {
   
   return (
     <Router>
+      <MetricoolTracker />
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
