@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-surface-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2 mb-6">
-          <div className="h-8 w-8 rounded-md bg-brand-600 flex items-center justify-center">
+          <div className="h-8 w-8 rounded bg-brand-600 flex items-center justify-center">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
           <span className="text-xl font-bold text-surface-900">NxtHike</span>
@@ -71,7 +71,7 @@ const LoginPage: React.FC = () => {
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 border border-surface-200 rounded-lg sm:px-8">
+        <div className="bg-white py-8 px-6 border border-surface-200 rounded-md sm:px-8">
           <form className="space-y-5" onSubmit={handleSubmit}>
             <Input
               label="Email address"
@@ -112,7 +112,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded px-3 py-2">
                 {error}
               </div>
             )}

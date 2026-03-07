@@ -10,13 +10,13 @@ import { useAuthStore } from '../store/authStore';
 
 const HomePage: React.FC = () => {
   const { fetchUser } = useAuthStore();
-  
+
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
-  
+
   return (
-    <div>
+    <div className="bg-white">
       <Hero />
       <FeaturedJobs />
       <FeaturedCompanies />

@@ -5,6 +5,7 @@ interface CardProps {
   className?: string;
   onClick?: () => void;
   hoverable?: boolean;
+  padding?: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -12,13 +13,17 @@ const Card: React.FC<CardProps> = ({
   className = '',
   onClick,
   hoverable = false,
+  padding = false,
 }) => {
   const baseClasses = 'bg-white rounded-lg border border-surface-200 overflow-hidden';
-  const hoverClasses = hoverable ? 'transition-shadow duration-200 hover:shadow-card-hover cursor-pointer' : 'shadow-card';
+  const hoverClasses = hoverable
+    ? 'transition-shadow duration-300 hover:shadow-md cursor-pointer'
+    : '';
+  const paddingClass = padding ? 'p-5' : '';
 
   return (
     <div
-      className={`${baseClasses} ${hoverClasses} ${className}`}
+      className={`${baseClasses} ${hoverClasses} ${paddingClass} ${className}`}
       onClick={onClick}
     >
       {children}
@@ -28,7 +33,7 @@ const Card: React.FC<CardProps> = ({
 
 export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
-  className = ''
+  className = '',
 }) => {
   return (
     <div className={`px-5 py-4 border-b border-surface-100 ${className}`}>
@@ -39,7 +44,7 @@ export const CardHeader: React.FC<{ children: React.ReactNode; className?: strin
 
 export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
-  className = ''
+  className = '',
 }) => {
   return (
     <div className={`px-5 py-4 ${className}`}>
@@ -50,10 +55,10 @@ export const CardContent: React.FC<{ children: React.ReactNode; className?: stri
 
 export const CardFooter: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
-  className = ''
+  className = '',
 }) => {
   return (
-    <div className={`px-5 py-4 border-t border-surface-100 bg-surface-50 ${className}`}>
+    <div className={`px-5 py-4 border-t border-surface-100 bg-surface-50/50 ${className}`}>
       {children}
     </div>
   );

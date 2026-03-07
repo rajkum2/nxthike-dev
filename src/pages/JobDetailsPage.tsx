@@ -13,6 +13,9 @@ import {
   Check,
   ArrowLeft,
   Loader2,
+  Tag,
+  Users,
+  ChevronRight,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardContent } from '../components/ui/Card';
@@ -113,7 +116,7 @@ const JobDetailsPage: React.FC = () => {
       <div className="pt-14 bg-surface-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-brand-600 mx-auto mb-4" />
-          <p className="text-surface-600">Loading job details...</p>
+          <p className="text-surface-600 text-sm">Loading job details...</p>
         </div>
       </div>
     );
@@ -149,53 +152,62 @@ const JobDetailsPage: React.FC = () => {
 
   return (
     <div className="pt-14 bg-surface-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-brand-600 to-brand-700 py-8 md:py-10">
-        <div className="container-default">
+      {/* Blue Gradient Header Banner */}
+      <div className="bg-gradient-to-br from-brand-600 via-brand-700 to-blue-800">
+        <div className="container-default py-8 md:py-12">
+          {/* Breadcrumb */}
           <Link
             to="/jobs"
-            className="inline-flex items-center text-brand-100 hover:text-white mb-3 transition-colors text-sm"
+            className="inline-flex items-center text-blue-200 hover:text-white mb-6 transition-colors text-sm font-medium"
           >
-            <ArrowLeft size={16} className="mr-2" />
+            <ArrowLeft size={16} className="mr-1.5" />
             Back to Jobs
           </Link>
 
-          <div className="flex items-start gap-4">
+          <div className="flex flex-col md:flex-row md:items-start gap-5">
+            {/* Company Logo */}
             {selectedJob.companyLogo ? (
-              <img
-                src={selectedJob.companyLogo}
-                alt={`${selectedJob.company} logo`}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover bg-white p-1"
-              />
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-white p-2 shadow-lg flex-shrink-0">
+                <img
+                  src={selectedJob.companyLogo}
+                  alt={`${selectedJob.company} logo`}
+                  className="w-full h-full rounded-md object-cover"
+                />
+              </div>
             ) : (
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-white/20 flex items-center justify-center">
-                <Building2 className="h-8 w-8 text-white" />
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
+                <Building2 className="h-8 w-8 text-white/80" />
               </div>
             )}
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-2">
+
+            <div className="flex-1">
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 {getJobTypeBadge(selectedJob.type)}
                 {selectedJob.isRemote && (
                   <Badge variant="success">Remote</Badge>
                 )}
               </div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1">
+
+              {/* Title */}
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1.5 leading-tight">
                 {selectedJob.title}
               </h1>
-              <p className="text-brand-100 text-base">{selectedJob.company}</p>
+              <p className="text-blue-100 text-base md:text-lg font-medium">{selectedJob.company}</p>
 
-              <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-2 text-sm text-brand-200">
+              {/* Meta Info */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-blue-200">
                 <div className="flex items-center">
-                  <MapPin size={14} className="mr-1 flex-shrink-0" />
+                  <MapPin size={15} className="mr-1.5 flex-shrink-0" />
                   <span>{selectedJob.location}</span>
                 </div>
                 <div className="flex items-center">
-                  <Clock size={14} className="mr-1 flex-shrink-0" />
+                  <Clock size={15} className="mr-1.5 flex-shrink-0" />
                   <span>Posted {formatPostedDate(selectedJob.postedAt)}</span>
                 </div>
                 {selectedJob.salary && (
                   <div className="flex items-center">
-                    <DollarSign size={14} className="mr-1 flex-shrink-0" />
+                    <DollarSign size={15} className="mr-1.5 flex-shrink-0" />
                     <span>
                       {selectedJob.salary.min.toLocaleString()} - {selectedJob.salary.max.toLocaleString()}{' '}
                       {selectedJob.salary.currency}/year
@@ -204,7 +216,7 @@ const JobDetailsPage: React.FC = () => {
                 )}
                 {selectedJob.stipend && (
                   <div className="flex items-center">
-                    <DollarSign size={14} className="mr-1 flex-shrink-0" />
+                    <DollarSign size={15} className="mr-1.5 flex-shrink-0" />
                     <span>
                       {selectedJob.stipend.amount.toLocaleString()} {selectedJob.stipend.currency}/
                       {selectedJob.stipend.period}
@@ -217,204 +229,262 @@ const JobDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="container-default py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
+      {/* Content Area */}
+      <div className="container-default py-8 md:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Content - 8 columns */}
+          <div className="lg:col-span-8">
+            {/* Success Alert */}
             {showSuccess && (
-              <div className="bg-emerald-50 border border-emerald-300 text-emerald-700 px-4 py-3 rounded relative mb-6 flex items-center">
-                <Check size={20} className="mr-2" />
-                <span>Your application has been submitted successfully!</span>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-md mb-6 flex items-center shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center mr-3 flex-shrink-0">
+                  <Check size={16} className="text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium">Your application has been submitted successfully!</span>
               </div>
             )}
 
-            {/* Description */}
-            <Card className="mb-6">
-              <CardContent>
-                <h2 className="text-lg md:text-xl font-semibold mb-4">Job Description</h2>
+            {/* Job Description */}
+            <div className="bg-white rounded-lg border border-surface-200 shadow-sm mb-6">
+              <div className="px-6 py-5 border-b border-surface-100">
+                <h2 className="text-lg font-semibold text-surface-900">Job Description</h2>
+              </div>
+              <div className="px-6 py-5">
                 <div className="prose max-w-none">
                   {selectedJob.description.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-sm md:text-base text-surface-700">
+                    <p key={index} className="mb-4 last:mb-0 text-surface-600 leading-relaxed text-[15px]">
                       {paragraph}
                     </p>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Requirements */}
             {selectedJob.requirements && selectedJob.requirements.length > 0 && (
-              <Card className="mb-6">
-                <CardContent>
-                  <h2 className="text-lg md:text-xl font-semibold mb-4">Requirements</h2>
-                  <ul className="space-y-2">
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm mb-6">
+                <div className="px-6 py-5 border-b border-surface-100">
+                  <h2 className="text-lg font-semibold text-surface-900">Requirements</h2>
+                </div>
+                <div className="px-6 py-5">
+                  <ul className="space-y-3">
                     {selectedJob.requirements.map((req, index) => (
-                      <li key={index} className="flex items-start text-sm md:text-base text-surface-700">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 mr-3 flex-shrink-0"></span>
-                        {req}
+                      <li key={index} className="flex items-start text-[15px] text-surface-600">
+                        <div className="w-5 h-5 rounded-full bg-brand-50 flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">
+                          <Check size={12} className="text-brand-600" />
+                        </div>
+                        <span className="leading-relaxed">{req}</span>
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
 
             {/* Responsibilities */}
             {selectedJob.responsibilities && selectedJob.responsibilities.length > 0 && (
-              <Card className="mb-6">
-                <CardContent>
-                  <h2 className="text-lg md:text-xl font-semibold mb-4">Responsibilities</h2>
-                  <ul className="space-y-2">
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm mb-6">
+                <div className="px-6 py-5 border-b border-surface-100">
+                  <h2 className="text-lg font-semibold text-surface-900">Responsibilities</h2>
+                </div>
+                <div className="px-6 py-5">
+                  <ul className="space-y-3">
                     {selectedJob.responsibilities.map((resp, index) => (
-                      <li key={index} className="flex items-start text-sm md:text-base text-surface-700">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 mr-3 flex-shrink-0"></span>
-                        {resp}
+                      <li key={index} className="flex items-start text-[15px] text-surface-600">
+                        <div className="w-5 h-5 rounded-full bg-brand-50 flex items-center justify-center mt-0.5 mr-3 flex-shrink-0">
+                          <ChevronRight size={12} className="text-brand-600" />
+                        </div>
+                        <span className="leading-relaxed">{resp}</span>
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Sidebar */}
-          <div>
-            <div className="sticky top-24">
-              <Card className="mb-6">
-                <CardContent>
-                  {applied ? (
-                    <Button variant="secondary" fullWidth disabled className="mb-3">
-                      <Check size={16} className="mr-2" />
-                      Applied
-                    </Button>
-                  ) : (
-                    <Button onClick={handleApply} fullWidth className="mb-3">
-                      Apply Now
-                    </Button>
+          {/* Sidebar - 4 columns */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-20 space-y-6">
+              {/* Apply Card */}
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm p-6">
+                {applied ? (
+                  <Button variant="secondary" fullWidth disabled className="mb-3 h-11">
+                    <Check size={16} className="mr-2" />
+                    Applied
+                  </Button>
+                ) : (
+                  <Button onClick={handleApply} fullWidth className="mb-3 h-11 text-base font-semibold">
+                    Apply Now
+                  </Button>
+                )}
+
+                <Button variant="outline" onClick={handleShare} fullWidth className="mb-5">
+                  <Share2 size={15} className="mr-2" />
+                  Share Job
+                </Button>
+
+                {/* Job Meta */}
+                <div className="border-t border-surface-100 pt-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Briefcase size={15} className="mr-2.5 text-surface-400" />
+                      <span>Job Type</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800 capitalize">{selectedJob.type}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Tag size={15} className="mr-2.5 text-surface-400" />
+                      <span>Category</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">{selectedJob.category}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <MapPin size={15} className="mr-2.5 text-surface-400" />
+                      <span>Location</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">{selectedJob.location}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Calendar size={15} className="mr-2.5 text-surface-400" />
+                      <span>Deadline</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">{formatDate(selectedJob.applicationDeadline)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Clock size={15} className="mr-2.5 text-surface-400" />
+                      <span>Posted</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">{formatPostedDate(selectedJob.postedAt)}</span>
+                  </div>
+
+                  {selectedJob.salary && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-surface-500">
+                        <DollarSign size={15} className="mr-2.5 text-surface-400" />
+                        <span>Salary</span>
+                      </div>
+                      <span className="text-sm font-medium text-surface-800">
+                        {selectedJob.salary.min.toLocaleString()} - {selectedJob.salary.max.toLocaleString()} {selectedJob.salary.currency}
+                      </span>
+                    </div>
                   )}
 
-                  <Button variant="outline" onClick={handleShare} fullWidth className="mb-4">
-                    <Share2 size={16} className="mr-2" />
-                    Share Job
-                  </Button>
+                  {selectedJob.stipend && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-surface-500">
+                        <DollarSign size={15} className="mr-2.5 text-surface-400" />
+                        <span>Stipend</span>
+                      </div>
+                      <span className="text-sm font-medium text-surface-800">
+                        {selectedJob.stipend.amount.toLocaleString()} {selectedJob.stipend.currency}/{selectedJob.stipend.period}
+                      </span>
+                    </div>
+                  )}
 
-                  <div className="border-t border-surface-200 pt-4 space-y-3">
-                    <div className="flex items-center text-sm text-surface-600">
-                      <Briefcase size={16} className="mr-2 text-surface-400" />
-                      <span className="capitalize">{selectedJob.type}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-surface-600">
-                      <MapPin size={16} className="mr-2 text-surface-400" />
-                      <span>{selectedJob.location}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-surface-600">
-                      <Calendar size={16} className="mr-2 text-surface-400" />
-                      <span>Deadline: {formatDate(selectedJob.applicationDeadline)}</span>
-                    </div>
-                    {selectedJob.salary && (
-                      <div className="flex items-center text-sm text-surface-600">
-                        <DollarSign size={16} className="mr-2 text-surface-400" />
-                        <span>
-                          {selectedJob.salary.min.toLocaleString()} -{' '}
-                          {selectedJob.salary.max.toLocaleString()} {selectedJob.salary.currency}/year
-                        </span>
+                  {selectedJob.duration && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-sm text-surface-500">
+                        <Clock size={15} className="mr-2.5 text-surface-400" />
+                        <span>Duration</span>
                       </div>
-                    )}
-                    {selectedJob.stipend && (
-                      <div className="flex items-center text-sm text-surface-600">
-                        <DollarSign size={16} className="mr-2 text-surface-400" />
-                        <span>
-                          {selectedJob.stipend.amount.toLocaleString()} {selectedJob.stipend.currency}/
-                          {selectedJob.stipend.period}
-                        </span>
-                      </div>
-                    )}
-                    {selectedJob.duration && (
-                      <div className="flex items-center text-sm text-surface-600">
-                        <Clock size={16} className="mr-2 text-surface-400" />
-                        <span>Duration: {selectedJob.duration}</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      <span className="text-sm font-medium text-surface-800">{selectedJob.duration}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* Company Info Card */}
-              <Card>
-                <CardContent>
-                  <h3 className="font-semibold text-surface-900 mb-3">About the Company</h3>
-                  <div className="flex items-center mb-3">
-                    {selectedJob.companyLogo ? (
-                      <img
-                        src={selectedJob.companyLogo}
-                        alt={selectedJob.company}
-                        className="w-10 h-10 rounded-md object-cover mr-3"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-md bg-surface-200 flex items-center justify-center mr-3">
-                        <Building2 className="h-5 w-5 text-surface-500" />
-                      </div>
-                    )}
-                    <div>
-                      <h4 className="font-medium text-surface-900">{selectedJob.company}</h4>
-                      <p className="text-sm text-surface-500">{selectedJob.category}</p>
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm p-6">
+                <h3 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-4">About the Company</h3>
+                <div className="flex items-center mb-4">
+                  {selectedJob.companyLogo ? (
+                    <img
+                      src={selectedJob.companyLogo}
+                      alt={selectedJob.company}
+                      className="w-12 h-12 rounded-md object-cover mr-3 border border-surface-200"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-md bg-surface-100 flex items-center justify-center mr-3">
+                      <Building2 className="h-6 w-6 text-surface-400" />
                     </div>
+                  )}
+                  <div>
+                    <h4 className="font-semibold text-surface-900">{selectedJob.company}</h4>
+                    <p className="text-sm text-surface-500">{selectedJob.category}</p>
                   </div>
-                  <div className="flex items-center text-sm text-surface-600 mb-2">
-                    <Globe size={14} className="mr-2 text-surface-400" />
-                    <span>{selectedJob.location}</span>
-                  </div>
-                  <Link to={`/companies`}>
-                    <Button variant="outline" fullWidth size="sm">
-                      View Company
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex items-center text-sm text-surface-500 mb-4">
+                  <Globe size={14} className="mr-2 text-surface-400" />
+                  <span>{selectedJob.location}</span>
+                </div>
+                <Link to={`/companies`}>
+                  <Button variant="outline" fullWidth size="sm">
+                    View Company Profile
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Similar Jobs */}
         {similarJobs.length > 0 && (
-          <div className="mt-8 md:mt-12">
-            <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Similar Jobs</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="mt-12 md:mt-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-surface-900">Similar Jobs</h2>
+              <Link to="/jobs" className="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center">
+                View all
+                <ChevronRight size={16} className="ml-0.5" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {similarJobs.map((job) => (
-                <Card key={job.id} hoverable>
-                  <CardContent>
-                    <div className="flex items-start mb-3">
+                <Link key={job.id} to={`/jobs/${job.id}`} className="group">
+                  <div className="bg-white rounded-lg border border-surface-200 shadow-sm p-5 h-full transition-all duration-200 group-hover:shadow-md group-hover:border-brand-200">
+                    <div className="flex items-start mb-4">
                       {job.companyLogo ? (
                         <img
                           src={job.companyLogo}
                           alt={`${job.company} logo`}
-                          className="w-10 h-10 rounded-md object-cover mr-3"
+                          className="w-11 h-11 rounded-md object-cover mr-3 border border-surface-200"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-md bg-surface-200 flex items-center justify-center mr-3">
-                          <Briefcase className="h-5 w-5 text-surface-500" />
+                        <div className="w-11 h-11 rounded-md bg-surface-100 flex items-center justify-center mr-3">
+                          <Briefcase className="h-5 w-5 text-surface-400" />
                         </div>
                       )}
-                      <div>
-                        <h3 className="font-semibold text-surface-900 text-sm md:text-base">{job.title}</h3>
-                        <p className="text-sm text-surface-600">{job.company}</p>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-surface-900 text-[15px] group-hover:text-brand-600 transition-colors truncate">
+                          {job.title}
+                        </h3>
+                        <p className="text-sm text-surface-500">{job.company}</p>
                       </div>
                     </div>
-                    <div className="flex items-center text-surface-500 text-sm mb-2">
-                      <MapPin size={14} className="mr-1" />
-                      <span>{job.location}</span>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center text-surface-500 text-sm">
+                        <MapPin size={14} className="mr-1.5 flex-shrink-0 text-surface-400" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-center text-surface-500 text-sm">
+                        <Clock size={14} className="mr-1.5 flex-shrink-0 text-surface-400" />
+                        <span>{formatPostedDate(job.postedAt)}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center text-surface-500 text-sm mb-4">
-                      <Clock size={14} className="mr-1" />
-                      <span>{formatPostedDate(job.postedAt)}</span>
+                    <div className="flex items-center gap-2">
+                      {getJobTypeBadge(job.type)}
+                      {job.isRemote && <Badge variant="success">Remote</Badge>}
                     </div>
-                    <Link to={`/jobs/${job.id}`}>
-                      <Button variant="outline" fullWidth>
-                        View Details
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>

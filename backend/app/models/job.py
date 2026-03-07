@@ -26,6 +26,6 @@ class Job(Base):
     duration: Mapped[str | None] = mapped_column(String, nullable=True)
     application_deadline: Mapped[str] = mapped_column(String, nullable=False)
     posted_by: Mapped[str] = mapped_column(String, nullable=False, default="admin")
-    posted_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    posted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     status: Mapped[str] = mapped_column(String, default="approved")  # pending, approved, rejected
     applicants: Mapped[list] = mapped_column(JSON, default=list)
