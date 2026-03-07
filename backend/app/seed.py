@@ -88,6 +88,8 @@ async def seed():
             posted_at = j.get("postedAt", "2026-03-01T10:00:00Z")
             try:
                 dt = datetime.fromisoformat(posted_at.replace("Z", "+00:00"))
+                # Make timezone-naive for PostgreSQL compatibility
+                dt = dt.replace(tzinfo=None)
             except Exception:
                 dt = datetime.now()
 

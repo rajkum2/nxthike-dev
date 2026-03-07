@@ -32,27 +32,32 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   };
 
   return (
-    <div className="flex justify-center mt-8">
-      <nav className="flex items-center gap-1">
+    <div className="flex justify-center mt-10">
+      <nav className="flex items-center gap-1.5">
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-surface-300 text-surface-500 hover:bg-surface-50 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+          className="inline-flex items-center justify-center h-9 w-9 rounded-md border border-surface-200 bg-white text-surface-500 hover:bg-surface-50 hover:text-surface-700 disabled:opacity-40 disabled:pointer-events-none transition-all duration-200 shadow-sm"
         >
           <ChevronLeft size={16} />
         </button>
 
         {getPageNumbers().map((page, index) =>
           typeof page === 'string' ? (
-            <span key={`ellipsis-${index}`} className="px-1 text-surface-400 text-sm">...</span>
+            <span
+              key={`ellipsis-${index}`}
+              className="px-1.5 text-surface-400 text-sm select-none"
+            >
+              ...
+            </span>
           ) : (
             <button
               key={page}
               onClick={() => onPageChange(page)}
-              className={`inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors ${
+              className={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-all duration-200 ${
                 currentPage === page
-                  ? 'bg-brand-600 text-white'
-                  : 'text-surface-600 hover:bg-surface-100'
+                  ? 'bg-brand-600 text-white shadow-sm font-semibold'
+                  : 'bg-white border border-surface-200 text-surface-600 hover:bg-surface-50 hover:text-surface-900 shadow-sm font-medium'
               }`}
             >
               {page}
@@ -63,7 +68,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-surface-300 text-surface-500 hover:bg-surface-50 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+          className="inline-flex items-center justify-center h-9 w-9 rounded-md border border-surface-200 bg-white text-surface-500 hover:bg-surface-50 hover:text-surface-700 disabled:opacity-40 disabled:pointer-events-none transition-all duration-200 shadow-sm"
         >
           <ChevronRight size={16} />
         </button>

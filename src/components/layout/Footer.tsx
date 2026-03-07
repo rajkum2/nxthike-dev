@@ -4,38 +4,42 @@ import { Mail, Phone, MapPin, Sparkles } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-surface-950 text-white">
-      <div className="container-default py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-surface-50 border-t border-surface-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {/* Brand Column */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-7 w-7 rounded-md bg-brand-600 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-white" />
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="h-8 w-8 rounded-md bg-brand-600 flex items-center justify-center shadow-sm">
+                <Sparkles className="h-4.5 w-4.5 text-white" />
               </div>
-              <span className="text-lg font-bold">NxtHike</span>
+              <span className="text-xl font-bold text-surface-900 tracking-tight">NxtHike</span>
             </div>
-            <p className="text-sm text-surface-400 leading-relaxed mb-4">
+            <p className="text-sm text-surface-500 leading-relaxed mb-5">
               AI-powered career platform connecting students and professionals with opportunities for growth and success.
             </p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-surface-400">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span>contact@nxthike.com</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 text-sm text-surface-500">
+                <Mail className="h-4 w-4 flex-shrink-0 text-surface-400" />
+                <a href="mailto:contact@nxthike.com" className="hover:text-brand-600 transition-colors duration-200">contact@nxthike.com</a>
               </div>
-              <div className="flex items-center gap-2 text-sm text-surface-400">
-                <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>+1 (555) 123-4567</span>
+              <div className="flex items-center gap-2.5 text-sm text-surface-500">
+                <Phone className="h-4 w-4 flex-shrink-0 text-surface-400" />
+                <a href="tel:+15551234567" className="hover:text-brand-600 transition-colors duration-200">+1 (555) 123-4567</a>
               </div>
-              <div className="flex items-center gap-2 text-sm text-surface-400">
-                <MapPin className="h-4 w-4 flex-shrink-0" />
+              <div className="flex items-center gap-2.5 text-sm text-surface-500">
+                <MapPin className="h-4 w-4 flex-shrink-0 text-surface-400" />
                 <span>San Francisco, CA</span>
               </div>
             </div>
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-surface-300 mb-3">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-semibold text-surface-900 uppercase tracking-wider mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2.5">
               {[
                 { to: '/', label: 'Home' },
                 { to: '/internships', label: 'Internships' },
@@ -44,7 +48,10 @@ const Footer: React.FC = () => {
                 { to: '/courses', label: 'Courses' },
               ].map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to} className="text-sm text-surface-400 hover:text-white transition-colors">
+                  <Link
+                    to={link.to}
+                    className="text-sm text-surface-500 hover:text-brand-600 hover:underline transition-colors duration-200"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -52,9 +59,12 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
+          {/* For Students */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-surface-300 mb-3">For Students</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-semibold text-surface-900 uppercase tracking-wider mb-4">
+              For Students
+            </h3>
+            <ul className="space-y-2.5">
               {[
                 { to: '/register', label: 'Register' },
                 { to: '/login', label: 'Login' },
@@ -63,7 +73,10 @@ const Footer: React.FC = () => {
                 { to: '/career-advice', label: 'Career Advice' },
               ].map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to} className="text-sm text-surface-400 hover:text-white transition-colors">
+                  <Link
+                    to={link.to}
+                    className="text-sm text-surface-500 hover:text-brand-600 hover:underline transition-colors duration-200"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -71,9 +84,12 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
+          {/* For Employers */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-surface-300 mb-3">For Employers</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-semibold text-surface-900 uppercase tracking-wider mb-4">
+              For Employers
+            </h3>
+            <ul className="space-y-2.5">
               {[
                 { to: '/employer/register', label: 'Register as Employer' },
                 { to: '/employer/post-job', label: 'Post a Job' },
@@ -82,7 +98,10 @@ const Footer: React.FC = () => {
                 { to: '/contact', label: 'Contact Us' },
               ].map((link) => (
                 <li key={link.to}>
-                  <Link to={link.to} className="text-sm text-surface-400 hover:text-white transition-colors">
+                  <Link
+                    to={link.to}
+                    className="text-sm text-surface-500 hover:text-brand-600 hover:underline transition-colors duration-200"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -91,14 +110,30 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-surface-800 flex flex-col md:flex-row justify-between items-center gap-3">
-          <p className="text-xs text-surface-500">
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-surface-200 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-surface-400">
             &copy; {new Date().getFullYear()} NxtHike. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-xs text-surface-500 hover:text-surface-300 transition-colors">Privacy Policy</a>
-            <a href="#" className="text-xs text-surface-500 hover:text-surface-300 transition-colors">Terms of Service</a>
-            <a href="#" className="text-xs text-surface-500 hover:text-surface-300 transition-colors">Cookie Policy</a>
+          <div className="flex items-center gap-8">
+            <a
+              href="#"
+              className="text-sm text-surface-400 hover:text-surface-600 transition-colors duration-200"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="#"
+              className="text-sm text-surface-400 hover:text-surface-600 transition-colors duration-200"
+            >
+              Terms of Service
+            </a>
+            <a
+              href="#"
+              className="text-sm text-surface-400 hover:text-surface-600 transition-colors duration-200"
+            >
+              Cookie Policy
+            </a>
           </div>
         </div>
       </div>

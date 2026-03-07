@@ -92,7 +92,7 @@ const DashboardPage: React.FC = () => {
               <Card hoverable>
                 <CardContent>
                   <div className="flex items-center">
-                    <div className={`${stat.color} rounded-lg p-3 mr-4`}>
+                    <div className={`${stat.color} rounded-md p-3 mr-4`}>
                       <stat.icon className="h-6 w-6 text-white" />
                     </div>
                     <div>

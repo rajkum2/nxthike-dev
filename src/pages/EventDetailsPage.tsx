@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Video, Users, Share2, Download, AlertCircle, Check } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Video,
+  Users,
+  Share2,
+  Download,
+  AlertCircle,
+  Check,
+  ArrowLeft,
+  ChevronRight,
+  ExternalLink,
+  Copy,
+  Twitter,
+  Linkedin,
+} from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardContent } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
@@ -17,6 +33,7 @@ const EventDetailsPage: React.FC = () => {
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Fetch event data when id changes
   useEffect(() => {
@@ -49,6 +66,15 @@ const EventDetailsPage: React.FC = () => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
+  const formatShortDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
   const getEventTypeBadge = (type: string) => {
     switch (type) {
       case 'webinar':
@@ -73,8 +99,15 @@ const EventDetailsPage: React.FC = () => {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   // Similar events: pick up to 3 events from data that are not the current one
@@ -86,7 +119,7 @@ const EventDetailsPage: React.FC = () => {
       <div className="pt-14 bg-surface-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
-          <p className="text-surface-600">Loading event details...</p>
+          <p className="text-surface-600 text-sm">Loading event details...</p>
         </div>
       </div>
     );
@@ -121,51 +154,64 @@ const EventDetailsPage: React.FC = () => {
   }
 
   const event = selectedEvent;
+  const spotsRemaining = event.maxAttendees - event.attendees;
+  const fillPercentage = (event.attendees / event.maxAttendees) * 100;
 
   return (
     <div className="pt-14 bg-surface-50 min-h-screen">
-      {/* Event Header */}
+      {/* Event Header with Image Banner */}
       <div className="relative">
-        <div className="h-48 md:h-64 lg:h-96 w-full overflow-hidden">
+        <div className="h-56 md:h-64 lg:h-80 w-full overflow-hidden">
           <img
             src={event.image}
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10"></div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 text-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-2">
+        <div className="absolute bottom-0 left-0 right-0">
+          <div className="container-default pb-6 md:pb-8">
+            {/* Breadcrumb */}
+            <Link
+              to="/events"
+              className="inline-flex items-center text-white/70 hover:text-white mb-4 transition-colors text-sm font-medium"
+            >
+              <ArrowLeft size={16} className="mr-1.5" />
+              Back to Events
+            </Link>
+
+            <div className="mb-3">
               {getEventTypeBadge(event.type)}
             </div>
-            <h1 className="text-xl md:text-3xl lg:text-4xl font-bold mb-2">{event.title}</h1>
-            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm lg:text-base">
+
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 leading-tight">{event.title}</h1>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/80">
               <div className="flex items-center">
-                <Calendar size={14} className="mr-2 flex-shrink-0" />
+                <Calendar size={15} className="mr-1.5 flex-shrink-0" />
                 <span>{formatDate(event.date)}</span>
               </div>
 
               <div className="flex items-center">
-                <Clock size={14} className="mr-2 flex-shrink-0" />
+                <Clock size={15} className="mr-1.5 flex-shrink-0" />
                 <span>{event.time}</span>
               </div>
 
               {event.isOnline ? (
                 <div className="flex items-center">
-                  <Video size={14} className="mr-2 flex-shrink-0" />
+                  <Video size={15} className="mr-1.5 flex-shrink-0" />
                   <span>Online Event</span>
                 </div>
               ) : (
                 <div className="flex items-center">
-                  <MapPin size={14} className="mr-2 flex-shrink-0" />
+                  <MapPin size={15} className="mr-1.5 flex-shrink-0" />
                   <span>{event.location}</span>
                 </div>
               )}
 
               <div className="flex items-center">
-                <Users size={14} className="mr-2 flex-shrink-0" />
+                <Users size={15} className="mr-1.5 flex-shrink-0" />
                 <span>{event.attendees} attending</span>
               </div>
             </div>
@@ -173,198 +219,306 @@ const EventDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="container-default py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
+      {/* Content Area */}
+      <div className="container-default py-8 md:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Content - 8 columns */}
+          <div className="lg:col-span-8">
+            {/* Success Message */}
             {showSuccessMessage && (
-              <div className="bg-emerald-50 border border-emerald-300 text-emerald-700 px-4 py-3 rounded relative mb-6 flex items-center">
-                <Check size={20} className="mr-2" />
-                <span>You have successfully registered for this event!</span>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-md mb-6 flex items-center shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center mr-3 flex-shrink-0">
+                  <Check size={16} className="text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium">You have successfully registered for this event!</span>
               </div>
             )}
 
-            <Card className="mb-6 md:mb-8">
-              <CardContent>
-                <h2 className="text-lg md:text-xl font-semibold mb-4">About This Event</h2>
+            {/* About This Event */}
+            <div className="bg-white rounded-lg border border-surface-200 shadow-sm mb-6">
+              <div className="px-6 py-5 border-b border-surface-100">
+                <h2 className="text-lg font-semibold text-surface-900">About This Event</h2>
+              </div>
+              <div className="px-6 py-5">
                 <div className="prose max-w-none">
                   {event.description.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-sm md:text-base text-surface-700">{paragraph}</p>
+                    <p key={index} className="mb-4 last:mb-0 text-surface-600 leading-relaxed text-[15px]">{paragraph}</p>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className="mb-6 md:mb-8">
-              <CardContent>
-                <h2 className="text-lg md:text-xl font-semibold mb-4">Event Agenda</h2>
-                <div className="space-y-3 md:space-y-4">
-                  {event.agenda.map((item, index) => (
-                    <div key={index} className="flex flex-col md:flex-row">
-                      <div className="w-full md:w-1/3 font-medium text-surface-600 text-sm md:text-base mb-1 md:mb-0">{item.time}</div>
-                      <div className="w-full md:w-2/3 text-surface-800 text-sm md:text-base">{item.title}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Event Agenda - Timeline Style */}
+            <div className="bg-white rounded-lg border border-surface-200 shadow-sm mb-6">
+              <div className="px-6 py-5 border-b border-surface-100">
+                <h2 className="text-lg font-semibold text-surface-900">Event Agenda</h2>
+              </div>
+              <div className="px-6 py-5">
+                <div className="relative">
+                  {/* Timeline line */}
+                  <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-brand-100"></div>
 
-            {event.speakers && event.speakers.length > 0 && (
-              <Card className="mb-6 md:mb-8">
-                <CardContent>
-                  <h2 className="text-lg md:text-xl font-semibold mb-4">Speakers</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    {event.speakers.map((speaker, index) => (
-                      <div key={index} className="flex">
-                        <img
-                          src={speaker.avatar}
-                          alt={speaker.name}
-                          className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover mr-3 md:mr-4"
-                        />
-                        <div>
-                          <h3 className="font-semibold text-surface-900 text-sm md:text-base">{speaker.name}</h3>
-                          <p className="text-xs md:text-sm text-surface-600 mb-1">{speaker.role}</p>
-                          <p className="text-xs md:text-sm text-surface-700">{speaker.bio}</p>
+                  <div className="space-y-5">
+                    {event.agenda.map((item, index) => (
+                      <div key={index} className="flex items-start relative">
+                        {/* Timeline dot */}
+                        <div className="w-4 h-4 rounded-full bg-brand-500 border-[3px] border-brand-100 flex-shrink-0 mt-1 mr-4 relative z-10"></div>
+                        <div className="flex-1 pb-1">
+                          <span className="inline-block text-xs font-semibold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-full mb-1.5">
+                            {item.time}
+                          </span>
+                          <p className="text-[15px] font-medium text-surface-800">{item.title}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              </div>
+            </div>
 
-            {event.sponsors && event.sponsors.length > 0 && (
-              <Card>
-                <CardContent>
-                  <h2 className="text-lg md:text-xl font-semibold mb-4">Sponsors</h2>
-                  <div className="flex flex-wrap gap-4 md:gap-6">
-                    {event.sponsors.map((sponsor, index) => (
-                      <div key={index} className="text-center">
+            {/* Speakers Grid */}
+            {event.speakers && event.speakers.length > 0 && (
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm mb-6">
+                <div className="px-6 py-5 border-b border-surface-100">
+                  <h2 className="text-lg font-semibold text-surface-900">Speakers</h2>
+                </div>
+                <div className="px-6 py-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {event.speakers.map((speaker, index) => (
+                      <div key={index} className="flex items-start p-4 bg-surface-50 rounded-lg border border-surface-100">
                         <img
-                          src={sponsor.logo}
-                          alt={sponsor.name}
-                          className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-2"
+                          src={speaker.avatar}
+                          alt={speaker.name}
+                          className="w-14 h-14 rounded-full object-cover mr-4 flex-shrink-0 border-2 border-white shadow-sm"
                         />
-                        <p className="text-xs md:text-sm text-surface-700">{sponsor.name}</p>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-surface-900 text-[15px]">{speaker.name}</h3>
+                          <p className="text-xs text-brand-600 font-medium mb-1.5">{speaker.role}</p>
+                          <p className="text-sm text-surface-500 leading-relaxed line-clamp-2">{speaker.bio}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+            )}
+
+            {/* Sponsors */}
+            {event.sponsors && event.sponsors.length > 0 && (
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm">
+                <div className="px-6 py-5 border-b border-surface-100">
+                  <h2 className="text-lg font-semibold text-surface-900">Sponsors</h2>
+                </div>
+                <div className="px-6 py-5">
+                  <div className="flex flex-wrap items-center gap-6">
+                    {event.sponsors.map((sponsor, index) => (
+                      <div key={index} className="flex flex-col items-center p-4 bg-surface-50 rounded-lg border border-surface-100 min-w-[120px]">
+                        <img
+                          src={sponsor.logo}
+                          alt={sponsor.name}
+                          className="w-16 h-16 object-contain mb-2"
+                        />
+                        <p className="text-xs text-surface-600 font-medium text-center">{sponsor.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Sidebar */}
-          <div>
-            <div className="sticky top-24">
-              <Card className="mb-6">
-                <CardContent>
-                  <div className="flex items-center mb-4">
-                    {event.organizerLogo && (
-                      <img
-                        src={event.organizerLogo}
-                        alt={event.organizer}
-                        className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover mr-3"
-                      />
-                    )}
-                    <div>
-                      <p className="text-xs md:text-sm text-surface-600">Organized by</p>
-                      <h3 className="font-semibold text-surface-900 text-sm md:text-base">{event.organizer}</h3>
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <div className="flex justify-between text-xs md:text-sm mb-1">
-                      <span>Spots remaining</span>
-                      <span>{event.maxAttendees - event.attendees} of {event.maxAttendees}</span>
-                    </div>
-                    <div className="w-full bg-surface-200 rounded-full h-2">
-                      <div
-                        className="bg-brand-600 h-2 rounded-full"
-                        style={{ width: `${(event.attendees / event.maxAttendees) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {isRegistered ? (
-                    <div className="mb-4">
-                      <Button variant="secondary" fullWidth disabled>
-                        You're Registered
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="mb-4">
-                      <Button onClick={handleRegister} fullWidth>
-                        Register Now
-                      </Button>
-                    </div>
+          {/* Sidebar - 4 columns */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-20 space-y-6">
+              {/* Register Card */}
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm p-6">
+                {/* Organizer */}
+                <div className="flex items-center mb-5 pb-5 border-b border-surface-100">
+                  {event.organizerLogo && (
+                    <img
+                      src={event.organizerLogo}
+                      alt={event.organizer}
+                      className="w-11 h-11 rounded-full object-cover mr-3 border border-surface-200"
+                    />
                   )}
-
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleShare} fullWidth>
-                      <Share2 size={16} className="mr-2" />
-                      Share
-                    </Button>
-
-                    {isRegistered && (
-                      <Button variant="outline" fullWidth>
-                        <Download size={16} className="mr-2" />
-                        Add to Calendar
-                      </Button>
-                    )}
+                  <div>
+                    <p className="text-xs text-surface-500 font-medium uppercase tracking-wider">Organized by</p>
+                    <h3 className="font-semibold text-surface-900 text-sm">{event.organizer}</h3>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {!event.isOnline && event.address && (
-                <Card>
-                  <CardContent>
-                    <h3 className="font-semibold text-surface-900 text-sm md:text-base mb-3">Location</h3>
-                    <p className="text-xs md:text-sm text-surface-700 mb-3">{event.location}</p>
-                    <p className="text-xs md:text-sm text-surface-700 mb-4">{event.address}</p>
-                    <div className="h-40 md:h-48 bg-surface-200 rounded-lg overflow-hidden flex items-center justify-center">
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col items-center text-brand-600 hover:text-brand-800"
-                      >
-                        <MapPin size={32} className="mb-2" />
-                        <span className="text-sm font-medium">View on Google Maps</span>
-                      </a>
+                {/* Spots Progress */}
+                <div className="mb-5">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-surface-600">Spots remaining</span>
+                    <span className="font-semibold text-surface-800">{spotsRemaining} of {event.maxAttendees}</span>
+                  </div>
+                  <div className="w-full bg-surface-100 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className={`h-2.5 rounded-full transition-all duration-500 ${
+                        fillPercentage > 80 ? 'bg-red-500' : fillPercentage > 50 ? 'bg-amber-500' : 'bg-brand-500'
+                      }`}
+                      style={{ width: `${fillPercentage}%` }}
+                    ></div>
+                  </div>
+                  {fillPercentage > 80 && (
+                    <p className="text-xs text-red-500 mt-1.5 font-medium">Filling up fast!</p>
+                  )}
+                </div>
+
+                {/* Register Button */}
+                {isRegistered ? (
+                  <Button variant="secondary" fullWidth disabled className="mb-4 h-11">
+                    <Check size={16} className="mr-2" />
+                    You're Registered
+                  </Button>
+                ) : (
+                  <Button onClick={handleRegister} fullWidth className="mb-4 h-11 text-base font-semibold">
+                    Register Now
+                  </Button>
+                )}
+
+                {isRegistered && (
+                  <Button variant="outline" fullWidth className="mb-4" size="sm">
+                    <Download size={14} className="mr-2" />
+                    Add to Calendar
+                  </Button>
+                )}
+
+                {/* Event Meta */}
+                <div className="border-t border-surface-100 pt-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Calendar size={15} className="mr-2.5 text-surface-400" />
+                      <span>Date</span>
                     </div>
-                  </CardContent>
-                </Card>
+                    <span className="text-sm font-medium text-surface-800">{formatShortDate(event.date)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Clock size={15} className="mr-2.5 text-surface-400" />
+                      <span>Time</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">{event.time}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      {event.isOnline ? (
+                        <Video size={15} className="mr-2.5 text-surface-400" />
+                      ) : (
+                        <MapPin size={15} className="mr-2.5 text-surface-400" />
+                      )}
+                      <span>Location</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">
+                      {event.isOnline ? 'Online' : event.location}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-surface-500">
+                      <Users size={15} className="mr-2.5 text-surface-400" />
+                      <span>Attendees</span>
+                    </div>
+                    <span className="text-sm font-medium text-surface-800">{event.attendees}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Share Card */}
+              <div className="bg-white rounded-lg border border-surface-200 shadow-sm p-6">
+                <h3 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-4">Share this event</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-md border border-surface-200 text-sm text-surface-600 hover:bg-surface-50 hover:border-surface-300 transition-colors"
+                  >
+                    {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                    <span>{copied ? 'Copied!' : 'Copy link'}</span>
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center justify-center py-2.5 px-4 rounded-md border border-surface-200 text-surface-600 hover:bg-surface-50 hover:border-surface-300 transition-colors"
+                  >
+                    <Share2 size={15} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Location Card */}
+              {!event.isOnline && event.address && (
+                <div className="bg-white rounded-lg border border-surface-200 shadow-sm p-6">
+                  <h3 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-4">Location</h3>
+                  <div className="mb-3">
+                    <p className="text-[15px] font-medium text-surface-800 mb-1">{event.location}</p>
+                    <p className="text-sm text-surface-500">{event.address}</p>
+                  </div>
+                  <div className="h-40 bg-surface-100 rounded-md overflow-hidden flex items-center justify-center border border-surface-200">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center text-brand-600 hover:text-brand-700 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center mb-2">
+                        <MapPin size={20} className="text-brand-600" />
+                      </div>
+                      <span className="text-sm font-medium">View on Google Maps</span>
+                      <ExternalLink size={12} className="mt-1 text-surface-400" />
+                    </a>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className="mt-8 md:mt-12">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Similar Events You May Like</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {/* Similar Events */}
+        <div className="mt-12 md:mt-16">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-surface-900">Similar Events You May Like</h2>
+            <Link to="/events" className="text-sm font-medium text-brand-600 hover:text-brand-700 flex items-center">
+              View all
+              <ChevronRight size={16} className="ml-0.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {similarEvents.map((similarEvent) => (
-              <Card key={similarEvent.id} hoverable>
-                <div className="h-32 md:h-40 overflow-hidden">
-                  <img
-                    src={similarEvent.image}
-                    alt={similarEvent.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <CardContent>
-                  <h3 className="font-semibold text-surface-900 text-sm md:text-base mb-2">{similarEvent.title}</h3>
-                  <div className="flex items-center text-surface-500 text-xs md:text-sm mb-4">
-                    <Calendar size={14} className="mr-2 flex-shrink-0" />
-                    <span>{formatDate(similarEvent.date)}</span>
+              <Link key={similarEvent.id} to={`/events/${similarEvent.id}`} className="group">
+                <div className="bg-white rounded-lg border border-surface-200 shadow-sm overflow-hidden h-full transition-all duration-200 group-hover:shadow-md group-hover:border-brand-200">
+                  <div className="h-40 overflow-hidden relative">
+                    <img
+                      src={similarEvent.image}
+                      alt={similarEvent.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute top-3 left-3">
+                      {getEventTypeBadge(similarEvent.type)}
+                    </div>
                   </div>
-                  <Link to={`/events/${similarEvent.id}`}>
-                    <Button variant="outline" fullWidth>
-                      View Details
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+                  <div className="p-5">
+                    <h3 className="font-semibold text-surface-900 mb-2 group-hover:text-brand-600 transition-colors line-clamp-2">
+                      {similarEvent.title}
+                    </h3>
+                    <div className="flex items-center text-surface-500 text-sm mb-2">
+                      <Calendar size={14} className="mr-1.5 text-surface-400 flex-shrink-0" />
+                      <span>{formatShortDate(similarEvent.date)}</span>
+                    </div>
+                    <div className="flex items-center text-surface-500 text-sm">
+                      {similarEvent.isOnline ? (
+                        <>
+                          <Video size={14} className="mr-1.5 text-surface-400 flex-shrink-0" />
+                          <span>Online</span>
+                        </>
+                      ) : (
+                        <>
+                          <MapPin size={14} className="mr-1.5 text-surface-400 flex-shrink-0" />
+                          <span>{similarEvent.location}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

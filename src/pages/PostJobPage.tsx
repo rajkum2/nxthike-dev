@@ -258,7 +258,7 @@ const PostJobPage: React.FC = () => {
                     placeholder="Describe the role, team, and what the candidate will work on..."
                     value={formData.description}
                     onChange={(e) => handleChange('description', e.target.value)}
-                    className={`block w-full px-4 py-2 rounded-md border ${
+                    className={`block w-full px-4 py-2 rounded border ${
                       errors.description
                         ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                         : 'border-surface-300 focus:ring-brand-500 focus:border-brand-500'
@@ -278,7 +278,7 @@ const PostJobPage: React.FC = () => {
                     placeholder="e.g., 3+ years of experience with React&#10;Bachelor's degree in Computer Science&#10;Strong communication skills"
                     value={formData.requirements}
                     onChange={(e) => handleChange('requirements', e.target.value)}
-                    className={`block w-full px-4 py-2 rounded-md border ${
+                    className={`block w-full px-4 py-2 rounded border ${
                       errors.requirements
                         ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                         : 'border-surface-300 focus:ring-brand-500 focus:border-brand-500'
@@ -299,7 +299,7 @@ const PostJobPage: React.FC = () => {
                     placeholder="e.g., Design and implement new features&#10;Participate in code reviews&#10;Collaborate with product team"
                     value={formData.responsibilities}
                     onChange={(e) => handleChange('responsibilities', e.target.value)}
-                    className={`block w-full px-4 py-2 rounded-md border ${
+                    className={`block w-full px-4 py-2 rounded border ${
                       errors.responsibilities
                         ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                         : 'border-surface-300 focus:ring-brand-500 focus:border-brand-500'
