@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - NxtHike Admin{% endblock %}
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <p class="text-sm text-gray-500 mb-1">Total Jobs</p>
+        <p class="text-2xl font-bold text-gray-900">{{ stats.jobs }}</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <p class="text-sm text-gray-500 mb-1">Events</p>
+        <p class="text-2xl font-bold text-gray-900">{{ stats.events }}</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <p class="text-sm text-gray-500 mb-1">Courses</p>
+        <p class="text-2xl font-bold text-gray-900">{{ stats.courses }}</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <p class="text-sm text-gray-500 mb-1">Companies</p>
+        <p class="text-2xl font-bold text-gray-900">{{ stats.companies }}</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+        <p class="text-sm text-gray-500 mb-1">Users</p>
+        <p class="text-2xl font-bold text-gray-900">{{ stats.users }}</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <a href="/admin/jobs" class="bg-white rounded-lg border border-gray-200 p-5 hover:border-blue-300 transition-colors">
+        <h3 class="font-semibold text-gray-900 mb-1">Manage Jobs</h3>
+        <p class="text-sm text-gray-500">Add, edit, or remove job listings and internships</p>
+    </a>
+    <a href="/admin/events" class="bg-white rounded-lg border border-gray-200 p-5 hover:border-blue-300 transition-colors">
+        <h3 class="font-semibold text-gray-900 mb-1">Manage Events</h3>
+        <p class="text-sm text-gray-500">Create and manage workshops, webinars, and hackathons</p>
+    </a>
+    <a href="/admin/courses" class="bg-white rounded-lg border border-gray-200 p-5 hover:border-blue-300 transition-colors">
+        <h3 class="font-semibold text-gray-900 mb-1">Manage Courses</h3>
+        <p class="text-sm text-gray-500">Add courses with curriculum, pricing, and reviews</p>
+    </a>
+    <a href="/admin/companies" class="bg-white rounded-lg border border-gray-200 p-5 hover:border-blue-300 transition-colors">
+        <h3 class="font-semibold text-gray-900 mb-1">Manage Companies</h3>
+        <p class="text-sm text-gray-500">Add and update company profiles</p>
+    </a>
+</div>
+{% endblock %}

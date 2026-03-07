@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Users - NxtHike Admin{% endblock %}
+{% block header %}Users{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <p class="text-sm text-gray-500">{{ users|length }} user(s)</p>
+</div>
+
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Name</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Email</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Role</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Joined</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for user in users %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-900">{{ user.first_name }} {{ user.last_name }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ user.email }}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium
+                        {% if user.role == 'admin' %}bg-red-100 text-red-700
+                        {% elif user.role == 'employer' %}bg-blue-100 text-blue-700
+                        {% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ user.role }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-gray-600">{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Events - NxtHike Admin{% endblock %}
+{% block header %}Events{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-4">
+    <p class="text-sm text-gray-500">{{ events|length }} event(s)</p>
+    <a href="/admin/events/new" class="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700">Add Event</a>
+</div>
+
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Title</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Type</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Date</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Location</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Online</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-700">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for event in events %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-900">{{ event.title }}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium
+                        {% if event.type == 'workshop' %}bg-blue-100 text-blue-700
+                        {% elif event.type == 'webinar' %}bg-purple-100 text-purple-700
+                        {% elif event.type == 'hackathon' %}bg-orange-100 text-orange-700
+                        {% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ event.type }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-gray-600">{{ event.date }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ event.location or 'Online' }}</td>
+                <td class="px-4 py-3">
+                    {% if event.is_online %}
+                    <span class="text-green-600">Yes</span>
+                    {% else %}
+                    <span class="text-gray-400">No</span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3 text-right space-x-2">
+                    <a href="/admin/events/{{ event.id }}/edit" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Edit</a>
+                    <form method="post" action="/admin/events/{{ event.id }}/delete" class="inline">
+                        <button type="button" onclick="confirmDelete(this.parentElement)" class="text-red-600 hover:text-red-800 text-xs font-medium">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

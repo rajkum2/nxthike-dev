@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Course' if course else 'Add Course' }} - NxtHike Admin{% endblock %}
+{% block header %}{{ 'Edit Course' if course else 'Add Course' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form method="post" action="/admin/courses/save" class="space-y-4">
+        {% if course %}<input type="hidden" name="course_id" value="{{ course.id }}">{% endif %}
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <h3 class="font-semibold text-gray-900">Course Information</h3>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" name="title" required value="{{ course.title if course else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                    <input type="text" name="category" required value="{{ course.category if course else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Level *</label>
+                    <select name="level" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                        <option value="beginner" {{ 'selected' if course and course.level == 'beginner' }}>Beginner</option>
+                        <option value="intermediate" {{ 'selected' if course and course.level == 'intermediate' }}>Intermediate</option>
+                        <option value="advanced" {{ 'selected' if course and course.level == 'advanced' }}>Advanced</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Duration *</label>
+                    <input type="text" name="duration" required value="{{ course.duration if course else '' }}" placeholder="e.g. 8 weeks" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                    <input type="number" step="0.01" name="price_amount" required value="{{ course.price.amount if course and course.price else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Discount Price</label>
+                    <input type="number" step="0.01" name="discount_amount" value="{{ course.discount.amount if course and course.discount else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                <input type="text" name="image" value="{{ course.image if course and course.image else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Enrollments</label>
+                <input type="number" name="enrollments" value="{{ course.enrollments if course else 0 }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea name="description" required rows="3" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">{{ course.description if course else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <h3 class="font-semibold text-gray-900">Instructor</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Instructor Name *</label>
+                    <input type="text" name="instructor" required value="{{ course.instructor if course else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Instructor Title</label>
+                    <input type="text" name="instructor_title" value="{{ course.instructor_title if course and course.instructor_title else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Instructor Avatar URL</label>
+                <input type="text" name="instructor_avatar" value="{{ course.instructor_avatar if course and course.instructor_avatar else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Instructor Bio</label>
+                <textarea name="instructor_bio" rows="2" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">{{ course.instructor_bio if course and course.instructor_bio else '' }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                    <input type="number" step="0.1" name="rating" value="{{ course.rating if course else 0 }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Review Count</label>
+                    <input type="number" name="review_count" value="{{ course.review_count if course else 0 }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-blue-600 text-white rounded-md px-5 py-2 text-sm font-medium hover:bg-blue-700">Save Course</button>
+            <a href="/admin/courses" class="border border-gray-300 text-gray-700 rounded-md px-5 py-2 text-sm font-medium hover:bg-gray-50">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

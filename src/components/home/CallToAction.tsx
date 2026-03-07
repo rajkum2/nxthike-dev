@@ -1,67 +1,72 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
 
 const CallToAction: React.FC = () => {
   const benefits = [
-    'Access to exclusive job and internship opportunities',
-    'Connect with top employers across industries',
-    'Personalized job recommendations based on your profile',
+    'AI-powered job matching and recommendations',
+    'Access to exclusive opportunities from top employers',
     'Free resume review and career guidance',
     'Networking events and skill-building workshops',
-    'Courses to enhance your professional skills'
+    'Industry-recognized courses and certifications',
+    'Dedicated career support team',
   ];
-  
+
   return (
-    <section className="py-12 md:py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            {/* Image Section */}
-            <div className="relative h-64 lg:h-auto">
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&h=800&q=80" 
-                alt="Students collaborating" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-indigo-700/80 mix-blend-multiply" />
-            </div>
-            
-            {/* Content Section */}
-            <div className="p-6 md:p-8 lg:p-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 md:mb-4">
-                Ready to Kickstart Your Career?
-              </h2>
-              <p className="text-base md:text-lg text-gray-600 mb-4 md:mb-6">
-                Join thousands of students and professionals who have found their dream opportunities through NxtHike.
-              </p>
-              
-              <div className="mb-6 md:mb-8">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
-                  Create your free account today and get:
-                </h3>
-                <ul className="space-y-2 md:space-y-3">
-                  {benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm md:text-base text-gray-700">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
+    <section className="section-padding bg-white">
+      <div className="container-default">
+        <div className="relative overflow-hidden rounded-lg bg-surface-900">
+          <div className="absolute inset-0 bg-hero-pattern" />
+          <div className="absolute top-0 right-0 w-72 h-72 bg-brand-500/15 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-56 h-56 bg-cyan-500/10 rounded-full blur-3xl" />
+
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="p-8 md:p-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 mb-5 text-xs">
+                <Sparkles className="h-3 w-3 text-brand-400" />
+                <span className="font-medium text-brand-300">Start Free Today</span>
               </div>
-              
-              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                Ready to Accelerate Your Career?
+              </h2>
+              <p className="text-surface-400 text-sm mb-6">
+                Join 50,000+ students and professionals who have found their dream opportunities through NxtHike.
+              </p>
+
+              <ul className="space-y-2.5 mb-6">
+                {benefits.map((benefit, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-surface-300">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link to="/register">
                   <Button size="lg" rightIcon={<ArrowRight size={16} />}>
-                    Sign Up Now
+                    Get Started Free
                   </Button>
                 </Link>
                 <Link to="/login">
-                  <Button variant="outline" size="lg">
+                  <Button variant="outline" size="lg" className="border-surface-600 text-surface-300 hover:bg-surface-800 hover:text-white">
                     Sign In
                   </Button>
                 </Link>
+              </div>
+            </div>
+
+            <div className="hidden lg:flex items-center justify-center p-10">
+              <div className="relative">
+                <div className="w-64 h-64 rounded-full bg-gradient-to-br from-brand-500/15 to-cyan-500/15 flex items-center justify-center animate-pulse-slow">
+                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-brand-500/25 to-cyan-500/25 flex items-center justify-center">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-brand-500 to-cyan-500 flex items-center justify-center">
+                      <Sparkles className="h-12 w-12 text-white" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

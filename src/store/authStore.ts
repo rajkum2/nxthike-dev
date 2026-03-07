@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { supabase } from '../lib/supabase';
+import {
+  signIn as signInService,
+  signUp as signUpService,
+  signOut as signOutService,
+  fetchUser as fetchUserService,
+} from '../services/authService';
 import type { User } from '../types';
 
 interface AuthState {
@@ -20,11 +25,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   signIn: async (email, password) => {
     try {
       set({ isLoading: true, error: null });
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) throw error;
-      
-      // User data will be fetched by the fetchUser function
+      const user = await signInService(email, password);
+      if (user) {
+        set({ user });
+      } else {
+        const fetchedUser = await fetchUserService();
+        set({ user: fetchedUser });
+      }
     } catch (error) {
       set({ error: (error as Error).message });
     } finally {
@@ -35,31 +42,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   signUp: async (email, password, userData) => {
     try {
       set({ isLoading: true, error: null });
-      
-      const { error: signUpError, data } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: userData
-        }
-      });
-      
-      if (signUpError) throw signUpError;
-      
-      // Create profile in the appropriate table based on role
-      if (data.user) {
-        const { role = 'student' } = userData;
-        const profileData = {
-          id: data.user.id,
-          email,
-          ...userData,
-        };
-        
-        const { error: profileError } = await supabase
-          .from(role === 'employer' ? 'employers' : 'students')
-          .insert(profileData);
-          
-        if (profileError) throw profileError;
+      const user = await signUpService(email, password, userData);
+      if (user) {
+        set({ user });
       }
     } catch (error) {
       set({ error: (error as Error).message });
@@ -71,8 +56,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     try {
       set({ isLoading: true, error: null });
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await signOutService();
       set({ user: null });
     } catch (error) {
       set({ error: (error as Error).message });
@@ -84,27 +68,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     try {
       set({ isLoading: true, error: null });
-      
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      
-      if (!authUser) {
-        set({ user: null });
-        return;
-      }
-      
-      // Get the user's role from auth metadata
-      const role = authUser.user_metadata.role || 'student';
-      
-      // Fetch the complete user profile from the appropriate table
-      const { data: profileData, error: profileError } = await supabase
-        .from(role === 'employer' ? 'employers' : role === 'admin' ? 'admins' : 'students')
-        .select('*')
-        .eq('id', authUser.id)
-        .single();
-        
-      if (profileError) throw profileError;
-      
-      set({ user: profileData as User });
+      const user = await fetchUserService();
+      set({ user });
     } catch (error) {
       console.error('Error fetching user:', error);
       set({ error: (error as Error).message, user: null });

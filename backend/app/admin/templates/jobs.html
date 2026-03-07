@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Jobs - NxtHike Admin{% endblock %}
+{% block header %}Jobs{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-4">
+    <p class="text-sm text-gray-500">{{ jobs|length }} job(s)</p>
+    <a href="/admin/jobs/new" class="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700">Add Job</a>
+</div>
+
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Title</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Company</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Type</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Location</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Status</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-700">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for job in jobs %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-900">{{ job.title }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ job.company }}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium
+                        {% if job.type == 'internship' %}bg-green-100 text-green-700
+                        {% elif job.type == 'full-time' %}bg-blue-100 text-blue-700
+                        {% elif job.type == 'part-time' %}bg-purple-100 text-purple-700
+                        {% else %}bg-orange-100 text-orange-700{% endif %}">
+                        {{ job.type }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-gray-600">{{ job.location }}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium
+                        {% if job.status == 'approved' %}bg-green-100 text-green-700
+                        {% elif job.status == 'pending' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ job.status }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-right space-x-2">
+                    <a href="/admin/jobs/{{ job.id }}/edit" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Edit</a>
+                    <form method="post" action="/admin/jobs/{{ job.id }}/delete" class="inline">
+                        <button type="button" onclick="confirmDelete(this.parentElement)" class="text-red-600 hover:text-red-800 text-xs font-medium">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

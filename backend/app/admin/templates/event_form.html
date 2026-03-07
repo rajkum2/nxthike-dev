@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Event' if event else 'Add Event' }} - NxtHike Admin{% endblock %}
+{% block header %}{{ 'Edit Event' if event else 'Add Event' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form method="post" action="/admin/events/save" class="space-y-4">
+        {% if event %}<input type="hidden" name="event_id" value="{{ event.id }}">{% endif %}
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <h3 class="font-semibold text-gray-900">Event Details</h3>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" name="title" required value="{{ event.title if event else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                    <select name="event_type" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                        <option value="workshop" {{ 'selected' if event and event.type == 'workshop' }}>Workshop</option>
+                        <option value="webinar" {{ 'selected' if event and event.type == 'webinar' }}>Webinar</option>
+                        <option value="hackathon" {{ 'selected' if event and event.type == 'hackathon' }}>Hackathon</option>
+                        <option value="networking" {{ 'selected' if event and event.type == 'networking' }}>Networking</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                    <input type="date" name="date" required value="{{ event.date if event else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Time *</label>
+                    <input type="text" name="time" required value="{{ event.time if event else '' }}" placeholder="e.g. 10:00 AM - 4:00 PM" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" name="location" value="{{ event.location if event and event.location else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <input type="text" name="address" value="{{ event.address if event and event.address else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_online" id="is_online" {{ 'checked' if event and event.is_online }} class="rounded border-gray-300">
+                <label for="is_online" class="text-sm text-gray-700">Online event</label>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Online Link</label>
+                <input type="text" name="link" value="{{ event.link if event and event.link else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Organizer *</label>
+                    <input type="text" name="organizer" required value="{{ event.organizer if event else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Organizer Logo URL</label>
+                    <input type="text" name="organizer_logo" value="{{ event.organizer_logo if event and event.organizer_logo else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                <input type="text" name="image" value="{{ event.image if event and event.image else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Attendees</label>
+                    <input type="number" name="attendees" value="{{ event.attendees if event else 0 }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Attendees</label>
+                    <input type="number" name="max_attendees" value="{{ event.max_attendees if event else 0 }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea name="description" required rows="4" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">{{ event.description if event else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-blue-600 text-white rounded-md px-5 py-2 text-sm font-medium hover:bg-blue-700">Save Event</button>
+            <a href="/admin/events" class="border border-gray-300 text-gray-700 rounded-md px-5 py-2 text-sm font-medium hover:bg-gray-50">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

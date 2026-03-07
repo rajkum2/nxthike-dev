@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Company' if company else 'Add Company' }} - NxtHike Admin{% endblock %}
+{% block header %}{{ 'Edit Company' if company else 'Add Company' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form method="post" action="/admin/companies/save" class="space-y-4">
+        {% if company %}<input type="hidden" name="company_id" value="{{ company.id }}">{% endif %}
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <h3 class="font-semibold text-gray-900">Company Details</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                    <input type="text" name="name" required value="{{ company.name if company else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Industry *</label>
+                    <input type="text" name="industry" required value="{{ company.industry if company else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+                    <input type="text" name="location" required value="{{ company.location if company else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Open Positions</label>
+                    <input type="number" name="open_positions" value="{{ company.open_positions if company else 0 }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                <input type="text" name="logo" value="{{ company.logo if company and company.logo else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                <input type="text" name="website" value="{{ company.website if company and company.website else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea name="description" required rows="3" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">{{ company.description if company else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-blue-600 text-white rounded-md px-5 py-2 text-sm font-medium hover:bg-blue-700">Save Company</button>
+            <a href="/admin/companies" class="border border-gray-300 text-gray-700 rounded-md px-5 py-2 text-sm font-medium hover:bg-gray-50">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

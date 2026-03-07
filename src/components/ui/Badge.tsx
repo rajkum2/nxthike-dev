@@ -14,22 +14,22 @@ const Badge: React.FC<BadgeProps> = ({
   className = '',
 }) => {
   const variants = {
-    default: 'bg-gray-100 text-gray-800',
-    primary: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-purple-100 text-purple-800',
-    success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
+    default: 'bg-surface-100 text-surface-600',
+    primary: 'bg-brand-50 text-brand-700',
+    secondary: 'bg-cyan-50 text-cyan-700',
+    success: 'bg-emerald-50 text-emerald-700',
+    warning: 'bg-amber-50 text-amber-700',
+    danger: 'bg-red-50 text-red-700',
   };
-  
+
   const sizes = {
-    sm: 'text-xs px-2 py-0.5',
-    md: 'text-sm px-2.5 py-0.5',
-    lg: 'text-base px-3 py-1',
+    sm: 'text-[11px] px-1.5 py-0.5',
+    md: 'text-xs px-2 py-0.5',
+    lg: 'text-sm px-2.5 py-0.5',
   };
-  
+
   return (
-    <span className={`inline-flex items-center rounded-full font-medium ${variants[variant]} ${sizes[size]} ${className}`}>
+    <span className={`inline-flex items-center rounded font-medium ${variants[variant]} ${sizes[size]} ${className}`}>
       {children}
     </span>
   );

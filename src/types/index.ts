@@ -82,7 +82,7 @@ export interface Job {
   postedAt: string;
   status: 'pending' | 'approved' | 'rejected';
   applicants: string[];
-  
+
   // Database fields (snake_case)
   posted_at?: string;
   is_remote?: boolean;
@@ -103,6 +103,33 @@ export interface Event {
   registrations: string[];
 }
 
+export interface AgendaItem {
+  time: string;
+  title: string;
+}
+
+export interface Speaker {
+  name: string;
+  role: string;
+  avatar: string;
+  bio: string;
+}
+
+export interface Sponsor {
+  name: string;
+  logo: string;
+}
+
+export interface EventDetail extends Event {
+  address?: string;
+  organizerLogo?: string;
+  attendees: number;
+  maxAttendees: number;
+  agenda: AgendaItem[];
+  speakers: Speaker[];
+  sponsors: Sponsor[];
+}
+
 export interface Course {
   id: string;
   title: string;
@@ -120,5 +147,48 @@ export interface Course {
     currency: string;
   };
   image?: string;
-  enrollments: string[];
+  enrollments: number;
+}
+
+export interface Lesson {
+  title: string;
+  duration: string;
+  isFree: boolean;
+}
+
+export interface CurriculumSection {
+  title: string;
+  lessons: Lesson[];
+}
+
+export interface Review {
+  id: string;
+  name: string;
+  avatar: string;
+  rating: number;
+  date: string;
+  comment: string;
+}
+
+export interface CourseDetail extends Course {
+  instructorTitle: string;
+  instructorAvatar: string;
+  instructorBio: string;
+  rating: number;
+  reviewCount: number;
+  whatYouWillLearn: string[];
+  prerequisites: string[];
+  curriculum: CurriculumSection[];
+  reviews: Review[];
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  logo: string;
+  industry: string;
+  location: string;
+  openPositions: number;
+  description: string;
+  website?: string;
 }

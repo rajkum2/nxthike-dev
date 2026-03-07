@@ -1,0 +1,166 @@
+import { isJsonMode, isApiMode } from '../config/dataSource';
+import { supabase } from '../lib/supabase';
+import { apiFetch, setToken, clearToken } from './apiClient';
+import type { User } from '../types';
+
+const demoUsers: User[] = [
+  {
+    id: 'demo-student-1',
+    email: 'student@nxthike.com',
+    role: 'student',
+    firstName: 'John',
+    lastName: 'Doe',
+    createdAt: '2026-01-01T00:00:00Z',
+  },
+  {
+    id: 'demo-employer-1',
+    email: 'employer@nxthike.com',
+    role: 'employer',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    createdAt: '2026-01-01T00:00:00Z',
+  },
+];
+
+const DEMO_PASSWORD = 'password123';
+
+export async function signIn(email: string, password: string): Promise<User | null> {
+  if (isApiMode()) {
+    const data = await apiFetch<{ access_token: string; user: User }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    setToken(data.access_token);
+    localStorage.setItem('nxthike_user', JSON.stringify(data.user));
+    return data.user;
+  }
+
+  if (isJsonMode()) {
+    const user = demoUsers.find(u => u.email === email);
+    if (user && password === DEMO_PASSWORD) {
+      localStorage.setItem('nxthike_user', JSON.stringify(user));
+      return user;
+    }
+    throw new Error('Invalid email or password. Demo: student@nxthike.com / password123');
+  }
+
+  const { error } = await (supabase as any).auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return null;
+}
+
+export async function signUp(
+  email: string,
+  password: string,
+  userData: Partial<User>
+): Promise<User | null> {
+  if (isApiMode()) {
+    const data = await apiFetch<{ access_token: string; user: User }>('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        first_name: userData.firstName || '',
+        last_name: userData.lastName || '',
+        role: userData.role || 'student',
+      }),
+    });
+    setToken(data.access_token);
+    localStorage.setItem('nxthike_user', JSON.stringify(data.user));
+    return data.user;
+  }
+
+  if (isJsonMode()) {
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      email,
+      role: (userData.role as any) || 'student',
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem('nxthike_user', JSON.stringify(newUser));
+    return newUser;
+  }
+
+  const { error: signUpError, data } = await (supabase as any).auth.signUp({
+    email,
+    password,
+    options: { data: userData },
+  });
+  if (signUpError) throw signUpError;
+
+  if (data.user) {
+    const { role = 'student' } = userData;
+    const profileData = {
+      id: data.user.id,
+      email,
+      ...userData,
+    };
+
+    const { error: profileError } = await (supabase as any)
+      .from(role === 'employer' ? 'employers' : 'students')
+      .insert(profileData);
+
+    if (profileError) throw profileError;
+  }
+
+  return null;
+}
+
+export async function signOut(): Promise<void> {
+  if (isApiMode()) {
+    clearToken();
+    localStorage.removeItem('nxthike_user');
+    return;
+  }
+
+  if (isJsonMode()) {
+    localStorage.removeItem('nxthike_user');
+    return;
+  }
+
+  const { error } = await (supabase as any).auth.signOut();
+  if (error) throw error;
+}
+
+export async function fetchUser(): Promise<User | null> {
+  if (isApiMode()) {
+    const stored = localStorage.getItem('nxthike_user');
+    if (stored) {
+      try {
+        // Verify token is still valid
+        const user = await apiFetch<User>('/api/auth/me');
+        return user;
+      } catch {
+        clearToken();
+        localStorage.removeItem('nxthike_user');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  if (isJsonMode()) {
+    const stored = localStorage.getItem('nxthike_user');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    return null;
+  }
+
+  const { data: { user: authUser } } = await (supabase as any).auth.getUser();
+  if (!authUser) return null;
+
+  const role = authUser.user_metadata?.role || 'student';
+  const table = role === 'employer' ? 'employers' : role === 'admin' ? 'admins' : 'students';
+
+  const { data: profileData, error: profileError } = await (supabase as any)
+    .from(table)
+    .select('*')
+    .eq('id', authUser.id)
+    .single();
+
+  if (profileError) throw profileError;
+  return profileData;
+}

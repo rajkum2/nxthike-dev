@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Companies - NxtHike Admin{% endblock %}
+{% block header %}Companies{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-4">
+    <p class="text-sm text-gray-500">{{ companies|length }} company(ies)</p>
+    <a href="/admin/companies/new" class="bg-blue-600 text-white rounded-md px-4 py-2 text-sm font-medium hover:bg-blue-700">Add Company</a>
+</div>
+
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Name</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Industry</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Location</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-700">Open Positions</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-700">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for company in companies %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-900">{{ company.name }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ company.industry }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ company.location }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ company.open_positions }}</td>
+                <td class="px-4 py-3 text-right space-x-2">
+                    <a href="/admin/companies/{{ company.id }}/edit" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Edit</a>
+                    <form method="post" action="/admin/companies/{{ company.id }}/delete" class="inline">
+                        <button type="button" onclick="confirmDelete(this.parentElement)" class="text-red-600 hover:text-red-800 text-xs font-medium">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

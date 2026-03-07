@@ -7,17 +7,17 @@ interface CardProps {
   hoverable?: boolean;
 }
 
-const Card: React.FC<CardProps> = ({ 
-  children, 
-  className = '', 
+const Card: React.FC<CardProps> = ({
+  children,
+  className = '',
   onClick,
   hoverable = false,
 }) => {
-  const baseClasses = 'bg-white rounded-lg shadow-md overflow-hidden';
-  const hoverClasses = hoverable ? 'transition-transform duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer' : '';
-  
+  const baseClasses = 'bg-white rounded-lg border border-surface-200 overflow-hidden';
+  const hoverClasses = hoverable ? 'transition-shadow duration-200 hover:shadow-card-hover cursor-pointer' : 'shadow-card';
+
   return (
-    <div 
+    <div
       className={`${baseClasses} ${hoverClasses} ${className}`}
       onClick={onClick}
     >
@@ -26,34 +26,34 @@ const Card: React.FC<CardProps> = ({
   );
 };
 
-export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
+export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = ''
 }) => {
   return (
-    <div className={`px-6 py-4 border-b border-gray-200 ${className}`}>
+    <div className={`px-5 py-4 border-b border-surface-100 ${className}`}>
       {children}
     </div>
   );
 };
 
-export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
+export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = ''
 }) => {
   return (
-    <div className={`px-6 py-4 ${className}`}>
+    <div className={`px-5 py-4 ${className}`}>
       {children}
     </div>
   );
 };
 
-export const CardFooter: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
+export const CardFooter: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = ''
 }) => {
   return (
-    <div className={`px-6 py-4 border-t border-gray-200 ${className}`}>
+    <div className={`px-5 py-4 border-t border-surface-100 bg-surface-50 ${className}`}>
       {children}
     </div>
   );

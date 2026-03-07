@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Job' if job else 'Add Job' }} - NxtHike Admin{% endblock %}
+{% block header %}{{ 'Edit Job' if job else 'Add Job' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form method="post" action="/admin/jobs/save" class="space-y-4">
+        {% if job %}<input type="hidden" name="job_id" value="{{ job.id }}">{% endif %}
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <h3 class="font-semibold text-gray-900">Basic Information</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                    <input type="text" name="title" required value="{{ job.title if job else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Company *</label>
+                    <input type="text" name="company" required value="{{ job.company if job else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+                    <input type="text" name="location" required value="{{ job.location if job else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                    <input type="text" name="category" required value="{{ job.category if job else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                    <select name="job_type" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="internship" {{ 'selected' if job and job.type == 'internship' }}>Internship</option>
+                        <option value="full-time" {{ 'selected' if job and job.type == 'full-time' }}>Full-time</option>
+                        <option value="part-time" {{ 'selected' if job and job.type == 'part-time' }}>Part-time</option>
+                        <option value="contract" {{ 'selected' if job and job.type == 'contract' }}>Contract</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select name="status" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="approved" {{ 'selected' if job and job.status == 'approved' }}>Approved</option>
+                        <option value="pending" {{ 'selected' if job and job.status == 'pending' }}>Pending</option>
+                        <option value="rejected" {{ 'selected' if job and job.status == 'rejected' }}>Rejected</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Deadline *</label>
+                    <input type="date" name="application_deadline" required value="{{ job.application_deadline if job else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_remote" id="is_remote" {{ 'checked' if job and job.is_remote }} class="rounded border-gray-300">
+                <label for="is_remote" class="text-sm text-gray-700">Remote position</label>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Company Logo URL</label>
+                <input type="text" name="company_logo" value="{{ job.company_logo if job and job.company_logo else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                <input type="text" name="duration" value="{{ job.duration if job and job.duration else '' }}" placeholder="e.g. 3 months, 6 months" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                <textarea name="description" required rows="4" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">{{ job.description if job else '' }}</textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Requirements (one per line)</label>
+                <textarea name="requirements" rows="4" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">{% if job and job.requirements %}{% for r in job.requirements %}{{ r }}
+{% endfor %}{% endif %}</textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Responsibilities (one per line)</label>
+                <textarea name="responsibilities" rows="4" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500">{% if job and job.responsibilities %}{% for r in job.responsibilities %}{{ r }}
+{% endfor %}{% endif %}</textarea>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <h3 class="font-semibold text-gray-900">Compensation</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Salary Min</label>
+                    <input type="number" name="salary_min" value="{{ job.salary.min if job and job.salary else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Salary Max</label>
+                    <input type="number" name="salary_max" value="{{ job.salary.max if job and job.salary else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                    <input type="text" name="salary_currency" value="{{ job.salary.currency if job and job.salary else 'USD' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stipend Amount</label>
+                    <input type="number" name="stipend_amount" value="{{ job.stipend.amount if job and job.stipend else '' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stipend Currency</label>
+                    <input type="text" name="stipend_currency" value="{{ job.stipend.currency if job and job.stipend else 'USD' }}" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stipend Period</label>
+                    <select name="stipend_period" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                        <option value="monthly" {{ 'selected' if job and job.stipend and job.stipend.period == 'monthly' }}>Monthly</option>
+                        <option value="weekly" {{ 'selected' if job and job.stipend and job.stipend.period == 'weekly' }}>Weekly</option>
+                        <option value="daily" {{ 'selected' if job and job.stipend and job.stipend.period == 'daily' }}>Daily</option>
+                        <option value="hourly" {{ 'selected' if job and job.stipend and job.stipend.period == 'hourly' }}>Hourly</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-blue-600 text-white rounded-md px-5 py-2 text-sm font-medium hover:bg-blue-700">Save Job</button>
+            <a href="/admin/jobs" class="border border-gray-300 text-gray-700 rounded-md px-5 py-2 text-sm font-medium hover:bg-gray-50">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
