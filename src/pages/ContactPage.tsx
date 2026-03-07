@@ -63,10 +63,10 @@ const ContactPage: React.FC = () => {
   return (
     <div className="pt-14 bg-surface-50 min-h-screen">
       {/* Header */}
-      <div className="bg-orange-600 py-12">
+      <div className="bg-gradient-to-r from-brand-600 to-brand-700 py-12">
         <div className="container-default">
           <h1 className="text-3xl font-bold text-white mb-4">Contact Us</h1>
-          <p className="text-orange-100 max-w-3xl">
+          <p className="text-blue-100 max-w-3xl">
             Have a question, feedback, or want to partner with us? We would love to hear from you. Fill out the form below or reach out directly.
           </p>
         </div>
@@ -133,7 +133,7 @@ const ContactPage: React.FC = () => {
                       placeholder="Tell us how we can help..."
                       value={formData.message}
                       onChange={(e) => handleChange('message', e.target.value)}
-                      className={`block w-full px-4 py-2 rounded-md border ${
+                      className={`block w-full px-4 py-2 rounded border ${
                         errors.message
                           ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                           : 'border-surface-300 focus:ring-brand-500 focus:border-brand-500'
@@ -159,8 +159,8 @@ const ContactPage: React.FC = () => {
                 <h3 className="font-semibold text-surface-900 text-lg mb-4">Get in Touch</h3>
                 <div className="space-y-4">
                   <div className="flex items-start">
-                    <div className="bg-orange-100 rounded-lg p-2 mr-3">
-                      <MapPin className="h-5 w-5 text-orange-600" />
+                    <div className="bg-brand-50 rounded-md p-2 mr-3">
+                      <MapPin className="h-5 w-5 text-brand-600" />
                     </div>
                     <div>
                       <h4 className="font-medium text-surface-900 text-sm">Address</h4>
@@ -173,8 +173,8 @@ const ContactPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-start">
-                    <div className="bg-orange-100 rounded-lg p-2 mr-3">
-                      <Mail className="h-5 w-5 text-orange-600" />
+                    <div className="bg-brand-50 rounded-md p-2 mr-3">
+                      <Mail className="h-5 w-5 text-brand-600" />
                     </div>
                     <div>
                       <h4 className="font-medium text-surface-900 text-sm">Email</h4>
@@ -188,8 +188,8 @@ const ContactPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-start">
-                    <div className="bg-orange-100 rounded-lg p-2 mr-3">
-                      <Phone className="h-5 w-5 text-orange-600" />
+                    <div className="bg-brand-50 rounded-md p-2 mr-3">
+                      <Phone className="h-5 w-5 text-brand-600" />
                     </div>
                     <div>
                       <h4 className="font-medium text-surface-900 text-sm">Phone</h4>
@@ -203,8 +203,8 @@ const ContactPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-start">
-                    <div className="bg-orange-100 rounded-lg p-2 mr-3">
-                      <MessageSquare className="h-5 w-5 text-orange-600" />
+                    <div className="bg-brand-50 rounded-md p-2 mr-3">
+                      <MessageSquare className="h-5 w-5 text-brand-600" />
                     </div>
                     <div>
                       <h4 className="font-medium text-surface-900 text-sm">Office Hours</h4>
@@ -225,7 +225,7 @@ const ContactPage: React.FC = () => {
                     href="https://twitter.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-surface-100 hover:bg-brand-50 rounded-lg p-3 transition-colors"
+                    className="bg-surface-100 hover:bg-brand-50 rounded-md p-3 transition-colors"
                   >
                     <Twitter className="h-5 w-5 text-surface-600 hover:text-brand-500" />
                   </a>
@@ -233,7 +233,7 @@ const ContactPage: React.FC = () => {
                     href="https://linkedin.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-surface-100 hover:bg-brand-50 rounded-lg p-3 transition-colors"
+                    className="bg-surface-100 hover:bg-brand-50 rounded-md p-3 transition-colors"
                   >
                     <Linkedin className="h-5 w-5 text-surface-600 hover:text-brand-700" />
                   </a>
@@ -241,7 +241,7 @@ const ContactPage: React.FC = () => {
                     href="https://facebook.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-surface-100 hover:bg-brand-50 rounded-lg p-3 transition-colors"
+                    className="bg-surface-100 hover:bg-brand-50 rounded-md p-3 transition-colors"
                   >
                     <Facebook className="h-5 w-5 text-surface-600 hover:text-brand-600" />
                   </a>
