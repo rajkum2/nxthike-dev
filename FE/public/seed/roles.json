@@ -1,0 +1,41 @@
+{
+  "roles": [
+    {
+      "id": "ai_agent_development",
+      "name": "AI Agent Development",
+      "count": 1831,
+      "file": "ai_agent_development.json"
+    },
+    {
+      "id": "business_research",
+      "name": "Business Research",
+      "count": 500,
+      "file": "business_research.json"
+    },
+    {
+      "id": "content_social_media",
+      "name": "Content & Social Media Marketing",
+      "count": 505,
+      "file": "content_social_media.json"
+    },
+    {
+      "id": "product_management",
+      "name": "Product Management",
+      "count": 83,
+      "file": "product_management.json"
+    },
+    {
+      "id": "recruitment_consultant",
+      "name": "Recruitment Consultant",
+      "count": 330,
+      "file": "recruitment_consultant.json"
+    },
+    {
+      "id": "video_editing",
+      "name": "Video Editing / Making",
+      "count": 426,
+      "file": "video_editing.json"
+    }
+  ],
+  "total": 3675
+}

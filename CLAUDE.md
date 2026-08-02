@@ -1,70 +1,80 @@
 # NxtHike - Project Guide
 
 ## Overview
-NxtHike is a job/internship/courses/events portal built with React, TypeScript, Vite, Tailwind CSS, and Zustand for state management. Deployed on Netlify.
+NxtHike is a job/internship/courses/events portal plus **Hiring CRM**, split into:
+
+```
+FE/   — React 18 + TypeScript + Vite + Tailwind + Zustand
+BE/   — FastAPI + SQLAlchemy (async) + Supabase Postgres or SQLite
+supabase/ — SQL migrations for Postgres/Supabase
+```
+
+Deployed FE on Netlify (`FE/netlify.toml`).
 
 ## Tech Stack
-- **Framework**: React 18 + TypeScript
-- **Build**: Vite
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Backend**: Supabase (optional, switchable via env)
-- **Deployment**: Netlify
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Zustand
+- **Backend**: FastAPI, SQLAlchemy 2 async, uvicorn
+- **Database**: Supabase Postgres (production) or SQLite (local)
+- **Optional**: Supabase JS client for direct FE reads (`VITE_DATA_SOURCE=supabase`)
 
-## Project Structure
+## Structure
 ```
-src/
-├── components/
-│   ├── home/          # Home page sections (Hero, FeaturedJobs, FeaturedCompanies, PopularCourses, Testimonials, UpcomingEvents, CallToAction)
-│   ├── layout/        # Navbar, Footer
-│   └── ui/            # Reusable UI components (Badge, Button, Card, Input, Select, Pagination)
-├── config/
-│   └── dataSource.ts  # Controls JSON vs Supabase mode via VITE_DATA_SOURCE env var
-├── data/              # Static data files (jobs.ts, courses.ts, events.ts, companies.ts, index.ts)
-├── lib/
-│   └── supabase.ts    # Supabase client (real or mock based on data source mode)
-├── pages/             # Route pages (HomePage, JobsPage, InternshipsPage, CoursesPage, EventsPage, etc.)
-├── services/          # Data fetching layer (jobService, courseService, eventService, companyService, authService)
-├── store/             # Zustand stores (jobStore, courseStore, eventStore, companyStore, authStore)
-└── types/
-    └── index.ts       # All TypeScript interfaces (Job, Course, Event, Company, User, etc.)
-```
+FE/src/
+├── components/     # home, layout, ui
+├── config/         # dataSource (json | supabase | api)
+├── data/           # static seed arrays (json mode)
+├── hiring/         # Hiring CRM UI + store + styles
+├── pages/          # routes including HiringTrackerPage
+├── services/       # API clients (jobs, hiring, …)
+└── store/          # Zustand domain stores
 
-## Data Flow Architecture
-```
-Components/Pages → Zustand Stores → Services → Data Source (JSON or Supabase)
+BE/app/
+├── api/            # FastAPI routers (jobs, events, hiring, …)
+├── models/         # SQLAlchemy models (incl. Candidate, HiringRole)
+├── schemas/        # Pydantic DTOs
+├── services/       # auth helpers
+├── seed_hiring.py  # load FE/public/seed into DB
+└── main.py
 ```
 
-- **Services layer** (`src/services/`) abstracts data source. Each service checks `isJsonMode()` to decide whether to read from `src/data/` or query Supabase.
-- **Config** (`src/config/dataSource.ts`): Reads `VITE_DATA_SOURCE` env var. Defaults to `'json'`.
-- **Home components** (`src/components/home/`) import directly from `src/data/` for display (sliced subsets).
-- **Page components** use Zustand stores which call services.
+## Hiring CRM
+- FE routes: `/hiring`, `/hiring/dashboard`, `/hiring/candidates`, `/hiring/pipeline`
+- BE prefix: `/api/hiring`
+  - `GET /roles`, `POST /roles`, `PATCH/DELETE /roles/{id}`
+  - `GET /dashboard`
+  - `GET/POST /candidates`, `GET/PUT/PATCH/DELETE /candidates/{id}`
+  - `POST /candidates/bulk-status`, `/bulk-delete`, `/bulk-import`
+- Seed: `cd BE && python -m app.seed_hiring`
+- Nav menu: **Dashboard**
 
-## Environment Variables
-- `VITE_DATA_SOURCE` — `'json'` (default) or `'supabase'`
-- `VITE_SUPABASE_URL` — Supabase project URL
-- `VITE_SUPABASE_ANON_KEY` — Supabase anonymous key
+## Environment
+### FE (`FE/.env`)
+- `VITE_DATA_SOURCE` — `json` | `supabase` | `api` (default for hiring: use API when BE is up)
+- `VITE_API_URL` — e.g. `http://localhost:8000`
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
 
-## Key Conventions
-- Data files in `src/data/` are typed TypeScript arrays (not JSON files)
-- Types are centralized in `src/types/index.ts`
-- All stores follow same pattern: `fetch*`, `setFilters`, `clearFilters`, with `isLoading`/`error` state
-- Home components slice data directly (`jobs.slice(0, 4)`, `events.slice(0, 3)`, etc.)
-- Detail pages use extended types (`CourseDetail`, `EventDetail`) with extra fields like curriculum, reviews, agenda, speakers
+### BE (`BE/.env`)
+- `DATABASE_URL` or `SUPABASE_DB_URL` — Postgres URI (asyncpg) or SQLite
+- `SECRET_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+- `CORS_ORIGINS` — include FE origin
+- `SEED_DIR` — default `../FE/public/seed`
 
 ## Commands
-- `npm run dev` — Start dev server
-- `npm run build` — Production build (uses `npx vite build`)
-- `npx tsc --noEmit` — Type check without emitting
+```bash
+# Frontend
+cd FE && npm run dev
+cd FE && npm run build
 
-## Routing
-All routes defined in `src/App.tsx`. Key routes:
-- `/` — HomePage
-- `/jobs`, `/jobs/:id` — Jobs listing and details
-- `/internships` — Internships (filtered from same job data)
-- `/courses`, `/courses/:id` — Courses listing and details
-- `/events`, `/events/:id` — Events listing and details
-- `/companies`, `/companies/:id` — Companies listing and details
-- `/login`, `/register` — Auth pages
-- `/dashboard`, `/employer/dashboard` — Dashboards
-- `/contact`, `/pricing`, `/resume-tips`, `/career-advice` — Static pages
+# Backend
+cd BE && source venv/bin/activate
+uvicorn app.main:app --reload --port 8000
+python -m app.seed_hiring
+```
+
+## Data flow
+```
+Pages → Zustand → services → FastAPI → Supabase/SQLite
+Hiring UI → hiring/store → hiringService → /api/hiring
+```
+
+If the API is down, hiring falls back to `public/seed/*.json`.

@@ -1,0 +1,392 @@
+/* Theme tokens — dark (default) uses slate + cyan accent */.hiring-tracker,
+.hiring-tracker[data-theme="dark"]{
+  --bg: #0f1419;
+  --bg-elevated: #1a2332;
+  --bg-card: #1e293b;
+  --bg-sidebar: #121a24;
+  --bg-sidebar-end: #0c121a;
+  --border: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --primary: #38bdf8;
+  --primary-hover: #7dd3fc;
+  --primary-soft: rgba(56, 189, 248, 0.14);
+  --primary-ring: rgba(56, 189, 248, 0.25);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --star: #fbbf24;
+  --table-head: #1a2436;
+  --radius: 12px;
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}.hiring-tracker[data-theme="light"]{
+  --bg: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-sidebar-end: #f8fafc;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-soft: rgba(2, 132, 199, 0.1);
+  --primary-ring: rgba(2, 132, 199, 0.2);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --success: #059669;
+  --warning: #d97706;
+  --star: #eab308;
+  --table-head: #f8fafc;
+  --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+}.hiring-tracker{
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.45;
+  color-scheme: dark;
+  min-height: calc(100vh - 4rem);
+}.hiring-tracker[data-theme="light"]{
+  color-scheme: light;
+}.hiring-tracker *,
+.hiring-tracker *::before,
+.hiring-tracker *::after{ box-sizing: border-box; }.hiring-tracker button,
+.hiring-tracker input,
+.hiring-tracker select,
+.hiring-tracker textarea{ font: inherit; color: inherit; }.hiring-tracker a{ color: var(--primary); }.hiring-tracker .app-shell{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: calc(100vh - 4rem);
+  min-height: calc(100vh - 4rem);
+}.hiring-tracker .sidebar{
+  background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-sidebar-end) 100%);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  overflow: auto;
+}.hiring-tracker .brand{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}.hiring-tracker .brand h1{
+  font-size: 15px;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}.hiring-tracker .brand p{
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}.hiring-tracker .nav-section{
+  margin-bottom: 18px;
+}.hiring-tracker .nav-section h3{
+  margin: 0 0 8px 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}.hiring-tracker .nav-btn{
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}.hiring-tracker .nav-btn:hover{ background: var(--primary-soft); }.hiring-tracker .nav-btn.active{
+  background: var(--primary-soft);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent);
+}.hiring-tracker .nav-btn .count{
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+}.hiring-tracker .main{
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, var(--primary-soft), transparent 50%),
+    radial-gradient(900px 400px at 100% 0%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 45%),
+    var(--bg);
+}.hiring-tracker .topbar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}.hiring-tracker .topbar h2{ margin: 0; font-size: 18px; }.hiring-tracker .topbar .sub{ color: var(--muted); font-size: 13px; margin-top: 2px; }.hiring-tracker .toolbar{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}.hiring-tracker .content{
+  padding: 18px 20px 28px;
+  overflow: auto;
+  flex: 1;
+}.hiring-tracker .btn{
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}.hiring-tracker .btn:hover{
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  background: var(--bg-elevated);
+}.hiring-tracker .btn.primary{
+  background: var(--primary);
+  border-color: transparent;
+  color: #0b1220;
+  font-weight: 600;
+}.hiring-tracker [data-theme="light"] .btn.primary{
+  color: #ffffff;
+}.hiring-tracker .btn.primary:hover{ filter: brightness(1.06); }.hiring-tracker .btn.danger{
+  background: var(--danger-soft);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  color: var(--danger);
+}.hiring-tracker .btn.ghost{ background: transparent; }.hiring-tracker .btn:disabled{ opacity: 0.5; cursor: not-allowed; }.hiring-tracker .input,
+.hiring-tracker .select,
+.hiring-tracker .textarea{
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  outline: none;
+  min-width: 0;
+}.hiring-tracker .input:focus,
+.hiring-tracker .select:focus,
+.hiring-tracker .textarea:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}.hiring-tracker .textarea{ width: 100%; min-height: 90px; resize: vertical; }.hiring-tracker .cards{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}.hiring-tracker .card{
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}.hiring-tracker .card .label{ color: var(--muted); font-size: 12px; margin-bottom: 6px; }.hiring-tracker .card .value{ font-size: 24px; font-weight: 700; }.hiring-tracker .card .hint{ color: var(--muted); font-size: 12px; margin-top: 4px; }.hiring-tracker .panel{
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}.hiring-tracker .filters{
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr) auto;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--text) 2%, transparent);
+}@media (max-width: 1100px){
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .filters { grid-template-columns: 1fr 1fr; }
+}.hiring-tracker .table-wrap{ overflow: auto; max-height: calc(100vh - 280px); }.hiring-tracker table.candidates{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}.hiring-tracker table.candidates th,
+.hiring-tracker table.candidates td{
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}.hiring-tracker table.candidates th{
+  position: sticky;
+  top: 0;
+  background: var(--table-head);
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  z-index: 1;
+}.hiring-tracker table.candidates tr:hover td{ background: var(--primary-soft); }.hiring-tracker table.candidates tr.selected td{
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+}.hiring-tracker table.candidates tr{ cursor: pointer; }.hiring-tracker .badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+}.hiring-tracker .muted{ color: var(--muted); }.hiring-tracker .star{ color: var(--star); }.hiring-tracker /* Inline star next to name — does not open drawer */
+.star-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}.hiring-tracker .star-btn:hover{
+  background: color-mix(in srgb, var(--star) 15%, transparent);
+  color: var(--star);
+  border-color: color-mix(in srgb, var(--star) 30%, transparent);
+}.hiring-tracker .star-btn.on{
+  color: var(--star);
+  background: color-mix(in srgb, var(--star) 12%, transparent);
+}.hiring-tracker .star-action.on{
+  color: var(--star);
+  border-color: color-mix(in srgb, var(--star) 35%, var(--border));
+  background: color-mix(in srgb, var(--star) 12%, transparent);
+}.hiring-tracker .pagination{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+}.hiring-tracker .drawer-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 40;
+}.hiring-tracker .drawer{
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(520px, 100vw);
+  height: 100vh;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  z-index: 50;
+  overflow: auto;
+  box-shadow: var(--shadow);
+}.hiring-tracker .drawer-header{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}.hiring-tracker .drawer-body{ padding: 16px; }.hiring-tracker .section{ margin-bottom: 16px; }.hiring-tracker .section h4{
+  margin: 0 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}.hiring-tracker .kv{
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 6px 10px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}.hiring-tracker .kv .k{ color: var(--muted); }.hiring-tracker .kv .v{ word-break: break-word; }.hiring-tracker .modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: grid;
+  place-items: center;
+  z-index: 60;
+  padding: 16px;
+}.hiring-tracker .modal{
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}.hiring-tracker .modal-header,
+.hiring-tracker .modal-footer{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}.hiring-tracker .modal-footer{ border-bottom: 0; border-top: 1px solid var(--border); }.hiring-tracker .modal-body{ padding: 16px; }.hiring-tracker .form-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}.hiring-tracker .form-grid .full{ grid-column: 1 / -1; }.hiring-tracker .field label{
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}.hiring-tracker .field .input,
+.hiring-tracker .field .select,
+.hiring-tracker .field .textarea{ width: 100%; }.hiring-tracker .pipeline{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}.hiring-tracker .pipeline-col{
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 240px;
+}.hiring-tracker .pipeline-col h4{
+  margin: 0;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}.hiring-tracker .pipe-card{
+  margin: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}.hiring-tracker .pipe-card:hover{ border-color: var(--primary); }.hiring-tracker .pipe-card .name{ font-weight: 600; font-size: 13px; }.hiring-tracker .pipe-card .meta{ color: var(--muted); font-size: 12px; margin-top: 4px; }.hiring-tracker .empty{
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
+}.hiring-tracker .loading{
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
+}.hiring-tracker .chip-row{ display: flex; flex-wrap: wrap; gap: 6px; }.hiring-tracker .chip{
+  background: var(--primary-soft);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+}.hiring-tracker .alert{
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--danger-soft);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  color: var(--danger);
+  margin-bottom: 12px;
+}
