@@ -51,5 +51,18 @@ class Settings:
     # Path to FE seed JSON (relative to BE or absolute)
     SEED_DIR: str = os.getenv("SEED_DIR", "../FE/public/seed")
 
+    # Storage: "local" (disk) or "r2" (Cloudflare R2)
+    STORAGE_BACKEND: str = os.getenv("STORAGE_BACKEND", "local")
+    R2_ACCOUNT_ID: str = os.getenv("R2_ACCOUNT_ID", "")
+    R2_ACCESS_KEY_ID: str = os.getenv("R2_ACCESS_KEY_ID", "")
+    R2_SECRET_ACCESS_KEY: str = os.getenv("R2_SECRET_ACCESS_KEY", "")
+    R2_BUCKET_NAME: str = os.getenv("R2_BUCKET_NAME", "")
+    # Public base URL for objects, e.g. https://cdn.example.com or https://pub-xxx.r2.dev
+    R2_PUBLIC_URL: str = os.getenv("R2_PUBLIC_URL", "")
+    # Optional override; default: https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com
+    R2_ENDPOINT: str = os.getenv("R2_ENDPOINT", "")
+    # Max upload size in MB
+    MAX_UPLOAD_MB: int = int(os.getenv("MAX_UPLOAD_MB", "15"))
+
 
 settings = Settings()

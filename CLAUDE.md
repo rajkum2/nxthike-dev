@@ -49,8 +49,8 @@ BE/app/
 
 ## Environment
 ### FE (`FE/.env`)
-- `VITE_DATA_SOURCE` — `json` | `supabase` | `api` (default for hiring: use API when BE is up)
-- `VITE_API_URL` — e.g. `http://localhost:8000`
+- `VITE_DATA_SOURCE` — `json` | `supabase` | `api` (use **api** for BE-backed data)
+- `VITE_API_URL` — e.g. `http://localhost:8010` (must be NxtHike FastAPI, not another app)
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
 
 ### BE (`BE/.env`)
@@ -58,6 +58,8 @@ BE/app/
 - `SECRET_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
 - `CORS_ORIGINS` — include FE origin
 - `SEED_DIR` — default `../FE/public/seed`
+- **Storage:** `STORAGE_BACKEND=local|r2` plus R2 keys when using Cloudflare R2
+  - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
 
 ## Commands
 ```bash

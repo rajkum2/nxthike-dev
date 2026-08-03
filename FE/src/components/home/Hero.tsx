@@ -6,13 +6,14 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import { useAuthStore } from '../../store/authStore';
-import { supabase } from '../../lib/supabase';
+import { uploadResume } from '../../services/uploadService';
 
 const Hero: React.FC = () => {
   const { user } = useAuthStore();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
@@ -24,6 +25,7 @@ const Hero: React.FC = () => {
       if (selectedFile.type === 'application/pdf' ||
           selectedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         setFile(selectedFile);
+        setUploadError(null);
       }
     }
   }, []);
@@ -38,21 +40,21 @@ const Hero: React.FC = () => {
   });
 
   const handleUpload = async () => {
-    if (!file || !user) return;
+    if (!file) return;
+    if (!user) {
+      setUploadError('Please sign in to upload your resume.');
+      return;
+    }
     try {
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `resumes/${fileName}`;
-      const { error: uploadError } = await supabase.storage.from('resumes').upload(filePath, file);
-      if (uploadError) throw uploadError;
-      const { data: publicUrlData } = supabase.storage.from('resumes').getPublicUrl(filePath);
-      const { error: updateError } = await supabase.from('students').update({ resume: publicUrlData.publicUrl }).eq('id', user.id);
-      if (updateError) throw updateError;
+      setUploadError(null);
+      // Uploads to Cloudflare R2 when BE has STORAGE_BACKEND=r2, else local disk
+      await uploadResume(file);
       setUploadSuccess(true);
       setTimeout(() => { setUploadSuccess(false); setFile(null); }, 5000);
     } catch (error) {
       console.error('Error uploading resume:', error);
+      setUploadError(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setUploading(false);
     }
@@ -214,6 +216,9 @@ const Hero: React.FC = () => {
                       <X size={16} />
                     </button>
                   </div>
+                  {uploadError && (
+                    <p className="mt-2 text-xs text-red-600">{uploadError}</p>
+                  )}
                   <div className="mt-3 flex justify-end">
                     <Button onClick={handleUpload} isLoading={uploading} disabled={uploading || uploadSuccess} size="sm">
                       {uploadSuccess ? 'Uploaded!' : 'Upload Resume'}

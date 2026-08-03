@@ -67,7 +67,44 @@ cd BE && python -m app.seed_hiring --seed-dir ../FE/public/seed
 
 FastAPI uses **SQLAlchemy + asyncpg** against Supabase Postgres (same schema as the migration). The service role / DB password is for the API only; do not expose it in the FE.
 
+## Storage (Cloudflare R2)
+
+Set in `BE/.env`:
+
+```env
+STORAGE_BACKEND=r2
+R2_ACCOUNT_ID=...
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+R2_BUCKET_NAME=nxthike-uploads
+R2_PUBLIC_URL=https://pub-xxxxx.r2.dev
+```
+
+- Resume / image uploads go to R2 when `STORAGE_BACKEND=r2`, otherwise local `./uploads`.
+- Status: `GET /api/uploads/status`
+- Presigned browser upload: `POST /api/uploads/presign` (auth required, R2 only)
+
+## Data loading checklist
+
+| Layer | What loads from where |
+|-------|------------------------|
+| Hiring CRM (`/hiring`) | Always tries `VITE_API_URL` → `/api/hiring/*`; falls back to `FE/public/seed/*.json` if API down |
+| Jobs / courses / etc. | `VITE_DATA_SOURCE=api` → BE; `json` → `FE/src/data/*`; `supabase` → Supabase client |
+| Resumes | BE `/api/uploads/resume` → R2 or local disk |
+
+**Important:** seed JSON in git is **not** automatically in production DB. After configuring `SUPABASE_DB_URL` (or prod Postgres):
+
+```bash
+cd BE && source venv/bin/activate
+python -m app.seed_hiring --seed-dir ../FE/public/seed
+# optional portal data:
+# python -m app.seed
+```
+
+Verify: `curl $VITE_API_URL/api/health` should show `"service":"nxthike-api"` and `counts.candidates` > 0.
+
 ## Health
 
 - FE: http://localhost:5173  
-- BE: http://localhost:8000/api/health  
+- BE: http://localhost:8010/api/health  
+

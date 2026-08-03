@@ -51,4 +51,36 @@ app.include_router(admin_router)
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "service": "nxthike-api"}
+    from sqlalchemy import select, func
+    from app.database import async_session
+    from app.models.hiring import Candidate, HiringRole
+    from app.models.job import Job
+    from app.services.storage import get_storage
+
+    counts: dict = {}
+    try:
+        async with async_session() as db:
+            counts["candidates"] = (
+                await db.execute(select(func.count()).select_from(Candidate))
+            ).scalar() or 0
+            counts["hiringRoles"] = (
+                await db.execute(select(func.count()).select_from(HiringRole))
+            ).scalar() or 0
+            counts["jobs"] = (
+                await db.execute(select(func.count()).select_from(Job))
+            ).scalar() or 0
+    except Exception as e:
+        counts["error"] = str(e)
+
+    try:
+        storage_name = get_storage().name
+    except Exception as e:
+        storage_name = f"error:{e}"
+
+    return {
+        "status": "ok",
+        "service": "nxthike-api",
+        "version": "1.1.0",
+        "storage": storage_name,
+        "counts": counts,
+    }
