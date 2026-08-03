@@ -14,8 +14,14 @@ import app.models  # noqa: F401
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Create tables if missing (safe for SQLite + Supabase). Do not crash the
+    # whole process if DB is briefly unreachable — log and continue so /api/health works.
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print(f"[startup] DB ready (pooler={settings.DB_IS_POOLER}, ssl={settings.DB_NEEDS_SSL})")
+    except Exception as e:
+        print(f"[startup] WARNING: could not init DB: {type(e).__name__}: {e}")
     yield
 
 

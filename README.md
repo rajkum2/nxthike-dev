@@ -84,6 +84,29 @@ R2_PUBLIC_URL=https://pub-xxxxx.r2.dev
 - Status: `GET /api/uploads/status`
 - Presigned browser upload: `POST /api/uploads/presign` (auth required, R2 only)
 
+### Bulk-upload local Internshala resumes (compress + R2)
+
+Local PDFs live under `~/Documents/Internshala_*/files` (~3,675 files).  
+Script compresses each PDF, uploads to `resumes/{role_id}/{filename}`, and updates `candidates.resume_link`.
+
+```bash
+cd BE && source venv/bin/activate
+
+# Dry-run (compress only)
+DATABASE_URL=sqlite+aiosqlite:///./nxthike_hiring.db SUPABASE_DB_URL= \
+  python -m app.upload_resumes_r2 --dry-run
+
+# Real upload to R2 + DB update (prod DB or local)
+export STORAGE_BACKEND=r2
+export R2_ACCOUNT_ID=...
+export R2_ACCESS_KEY_ID=...
+export R2_SECRET_ACCESS_KEY=...
+export R2_BUCKET_NAME=nxthike-uploads
+export R2_PUBLIC_URL=https://pub-xxxxx.r2.dev
+# Point DATABASE_URL / SUPABASE_DB_URL at the DB you want updated
+python -m app.upload_resumes_r2
+```
+
 ## Data loading checklist
 
 | Layer | What loads from where |

@@ -6,3 +6,4 @@ __pycache__/
 .env.docker
 uploads/
 seed_data.json
+resume_upload_progress.json

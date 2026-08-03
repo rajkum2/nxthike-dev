@@ -26,4 +26,5 @@ EXPOSE 8000
 
 ENV PYTHONPATH=/app
 
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# create_all runs in app lifespan; alembic is optional (set SKIP_ALEMBIC=false to enforce)
+CMD ["sh", "-c", "if [ \"${SKIP_ALEMBIC:-true}\" != \"true\" ]; then alembic upgrade head || echo 'alembic failed, continuing'; fi; uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
