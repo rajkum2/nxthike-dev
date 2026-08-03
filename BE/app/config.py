@@ -46,14 +46,27 @@ def _normalize_database_url(url: str) -> str:
     return url
 
 
+def _is_local_host(url: str) -> bool:
+    """Local dev Postgres normally has SSL disabled — forcing it breaks the connect."""
+    try:
+        host = (urlparse(url).hostname or "").lower()
+    except Exception:
+        return False
+    return host in ("localhost", "127.0.0.1", "::1", "")
+
+
 def _is_supabase_or_postgres(url: str) -> bool:
     u = url.lower()
+    if u.startswith("sqlite"):
+        return False
+    if _is_local_host(url):
+        return False
     return (
         "supabase" in u
         or "pooler.supabase" in u
         or u.startswith("postgresql")
         or "+asyncpg" in u
-    ) and not u.startswith("sqlite")
+    )
 
 
 def _is_pooler(url: str) -> bool:
