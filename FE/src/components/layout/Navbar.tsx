@@ -60,15 +60,22 @@ const publicNavItems = [
   },
 ];
 
-/** Hiring CRM — only shown to admin users after login */
+/** Admin tools — only shown to admin users after login */
 const adminNavItem = {
-  label: 'Dashboard',
-  key: 'hiring',
+  label: 'Admin',
+  key: 'admin',
   links: [
-    { to: '/hiring/dashboard', label: 'Hiring Overview' },
+    { to: '/admin', label: 'Admin Console' },
+    { to: '/admin/profile', label: 'My Profile' },
+    { to: '/admin/users', label: 'Users' },
+    { to: '/admin/jobs', label: 'Manage Jobs' },
+    { to: '/admin/events', label: 'Manage Events' },
+    { to: '/admin/courses', label: 'Manage Courses' },
+    { to: '/admin/companies', label: 'Manage Companies' },
+    { to: '/admin/hiring-roles', label: 'Hiring Roles' },
+    { to: '/hiring/dashboard', label: 'Hiring CRM' },
     { to: '/hiring/candidates', label: 'Candidates' },
     { to: '/hiring/pipeline', label: 'Pipeline Board' },
-    { to: '/hiring', label: 'Open Hiring CRM' },
   ],
 };
 
@@ -162,7 +169,9 @@ const Navbar: React.FC = () => {
                   type="button"
                   className={`px-3 py-2 text-sm font-medium rounded-md flex items-center gap-1 transition-all duration-200 ${
                     activeDropdown === item.key ||
-                    (item.key === 'hiring' && location.pathname.startsWith('/hiring'))
+                    (item.key === 'admin' &&
+                      (location.pathname.startsWith('/admin') ||
+                        location.pathname.startsWith('/hiring')))
                       ? 'text-brand-600 bg-brand-50'
                       : 'text-surface-600 hover:text-brand-600 hover:bg-brand-50/50'
                   }`}
@@ -198,9 +207,22 @@ const Navbar: React.FC = () => {
             <div className="hidden lg:flex items-center gap-2">
               {user ? (
                 <>
-                  <Link to="/dashboard">
-                    <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
-                      Dashboard
+                  {isHiringAdmin(user) ? (
+                    <Link to="/admin">
+                      <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
+                        Console
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link to="/dashboard">
+                      <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
+                        Dashboard
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to={isHiringAdmin(user) ? '/admin/profile' : '/dashboard'}>
+                    <Button variant="ghost" size="sm">
+                      Profile
                     </Button>
                   </Link>
                   <Button

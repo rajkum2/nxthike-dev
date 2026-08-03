@@ -90,6 +90,21 @@ export const hiringService = {
 
   listRoles: () => request<RoleMeta[]>('/roles'),
 
+  createRole: (body: {
+    id: string;
+    name: string;
+    description?: string | null;
+    is_active?: boolean;
+    sort_order?: number;
+  }) => request<RoleMeta>('/roles', { method: 'POST', body: JSON.stringify(body) }),
+
+  updateRole: (
+    id: string,
+    body: Partial<{ name: string; description: string | null; is_active: boolean; sort_order: number }>,
+  ) => request<RoleMeta>(`/roles/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+
+  deleteRole: (id: string) => request<void>(`/roles/${id}`, { method: 'DELETE' }),
+
   dashboard: (roleId?: string) =>
     request<HiringDashboardStats>(`/dashboard${qs({ roleId })}`),
 

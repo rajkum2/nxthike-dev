@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Briefcase,
   ChevronLeft,
@@ -197,7 +197,10 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
         </div>
 
         <div className="sidebar-footer">
-          NxtHike · Hiring workspace
+          <Link to="/admin" className="text-inherit no-underline hover:underline">
+            ← Admin console
+          </Link>
+          <div className="mt-1">NxtHike · Hiring workspace</div>
         </div>
       </aside>
 

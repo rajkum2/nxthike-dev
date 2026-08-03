@@ -8,6 +8,7 @@ from app.models.job import Job
 from app.models.event import Event
 from app.models.course import Course
 from app.models.company import Company
+from app.models.hiring import Candidate, HiringRole
 from app.services.auth import get_admin_user
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
@@ -20,17 +21,29 @@ async def get_stats(user: User = Depends(get_admin_user), db: AsyncSession = Dep
     courses_count = (await db.execute(select(func.count()).select_from(Course))).scalar() or 0
     companies_count = (await db.execute(select(func.count()).select_from(Company))).scalar() or 0
     users_count = (await db.execute(select(func.count()).select_from(User))).scalar() or 0
+    candidates_count = (await db.execute(select(func.count()).select_from(Candidate))).scalar() or 0
+    hiring_roles_count = (await db.execute(select(func.count()).select_from(HiringRole))).scalar() or 0
+    admins_count = (
+        await db.execute(select(func.count()).select_from(User).where(User.role == "admin"))
+    ).scalar() or 0
 
     # Counts by type
     internships = (await db.execute(select(func.count()).select_from(Job).where(Job.type == "internship"))).scalar() or 0
     fulltime = (await db.execute(select(func.count()).select_from(Job).where(Job.type == "full-time"))).scalar() or 0
+    pending_jobs = (
+        await db.execute(select(func.count()).select_from(Job).where(Job.status == "pending"))
+    ).scalar() or 0
 
     return {
         "jobs": jobs_count,
         "internships": internships,
         "fulltime": fulltime,
+        "pendingJobs": pending_jobs,
         "events": events_count,
         "courses": courses_count,
         "companies": companies_count,
         "users": users_count,
+        "admins": admins_count,
+        "candidates": candidates_count,
+        "hiringRoles": hiring_roles_count,
     }

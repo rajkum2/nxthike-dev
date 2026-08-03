@@ -147,6 +147,7 @@ export async function fetchUser(): Promise<User | null> {
       try {
         // Verify token is still valid
         const user = await apiFetch<User>('/api/auth/me');
+        localStorage.setItem('nxthike_user', JSON.stringify(user));
         return user;
       } catch {
         clearToken();
@@ -179,4 +180,80 @@ export async function fetchUser(): Promise<User | null> {
 
   if (profileError) throw profileError;
   return profileData;
+}
+
+export type ProfileUpdatePayload = {
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string | null;
+  companyName?: string | null;
+  companyDescription?: string | null;
+  industry?: string | null;
+  location?: string | null;
+  website?: string | null;
+  resume?: string | null;
+  skills?: string[];
+};
+
+export async function updateProfile(payload: ProfileUpdatePayload): Promise<User> {
+  if (isApiMode()) {
+    const user = await apiFetch<User>('/api/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    localStorage.setItem('nxthike_user', JSON.stringify(user));
+    return user;
+  }
+
+  if (isJsonMode()) {
+    const stored = localStorage.getItem('nxthike_user');
+    if (!stored) throw new Error('Not signed in');
+    const current = JSON.parse(stored) as User;
+    const next = { ...current, ...payload } as User;
+    localStorage.setItem('nxthike_user', JSON.stringify(next));
+    return next;
+  }
+
+  throw new Error('Profile update not supported in this data mode');
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  if (isApiMode()) {
+    await apiFetch<{ ok: boolean }>('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    return;
+  }
+  if (isJsonMode()) {
+    // Demo mode — accept any current password
+    return;
+  }
+  throw new Error('Password change not supported in this data mode');
+}
+
+export async function listUsers(): Promise<User[]> {
+  if (isApiMode()) {
+    return apiFetch<User[]>('/api/auth/users');
+  }
+  if (isJsonMode()) {
+    return demoUsers;
+  }
+  throw new Error('User list requires API mode');
+}
+
+export async function updateUserRole(userId: string, role: User['role']): Promise<User> {
+  if (isApiMode()) {
+    return apiFetch<User>(`/api/auth/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+  if (isJsonMode()) {
+    const u = demoUsers.find((x) => x.id === userId);
+    if (!u) throw new Error('User not found');
+    u.role = role;
+    return u;
+  }
+  throw new Error('Role update requires API mode');
 }

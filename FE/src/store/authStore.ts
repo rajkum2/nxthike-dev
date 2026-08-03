@@ -4,6 +4,9 @@ import {
   signUp as signUpService,
   signOut as signOutService,
   fetchUser as fetchUserService,
+  updateProfile as updateProfileService,
+  changePassword as changePasswordService,
+  type ProfileUpdatePayload,
 } from '../services/authService';
 import type { User } from '../types';
 
@@ -15,6 +18,8 @@ interface AuthState {
   signUp: (email: string, password: string, userData: Partial<User>) => Promise<void>;
   signOut: () => Promise<void>;
   fetchUser: () => Promise<void>;
+  updateProfile: (payload: ProfileUpdatePayload) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -34,6 +39,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch (error) {
       set({ error: (error as Error).message });
+      throw error;
     } finally {
       set({ isLoading: false });
     }
@@ -48,6 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch (error) {
       set({ error: (error as Error).message });
+      throw error;
     } finally {
       set({ isLoading: false });
     }
@@ -73,6 +80,31 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (error) {
       console.error('Error fetching user:', error);
       set({ error: (error as Error).message, user: null });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateProfile: async (payload) => {
+    set({ isLoading: true, error: null });
+    try {
+      const user = await updateProfileService(payload);
+      set({ user });
+    } catch (error) {
+      set({ error: (error as Error).message });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  changePassword: async (currentPassword, newPassword) => {
+    set({ isLoading: true, error: null });
+    try {
+      await changePasswordService(currentPassword, newPassword);
+    } catch (error) {
+      set({ error: (error as Error).message });
+      throw error;
     } finally {
       set({ isLoading: false });
     }

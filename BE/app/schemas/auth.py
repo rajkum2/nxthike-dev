@@ -49,3 +49,26 @@ class UserResponse(BaseModel):
     website: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class ProfileUpdateRequest(BaseModel):
+    firstName: str | None = None
+    lastName: str | None = None
+    profilePicture: str | None = None
+    # Employer-oriented fields (optional for any user)
+    companyName: str | None = None
+    companyDescription: str | None = None
+    industry: str | None = None
+    location: str | None = None
+    website: str | None = None
+    resume: str | None = None
+    skills: list | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    currentPassword: str
+    newPassword: str
+
+
+class AdminUserRoleUpdate(BaseModel):
+    role: str  # student | employer | admin

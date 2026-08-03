@@ -45,12 +45,15 @@ async def list_jobs(
     category: str | None = None,
     type: str | None = None,
     is_remote: bool | None = None,
-    status: str = "approved",
+    status: str | None = "approved",
     page: int = Query(1, ge=1),
     per_page: int = Query(9, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Job).where(Job.status == status)
+    # status=all returns every status (admin management UIs)
+    query = select(Job)
+    if status and status != "all":
+        query = query.where(Job.status == status)
 
     if search:
         term = f"%{search}%"

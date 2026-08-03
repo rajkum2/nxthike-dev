@@ -4,8 +4,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
-from app.services.auth import hash_password, verify_password, create_access_token, get_current_user
+from app.schemas.auth import (
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UserResponse,
+    ProfileUpdateRequest,
+    ChangePasswordRequest,
+    AdminUserRoleUpdate,
+)
+from app.services.auth import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    get_current_user,
+    get_admin_user,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -77,3 +91,74 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def get_me(user: User = Depends(get_current_user)):
     return user_to_response(user)
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    body: ProfileUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    data = body.model_dump(exclude_unset=True)
+    field_map = {
+        "firstName": "first_name",
+        "lastName": "last_name",
+        "profilePicture": "profile_picture",
+        "companyName": "company_name",
+        "companyDescription": "company_description",
+        "industry": "industry",
+        "location": "location",
+        "website": "website",
+        "resume": "resume",
+        "skills": "skills",
+    }
+    for api_key, col in field_map.items():
+        if api_key in data:
+            setattr(user, col, data[api_key])
+    await db.commit()
+    await db.refresh(user)
+    return user_to_response(user)
+
+
+@router.post("/change-password")
+async def change_password(
+    body: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(body.currentPassword, user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(body.newPassword) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    user.password_hash = hash_password(body.newPassword)
+    await db.commit()
+    return {"ok": True}
+
+
+@router.get("/users", response_model=list[UserResponse])
+async def list_users(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    rows = (await db.execute(select(User).order_by(User.created_at.desc()))).scalars().all()
+    return [user_to_response(u) for u in rows]
+
+
+@router.patch("/users/{user_id}/role", response_model=UserResponse)
+async def update_user_role(
+    user_id: str,
+    body: AdminUserRoleUpdate,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if body.role not in ("student", "employer", "admin"):
+        raise HTTPException(status_code=400, detail="Invalid role")
+    target = await db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target.id == admin.id and body.role != "admin":
+        raise HTTPException(status_code=400, detail="Cannot demote your own admin account")
+    target.role = body.role
+    await db.commit()
+    await db.refresh(target)
+    return user_to_response(target)

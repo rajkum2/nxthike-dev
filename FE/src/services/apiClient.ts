@@ -31,8 +31,16 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    const detail = error.detail;
+    throw new Error(
+      typeof detail === 'string' ? detail : detail ? JSON.stringify(detail) : `HTTP ${response.status}`,
+    );
   }
 
-  return response.json();
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  const text = await response.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }

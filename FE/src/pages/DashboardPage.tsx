@@ -32,6 +32,11 @@ const DashboardPage: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Admins get the full console instead of the student-style dashboard
+  if (user.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+
   const stats = [
     {
       title: 'Applied Jobs',
@@ -166,9 +171,10 @@ const DashboardPage: React.FC = () => {
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-surface-200">
-                  <Button variant="outline" fullWidth size="sm">
-                    Edit Profile
-                  </Button>
+                  <p className="text-xs text-surface-400 text-center">
+                    Profile editing for students/employers is available after signing in via Account settings.
+                    Contact support to update your email.
+                  </p>
                 </div>
               </CardContent>
             </Card>

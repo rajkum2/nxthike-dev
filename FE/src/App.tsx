@@ -23,6 +23,15 @@ import EmployerDashboardPage from './pages/EmployerDashboardPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminHomePage from './pages/admin/AdminHomePage';
+import AdminProfilePage from './pages/admin/AdminProfilePage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminHiringRolesPage from './pages/admin/AdminHiringRolesPage';
+import AdminJobsPage from './pages/admin/AdminJobsPage';
+import AdminEventsPage from './pages/admin/AdminEventsPage';
+import AdminCoursesPage from './pages/admin/AdminCoursesPage';
+import AdminCompaniesPage from './pages/admin/AdminCompaniesPage';
 import { useAuthStore } from './store/authStore';
 import MetricoolTracker from './components/MetricoolTracker';
 import RequireAdmin from './components/auth/RequireAdmin';
@@ -47,6 +56,17 @@ function AppShell() {
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/companies/:id" element={<CompanyDetailsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Admin console */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminHomePage />} />
+            <Route path="profile" element={<AdminProfilePage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="hiring-roles" element={<AdminHiringRolesPage />} />
+            <Route path="jobs" element={<AdminJobsPage />} />
+            <Route path="events" element={<AdminEventsPage />} />
+            <Route path="courses" element={<AdminCoursesPage />} />
+            <Route path="companies" element={<AdminCompaniesPage />} />
+          </Route>
           {/* Hiring CRM: admin-only (menu hidden + route guarded) */}
           <Route
             path="/hiring"
