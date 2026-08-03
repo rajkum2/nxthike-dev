@@ -20,6 +20,10 @@ import {
   StarOff,
   Moon,
   Sun,
+  Menu,
+  UserCheck,
+  Sparkles,
+  Info,
 } from 'lucide-react';
 import { useStore, applyTheme } from './store';
 import type { Candidate, PipelineStatus, ViewMode } from './types';
@@ -40,6 +44,7 @@ const VALID_VIEWS: ViewMode[] = ['dashboard', 'candidates', 'pipeline'];
 export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
   const navigate = useNavigate();
   const store = useStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const {
     roles,
     loading,
@@ -66,6 +71,7 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
   const goView = (v: ViewMode) => {
     store.setView(v);
     navigate(`/hiring/${v}`);
+    setSidebarOpen(false);
   };
 
   useEffect(() => {
@@ -130,10 +136,13 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
 
   return (
     <div className="hiring-tracker" data-theme={theme}>
-    <div className="app-shell">
+    <div className={`app-shell ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} aria-hidden />
       <aside className="sidebar">
         <div className="brand">
-          <Briefcase size={22} color="var(--primary)" />
+          <div className="brand-icon" aria-hidden>
+            <Briefcase size={20} strokeWidth={2.25} />
+          </div>
           <div>
             <h1>Hiring CRM</h1>
             <p>Candidate applications</p>
@@ -142,31 +151,36 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
 
         <div className="nav-section">
           <h3>Views</h3>
-          <button className={`nav-btn ${view === 'dashboard' ? 'active' : ''}`} onClick={() => goView('dashboard')}>
-            <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}><LayoutDashboard size={16} /> Dashboard</span>
+          <button type="button" className={`nav-btn ${view === 'dashboard' ? 'active' : ''}`} onClick={() => goView('dashboard')}>
+            <span className="nav-label"><LayoutDashboard size={16} /> Dashboard</span>
           </button>
-          <button className={`nav-btn ${view === 'candidates' ? 'active' : ''}`} onClick={() => goView('candidates')}>
-            <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Users size={16} /> Candidates</span>
+          <button type="button" className={`nav-btn ${view === 'candidates' ? 'active' : ''}`} onClick={() => goView('candidates')}>
+            <span className="nav-label"><Users size={16} /> Candidates</span>
           </button>
-          <button className={`nav-btn ${view === 'pipeline' ? 'active' : ''}`} onClick={() => goView('pipeline')}>
-            <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}><Kanban size={16} /> Pipeline</span>
+          <button type="button" className={`nav-btn ${view === 'pipeline' ? 'active' : ''}`} onClick={() => goView('pipeline')}>
+            <span className="nav-label"><Kanban size={16} /> Pipeline</span>
           </button>
         </div>
 
         <div className="nav-section">
           <h3>Roles</h3>
-          <button className={`nav-btn ${activeRoleId === 'all' ? 'active' : ''}`} onClick={() => store.setActiveRole('all')}>
-            <span>All roles</span>
+          <button
+            type="button"
+            className={`nav-btn ${activeRoleId === 'all' ? 'active' : ''}`}
+            onClick={() => { store.setActiveRole('all'); setSidebarOpen(false); }}
+          >
+            <span className="nav-label">All roles</span>
             <span className="count">{roles.reduce((a, r) => a + r.count, 0)}</span>
           </button>
           {roles.map((r) => (
             <button
+              type="button"
               key={r.id}
               className={`nav-btn ${activeRoleId === r.id ? 'active' : ''}`}
-              onClick={() => store.setActiveRole(r.id)}
+              onClick={() => { store.setActiveRole(r.id); setSidebarOpen(false); }}
               title={r.name}
             >
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.name}</span>
+              <span className="nav-label" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
               <span className="count">{r.count}</span>
             </button>
           ))}
@@ -174,39 +188,68 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
 
         <div className="nav-section">
           <h3>Data</h3>
-          <button className="nav-btn" onClick={() => void store.loadAllRoles()}>
-            <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}><RefreshCw size={16} /> Load all roles</span>
+          <button type="button" className="nav-btn" onClick={() => void store.loadAllRoles()}>
+            <span className="nav-label"><RefreshCw size={16} /> Load all roles</span>
           </button>
-          <button className="nav-btn" onClick={() => store.resetLocalChanges()}>
-            <span>Reset local edits</span>
+          <button type="button" className="nav-btn" onClick={() => store.resetLocalChanges()}>
+            <span className="nav-label">Reset local edits</span>
           </button>
+        </div>
+
+        <div className="sidebar-footer">
+          NxtHike · Hiring workspace
         </div>
       </aside>
 
       <main className="main">
         <div className="topbar">
-          <div>
-            <h2>{activeRoleName}</h2>
-            <div className="sub">
-              {loading
-                ? 'Loading…'
-                : `${pageItems.length.toLocaleString()} on page · ${effectiveTotal.toLocaleString()} total`}
-              {apiMode ? ' · API' : ' · seed fallback'}
-              {error ? ` · ${error}` : ''}
+          <div className="topbar-left">
+            <button
+              type="button"
+              className="btn btn-icon mobile-menu-btn"
+              aria-label="Open navigation"
+              onClick={() => setSidebarOpen((o) => !o)}
+            >
+              {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            <div>
+              <h2>{activeRoleName}</h2>
+              <div className="sub">
+                {loading
+                  ? 'Loading…'
+                  : (
+                    <>
+                      <span>{pageItems.length.toLocaleString()} on page</span>
+                      <span aria-hidden>·</span>
+                      <span>{effectiveTotal.toLocaleString()} total</span>
+                    </>
+                  )}
+                <span className={`mode-pill ${apiMode ? 'api' : 'seed'}`}>
+                  {apiMode ? 'API' : 'Seed fallback'}
+                </span>
+                {error ? <span className="muted">· {error}</span> : null}
+              </div>
             </div>
           </div>
           <div className="toolbar">
             <button
+              type="button"
               className="btn"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               onClick={() => store.toggleTheme()}
             >
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-              {theme === 'dark' ? 'Light' : 'Dark'}
+              <span className="hide-sm">{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
-            <button className="btn primary" onClick={() => store.openCreate()}><Plus size={16} /> Add</button>
-            <button className="btn" onClick={() => fileRef.current?.click()}><Upload size={16} /> Import Excel</button>
-            <button className="btn" onClick={() => exportToExcel(filtered, `candidates_${activeRoleId}.xlsx`)}><Download size={16} /> Export</button>
+            <button type="button" className="btn primary" onClick={() => store.openCreate()}>
+              <Plus size={16} /> <span className="hide-sm">Add</span>
+            </button>
+            <button type="button" className="btn" onClick={() => fileRef.current?.click()}>
+              <Upload size={16} /> <span className="hide-sm">Import Excel</span>
+            </button>
+            <button type="button" className="btn" onClick={() => exportToExcel(filtered, `candidates_${activeRoleId}.xlsx`)}>
+              <Download size={16} /> <span className="hide-sm">Export</span>
+            </button>
             <input
               ref={fileRef}
               type="file"
@@ -227,27 +270,86 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
           {view === 'dashboard' && (
             <>
               <div className="cards">
-                <div className="card"><div className="label">Candidates</div><div className="value">{stats.total}</div></div>
-                <div className="card"><div className="label">With experience</div><div className="value">{stats.withExp}</div></div>
-                <div className="card"><div className="label">Starred</div><div className="value">{stats.starred}</div></div>
-                <div className="card"><div className="label">Shortlisted</div><div className="value">{stats.byStatus.shortlisted || 0}</div></div>
-                <div className="card"><div className="label">Interview</div><div className="value">{stats.byStatus.interview || 0}</div></div>
-                <div className="card"><div className="label">Hired</div><div className="value">{stats.byStatus.hired || 0}</div></div>
-              </div>
-              <div className="panel" style={{ padding: 16 }}>
-                <h3 style={{ marginTop: 0 }}>Pipeline breakdown</h3>
-                <div className="cards" style={{ marginBottom: 0 }}>
-                  {(Object.keys(STATUS_LABELS) as PipelineStatus[]).map((st) => (
-                    <div className="card" key={st}>
-                      <div className="label">{STATUS_LABELS[st]}</div>
-                      <div className="value" style={{ color: STATUS_COLORS[st] }}>{stats.byStatus[st] || 0}</div>
-                    </div>
-                  ))}
+                <div className="card stat">
+                  <div className="stat-top">
+                    <div className="label">Candidates</div>
+                    <div className="stat-icon"><Users size={16} /></div>
+                  </div>
+                  <div className="value">{stats.total.toLocaleString()}</div>
                 </div>
-                <p className="muted" style={{ marginTop: 16 }}>
-                  Tip: open <b>Candidates</b> to search/filter/edit. Changes are saved in your browser (localStorage).
-                  Use Export to download an Excel of the current filtered list.
-                </p>
+                <div className="card stat">
+                  <div className="stat-top">
+                    <div className="label">With experience</div>
+                    <div className="stat-icon success"><Briefcase size={16} /></div>
+                  </div>
+                  <div className="value">{stats.withExp.toLocaleString()}</div>
+                  <div className="hint">
+                    {stats.total ? Math.round((stats.withExp / stats.total) * 100) : 0}% of pool
+                  </div>
+                </div>
+                <div className="card stat">
+                  <div className="stat-top">
+                    <div className="label">Starred</div>
+                    <div className="stat-icon warning"><Star size={16} /></div>
+                  </div>
+                  <div className="value">{stats.starred.toLocaleString()}</div>
+                </div>
+                <div className="card stat">
+                  <div className="stat-top">
+                    <div className="label">Shortlisted</div>
+                    <div className="stat-icon purple"><UserCheck size={16} /></div>
+                  </div>
+                  <div className="value">{(stats.byStatus.shortlisted || 0).toLocaleString()}</div>
+                </div>
+                <div className="card stat">
+                  <div className="stat-top">
+                    <div className="label">Interview</div>
+                    <div className="stat-icon orange"><Sparkles size={16} /></div>
+                  </div>
+                  <div className="value">{(stats.byStatus.interview || 0).toLocaleString()}</div>
+                </div>
+                <div className="card stat">
+                  <div className="stat-top">
+                    <div className="label">Hired</div>
+                    <div className="stat-icon green"><UserCheck size={16} /></div>
+                  </div>
+                  <div className="value">{(stats.byStatus.hired || 0).toLocaleString()}</div>
+                </div>
+              </div>
+
+              <div className="panel">
+                <div className="panel-header">
+                  <h3>Pipeline breakdown</h3>
+                  <button type="button" className="btn ghost" onClick={() => goView('pipeline')}>
+                    <Kanban size={14} /> Open board
+                  </button>
+                </div>
+                <div className="panel-body">
+                  <div className="cards" style={{ marginBottom: 0 }}>
+                    {(Object.keys(STATUS_LABELS) as PipelineStatus[]).map((st) => (
+                      <div
+                        className="card pipeline-stat"
+                        key={st}
+                        style={{ ['--accent' as string]: STATUS_COLORS[st] }}
+                      >
+                        <div className="label">{STATUS_LABELS[st]}</div>
+                        <div className="value" style={{ color: STATUS_COLORS[st] }}>
+                          {(stats.byStatus[st] || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="tip-banner">
+                    <Info size={16} className="tip-icon" />
+                    <div>
+                      Open <strong>Candidates</strong> to search, filter, and edit applications.
+                      {apiMode
+                        ? ' Changes sync to the server (API).'
+                        : ' API is offline — edits are stored locally until the backend is available.'}
+                      {' '}Use <strong>Export</strong> for an Excel of the current filtered list.
+                    </div>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -258,19 +360,30 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                 const col = filtered.filter((c) => c.status === st).slice(0, 40);
                 const colTotal = filtered.filter((c) => c.status === st).length;
                 return (
-                  <div className="pipeline-col" key={st}>
+                  <div
+                    className="pipeline-col"
+                    key={st}
+                    style={{ ['--col-accent' as string]: STATUS_COLORS[st] }}
+                  >
                     <h4>
                       <span style={{ color: STATUS_COLORS[st] }}>{STATUS_LABELS[st]}</span>
-                      <span className="muted">{colTotal}</span>
+                      <span className="count-pill">{colTotal}</span>
                     </h4>
                     {col.map((c) => (
                       <div className="pipe-card" key={c.id} onClick={() => store.openDetail(c.id)}>
-                        <div className="name">{c.name || 'Unnamed'} {c.starred && <Star size={12} className="star" />}</div>
+                        <div className="name">
+                          {c.name || 'Unnamed'}
+                          {c.starred && <Star size={12} className="star" fill="currentColor" />}
+                        </div>
                         <div className="meta">{c.city || '—'} · {c.latestRole || c.degree || '—'}</div>
                       </div>
                     ))}
-                    {colTotal === 0 && <div className="empty">No candidates</div>}
-                    {colTotal > 40 && <div className="empty">+{colTotal - 40} more — use Candidates view</div>}
+                    {colTotal === 0 && (
+                      <div className="pipeline-empty">No candidates in this stage</div>
+                    )}
+                    {colTotal > 40 && (
+                      <div className="pipeline-empty">+{colTotal - 40} more — open Candidates</div>
+                    )}
                   </div>
                 );
               })}
@@ -351,7 +464,11 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                 {loading && pageItems.length === 0 ? (
                   <div className="loading">Loading candidates…</div>
                 ) : pageItems.length === 0 ? (
-                  <div className="empty">No candidates match filters. Try another role or clear filters.</div>
+                  <div className="empty-state">
+                    <div className="empty-icon"><Users size={22} /></div>
+                    <div style={{ fontWeight: 600, color: 'var(--text)' }}>No candidates match</div>
+                    <div>Try another role or clear filters.</div>
+                  </div>
                 ) : (
                   <table className="candidates">
                     <thead>

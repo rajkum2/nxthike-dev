@@ -273,11 +273,15 @@ async def run(
     role_id: str | None,
     dry_run: bool,
     limit: int | None,
+    max_new: int | None,
     skip_existing: bool,
     progress_path: Path,
 ) -> None:
     print(f"docs_root={docs_root}")
-    print(f"dry_run={dry_run} role={role_id or 'all'} skip_existing={skip_existing}")
+    print(
+        f"dry_run={dry_run} role={role_id or 'all'} skip_existing={skip_existing} "
+        f"max_new={max_new or '∞'}"
+    )
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -348,6 +352,7 @@ async def run(
     skipped = 0
     missing_cand = 0
     errors = 0
+    new_attempts = 0  # non-skip work units this run (for --max-new batches)
 
     def _flush() -> None:
         _save_progress(
@@ -370,6 +375,12 @@ async def run(
                 and prior.candidate_id
                 and not dry_run
             ):
+                if max_new is not None and new_attempts >= max_new:
+                    print(
+                        f"\nStopped: reached --max-new={max_new} "
+                        f"(remaining files left for next batch)"
+                    )
+                    break
                 try:
                     await update_candidate_links(
                         prior.candidate_id, prior.url, pdf_name
@@ -377,6 +388,7 @@ async def run(
                     prior.status = "uploaded"
                     prior.error = None
                     uploaded += 1
+                    new_attempts += 1
                     print(
                         f"  [{i}/{len(files)}] DB repaired {pdf_name} → {prior.url}"
                     )
@@ -384,12 +396,21 @@ async def run(
                 except Exception as e:
                     prior.error = str(e)
                     db_pending += 1
+                    new_attempts += 1
                     print(f"  DB repair still failing {pdf_name}: {e}")
                     _flush()
                 continue
             skipped += 1
             continue
 
+        if max_new is not None and new_attempts >= max_new:
+            print(
+                f"\nStopped: reached --max-new={max_new} "
+                f"(remaining files left for next batch)"
+            )
+            break
+
+        new_attempts += 1
         raw = path.read_bytes()
         orig = len(raw)
         data = compress_pdf(raw) if path.suffix.lower() == ".pdf" else raw
@@ -538,6 +559,7 @@ async def run(
     print(f"skipped:    {skipped}")
     print(f"no candidate match: {missing_cand}")
     print(f"errors:     {errors}")
+    print(f"new attempts this batch: {new_attempts}")
     print(f"progress:   {progress_path}")
 
 
@@ -569,7 +591,16 @@ def main() -> None:
     )
     parser.add_argument("--role", default=None, help="Only one role_id")
     parser.add_argument("--dry-run", action="store_true", help="Compress only; no R2/DB writes")
-    parser.add_argument("--limit", type=int, default=None, help="Max files (for testing)")
+    parser.add_argument("--limit", type=int, default=None, help="Max files from discover list (prefix)")
+    parser.add_argument(
+        "--max-new",
+        type=int,
+        default=None,
+        help=(
+            "Stop after this many non-skipped files this run (batch size). "
+            "Use for step-by-step uploads; re-run to continue from progress."
+        ),
+    )
     parser.add_argument(
         "--no-skip-existing",
         action="store_true",
@@ -588,6 +619,7 @@ def main() -> None:
             role_id=args.role,
             dry_run=args.dry_run,
             limit=args.limit,
+            max_new=args.max_new,
             skip_existing=not args.no_skip_existing,
             progress_path=Path(args.progress).resolve(),
         )

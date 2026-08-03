@@ -117,19 +117,20 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-      className={`sticky top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-sm ${
+      className={`sticky top-0 z-50 w-full transition-all duration-300 bg-white/95 backdrop-blur-sm ${
         isScrolled
           ? 'shadow-[0_1px_3px_rgba(0,0,0,0.05)] border-b border-gray-200/60'
           : 'border-b border-gray-100'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center gap-2.5 group">
+      {/* Full-bleed bar: logo left · nav center · actions right */}
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 w-full gap-2">
+          {/* Left — Logo */}
+          <div className="flex items-center justify-start min-w-0">
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
               <div className="h-8 w-8 rounded-md bg-brand-600 flex items-center justify-center shadow-sm group-hover:bg-brand-700 transition-colors">
-                <Sparkles className="h-4.5 w-4.5 text-white" />
+                <Sparkles className="h-4 w-4 text-white" />
               </div>
               <span className="text-xl font-bold text-surface-900 tracking-tight">
                 NxtHike
@@ -137,11 +138,15 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          {/* Center Nav Links - Desktop */}
-          <div className="hidden lg:flex lg:items-center lg:gap-1">
+          {/* Center — Nav links (desktop) */}
+          <div className="hidden lg:flex items-center justify-center gap-0.5">
             <Link
               to="/"
-              className="px-3.5 py-2 text-sm font-medium text-surface-600 hover:text-brand-600 rounded-md hover:bg-brand-50/50 transition-all duration-200"
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                location.pathname === '/'
+                  ? 'text-brand-600 bg-brand-50'
+                  : 'text-surface-600 hover:text-brand-600 hover:bg-brand-50/50'
+              }`}
             >
               Home
             </Link>
@@ -154,8 +159,10 @@ const Navbar: React.FC = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <button
-                  className={`px-3.5 py-2 text-sm font-medium rounded-md flex items-center gap-1 transition-all duration-200 ${
-                    activeDropdown === item.key
+                  type="button"
+                  className={`px-3 py-2 text-sm font-medium rounded-md flex items-center gap-1 transition-all duration-200 ${
+                    activeDropdown === item.key ||
+                    (item.key === 'hiring' && location.pathname.startsWith('/hiring'))
                       ? 'text-brand-600 bg-brand-50'
                       : 'text-surface-600 hover:text-brand-600 hover:bg-brand-50/50'
                   }`}
@@ -170,7 +177,7 @@ const Navbar: React.FC = () => {
                 </button>
 
                 {activeDropdown === item.key && (
-                  <div className="absolute left-0 top-full mt-1 w-52 rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-200/80 py-1.5 animate-in">
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-52 rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-200/80 py-1.5 animate-in z-50">
                     {item.links.map((link) => (
                       <Link
                         key={link.to}
@@ -186,45 +193,45 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* Right Side - Auth buttons - Desktop */}
-          <div className="hidden lg:flex lg:items-center lg:gap-3">
-            {user ? (
-              <>
-                <Link to="/dashboard">
-                  <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
-                    Dashboard
+          {/* Right — Auth actions (desktop) + mobile menu */}
+          <div className="flex items-center justify-end gap-2 min-w-0">
+            <div className="hidden lg:flex items-center gap-2">
+              {user ? (
+                <>
+                  <Link to="/dashboard">
+                    <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<LogOut size={15} />}
+                    onClick={handleSignOut}
+                  >
+                    Sign Out
                   </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  leftIcon={<LogOut size={15} />}
-                  onClick={handleSignOut}
-                >
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors px-3 py-2"
-                >
-                  Sign In
-                </Link>
-                <Link to="/register">
-                  <Button size="sm">Get Started</Button>
-                </Link>
-              </>
-            )}
-          </div>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors px-3 py-2"
+                  >
+                    Sign In
+                  </Link>
+                  <Link to="/register">
+                    <Button size="sm">Get Started</Button>
+                  </Link>
+                </>
+              )}
+            </div>
 
-          {/* Mobile hamburger */}
-          <div className="flex items-center lg:hidden">
             <button
               type="button"
-              className="inline-flex items-center justify-center h-9 w-9 rounded-md text-surface-500 hover:text-surface-700 hover:bg-surface-100 transition-colors"
+              className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-surface-500 hover:text-surface-700 hover:bg-surface-100 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -235,7 +242,7 @@ const Navbar: React.FC = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-4 space-y-1">
+          <div className="w-full px-4 sm:px-6 pt-3 pb-4 space-y-1">
             <Link
               to="/"
               className="block px-3 py-2.5 text-sm font-medium text-surface-700 hover:text-brand-600 hover:bg-brand-50/50 rounded-md transition-colors"

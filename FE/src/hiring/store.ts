@@ -13,7 +13,8 @@ function loadTheme(): ThemeMode {
   } catch {
     /* ignore */
   }
-  return 'dark';
+  // Match main NxtHike site (light-first marketing UI)
+  return 'light';
 }
 
 export function applyTheme(theme: ThemeMode) {
