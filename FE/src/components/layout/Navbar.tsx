@@ -10,8 +10,9 @@ import {
 } from 'lucide-react';
 import Button from '../ui/Button';
 import { useAuthStore } from '../../store/authStore';
+import { isHiringAdmin } from '../../utils/admin';
 
-const navItems = [
+const publicNavItems = [
   {
     label: 'Internships',
     key: 'internships',
@@ -57,17 +58,19 @@ const navItems = [
       { to: '/courses?category=Finance', label: 'Finance' },
     ],
   },
-  {
-    label: 'Dashboard',
-    key: 'hiring',
-    links: [
-      { to: '/hiring/dashboard', label: 'Hiring Overview' },
-      { to: '/hiring/candidates', label: 'Candidates' },
-      { to: '/hiring/pipeline', label: 'Pipeline Board' },
-      { to: '/hiring', label: 'Open Hiring CRM' },
-    ],
-  },
 ];
+
+/** Hiring CRM — only shown to admin users after login */
+const adminNavItem = {
+  label: 'Dashboard',
+  key: 'hiring',
+  links: [
+    { to: '/hiring/dashboard', label: 'Hiring Overview' },
+    { to: '/hiring/candidates', label: 'Candidates' },
+    { to: '/hiring/pipeline', label: 'Pipeline Board' },
+    { to: '/hiring', label: 'Open Hiring CRM' },
+  ],
+};
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,6 +80,11 @@ const Navbar: React.FC = () => {
   const { user, signOut } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Dashboard / hiring menu is hidden for everyone except admins
+  const navItems = isHiringAdmin(user)
+    ? [...publicNavItems, adminNavItem]
+    : publicNavItems;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);

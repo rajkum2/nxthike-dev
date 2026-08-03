@@ -25,6 +25,7 @@ import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { useAuthStore } from './store/authStore';
 import MetricoolTracker from './components/MetricoolTracker';
+import RequireAdmin from './components/auth/RequireAdmin';
 
 function AppShell() {
   const location = useLocation();
@@ -46,10 +47,39 @@ function AppShell() {
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/companies/:id" element={<CompanyDetailsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/hiring" element={<HiringTrackerPage />} />
-          <Route path="/hiring/dashboard" element={<HiringTrackerPage />} />
-          <Route path="/hiring/candidates" element={<HiringTrackerPage />} />
-          <Route path="/hiring/pipeline" element={<HiringTrackerPage />} />
+          {/* Hiring CRM: admin-only (menu hidden + route guarded) */}
+          <Route
+            path="/hiring"
+            element={
+              <RequireAdmin>
+                <HiringTrackerPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/hiring/dashboard"
+            element={
+              <RequireAdmin>
+                <HiringTrackerPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/hiring/candidates"
+            element={
+              <RequireAdmin>
+                <HiringTrackerPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/hiring/pipeline"
+            element={
+              <RequireAdmin>
+                <HiringTrackerPage />
+              </RequireAdmin>
+            }
+          />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/resume-tips" element={<ResumeTipsPage />} />

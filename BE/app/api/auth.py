@@ -40,10 +40,13 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    # Never allow self-registration as admin
+    safe_role = req.role if req.role in ("student", "employer") else "student"
+
     user = User(
         email=req.email,
         password_hash=hash_password(req.password),
-        role=req.role,
+        role=safe_role,
         first_name=req.first_name,
         last_name=req.last_name,
         company_name=req.company_name,

@@ -1,19 +1,36 @@
 import { API_URL } from '../config/dataSource';
 import type { Candidate, PipelineStatus, RoleMeta } from '../hiring/types';
+import { getToken } from './apiClient';
 
 const BASE = `${API_URL}/api/hiring`;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init?.headers || {}),
-    },
     ...init,
+    headers,
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(text || `HTTP ${res.status}`);
+    let detail = text || `HTTP ${res.status}`;
+    try {
+      const j = JSON.parse(text);
+      if (j.detail) detail = typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail);
+    } catch {
+      /* keep text */
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Admin login required to access hiring data.');
+    }
+    throw new Error(detail);
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;

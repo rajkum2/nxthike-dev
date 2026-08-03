@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.hiring import Candidate, HiringRole
+from app.models.user import User
+from app.services.auth import get_admin_user
 from app.schemas.hiring import (
     PIPELINE_STATUSES,
     CandidateCreate,
@@ -22,7 +24,12 @@ from app.schemas.hiring import (
     HiringDashboardStats,
 )
 
-router = APIRouter(prefix="/api/hiring", tags=["hiring"])
+# All hiring CRM endpoints require an authenticated admin user
+router = APIRouter(
+    prefix="/api/hiring",
+    tags=["hiring"],
+    dependencies=[Depends(get_admin_user)],
+)
 
 
 def _str_or_none(v) -> str | None:

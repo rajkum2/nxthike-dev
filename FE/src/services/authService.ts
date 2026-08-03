@@ -20,9 +20,21 @@ const demoUsers: User[] = [
     lastName: 'Smith',
     createdAt: '2026-01-01T00:00:00Z',
   },
+  {
+    id: 'admin-1',
+    email: 'admin@nxthike.com',
+    role: 'admin',
+    firstName: 'Admin',
+    lastName: 'User',
+    createdAt: '2026-01-01T00:00:00Z',
+  },
 ];
 
-const DEMO_PASSWORD = 'password123';
+const DEMO_PASSWORDS: Record<string, string> = {
+  'student@nxthike.com': 'password123',
+  'employer@nxthike.com': 'password123',
+  'admin@nxthike.com': 'admin123',
+};
 
 export async function signIn(email: string, password: string): Promise<User | null> {
   if (isApiMode()) {
@@ -36,12 +48,16 @@ export async function signIn(email: string, password: string): Promise<User | nu
   }
 
   if (isJsonMode()) {
-    const user = demoUsers.find(u => u.email === email);
-    if (user && password === DEMO_PASSWORD) {
+    const normalized = email.trim().toLowerCase();
+    const user = demoUsers.find((u) => u.email.toLowerCase() === normalized);
+    const expected = DEMO_PASSWORDS[user?.email || ''] || DEMO_PASSWORDS[normalized];
+    if (user && expected && password === expected) {
       localStorage.setItem('nxthike_user', JSON.stringify(user));
       return user;
     }
-    throw new Error('Invalid email or password. Demo: student@nxthike.com / password123');
+    throw new Error(
+      'Invalid email or password. Admin: admin@nxthike.com / admin123',
+    );
   }
 
   const { error } = await (supabase as any).auth.signInWithPassword({ email, password });

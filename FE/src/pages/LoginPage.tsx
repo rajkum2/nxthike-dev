@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Sparkles } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useAuthStore } from '../store/authStore';
+import { isHiringAdmin } from '../utils/admin';
+import type { User } from '../types';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  const { signIn, isLoading, error } = useAuthStore();
+  const { signIn, isLoading, error, user } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = searchParams.get('next');
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -37,15 +41,41 @@ const LoginPage: React.FC = () => {
     return isValid;
   };
 
+  const redirectAfterLogin = (loggedIn: User | null) => {
+    if (nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')) {
+      // Only allow next=/hiring* for admins; others go home
+      if (nextPath.startsWith('/hiring')) {
+        if (isHiringAdmin(loggedIn)) {
+          navigate(nextPath);
+          return;
+        }
+        navigate('/');
+        return;
+      }
+      navigate(nextPath);
+      return;
+    }
+    if (isHiringAdmin(loggedIn)) {
+      navigate('/hiring');
+      return;
+    }
+    navigate('/dashboard');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
       try {
         await signIn(email, password);
-        navigate('/dashboard');
-      } catch (error) {
-        console.error('Login error:', error);
+        // signIn updates store; re-read from store after await
+        const { user: current, error: authError } = useAuthStore.getState();
+        if (!current || authError) {
+          return;
+        }
+        redirectAfterLogin(current);
+      } catch (err) {
+        console.error('Login error:', err);
       }
     }
   };
