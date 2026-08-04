@@ -69,3 +69,14 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-surface-400;
 }
+
+/* Hide Metricool / third-party floating chat widgets (re-enable when AI chat ships) */
+iframe[src*="metricool"],
+iframe[src*="beTracker"],
+#be-messenger,
+[class*="metricool"],
+[id*="metricool"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

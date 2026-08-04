@@ -92,6 +92,7 @@ interface AppState {
   resetLocalChanges: () => void;
   loadAllRoles: () => Promise<void>;
   loadRole: (roleId: string) => Promise<void>;
+  createRole: (input: { id: string; name: string; description?: string }) => Promise<string>;
 }
 
 function emptyCandidate(roleId: string, roleName: string): Candidate {
@@ -470,5 +471,44 @@ export const useStore = create<AppState>((set, get) => ({
   resetLocalChanges: () => {
     void get().refresh();
     void get().loadDashboard();
+  },
+
+  createRole: async (input: { id: string; name: string; description?: string }) => {
+    const { apiMode } = get();
+    const id = input.id.trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_|_$/g, '');
+    const name = input.name.trim();
+    if (!id || !name) throw new Error('Role id and name are required');
+    if (apiMode) {
+      const created = await hiringService.createRole({
+        id,
+        name,
+        description: input.description || null,
+        is_active: true,
+        sort_order: get().roles.length,
+      });
+      set({
+        roles: [
+          ...get().roles.filter((r) => r.id !== created.id),
+          {
+            id: created.id,
+            name: created.name,
+            count: created.count ?? 0,
+            description: created.description,
+            is_active: created.is_active,
+            sort_order: created.sort_order,
+            file: `${created.id}.json`,
+          },
+        ].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name)),
+      });
+      return created.id;
+    }
+    // offline: local-only role
+    set({
+      roles: [
+        ...get().roles,
+        { id, name, count: 0, file: `${id}.json` },
+      ],
+    });
+    return id;
   },
 }));

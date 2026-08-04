@@ -797,6 +797,7 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
           roles={roles}
           onClose={() => store.closeForm()}
           onSave={(c) => { void store.upsertCandidate(c); }}
+          onCreateRole={async (input) => store.createRole(input)}
         />
       )}
 
@@ -812,23 +813,83 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
   );
 }
 
+function slugifyRoleId(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 48) || `role_${Date.now()}`;
+}
+
 function CandidateForm({
   mode,
   candidate,
   roles,
   onClose,
   onSave,
+  onCreateRole,
 }: {
   mode: 'create' | 'edit';
   candidate: Candidate;
   roles: { id: string; name: string }[];
   onClose: () => void;
   onSave: (c: Candidate) => void;
+  onCreateRole?: (input: { id: string; name: string; description?: string }) => Promise<string>;
 }) {
   const [draft, setDraft] = useStateDraft(candidate);
+  const [addingRole, setAddingRole] = useState(false);
+  const [newRoleName, setNewRoleName] = useState('');
+  const [newRoleId, setNewRoleId] = useState('');
+  const [roleError, setRoleError] = useState<string | null>(null);
+  const [roleBusy, setRoleBusy] = useState(false);
 
   const set = (key: keyof Candidate, value: unknown) => {
     setDraft((d) => ({ ...d, [key]: value }));
+  };
+
+  // Ensure current role is always in the list (prepopulated correctly even if missing)
+  const roleOptions = useMemo(() => {
+    const map = new Map(roles.map((r) => [r.id, r]));
+    if (draft.roleId && !map.has(draft.roleId)) {
+      map.set(draft.roleId, { id: draft.roleId, name: draft.roleName || draft.roleId });
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [roles, draft.roleId, draft.roleName]);
+
+  const onRoleSelect = (value: string) => {
+    if (value === '__new_role__') {
+      setAddingRole(true);
+      setNewRoleName('');
+      setNewRoleId('');
+      setRoleError(null);
+      return;
+    }
+    const name = roleOptions.find((r) => r.id === value)?.name || draft.roleName;
+    setDraft((d) => ({ ...d, roleId: value, roleName: name }));
+  };
+
+  const submitNewRole = async () => {
+    if (!onCreateRole) return;
+    const name = newRoleName.trim();
+    if (!name) {
+      setRoleError('Role name is required');
+      return;
+    }
+    const id = (newRoleId.trim() || slugifyRoleId(name));
+    setRoleBusy(true);
+    setRoleError(null);
+    try {
+      const createdId = await onCreateRole({ id, name });
+      setDraft((d) => ({ ...d, roleId: createdId, roleName: name }));
+      setAddingRole(false);
+      setNewRoleName('');
+      setNewRoleId('');
+    } catch (e) {
+      setRoleError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setRoleBusy(false);
+    }
   };
 
   return (
@@ -856,16 +917,53 @@ function CandidateForm({
               <label>Role</label>
               <select
                 className="select"
-                value={draft.roleId}
-                onChange={(e) => {
-                  const id = e.target.value;
-                  const name = roles.find((r) => r.id === id)?.name || draft.roleName;
-                  setDraft((d) => ({ ...d, roleId: id, roleName: name }));
-                }}
+                value={addingRole ? '__new_role__' : draft.roleId}
+                onChange={(e) => onRoleSelect(e.target.value)}
               >
-                {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                {roleOptions.map((r) => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
                 <option value="imported">Imported / Other</option>
+                <option value="__new_role__">+ Add new role…</option>
               </select>
+              {addingRole && (
+                <div className="new-role-box">
+                  <input
+                    className="input"
+                    placeholder="Role display name (e.g. Frontend Developer)"
+                    value={newRoleName}
+                    onChange={(e) => {
+                      setNewRoleName(e.target.value);
+                      if (!newRoleId || newRoleId === slugifyRoleId(newRoleName)) {
+                        setNewRoleId(slugifyRoleId(e.target.value));
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <input
+                    className="input"
+                    placeholder="Role id (slug)"
+                    value={newRoleId}
+                    onChange={(e) => setNewRoleId(e.target.value)}
+                  />
+                  {roleError && <div className="field-error">{roleError}</div>}
+                  <div className="toolbar" style={{ marginTop: 6 }}>
+                    <button type="button" className="btn primary" disabled={roleBusy} onClick={() => void submitNewRole()}>
+                      {roleBusy ? 'Creating…' : 'Create role'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn ghost"
+                      onClick={() => {
+                        setAddingRole(false);
+                        setRoleError(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="field">
               <label>City</label>
