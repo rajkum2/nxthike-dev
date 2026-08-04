@@ -33,7 +33,6 @@ import AdminEventsPage from './pages/admin/AdminEventsPage';
 import AdminCoursesPage from './pages/admin/AdminCoursesPage';
 import AdminCompaniesPage from './pages/admin/AdminCompaniesPage';
 import { useAuthStore } from './store/authStore';
-import MetricoolTracker from './components/MetricoolTracker';
 import RequireAdmin from './components/auth/RequireAdmin';
 
 function AppShell() {
@@ -126,7 +125,7 @@ function App() {
 
   return (
     <Router>
-      <MetricoolTracker />
+      {/* Metricool / floating chat widget disabled for now — re-enable when AI chat ships */}
       <AppShell />
     </Router>
   );

@@ -244,70 +244,35 @@ def compress_pdf(data: bytes) -> bytes:
 
 
 def parse_fields(text: str, fallback_name: str) -> dict:
-    emails = EMAIL_RE.findall(text or "")
-    # prefer non-generic emails
-    email = None
-    for e in emails:
-        if "example.com" in e.lower():
-            continue
-        email = e
-        break
-    phones = PHONE_RE.findall(text or "")
-    phone = None
-    for p in phones:
-        digits = re.sub(r"\D", "", p)
-        if len(digits) >= 10:
-            phone = digits[-10:] if len(digits) > 10 else digits
-            break
+    """Full structured parse (Internshala + general resumes)."""
+    from app.resume_parse import parse_resume_text
 
-    name = fallback_name
-    # first non-empty lines for name
-    lines = [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
-    for ln in lines[:12]:
-        if len(ln) < 3 or len(ln) > 60:
-            continue
-        if EMAIL_RE.search(ln) or PHONE_RE.search(ln):
-            continue
-        if re.search(r"(?i)objective|education|experience|resume|curriculum|mobile|email|phone", ln):
-            continue
-        # looks like a name
-        if re.match(r"^[A-Za-z][A-Za-z.\s'-]{1,50}$", ln):
-            name = ln.strip()
-            break
-
-    # experience heuristic
-    has_exp = "Yes" if re.search(r"(?i)\b(experience|worked|intern|months?|years?)\b", text or "") else None
-    companies = None
-    # grab a few lines under experience
-    exp_snip = None
-    m = re.search(
-        r"(?is)(professional\s+experience|work\s+experience|experience)(.{0,800})",
-        text or "",
-    )
-    if m:
-        exp_snip = re.sub(r"\s+", " ", m.group(2)).strip()[:500]
-
-    objective = None
-    m2 = re.search(r"(?is)(objective|career\s+objective|summary)(.{0,400})", text or "")
-    if m2:
-        objective = re.sub(r"\s+", " ", m2.group(2)).strip(" :-")[:400]
-
-    education = None
-    m3 = re.search(
-        r"(?is)(education(?:al)?\s+qualifications?|education)(.{0,400})",
-        text or "",
-    )
-    if m3:
-        education = re.sub(r"\s+", " ", m3.group(2)).strip(" :-")[:400]
-
+    rich = parse_resume_text(text, fallback_name)
+    # map to camel-ish keys used by import payload below
     return {
-        "name": name,
-        "email": email,
-        "phone": phone,
-        "has_work_experience": has_exp,
-        "work_experience_detail": exp_snip,
-        "career_objective": objective,
-        "education_from_pdf": education,
+        "name": rich.get("name") or fallback_name,
+        "email": rich.get("email"),
+        "phone": rich.get("phone"),
+        "city": rich.get("city"),
+        "has_work_experience": rich.get("has_work_experience"),
+        "work_experience_detail": rich.get("work_experience_detail"),
+        "experience_duration": rich.get("experience_duration"),
+        "career_objective": rich.get("career_objective"),
+        "education_from_pdf": rich.get("education_from_pdf"),
+        "degree": rich.get("degree"),
+        "stream": rich.get("stream"),
+        "institute": rich.get("institute"),
+        "graduation_year": rich.get("graduation_year"),
+        "companies": rich.get("companies"),
+        "job_titles": rich.get("job_titles"),
+        "latest_role": rich.get("latest_role"),
+        "latest_company": rich.get("latest_company"),
+        "other_skills": rich.get("other_skills"),
+        "languages": rich.get("languages"),
+        "certifications": rich.get("certifications"),
+        "projects": rich.get("projects"),
+        "additional_details": rich.get("additional_details"),
+        "relevant_skills": rich.get("relevant_skills"),
     }
 
 
@@ -516,10 +481,26 @@ async def import_all(files: list[Path], *, reset: bool) -> None:
                 name=fields.get("name") or display_name,
                 email=fields.get("email"),
                 phone=fields.get("phone"),
+                city=fields.get("city"),
+                degree=fields.get("degree"),
+                stream=fields.get("stream"),
+                institute=fields.get("institute"),
+                graduation_year=fields.get("graduation_year"),
                 has_work_experience=fields.get("has_work_experience"),
                 work_experience_detail=fields.get("work_experience_detail"),
+                experience_duration=fields.get("experience_duration"),
+                companies=fields.get("companies"),
+                job_titles=fields.get("job_titles"),
+                latest_role=fields.get("latest_role"),
+                latest_company=fields.get("latest_company"),
                 career_objective=fields.get("career_objective"),
                 education_from_pdf=fields.get("education_from_pdf"),
+                other_skills=fields.get("other_skills"),
+                languages=fields.get("languages"),
+                certifications=fields.get("certifications"),
+                projects=fields.get("projects"),
+                additional_details=fields.get("additional_details"),
+                relevant_skills=fields.get("relevant_skills"),
                 resume_link=url,
                 download_link=url,
                 pdf_file=clean_pdf_name,
