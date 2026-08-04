@@ -13,6 +13,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.nxthike.android.presentation.auth.*
+import com.nxthike.android.presentation.calls.CallHistoryScreen
+import com.nxthike.android.presentation.calls.CallsHubScreen
+import com.nxthike.android.presentation.calls.LogCallScreen
 import com.nxthike.android.presentation.companies.*
 import com.nxthike.android.presentation.courses.*
 import com.nxthike.android.presentation.dashboard.DashboardScreen
@@ -21,6 +24,7 @@ import com.nxthike.android.presentation.hiring.*
 import com.nxthike.android.presentation.home.HomeScreen
 import com.nxthike.android.presentation.jobs.*
 import com.nxthike.android.presentation.profile.ProfileScreen
+import java.net.URLDecoder
 
 private data class Tab(val route: String, val label: String, val icon: ImageVector)
 
@@ -32,10 +36,10 @@ fun NxtHikeNavHost() {
 
     val tabs = listOf(
         Tab(Routes.HOME, "Home", Icons.Default.Home),
+        Tab(Routes.CALLS, "Calls", Icons.Default.Call),
+        Tab(Routes.HIRING, "Candidates", Icons.Default.People),
         Tab(Routes.JOBS, "Jobs", Icons.Default.Work),
-        Tab(Routes.HIRING, "Hiring", Icons.Default.People),
-        Tab(Routes.DASHBOARD, "Stats", Icons.Default.Dashboard),
-        Tab(Routes.PROFILE, "Profile", Icons.Default.Person),
+        Tab(Routes.PROFILE, "More", Icons.Default.Person),
     )
 
     val backStack by nav.currentBackStackEntryAsState()
@@ -95,6 +99,56 @@ fun NxtHikeNavHost() {
                     onCompanies = { nav.navigate(Routes.COMPANIES) },
                     onHiring = { nav.navigate(Routes.HIRING) },
                     onDashboard = { nav.navigate(Routes.DASHBOARD) },
+                    onCalls = { nav.navigate(Routes.CALLS) },
+                )
+            }
+            composable(Routes.CALLS) {
+                CallsHubScreen(
+                    onOpenLog = { item ->
+                        nav.navigate(
+                            Routes.callLog(
+                                item.candidateId,
+                                item.name,
+                                item.phone,
+                                item.roleId,
+                                item.roleName,
+                            ),
+                        )
+                    },
+                    onHistory = { nav.navigate(Routes.CALL_HISTORY) },
+                    onOpenCandidate = { nav.navigate(Routes.candidateDetail(it)) },
+                )
+            }
+            composable(Routes.CALL_HISTORY) {
+                CallHistoryScreen(onBack = { nav.popBackStack() })
+            }
+            composable(
+                Routes.CALL_LOG,
+                arguments = listOf(
+                    navArgument("candidateId") { type = NavType.StringType },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("phone") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("roleId") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("roleName") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) { entry ->
+                fun dec(key: String): String? {
+                    val raw = entry.arguments?.getString(key).orEmpty()
+                    if (raw.isBlank()) return null
+                    return try {
+                        URLDecoder.decode(raw, "UTF-8")
+                    } catch (_: Exception) {
+                        raw
+                    }
+                }
+                LogCallScreen(
+                    candidateId = entry.arguments?.getString("candidateId")!!,
+                    name = dec("name"),
+                    phone = dec("phone"),
+                    roleId = dec("roleId"),
+                    roleName = dec("roleName"),
+                    onDone = { nav.popBackStack() },
+                    onBack = { nav.popBackStack() },
                 )
             }
             composable(Routes.JOBS) {

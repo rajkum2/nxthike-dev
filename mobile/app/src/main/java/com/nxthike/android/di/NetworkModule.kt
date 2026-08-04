@@ -54,4 +54,5 @@ object NetworkModule {
     @Provides @Singleton fun companiesApi(r: Retrofit): CompaniesApi = r.create(CompaniesApi::class.java)
     @Provides @Singleton fun hiringApi(r: Retrofit): HiringApi = r.create(HiringApi::class.java)
     @Provides @Singleton fun dashboardApi(r: Retrofit): DashboardApi = r.create(DashboardApi::class.java)
+    @Provides @Singleton fun callsApi(r: Retrofit): CallsApi = r.create(CallsApi::class.java)
 }

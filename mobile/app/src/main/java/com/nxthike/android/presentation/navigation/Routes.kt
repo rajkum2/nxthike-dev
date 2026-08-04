@@ -22,6 +22,10 @@ object Routes {
     const val HIRING_CANDIDATE = "hiring/candidates/{id}"
     const val HIRING_CANDIDATE_EDIT = "hiring/candidates/edit?id={id}"
     const val HIRING_ROLES = "hiring/roles"
+    const val CALLS = "calls"
+    const val CALL_HISTORY = "calls/history"
+    const val CALL_LOG =
+        "calls/log/{candidateId}?name={name}&phone={phone}&roleId={roleId}&roleName={roleName}"
     const val DASHBOARD = "dashboard"
     const val PROFILE = "profile"
 
@@ -35,4 +39,14 @@ object Routes {
     fun companyEdit(id: String = "new") = "companies/edit?id=$id"
     fun candidateDetail(id: String) = "hiring/candidates/$id"
     fun candidateEdit(id: String = "new") = "hiring/candidates/edit?id=$id"
+    fun callLog(
+        candidateId: String,
+        name: String? = null,
+        phone: String? = null,
+        roleId: String? = null,
+        roleName: String? = null,
+    ): String {
+        fun enc(s: String?) = java.net.URLEncoder.encode(s ?: "", "UTF-8")
+        return "calls/log/$candidateId?name=${enc(name)}&phone=${enc(phone)}&roleId=${enc(roleId)}&roleName=${enc(roleName)}"
+    }
 }

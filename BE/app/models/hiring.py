@@ -89,3 +89,46 @@ class Candidate(Base):
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
+
+
+# Basic call dispositions for manual dialer logging (v1)
+CALL_DISPOSITIONS = (
+    "connected_interested",
+    "connected_callback",
+    "connected_not_interested",
+    "screening_passed",
+    "screening_failed",
+    "no_answer",
+    "busy",
+    "voicemail",
+    "wrong_number",
+    "not_reachable",
+    "do_not_call",
+)
+
+
+class CallLog(Base):
+    """Manual call log entry (user dials via device; outcome logged in app)."""
+
+    __tablename__ = "call_logs"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    candidate_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    candidate_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    candidate_phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    role_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    role_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    user_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    user_email: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    disposition: Mapped[str] = mapped_column(String, nullable=False, default="no_answer", index=True)
+    note: Mapped[str] = mapped_column(Text, default="")
+    duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    duration_estimated: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    callback_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
+    next_action: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    called_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)

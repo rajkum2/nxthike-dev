@@ -66,3 +66,5 @@ interface HiringRepository {
 interface DashboardRepository {
     suspend fun stats(): AppResult<AdminStatsDto>
 }
+
+// CallRepository is defined in CallRepository.kt

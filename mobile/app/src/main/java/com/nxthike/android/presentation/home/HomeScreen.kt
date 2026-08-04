@@ -28,10 +28,12 @@ fun HomeScreen(
     onCompanies: () -> Unit,
     onHiring: () -> Unit,
     onDashboard: () -> Unit,
+    onCalls: () -> Unit = {},
 ) {
     val tiles = listOf(
+        Tile("Calls", "Dialer queue & call logs", Icons.Default.Call, onCalls),
+        Tile("Candidates", "Hiring CRM pipeline", Icons.Default.People, onHiring),
         Tile("Jobs & Internships", "Browse and manage openings", Icons.Default.Work, onJobs),
-        Tile("Hiring CRM", "Pipeline, candidates, roles", Icons.Default.People, onHiring),
         Tile("Events", "Webinars and meetups", Icons.Default.Event, onEvents),
         Tile("Courses", "Learning catalog", Icons.Default.School, onCourses),
         Tile("Companies", "Employer directory", Icons.Default.Business, onCompanies),

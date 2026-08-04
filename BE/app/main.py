@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import engine, Base
-from app.api import auth, jobs, events, courses, companies, dashboard, uploads, hiring
+from app.api import auth, jobs, events, courses, companies, dashboard, uploads, hiring, calls
 from app.admin.routes import router as admin_router
 # Ensure models are registered on Base.metadata
 import app.models  # noqa: F401
@@ -50,6 +50,7 @@ app.include_router(companies.router)
 app.include_router(dashboard.router)
 app.include_router(uploads.router)
 app.include_router(hiring.router)
+app.include_router(calls.router)
 
 # Admin dashboard
 app.include_router(admin_router)

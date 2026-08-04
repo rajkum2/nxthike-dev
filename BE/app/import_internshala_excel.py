@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import csv
 import hashlib
 import re
 import sys
@@ -33,6 +34,7 @@ DOWNLOADS = Path.home() / "Downloads"
 # filename → role
 ROLE_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
     (re.compile(r"AI_Agent_Development|AI Agent", re.I), "ai_agent_development", "AI Agent Development"),
+    (re.compile(r"ReactJS|React\.?js|React JS", re.I), "reactjs_internship", "ReactJS Development Internship"),
     (re.compile(r"Web_Development|Web Development", re.I), "web_development_internship", "Web Development Internship"),
     (re.compile(r"Data_Entry|Data Entry", re.I), "data_entry", "Data Entry Internship"),
     (re.compile(r"Telecalling", re.I), "telecaller", "Telecaller / Outbound"),
@@ -60,21 +62,26 @@ FILES = [
 
 
 def infer_role(filename: str, applied_for: str | None = None) -> tuple[str, str]:
-    blob = f"{filename} {applied_for or ''}"
-    for pat, rid, rname in ROLE_PATTERNS:
-        if pat.search(blob):
-            return rid, rname
-    # applied for column
+    # Prefer explicit applied-for over filename so mixed exports land correctly
     if applied_for:
         af = applied_for.lower()
         if "telecall" in af:
             return "telecaller", "Telecaller / Outbound"
         if "data entry" in af:
             return "data_entry", "Data Entry Internship"
+        if "react" in af:
+            return "reactjs_internship", "ReactJS Development Internship"
         if "web" in af:
             return "web_development_internship", "Web Development Internship"
         if "ai agent" in af or "ai/ml" in af:
             return "ai_agent_development", "AI Agent Development"
+    blob = f"{filename} {applied_for or ''}"
+    for pat, rid, rname in ROLE_PATTERNS:
+        if pat.search(blob):
+            return rid, rname
+    # generic CRM exports without role in name
+    if re.search(r"Applicants-All|Students1|All applicants", filename, re.I):
+        return DEFAULT_ROLE
     return DEFAULT_ROLE
 
 
@@ -130,12 +137,26 @@ def _status(*parts: str | None, shortlisted_file: bool = False) -> str:
         return "rejected"
     if "interview" in blob:
         return "interview"
-    if "hold" in blob or "pending" in blob or "contacted" in blob:
+    if "hold" in blob or "pending" in blob or "contacted" in blob or "call again" in blob:
         return "on_hold"
     return "new"
 
 
+def load_csv(path: Path) -> list[tuple[str, list[dict]]]:
+    with path.open(newline="", encoding="utf-8-sig", errors="replace") as fh:
+        reader = csv.DictReader(fh)
+        rows: list[dict] = []
+        for row in reader:
+            # normalize keys
+            d = {str(k).strip(): v for k, v in row.items() if k is not None and str(k).strip()}
+            if any(v is not None and str(v).strip() for v in d.values()):
+                rows.append(d)
+        return [("csv", rows)] if rows else []
+
+
 def load_sheets(path: Path) -> list[tuple[str, list[dict]]]:
+    if path.suffix.lower() == ".csv":
+        return load_csv(path)
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     out: list[tuple[str, list[dict]]] = []
     for sn in wb.sheetnames:
@@ -167,21 +188,21 @@ def load_sheets(path: Path) -> list[tuple[str, list[dict]]]:
 def row_to_payload(row: dict, source: str, shortlisted: bool) -> dict | None:
     name = _get(row, "Name")
     phone = _phone(_get(row, "Phone", "Phone Number"))
-    email = _get(row, "Email Address", "Email", "Email ID")
+    email = _get(row, "Email Address", "Email address", "Email", "Email ID")
     if email:
         email = email.split(",")[0].strip().lower()
     if not name and not phone and not email:
         return None
 
-    applied_for = _get(row, "Applied for", "Applying for")
+    applied_for = _get(row, "Applied for", "Applying for", "AppliedFor", "Applied For")
     role_id, role_name = infer_role(source, applied_for)
 
     city = _get(row, "Current City", "City", "Location")
     institute = _get(row, "Institute", "College")
     degree = _get(row, "Degree", "Education")
     stream = _get(row, "Stream")
-    year = _get(row, "Current Year Of Graduation", "Current Year")
-    other_skills = _get(row, "Other skills", "Other Skills", "Skills")
+    year = _get(row, "Current Year Of Graduation", "Current Year", "Year", "Graduation Year")
+    other_skills = _get(row, "Other skills", "Other Skills", "Skills", "Skills Set", "Skill Set")
     skill_scores = _skill_scores(row)
     if skill_scores:
         scored = ", ".join(skill_scores)
@@ -190,9 +211,14 @@ def row_to_payload(row: dict, source: str, shortlisted: bool) -> dict | None:
     why = _get(
         row,
         "Why should you be hired for this role?",
+        "Why you should be hired",
+        "Why should you be hired",
         "Q1. Why should you be hired for this rol",
         "Q1. Why should you be hired for this role?",
     )
+    # Skip non-text why values (misaligned numeric years like 2021.0)
+    if why and re.fullmatch(r"\d{4}(\.0)?", why):
+        why = None
     availability = _get(
         row,
         "Are you available for 3 months, starting",
@@ -201,9 +227,15 @@ def row_to_payload(row: dict, source: str, shortlisted: bool) -> dict | None:
         "Q2. Are you available for 3 months, starting",
         "Availability",
     )
-    app_link = _get(row, "Link to application", "Application Link")
-    notes_col = _get(row, "Notes", "Interview Notes")
+    app_link = _get(
+        row,
+        "Link to application",
+        "Link to Application",
+        "Application Link",
+    )
+    notes_col = _get(row, "Notes", "Interview Notes", "Comments", "Phone interview notes", "Onsite interview notes")
     stage = _get(row, "Stage", "Status")
+    suitability = _get(row, "Suitablity", "Suitability")
     perf_ug = _get(row, "Performance_UG")
     perf_pg = _get(row, "Performance_PG")
     perf_12 = _get(row, "Performance_12")
@@ -213,6 +245,8 @@ def row_to_payload(row: dict, source: str, shortlisted: bool) -> dict | None:
         notes.append(f"Applied for: {applied_for}")
     if stage:
         notes.append(f"Stage/Status: {stage}")
+    if suitability:
+        notes.append(f"Suitability: {suitability}")
     if notes_col:
         notes.append(f"Notes: {notes_col}")
     if why:
@@ -267,12 +301,13 @@ async def ensure_role(role_id: str, role_name: str, sort_order: int) -> None:
             print(f"Role exists: {role_id}")
 
 
-async def run(reset: bool) -> None:
+async def run(reset: bool, extra_paths: list[Path] | None = None) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     roles = {
         "ai_agent_development": ("AI Agent Development", 1),
+        "reactjs_internship": ("ReactJS Development Internship", 2),
         "data_entry": ("Data Entry Internship", 40),
         "web_development_internship": ("Web Development Internship", 41),
         "telecaller": ("Telecaller / Outbound", 42),
@@ -291,16 +326,38 @@ async def run(reset: bool) -> None:
             await db.commit()
             print(f"Cleared {len(old)} previous is_* Internshala excel imports")
 
+    paths: list[Path] = []
+    if extra_paths:
+        for p in extra_paths:
+            p = p.expanduser().resolve()
+            if p.is_dir():
+                paths.extend(sorted(p.glob("*.xlsx")))
+                paths.extend(sorted(p.glob("*.csv")))
+            elif p.exists():
+                paths.append(p)
+    else:
+        paths = list(FILES)
+
+    # de-dupe by resolved path
+    seen: set[Path] = set()
+    uniq_paths: list[Path] = []
+    for p in paths:
+        rp = p.resolve()
+        if rp in seen:
+            continue
+        seen.add(rp)
+        uniq_paths.append(p)
+
     by_id: dict[str, dict] = {}
-    for path in FILES:
+    for path in uniq_paths:
         if not path.exists():
-            print(f"MISSING {path.name}")
+            print(f"MISSING {path.name}", flush=True)
             continue
         shortlisted = "shortlisted" in path.name.lower()
         try:
             sheets = load_sheets(path)
         except Exception as e:
-            print(f"ERROR {path.name}: {e}")
+            print(f"ERROR {path.name}: {e}", flush=True)
             continue
         n = 0
         for sn, rows in sheets:
@@ -323,12 +380,12 @@ async def run(reset: bool) -> None:
                 else:
                     by_id[cid] = payload
                 n += 1
-        print(f"{path.name[:70]}: rows={n} unique_so_far={len(by_id)}")
+        print(f"{path.name[:80]}: rows={n} unique_so_far={len(by_id)}", flush=True)
 
     created = updated = 0
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     async with async_session() as db:
-        for payload in by_id.values():
+        for i, payload in enumerate(by_id.values(), 1):
             cid = payload["id"]
             existing = await db.get(Candidate, cid)
             fields = {
@@ -363,13 +420,17 @@ async def run(reset: bool) -> None:
             else:
                 db.add(Candidate(id=cid, created_at=now, starred=False, **fields))
                 created += 1
+            if i % 300 == 0:
+                await db.commit()
+                print(f"  committed {i}/{len(by_id)}", flush=True)
         await db.commit()
 
     async with async_session() as db:
-        print("\n=== Internshala excel import done ===")
-        print(f"unique: {len(by_id)}  created: {created}  updated: {updated}")
+        print("\n=== Internshala excel import done ===", flush=True)
+        print(f"unique: {len(by_id)}  created: {created}  updated: {updated}", flush=True)
         for rid in [
             "ai_agent_development",
+            "reactjs_internship",
             "data_entry",
             "web_development_internship",
             "telecaller",
@@ -385,14 +446,21 @@ async def run(reset: bool) -> None:
                     select(func.count()).select_from(Candidate).where(Candidate.role_id == rid)
                 )
             ).scalar()
-            print(f"  {rid}: is_import={is_cnt}  role_total={total}")
+            print(f"  {rid}: is_import={is_cnt}  role_total={total}", flush=True)
 
 
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--reset", action="store_true")
+    p.add_argument(
+        "--dir",
+        action="append",
+        default=None,
+        help="Directory or file to import (can repeat). If set, default FILES list is skipped.",
+    )
     args = p.parse_args()
-    asyncio.run(run(args.reset))
+    extra = [Path(d) for d in args.dir] if args.dir else None
+    asyncio.run(run(args.reset, extra_paths=extra))
 
 
 if __name__ == "__main__":

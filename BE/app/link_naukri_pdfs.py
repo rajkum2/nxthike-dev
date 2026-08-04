@@ -34,6 +34,7 @@ from app.services.storage import get_storage, R2Storage
 ROLE_ID = "ai_ml_engineer"
 ROLE_NAME = "AI/ML Engineer (Naukri Import)"
 DEFAULT_DIR = Path.home() / "Downloads" / "AI Resumes 2"
+DEFAULT_TAGS = ["naukri", "pdf_import"]
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 PHONE_RE = re.compile(r"(?:\+?91[\s\-]?)?[6-9]\d{9}")
@@ -178,22 +179,61 @@ def pick_match(
     return best
 
 
-async def ensure_role() -> None:
+def content_type_for(path: Path) -> str:
+    ext = path.suffix.lower()
+    return {
+        ".pdf": "application/pdf",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".doc": "application/msword",
+    }.get(ext, "application/octet-stream")
+
+
+def extract_docx_meta(data: bytes) -> dict:
+    text = ""
+    try:
+        import zipfile
+        from xml.etree import ElementTree as ET
+
+        with zipfile.ZipFile(BytesIO(data)) as zf:
+            xml = zf.read("word/document.xml")
+        root = ET.fromstring(xml)
+        ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+        parts = [t.text for t in root.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t") if t.text]
+        text = "\n".join(parts)
+    except Exception:
+        pass
+    emails = EMAIL_RE.findall(text)
+    email = emails[0].lower() if emails else None
+    phone = None
+    for m in PHONE_RE.findall(text):
+        d = re.sub(r"\D", "", m)
+        if len(d) >= 10:
+            phone = d[-10:]
+            break
+    return {"email": email, "phone": phone, "name_hint": None, "text": text[:2000]}
+
+
+async def ensure_role(role_id: str, role_name: str) -> None:
     async with async_session() as db:
-        if not await db.get(HiringRole, ROLE_ID):
+        if not await db.get(HiringRole, role_id):
             db.add(
                 HiringRole(
-                    id=ROLE_ID,
-                    name=ROLE_NAME,
-                    description="AI/ML Engineer candidates (Naukri)",
+                    id=role_id,
+                    name=role_name,
+                    description=f"Candidates for {role_name} (Naukri resumes)",
                     is_active=True,
-                    sort_order=1,
+                    sort_order=6,
                 )
             )
             await db.commit()
 
 
-async def run(folder: Path) -> None:
+async def run(
+    folder: Path,
+    role_id: str = ROLE_ID,
+    role_name: str = ROLE_NAME,
+    tags: list[str] | None = None,
+) -> None:
     os.environ.setdefault("STORAGE_BACKEND", "r2")
     import app.services.storage as storage_mod
 
@@ -204,33 +244,57 @@ async def run(folder: Path) -> None:
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    await ensure_role()
+    await ensure_role(role_id, role_name)
+    tag_list = tags or DEFAULT_TAGS
 
-    files = sorted(folder.glob("Naukri_*.pdf"))
+    files: list[Path] = []
+    for pat in ("Naukri_*.pdf", "Naukri_*.docx", "Naukri_*.doc", "*.pdf", "*.docx", "*.doc"):
+        files.extend(folder.glob(pat))
+    # unique by resolved path
+    seen_paths: set[Path] = set()
+    uniq: list[Path] = []
+    for p in files:
+        rp = p.resolve()
+        if rp in seen_paths:
+            continue
+        seen_paths.add(rp)
+        uniq.append(p)
+    files = uniq
+
     # de-dupe (1) copies: prefer non-(1) when same base
     by_base: dict[str, Path] = {}
     for p in files:
-        base = re.sub(r"\s*\(\d+\)(?=\.pdf$)", "", p.name, flags=re.I)
+        base = re.sub(r"\s*\(\d+\)(?=\.(pdf|docx|doc)$)", "", p.name, flags=re.I)
         if base not in by_base or "(1)" in by_base[base].name:
             by_base[base] = p
     files = sorted(by_base.values(), key=lambda p: p.name)
-    print(f"Files to process: {len(files)} (deduped from folder)")
+    print(f"Files to process: {len(files)} (deduped from folder)", flush=True)
 
     async with async_session() as db:
         all_cands = (await db.execute(select(Candidate))).scalars().all()
-    print(f"Candidates in DB: {len(all_cands)}")
+    print(f"Candidates in DB: {len(all_cands)}", flush=True)
 
     linked = 0
     created = 0
+    updated = 0
     errors = 0
     now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     for path in files:
         display_name, exp = parse_filename(path)
         raw = path.read_bytes()
-        meta = extract_pdf_meta(raw)
+        ext = path.suffix.lower()
+        if ext == ".pdf":
+            meta = extract_pdf_meta(raw)
+            body = compress_pdf(raw)
+        elif ext == ".docx":
+            meta = extract_docx_meta(raw)
+            body = raw
+        else:
+            meta = {"email": None, "phone": None, "name_hint": None, "text": ""}
+            body = raw
+
         if meta.get("name_hint") and len(tokens(meta["name_hint"])) >= 2:
-            # prefer PDF name when filename is messy ALLCAPS single token
             if len(tokens(display_name)) < 2 or display_name.isupper():
                 display_name = meta["name_hint"].title() if meta["name_hint"].isupper() else meta["name_hint"]
 
@@ -238,23 +302,22 @@ async def run(folder: Path) -> None:
         phone = meta.get("phone")
         match = pick_match(all_cands, email=email, display_name=display_name)
 
-        pdf_bytes = compress_pdf(raw)
         safe_slug = re.sub(r"[^\w.\-]+", "_", display_name).strip("_")[:60] or "resume"
         exp_part = f"_{exp.replace(' ', '')}" if exp else ""
-        fname = f"Naukri_{safe_slug}{exp_part}.pdf"
-        key = f"resumes/{ROLE_ID}/{fname}"
+        fname = f"Naukri_{safe_slug}{exp_part}{ext or '.pdf'}"
+        key = f"resumes/{role_id}/{fname}"
 
         try:
             storage.client.put_object(
                 Bucket=storage.bucket,
                 Key=key,
-                Body=pdf_bytes,
-                ContentType="application/pdf",
+                Body=body,
+                ContentType=content_type_for(path),
                 ContentDisposition=f'inline; filename="{fname}"',
             )
             url = f"{storage.public_url.rstrip('/')}/{key}"
         except Exception as e:
-            print(f"ERROR R2 {path.name}: {e}")
+            print(f"ERROR R2 {path.name}: {e}", flush=True)
             errors += 1
             continue
 
@@ -262,7 +325,7 @@ async def run(folder: Path) -> None:
             if match:
                 c = await db.get(Candidate, match.id)
                 if not c:
-                    print(f"SKIP vanished {match.id}")
+                    print(f"SKIP vanished {match.id}", flush=True)
                     continue
                 c.resume_link = url
                 c.download_link = url
@@ -278,21 +341,22 @@ async def run(folder: Path) -> None:
                 if note not in (c.notes or ""):
                     c.notes = ((c.notes or "") + "\n" + note).strip()
                 await db.commit()
-                print(f"LINKED  {display_name:30} → {c.id} ({c.role_id}) | {c.name} | {url.split('/')[-1]}")
+                print(f"LINKED  {display_name:30} → {c.id} ({c.role_id}) | {c.name}", flush=True)
                 linked += 1
             else:
-                cid = f"{ROLE_ID}_{hashlib.sha1((email or display_name).encode()).hexdigest()[:12]}"
+                cid = f"{role_id}_{hashlib.sha1((email or display_name).encode()).hexdigest()[:12]}"
                 existing = await db.get(Candidate, cid)
+                exp_str = exp.replace("y", " Year(s) ").replace("m", " Month(s)") if exp else None
                 payload = dict(
-                    role_id=ROLE_ID,
-                    role_name=ROLE_NAME,
+                    role_id=role_id,
+                    role_name=role_name,
                     status="new",
-                    tags=["naukri", "ai_ml", "pdf_import"],
-                    notes=f"Created from PDF {path.name}",
+                    tags=list(tag_list),
+                    notes=f"Created from resume {path.name}",
                     name=display_name,
                     email=email,
                     phone=phone,
-                    experience_duration=exp.replace("y", " Year(s) ").replace("m", " Month(s)") if exp else None,
+                    experience_duration=exp_str,
                     has_work_experience="Yes" if exp else None,
                     resume_link=url,
                     download_link=url,
@@ -304,26 +368,38 @@ async def run(folder: Path) -> None:
                     for k, v in payload.items():
                         if v is not None:
                             setattr(existing, k, v)
-                    print(f"UPDATED {display_name:30} → {cid}")
+                    updated += 1
+                    print(f"UPDATED {display_name:30} → {cid}", flush=True)
                 else:
                     db.add(Candidate(id=cid, created_at=now, **payload))
-                    print(f"CREATED {display_name:30} → {cid} | {email or '—'} | {fname}")
+                    print(f"CREATED {display_name:30} → {cid} | {email or '—'} | {fname}", flush=True)
                     created += 1
-                    # keep in-memory list for subsequent matches
                     all_cands.append(Candidate(id=cid, **payload))
                 await db.commit()
 
-    print("\n=== Summary ===")
-    print(f"linked_to_existing: {linked}")
-    print(f"created_new:        {created}")
-    print(f"errors:             {errors}")
+    print("\n=== Resume import summary ===", flush=True)
+    print(f"linked_to_existing: {linked}", flush=True)
+    print(f"created_new:        {created}", flush=True)
+    print(f"updated:            {updated}", flush=True)
+    print(f"errors:             {errors}", flush=True)
 
 
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--dir", default=str(DEFAULT_DIR))
+    p.add_argument("--role-id", default=ROLE_ID)
+    p.add_argument("--role-name", default=ROLE_NAME)
+    p.add_argument("--tags", default="naukri,pdf_import")
     args = p.parse_args()
-    asyncio.run(run(Path(args.dir).expanduser().resolve()))
+    tags = [t.strip() for t in args.tags.split(",") if t.strip()]
+    asyncio.run(
+        run(
+            Path(args.dir).expanduser().resolve(),
+            role_id=args.role_id,
+            role_name=args.role_name,
+            tags=tags,
+        )
+    )
 
 
 if __name__ == "__main__":
