@@ -6,6 +6,7 @@ Job / internship / courses portal + **Hiring CRM** (candidates dashboard).
 nxthike-dev/
 ├── FE/          # React + Vite + TypeScript frontend
 ├── BE/          # FastAPI + SQLAlchemy backend
+├── mobile/      # Kotlin Android app (Compose + Clean Architecture)
 └── supabase/    # SQL migrations for Supabase Postgres
 ```
 
@@ -131,3 +132,9 @@ Verify: `curl $VITE_API_URL/api/health` should show `"service":"nxthike-api"` an
 - FE: http://localhost:5173  
 - BE: http://localhost:8010/api/health  
 
+
+## Android (`mobile/`)
+
+Kotlin + Jetpack Compose client (Clean Architecture, Hilt, Retrofit) talking to `BE` APIs.
+
+Open `mobile/` in Android Studio. Emulator base URL: `http://10.0.2.2:8000/`. See `mobile/README.md`.
