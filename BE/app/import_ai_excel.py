@@ -34,6 +34,52 @@ ROLE_NAME = "AI/ML Engineer (Naukri Import)"
 
 DEFAULT_DIR = Path.home() / "Downloads" / "AI Resumes"
 
+# Canonical Naukri export columns (used when sheet has no header row)
+NAUKRI_HEADERS = [
+    "Job Title",
+    "Date of application",
+    "Name",
+    "Email ID",
+    "Phone Number",
+    "Current Location",
+    "Preferred Locations",
+    "Total Experience",
+    "Curr. Company name",
+    "Curr. Company Designation",
+    "Department",
+    "Role",
+    "Industry",
+    "Key Skills",
+    "Annual Salary",
+    "Notice period/ Availability to join",
+    "Resume Headline",
+    "Summary",
+    "Under Graduation degree",
+    "UG Specialization",
+    "UG University/institute Name",
+    "UG Graduation year",
+    "Post graduation degree",
+    "PG specialization",
+    "PG university/institute name",
+    "PG graduation year",
+    "Doctorate degree",
+    "Doctorate specialization",
+    "Doctorate university/institute name",
+    "Doctorate graduation year",
+    "Gender",
+    "Marital Status",
+    "Home Town/City",
+    "Pin Code",
+    "Work permit for USA",
+    "Date of Birth",
+    "Permanent Address",
+]
+
+
+def _looks_like_naukri_header(headers: list[str]) -> bool:
+    lower = {h.lower() for h in headers if h}
+    return "name" in lower and ("email id" in lower or "email" in lower)
+
 
 def _cell(row: dict, *keys: str) -> str | None:
     for k in keys:
@@ -79,22 +125,33 @@ def _has_exp(exp: str | None) -> str | None:
 
 
 def row_to_payload(row: dict, source_file: str) -> dict | None:
-    email = _first_email(_cell(row, "Email ID", "Email"))
+    email = _first_email(_cell(row, "Email ID", "Email", "Secondary Email"))
     name = _clean_name(_cell(row, "Name"))
+    # Zoho / SampleXLSX style
+    if not name:
+        first = _cell(row, "First Name")
+        last = _cell(row, "Last Name")
+        if first or last:
+            name = _clean_name(" ".join(x for x in [first, last] if x))
     if not name and not email:
         return None
+    # Skip obvious CRM sample rows
+    if name and "(sample)" in name.lower():
+        return None
+    if email and "noemail.com" in email:
+        return None
 
-    phone = _cell(row, "Phone Number", "Phone")
+    phone = _cell(row, "Phone Number", "Phone", "Mobile", "Home Phone", "Other Phone")
     if phone:
-        phone = re.sub(r"\D", "", phone)
+        phone = re.sub(r"\D", "", str(phone).split(".")[0] if "." in str(phone) else str(phone))
         if len(phone) > 10:
             phone = phone[-10:]
 
-    city = _cell(row, "Current Location", "City")
+    city = _cell(row, "Current Location", "City", "Mailing City", "Home Town/City")
     exp = _cell(row, "Total Experience")
-    company = _cell(row, "Curr. Company name")
-    designation = _cell(row, "Curr. Company Designation")
-    skills = _cell(row, "Key Skills")
+    company = _cell(row, "Curr. Company name", "Account Name")
+    designation = _cell(row, "Curr. Company Designation", "Title", "Role")
+    skills = _cell(row, "Key Skills", "Tag")
     summary = _cell(row, "Summary")
     headline = _cell(row, "Resume Headline")
     ug_deg = _cell(row, "Under Graduation degree")
@@ -174,7 +231,7 @@ def row_to_payload(row: dict, source_file: str) -> dict | None:
         "roleId": ROLE_ID,
         "roleName": ROLE_NAME,
         "status": status,
-        "tags": ["naukri", "ai_ml", "excel_import"],
+        "tags": ["naukri", "excel_import"],
         "notes": notes,
         "starred": False,
         "name": name,
@@ -211,53 +268,81 @@ def load_excel(path: Path) -> list[dict]:
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     ws = wb.active
     rows_iter = ws.iter_rows(values_only=True)
-    headers = [str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(next(rows_iter))]
-    out: list[dict] = []
+    first = next(rows_iter, None)
+    if first is None:
+        wb.close()
+        return []
+    headers = [str(h).strip() if h is not None else f"col_{i}" for i, h in enumerate(first)]
+    body_rows: list[tuple] = []
+    # If first row is data (broken/missing header), treat it as a body row
+    if not _looks_like_naukri_header(headers):
+        headers = list(NAUKRI_HEADERS)
+        body_rows.append(first)
     for raw in rows_iter:
+        if not raw or all(c is None or str(c).strip() == "" for c in raw):
+            continue
+        # Skip error-only first cells that are junk header leftovers
+        body_rows.append(raw)
+    out: list[dict] = []
+    for raw in body_rows:
         if not raw or all(c is None or str(c).strip() == "" for c in raw):
             continue
         d = {}
         for i, h in enumerate(headers):
             if i < len(raw):
                 d[h] = raw[i]
+        # Drop rows that are clearly Excel error placeholders as name
+        name = d.get("Name")
+        if name is not None and str(name).strip().upper().startswith("#ERROR"):
+            continue
+        job = d.get("Job Title")
+        if job is not None and str(job).strip().upper().startswith("#ERROR"):
+            d["Job Title"] = None
         out.append(d)
     wb.close()
     return out
 
 
-async def ensure_role() -> None:
+async def ensure_role(role_id: str, role_name: str) -> None:
     async with async_session() as db:
-        role = await db.get(HiringRole, ROLE_ID)
+        role = await db.get(HiringRole, role_id)
         if not role:
             db.add(
                 HiringRole(
-                    id=ROLE_ID,
-                    name=ROLE_NAME,
-                    description="Imported from Naukri AI Resumes Excel exports",
+                    id=role_id,
+                    name=role_name,
+                    description=f"Imported from Naukri Excel exports ({role_name})",
                     is_active=True,
-                    sort_order=1,
+                    sort_order=5,
                 )
             )
             await db.commit()
-            print(f"Created role {ROLE_ID}")
+            print(f"Created role {role_id}")
         else:
-            print(f"Role exists: {ROLE_ID}")
+            print(f"Role exists: {role_id}")
 
 
-async def run(folder: Path, reset: bool) -> None:
+async def run(
+    folder: Path,
+    reset: bool,
+    role_id: str = ROLE_ID,
+    role_name: str = ROLE_NAME,
+    tags: list[str] | None = None,
+) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    await ensure_role()
+    await ensure_role(role_id, role_name)
+    tag_list = tags or ["naukri", "excel_import"]
 
     if reset:
         async with async_session() as db:
             old = (
-                await db.execute(select(Candidate).where(Candidate.role_id == ROLE_ID))
+                await db.execute(select(Candidate).where(Candidate.role_id == role_id))
             ).scalars().all()
             for c in old:
                 await db.delete(c)
             await db.commit()
-            print(f"Cleared {len(old)} existing {ROLE_ID} candidates")
+            print(f"Cleared {len(old)} existing {role_id} candidates")
 
     files = sorted(folder.glob("*.xlsx"))
     if not files:
@@ -266,20 +351,30 @@ async def run(folder: Path, reset: bool) -> None:
     # email/id → payload (later files overwrite / merge)
     by_id: dict[str, dict] = {}
     for f in files:
-        print(f"Reading {f.name}…")
+        print(f"Reading {f.name}…", flush=True)
         try:
             rows = load_excel(f)
         except Exception as e:
-            print(f"  ERROR {f.name}: {e}")
+            print(f"  ERROR {f.name}: {e}", flush=True)
             continue
         n = 0
         for row in rows:
             payload = row_to_payload(row, f.name)
             if not payload:
                 continue
-            cid = payload["id"]
+            # Re-key under this role
+            email = payload.get("email")
+            name = payload.get("name")
+            phone = payload.get("phone")
+            city = payload.get("city")
+            key = email or f"{name}|{phone or ''}|{city or ''}"
+            digest = hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+            cid = f"{role_id}_{digest}"
+            payload["id"] = cid
+            payload["roleId"] = role_id
+            payload["roleName"] = role_name
+            payload["tags"] = list(dict.fromkeys([*tag_list, *(payload.get("tags") or [])]))
             if cid in by_id:
-                # merge: keep non-empty fields from either
                 prev = by_id[cid]
                 for k, v in payload.items():
                     if v and not prev.get(k):
@@ -289,14 +384,14 @@ async def run(folder: Path, reset: bool) -> None:
             else:
                 by_id[cid] = payload
             n += 1
-        print(f"  rows={n} unique_so_far={len(by_id)}")
+        print(f"  rows={n} unique_so_far={len(by_id)}", flush=True)
 
     created = 0
     updated = 0
     now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     async with async_session() as db:
-        for payload in by_id.values():
+        for i, payload in enumerate(by_id.values(), 1):
             cid = payload["id"]
             existing = await db.get(Candidate, cid)
             mapping = {
@@ -338,26 +433,45 @@ async def run(folder: Path, reset: bool) -> None:
                 c = Candidate(id=cid, created_at=now, **mapping)
                 db.add(c)
                 created += 1
+            if i % 200 == 0:
+                await db.commit()
+                print(f"  committed {i}/{len(by_id)}", flush=True)
         await db.commit()
 
     async with async_session() as db:
         total = (
             await db.execute(
-                select(func.count()).select_from(Candidate).where(Candidate.role_id == ROLE_ID)
+                select(func.count()).select_from(Candidate).where(Candidate.role_id == role_id)
             )
         ).scalar()
-    print("\n=== AI Excel import done ===")
-    print(f"unique candidates: {len(by_id)}")
-    print(f"created: {created}  updated: {updated}")
-    print(f"role {ROLE_ID} total in DB: {total}")
+    print("\n=== Excel import done ===", flush=True)
+    print(f"unique candidates: {len(by_id)}", flush=True)
+    print(f"created: {created}  updated: {updated}", flush=True)
+    print(f"role {role_id} total in DB: {total}", flush=True)
 
 
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--dir", default=str(DEFAULT_DIR))
     p.add_argument("--reset", action="store_true")
+    p.add_argument("--role-id", default=ROLE_ID)
+    p.add_argument("--role-name", default=ROLE_NAME)
+    p.add_argument(
+        "--tags",
+        default="naukri,excel_import",
+        help="Comma-separated tags (default: naukri,excel_import)",
+    )
     args = p.parse_args()
-    asyncio.run(run(Path(args.dir).expanduser().resolve(), args.reset))
+    tags = [t.strip() for t in args.tags.split(",") if t.strip()]
+    asyncio.run(
+        run(
+            Path(args.dir).expanduser().resolve(),
+            args.reset,
+            role_id=args.role_id,
+            role_name=args.role_name,
+            tags=tags,
+        )
+    )
 
 
 if __name__ == "__main__":
