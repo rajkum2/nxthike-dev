@@ -7,17 +7,18 @@ Import ad-hoc resumes from a folder (or explicit file list):
   - insert Candidate rows
 
 Usage (from BE/):
-  STORAGE_BACKEND=r2 python -m app.import_manual_resumes
+  STORAGE_BACKEND=r2 python -m app.import_manual_resumes --append
+  STORAGE_BACKEND=r2 python -m app.import_manual_resumes --reset   # wipe role + reimport all batches
 """
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import os
 import re
 import sys
 import unicodedata
-import uuid
 from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
@@ -28,7 +29,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.database import async_session, engine, Base
 from app.models.hiring import Candidate, HiringRole
@@ -40,7 +41,7 @@ ROLE_NAME = "Manual Import (Aug 2026)"
 # Source paths (Downloads)
 DOWNLOADS = Path.home() / "Downloads"
 
-SOURCE_FILES = [
+BATCH_1 = [
     DOWNLOADS / "Yash's Resume - Girija Kumari.pdf",
     DOWNLOADS / "vaishnavi Reddy_fresher - Kiranmai P.pdf",
     DOWNLOADS / "TiyashaKarmakar_InternshalaResume-1 - Girija Kumari.pdf",
@@ -74,9 +75,29 @@ SOURCE_FILES = [
     DOWNLOADS / "Prerna's resume - Girija Kumari.pdf",
     DOWNLOADS / "raja__resume - Kiranmai P.pdf",
     DOWNLOADS / "RajatAgarwal_InternshalaResume - Girija Kumari.pdf",
-    # Manish Kumar resume image (from user screenshot set)
     DOWNLOADS / "Resume Manish 22 pdf-page-001 - Girija Kumari.jpg",
 ]
+
+BATCH_2 = [
+    DOWNLOADS / "FresherKundanYadavresume12 (1) (1) - Kiranmai P.pdf",
+    DOWNLOADS / "EsitaMandal_InternshalaResume - Girija Kumari.pdf",
+    DOWNLOADS / "DikshaSabharwal_InternshalaResume - Girija Kumari.pdf",
+    DOWNLOADS / "Divya Resume - Girija Kumari.pdf",
+    DOWNLOADS / "chiru - Kiranmai P.pdf",
+    DOWNLOADS / "CV - Girija Kumari.pdf",
+    DOWNLOADS / "BKVP 2 - Kiranmai P.pdf",
+    DOWNLOADS / "ANJALI S - Kiranmai P.docx",
+    DOWNLOADS / "Annem Inesh_Data Entry.pdf",
+    DOWNLOADS / "_Poornima Mathad.pdf 1 - Kiranmai P.pdf",
+    DOWNLOADS / "1632843832743_Resume(1) - Girija Kumari.pdf",
+    DOWNLOADS / "1632984089413_SameerAlam_InternshalaResume - Girija Kumari.pdf",
+    DOWNLOADS / "1633347387659_CV - Girija Kumari.pdf",
+    DOWNLOADS / "1633347951138_Resume - Girija Kumari.pdf",
+    DOWNLOADS / "AbhinavAnand_InternshalaResume - Girija Kumari.pdf",
+    DOWNLOADS / "Abhishek - Kiranmai P.pdf",
+]
+
+SOURCE_FILES = BATCH_2  # default CLI target; --reset uses BATCH_1+BATCH_2
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 PHONE_RE = re.compile(
@@ -106,17 +127,23 @@ def slug_name(s: str) -> str:
 
 def clean_display_name_from_filename(path: Path) -> str:
     stem = path.stem
-    # strip weird docx remnants
+    # strip weird docx / double-extension remnants
     stem = stem.replace(".docx(1)", "").replace(".docx", "").replace(".pdf", "")
     stem = RECRUITER_SUFFIX.sub("", stem)
+    # leading timestamp ids from mobile exports
+    stem = re.sub(r"^\d{10,}_", "", stem)
+    stem = re.sub(r"^\d{10,}", "", stem)
     stem = re.sub(r"\(\d+\)", " ", stem)
     stem = re.sub(r"-\d+$", "", stem)
     # keep personal names; only drop pure noise tokens
     stem = re.sub(
-        r"(?i)\b(internshala|fresher|updated|jobresume|job\s*resume|docx?|pdf|page-\d+|converted|resume1)\b",
+        r"(?i)\b(internshala|fresher|updated|jobresume|job\s*resume|docx?|pdf|page-\d+|converted|resume1|data\s*entry)\b",
         " ",
         stem,
     )
+    # "FresherKundanYadavresume12" → split camel + strip digits tail
+    stem = re.sub(r"([a-z])([A-Z])", r"\1 \2", stem)
+    stem = re.sub(r"\d+$", "", stem)
     # trailing/leading "Resume" / "CV" only
     stem = re.sub(r"(?i)^(?:resume|cv)\s+", "", stem)
     stem = re.sub(r"(?i)\s+(?:resume|cv)$", "", stem)
@@ -125,6 +152,9 @@ def clean_display_name_from_filename(path: Path) -> str:
     # title case if mostly lower
     if stem and stem == stem.lower():
         stem = stem.title()
+    # known short codes
+    if stem.upper() in {"BKVP", "BKVP 2"}:
+        stem = "BKVP"
     return stem or "Unknown Candidate"
 
 
@@ -314,7 +344,7 @@ async def ensure_role() -> None:
             print(f"Role exists: {ROLE_ID}")
 
 
-async def import_all() -> None:
+async def import_all(files: list[Path], *, reset: bool) -> None:
     os.environ.setdefault("STORAGE_BACKEND", "r2")
     import app.services.storage as storage_mod
 
@@ -328,22 +358,32 @@ async def import_all() -> None:
 
     await ensure_role()
 
-    # Wipe previous import for this role so re-runs are clean
-    async with async_session() as db:
-        old = (
-            await db.execute(select(Candidate).where(Candidate.role_id == ROLE_ID))
-        ).scalars().all()
-        for c in old:
-            await db.delete(c)
-        await db.commit()
-        print(f"Cleared {len(old)} previous {ROLE_ID} candidates")
+    start_idx = 1
+    if reset:
+        async with async_session() as db:
+            old = (
+                await db.execute(select(Candidate).where(Candidate.role_id == ROLE_ID))
+            ).scalars().all()
+            for c in old:
+                await db.delete(c)
+            await db.commit()
+            print(f"Cleared {len(old)} previous {ROLE_ID} candidates")
+    else:
+        async with async_session() as db:
+            existing_n = (
+                await db.execute(
+                    select(func.count()).select_from(Candidate).where(Candidate.role_id == ROLE_ID)
+                )
+            ).scalar() or 0
+            start_idx = int(existing_n) + 1
+            print(f"Append mode: {existing_n} existing → start index {start_idx:03d}")
 
     used_slugs: set[str] = set()
     created = 0
     skipped = 0
     errors = 0
 
-    for src in SOURCE_FILES:
+    for i, src in enumerate(files):
         if not src.exists():
             print(f"MISSING {src}")
             errors += 1
@@ -426,13 +466,21 @@ async def import_all() -> None:
             clean_pdf_name = "Manish_Kumar.pdf"
 
         # Unique candidate id + file key (index prefix avoids collisions)
-        idx = SOURCE_FILES.index(src) + 1
+        idx = start_idx + i
         cid = f"{ROLE_ID}_{idx:03d}_{slug}".lower()[:100]
         # ensure unique object name on R2
         if not is_manish_scan:
             ext = ".pdf" if clean_pdf_name.lower().endswith(".pdf") else Path(clean_pdf_name).suffix or ".pdf"
             clean_pdf_name = f"{idx:03d}_{slug}{ext}"
         tags = guess_tags(display_name, text, src.name)
+
+        # Prefer filename-based name for generic PDF first-lines
+        garbage_names = {
+            "contact", "kolkata", "completed", "scholastic record", "resume", "cv",
+            "objective", "education", "experience", "mobile", "email", "phone",
+        }
+        if (fields.get("name") or "").lower() in garbage_names:
+            fields["name"] = display_name
 
         content_type = (
             "application/pdf"
@@ -499,7 +547,30 @@ async def import_all() -> None:
 
 
 def main() -> None:
-    asyncio.run(import_all())
+    parser = argparse.ArgumentParser(description="Import manual resumes to R2 + hiring DB")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Delete all manual_import_aug2026 candidates and reimport BATCH_1+BATCH_2",
+    )
+    parser.add_argument(
+        "--append",
+        action="store_true",
+        default=True,
+        help="Append SOURCE_FILES / BATCH_2 without wiping existing (default)",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Process BATCH_1 + BATCH_2 (use with --reset for full rebuild)",
+    )
+    args = parser.parse_args()
+    reset = bool(args.reset)
+    if args.all or reset:
+        files = BATCH_1 + BATCH_2
+    else:
+        files = list(SOURCE_FILES)
+    asyncio.run(import_all(files, reset=reset))
 
 
 if __name__ == "__main__":

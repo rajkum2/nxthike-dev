@@ -24,6 +24,8 @@ import {
   UserCheck,
   Sparkles,
   Info,
+  Eye,
+  FileText,
 } from 'lucide-react';
 import { useStore, applyTheme } from './store';
 import type { Candidate, PipelineStatus, ViewMode } from './types';
@@ -39,12 +41,73 @@ function StatusBadge({ status }: { status: PipelineStatus }) {
   );
 }
 
+function isPdfUrl(url: string): boolean {
+  const u = url.toLowerCase().split('?')[0];
+  return u.endsWith('.pdf') || u.includes('/resumes/');
+}
+
+function ResumeViewerModal({
+  url,
+  title,
+  onClose,
+}: {
+  url: string;
+  title: string;
+  onClose: () => void;
+}) {
+  const pdf = isPdfUrl(url);
+  return (
+    <div className="modal-backdrop resume-viewer-backdrop" onClick={onClose}>
+      <div
+        className="modal resume-viewer-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-label="Resume viewer"
+      >
+        <div className="modal-header">
+          <div>
+            <h3 style={{ margin: 0 }}>Resume</h3>
+            <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
+              {title}
+            </div>
+          </div>
+          <div className="toolbar">
+            <a className="btn" href={url} target="_blank" rel="noreferrer">
+              <ExternalLink size={14} /> Open tab
+            </a>
+            <a className="btn" href={url} download>
+              <Download size={14} /> Download
+            </a>
+            <button type="button" className="btn ghost" onClick={onClose} aria-label="Close">
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+        <div className="resume-viewer-body">
+          {pdf ? (
+            <iframe title={`Resume — ${title}`} src={url} className="resume-viewer-frame" />
+          ) : (
+            <div className="resume-viewer-fallback">
+              <FileText size={40} />
+              <p>This file type can’t be previewed inline.</p>
+              <a className="btn primary" href={url} target="_blank" rel="noreferrer">
+                <ExternalLink size={14} /> Open document
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const VALID_VIEWS: ViewMode[] = ['dashboard', 'candidates', 'pipeline'];
 
 export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
   const navigate = useNavigate();
   const store = useStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [resumeViewer, setResumeViewer] = useState<{ url: string; title: string } | null>(null);
   const {
     roles,
     loading,
@@ -546,6 +609,20 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                           <td style={{ maxWidth: 160 }} className="muted">{s(c.institute).slice(0, 60) || '—'}</td>
                           <td onClick={(e) => e.stopPropagation()}>
                             <div className="toolbar">
+                              {(c.resumeLink || c.downloadLink) && (
+                                <button
+                                  type="button"
+                                  className="btn ghost"
+                                  title="View resume"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const url = c.resumeLink || c.downloadLink!;
+                                    setResumeViewer({ url, title: c.name || c.pdfFile || 'Candidate' });
+                                  }}
+                                >
+                                  <Eye size={14} />
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 className={`btn ghost star-action ${c.starred ? 'on' : ''}`}
@@ -677,9 +754,30 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                 <h4>Links</h4>
                 <div className="toolbar">
                   {detail.applicationLink && <a className="btn" href={detail.applicationLink} target="_blank" rel="noreferrer"><ExternalLink size={14} /> Application</a>}
-                  {detail.resumeLink && <a className="btn" href={detail.resumeLink} target="_blank" rel="noreferrer"><ExternalLink size={14} /> Resume</a>}
-                  {detail.downloadLink && <a className="btn" href={detail.downloadLink} target="_blank" rel="noreferrer"><ExternalLink size={14} /> Download PDF</a>}
+                  {(detail.resumeLink || detail.downloadLink) && (
+                    <button
+                      type="button"
+                      className="btn primary"
+                      onClick={() =>
+                        setResumeViewer({
+                          url: (detail.resumeLink || detail.downloadLink)!,
+                          title: detail.name || detail.pdfFile || 'Candidate',
+                        })
+                      }
+                    >
+                      <Eye size={14} /> View resume
+                    </button>
+                  )}
+                  {detail.resumeLink && <a className="btn" href={detail.resumeLink} target="_blank" rel="noreferrer"><ExternalLink size={14} /> Open</a>}
+                  {(detail.downloadLink || detail.resumeLink) && (
+                    <a className="btn" href={detail.downloadLink || detail.resumeLink!} target="_blank" rel="noreferrer" download>
+                      <Download size={14} /> Download PDF
+                    </a>
+                  )}
                   {detail.chatLink && <a className="btn" href={detail.chatLink} target="_blank" rel="noreferrer"><ExternalLink size={14} /> Chat</a>}
+                  {!detail.resumeLink && !detail.downloadLink && (
+                    <span className="muted" style={{ fontSize: 13 }}>No resume file linked for this candidate.</span>
+                  )}
                 </div>
               </div>
 
@@ -699,6 +797,14 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
           roles={roles}
           onClose={() => store.closeForm()}
           onSave={(c) => { void store.upsertCandidate(c); }}
+        />
+      )}
+
+      {resumeViewer && (
+        <ResumeViewerModal
+          url={resumeViewer.url}
+          title={resumeViewer.title}
+          onClose={() => setResumeViewer(null)}
         />
       )}
     </div>
