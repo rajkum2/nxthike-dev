@@ -13,11 +13,28 @@ class CallRepositoryImpl @Inject constructor(
     private val api: CallsApi,
 ) : CallRepository {
     override suspend fun dispositions() = safeApiCall { api.dispositions() }
+
     override suspend fun stats() = safeApiCall { api.stats() }
-    override suspend fun queue(roleId: String?, status: String?, search: String?, page: Int) =
-        safeApiCall { api.queue(roleId = roleId, status = status, search = search, page = page) }
-    override suspend fun list(candidateId: String?, disposition: String?, page: Int) =
-        safeApiCall { api.list(candidateId = candidateId, disposition = disposition, page = page) }
+
+    override suspend fun queue(
+        roleId: String?, status: String?, search: String?, page: Int, pageSize: Int,
+    ) = safeApiCall {
+        api.queue(roleId = roleId, status = status, search = search, page = page, pageSize = pageSize)
+    }
+
+    override suspend fun list(
+        candidateId: String?, disposition: String?, roleId: String?, page: Int, pageSize: Int,
+    ) = safeApiCall {
+        api.list(
+            candidateId = candidateId, disposition = disposition, roleId = roleId,
+            page = page, pageSize = pageSize,
+        )
+    }
+
     override suspend fun logCall(body: CallLogCreateDto) = safeApiCall { api.create(body) }
+
+    override suspend fun patch(id: String, fields: Map<String, Any?>) =
+        safeApiCall { api.patch(id, fields) }
+
     override suspend fun delete(id: String): AppResult<Unit> = safeApiCall { api.delete(id); Unit }
 }

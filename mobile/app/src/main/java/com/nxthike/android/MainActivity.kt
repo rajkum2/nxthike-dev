@@ -7,8 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.nxthike.android.presentation.navigation.NxtHikeNavHost
-import com.nxthike.android.presentation.theme.NxtHikeTheme
+import com.nxthike.android.presentation.designsystem.T
+import com.nxthike.android.presentation.designsystem.TalentTheme
+import com.nxthike.android.presentation.navigation.TalentNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -17,9 +18,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NxtHikeTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    NxtHikeNavHost()
+            TalentTheme {
+                Surface(modifier = Modifier.fillMaxSize(), color = T.Bg) {
+                    TalentNavHost()
                 }
             }
         }

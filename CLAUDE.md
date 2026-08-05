@@ -4,8 +4,9 @@
 NxtHike is a job/internship/courses/events portal plus **Hiring CRM**, split into:
 
 ```
-FE/   — React 18 + TypeScript + Vite + Tailwind + Zustand
-BE/   — FastAPI + SQLAlchemy (async) + Supabase Postgres or SQLite
+FE/     — React 18 + TypeScript + Vite + Tailwind + Zustand
+BE/     — FastAPI + SQLAlchemy (async) + Supabase Postgres or SQLite
+mobile/ — TalentDialer: native Android (Kotlin + Compose), same BE APIs
 supabase/ — SQL migrations for Postgres/Supabase
 ```
 
@@ -61,6 +62,16 @@ BE/app/
 - **Storage:** `STORAGE_BACKEND=local|r2` plus R2 keys when using Cloudflare R2
   - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
 
+## Mobile — TalentDialer (`mobile/`)
+Kotlin + Jetpack Compose recruiting desk built to the TalentDialer design spec.
+Consumes the **same** `/api/*` routes as FE — no mobile-only backend.
+- Spine: call queue → pre-call → `ACTION_DIAL` handoff → disposition sheet → next
+- Dispositions map 1:1 to `CALL_DISPOSITIONS`; stages map to `Candidate.status`
+- Requisition = `HiringRole`; Client = `/api/companies`
+- TCCCPR calling window (09:00–21:00) hard-disables dialling outside it
+- Offline dispositions queue in a DataStore outbox and replay on reconnect
+- Full detail in `mobile/README.md`
+
 ## Commands
 ```bash
 # Frontend
@@ -71,6 +82,10 @@ cd FE && npm run build
 cd BE && source venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 python -m app.seed_hiring
+
+# Mobile
+cd mobile && ./gradlew assembleDebug        # APK → app/build/outputs/apk/debug/
+cd mobile && ./gradlew installDebug         # to a running device/emulator
 ```
 
 ## Data flow

@@ -14,8 +14,8 @@ android {
         applicationId = "com.nxthike.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "2.0.0"
         // Production API (public). Override for local:
         //   ./gradlew assembleDebug -PapiBaseUrl=http://10.0.2.2:8010/
         //   ./gradlew assembleDebug -PapiBaseUrl=http://192.168.x.x:8010/

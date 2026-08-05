@@ -44,4 +44,26 @@ class AuthViewModel @Inject constructor(
         auth.logout()
         onDone()
     }
+
+    /**
+     * Callback variants used by the TalentDialer screens, which keep their own
+     * local form state and want the outcome inline rather than via a StateFlow.
+     */
+    fun login(email: String, password: String, onResult: (Boolean, String?) -> Unit) =
+        viewModelScope.launch {
+            when (val r = auth.login(email, password)) {
+                is AppResult.Success -> onResult(true, null)
+                is AppResult.Error -> onResult(false, r.message)
+            }
+        }
+
+    fun register(
+        email: String, password: String, first: String, last: String, role: String,
+        onResult: (Boolean, String?) -> Unit,
+    ) = viewModelScope.launch {
+        when (val r = auth.register(email, password, first, last, role)) {
+            is AppResult.Success -> onResult(true, null)
+            is AppResult.Error -> onResult(false, r.message)
+        }
+    }
 }

@@ -63,4 +63,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun cachedUser(): UserDto? =
         tokenStore.getUserJson()?.let { runCatching { userAdapter.fromJson(it) }.getOrNull() }
+
+    override suspend fun listUsers(): AppResult<List<UserDto>> = safeApiCall { api.listUsers() }
 }

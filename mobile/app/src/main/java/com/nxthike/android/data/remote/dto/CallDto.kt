@@ -76,6 +76,10 @@ data class CallLogCreateDto(
     val candidatePhone: String? = null,
     val roleId: String? = null,
     val roleName: String? = null,
+    /** ISO-8601 local date-time; set when the outcome schedules a callback. */
+    val callbackAt: String? = null,
+    /** Set when replaying a disposition captured offline, so the log keeps its real time. */
+    val calledAt: String? = null,
 )
 
 @JsonClass(generateAdapter = true)

@@ -31,7 +31,14 @@ object NetworkModule {
             level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
             else HttpLoggingInterceptor.Level.NONE
         }
+        // The hiring dashboard is fanned out per role; the default cap of 5
+        // requests per host turns that into several serial rounds.
+        val dispatcher = okhttp3.Dispatcher().apply {
+            maxRequests = 32
+            maxRequestsPerHost = 12
+        }
         return OkHttpClient.Builder()
+            .dispatcher(dispatcher)
             .addInterceptor(authInterceptor)
             .addInterceptor(logging)
             .connectTimeout(30, TimeUnit.SECONDS)

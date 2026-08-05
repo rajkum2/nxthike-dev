@@ -13,6 +13,8 @@ interface AuthRepository {
     suspend fun changePassword(current: String, new: String): AppResult<Unit>
     suspend fun logout()
     suspend fun cachedUser(): UserDto?
+    /** Workspace roster — backs the team dashboard and the activity feed. */
+    suspend fun listUsers(): AppResult<List<UserDto>>
 }
 
 interface JobRepository {

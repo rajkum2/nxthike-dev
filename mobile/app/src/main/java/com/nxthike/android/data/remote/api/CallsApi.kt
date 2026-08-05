@@ -32,6 +32,12 @@ interface CallsApi {
     @POST("api/calls")
     suspend fun create(@Body body: CallLogCreateDto): CallLogDto
 
+    @PATCH("api/calls/{id}")
+    suspend fun patch(
+        @Path("id") id: String,
+        @Body body: Map<String, @JvmSuppressWildcards Any?>,
+    ): CallLogDto
+
     @DELETE("api/calls/{id}")
     suspend fun delete(@Path("id") id: String)
 }
