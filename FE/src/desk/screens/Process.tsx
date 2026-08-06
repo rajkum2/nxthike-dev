@@ -73,10 +73,10 @@ export function ComposerScreen() {
   }
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('cands', { candidateId })}>Back to profile</Button>
 
-      <Card style={{ marginTop: 14 }}>
+      <Card style={{ marginTop: 14, maxWidth: 820 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Avatar name={cand.data?.name} id={candidateId} size={40} />
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -191,7 +191,7 @@ export function TemplatesScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
         <Chip label="All" on={!filter} onClick={() => setFilter(null)} />
         {CHANNELS.map((ch) => (
@@ -271,7 +271,7 @@ export function InterviewsScreen() {
   }, {});
 
   return (
-    <div className="pad" style={{ maxWidth: 960 }}>
+    <div className="pad">
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
         <Button icon="add" onClick={() => go('intsched')}>Schedule interview</Button>
       </div>
@@ -372,7 +372,7 @@ export function ScheduleInterviewScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 720 }}>
+    <div className="pad">
       <Card>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14 }}>
           <div style={{ gridColumn: '1 / -1' }}>
@@ -446,7 +446,7 @@ export function InterviewKitScreen() {
   const skills = splitList(cand.data?.relevantSkills || cand.data?.otherSkills);
 
   return (
-    <div className="pad" style={{ maxWidth: 860 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('intcal')}>All interviews</Button>
 
       <div style={{ marginTop: 14 }}>
@@ -553,7 +553,7 @@ export function ScorecardScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 780 }}>
+    <div className="pad">
       <Card>
         {!candidateId && (
           <div style={{ marginBottom: 14 }}>
@@ -680,7 +680,7 @@ export function OffersScreen() {
   ];
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       {load.loading && <SkeletonRows rows={4} />}
       {load.error && <ErrorState message={load.error} onRetry={load.reload} />}
       {load.data && !load.data.length && (
@@ -748,7 +748,7 @@ export function OfferScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 820 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('offers')}>All offers</Button>
 
       <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -872,7 +872,7 @@ export function OfferLetterScreen() {
   if (!o) return <div className="pad"><EmptyState icon="description" title="No offer selected" body="Pick an offer first." /></div>;
 
   return (
-    <div className="pad" style={{ maxWidth: 780 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('offer', { offerId })}>Back to offer</Button>
 
       {o.status === 'pending_approval' && (
@@ -884,7 +884,7 @@ export function OfferLetterScreen() {
         </div>
       )}
 
-      <Card style={{ marginTop: 14 }}>
+      <Card style={{ marginTop: 14, maxWidth: 820 }}>
         <label className="label">Letter · merged from the offer</label>
         <Textarea value={text} onChange={(e) => setBody(e.target.value)} style={{ minHeight: 320, fontFamily: 'inherit' }} />
         <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -927,7 +927,7 @@ export function ApprovalsScreen() {
   }
 
   return (
-    <div className="pad" style={{ maxWidth: 820 }}>
+    <div className="pad">
       {load.loading && <SkeletonRows rows={3} />}
       {load.error && <ErrorState message={load.error} onRetry={load.reload} />}
       {load.data && !load.data.length && (

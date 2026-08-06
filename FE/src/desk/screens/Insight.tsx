@@ -57,7 +57,7 @@ export function FeedScreen() {
   const rows = (load.data || []).filter((r) => !filter || r.action.startsWith(filter));
 
   return (
-    <div className="pad" style={{ maxWidth: 800 }}>
+    <div className="pad">
       {kinds.length > 1 && (
         <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
           <Chip label="Everything" on={!filter} onClick={() => setFilter(null)} />
@@ -193,7 +193,7 @@ export function PerformanceScreen() {
   const top = Math.max(1, ...funnel.map((f) => f.value));
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       <div className="grid-auto">
         <Stat label="Calls today" value={num(todayLogs.length)} icon="call" color={T.teal} tint={T.tealTint} />
         <Stat label="Calls all time" value={num(all.length)} icon="phone_in_talk" color={T.indigo} tint={T.indigoTint} />
@@ -302,7 +302,7 @@ export function TeamScreen() {
   const breached = (reqs.data || []).filter((r) => r.slaBreached);
 
   return (
-    <div className="pad" style={{ maxWidth: 1000 }}>
+    <div className="pad">
       <div className="grid-auto">
         <Stat label="Active users" value={num(active.length)} icon="group" color={T.indigo} tint={T.indigoTint} />
         <Stat label="Calls logged" value={num(all.length)} icon="call" color={T.teal} tint={T.tealTint} />

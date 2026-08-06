@@ -89,7 +89,7 @@ export function SettingsScreen() {
   const w = session.settings.callingWindow;
 
   return (
-    <div className="pad" style={{ maxWidth: 780 }}>
+    <div className="pad">
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <Avatar name={session.name} id={session.userId} size={52} />
@@ -198,7 +198,7 @@ export function UsersScreen() {
   const canEdit = fullAdmin(c);
 
   return (
-    <div className="pad" style={{ maxWidth: 1000 }}>
+    <div className="pad">
       <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name or email"
           style={{ maxWidth: 300 }} />
@@ -330,7 +330,7 @@ export function CallWindowScreen() {
   const tooWide = open < 9 || close > 21;
 
   return (
-    <div className="pad" style={{ maxWidth: 720 }}>
+    <div className="pad">
       <Banner icon="gavel" tone="warn">
         TRAI's TCCCPR restricts unsolicited commercial calls to 09:00–21:00. Widening this window past
         those hours puts the outreach outside the safe harbour.
@@ -548,7 +548,7 @@ export function ComplianceScreen() {
   const consentRate = d && d.totalCandidates ? d.withConsent / d.totalCandidates : 0;
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       {comp.loading && <SkeletonRows rows={4} />}
       {comp.error && <ErrorState message={comp.error} onRetry={comp.reload} />}
 
@@ -659,7 +659,7 @@ export function AuditScreen() {
   });
 
   return (
-    <div className="pad" style={{ maxWidth: 1000 }}>
+    <div className="pad">
       <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter by actor, action or object"
           style={{ maxWidth: 320 }} />
@@ -721,7 +721,7 @@ export function TaxonomyScreen() {
   const groups = categories.map((cat) => [cat, DISPOSITIONS.filter((d) => d.category === cat)] as const);
 
   return (
-    <div className="pad" style={{ maxWidth: 860 }}>
+    <div className="pad">
       <Banner icon="info" tone="info">
         These outcome codes are fixed in the API so the mobile app, the web console and past call
         history all mean the same thing. The next action attached to each is what the console offers
@@ -793,7 +793,7 @@ export function SyncScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 720 }}>
+    <div className="pad">
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
           <span style={{
@@ -856,7 +856,7 @@ export function SyncScreen() {
 
 export function StatesScreen() {
   return (
-    <div className="pad" style={{ maxWidth: 860 }}>
+    <div className="pad">
       <Banner icon="widgets" tone="info">
         Reference for every non-happy state the dashboard can show, so they stay consistent.
       </Banner>

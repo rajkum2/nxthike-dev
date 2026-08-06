@@ -518,7 +518,7 @@ export function AddCandidateScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 780 }}>
+    <div className="pad">
       <Card>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
           <div>
@@ -649,7 +649,7 @@ export function MergeScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 860 }}>
+    <div className="pad">
       <Banner icon="content_copy" tone="warn">
         Two records share this phone number. Pick the surviving value for each field.
         The duplicate record is left in place — nothing is deleted here.
@@ -763,7 +763,7 @@ export function ResumeScreen() {
   const link = load.data?.resumeLink;
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('cands', { candidateId: candidateId || undefined })}>
         Back to profile
       </Button>

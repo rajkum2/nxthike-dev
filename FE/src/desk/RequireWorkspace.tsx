@@ -15,12 +15,22 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { getToken } from '../services/apiClient';
 
 const RequireWorkspace: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuthStore();
   const location = useLocation();
 
-  if (isLoading) {
+  /*
+   * The store starts as `{ user: null, isLoading: false }` and only fetches the
+   * user from an effect in `App`, so the very first render of a hard load looks
+   * identical to "signed out". Redirecting on that would bounce a signed-in
+   * user to the login page every time they opened /hiring directly or hit
+   * refresh. A stored token means the answer is still pending, not "no".
+   */
+  const authPending = isLoading || (!user && !!getToken());
+
+  if (authPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-50">
         <div className="text-center">

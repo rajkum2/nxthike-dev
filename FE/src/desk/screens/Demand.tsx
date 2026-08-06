@@ -139,7 +139,7 @@ export function RequisitionScreen() {
   const missingCommercials = !r.compLabel && !r.billRate;
 
   return (
-    <div className="pad" style={{ maxWidth: 1100 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('jobs')}>All {w.reqPlural.toLowerCase()}</Button>
 
       <div style={{ marginTop: 14, display: 'flex', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
@@ -283,7 +283,7 @@ export function NewRequisitionScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 820 }}>
+    <div className="pad">
       <Card>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
           <div style={{ gridColumn: '1 / -1' }}>
@@ -553,7 +553,7 @@ export function ClientScreen() {
   const clientReqs = (reqs.data || []).filter((r) => r.clientId === cl.id);
 
   return (
-    <div className="pad" style={{ maxWidth: 1000 }}>
+    <div className="pad">
       <Button variant="ghost" icon="arrow_back" onClick={() => go('clients')}>All {w.clientPlural.toLowerCase()}</Button>
 
       <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
@@ -648,7 +648,7 @@ export function SubmissionsScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 1000 }}>
+    <div className="pad">
       {load.loading && <SkeletonRows rows={5} />}
       {load.error && <ErrorState message={load.error} onRetry={load.reload} />}
       {load.data && !load.data.length && (

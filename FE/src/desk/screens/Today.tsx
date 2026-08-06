@@ -316,7 +316,7 @@ export function NotificationsScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 820 }}>
+    <div className="pad">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <Eyebrow>Notifications</Eyebrow>
         <Button variant="ghost" onClick={async () => { await deskApi.markAllRead(); load.reload(); }}>
@@ -382,7 +382,7 @@ export function TasksScreen() {
   };
 
   return (
-    <div className="pad" style={{ maxWidth: 860 }}>
+    <div className="pad">
       <Card style={{ marginBottom: 14, display: 'flex', gap: 8 }}>
         <input
           className="field"

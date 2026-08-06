@@ -419,7 +419,7 @@ export function CallbacksScreen() {
   const now = Date.now();
 
   return (
-    <div className="pad" style={{ maxWidth: 900 }}>
+    <div className="pad">
       {load.loading && <SkeletonRows rows={5} />}
       {load.error && <ErrorState message={load.error} onRetry={load.reload} />}
       {load.data && !load.data.length && (
@@ -476,7 +476,7 @@ export function HistoryScreen() {
   const shown = (load.data || []).filter((l) => rule.match(disposition(l.disposition).category));
 
   return (
-    <div className="pad" style={{ maxWidth: 960 }}>
+    <div className="pad">
       <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
         {HISTORY_FILTERS.map((f) => (
           <Chip key={f.key} label={f.label} on={filter === f.key} onClick={() => setFilter(f.key)} />
@@ -549,7 +549,7 @@ export function SummaryScreen() {
   const mix = Object.entries(s.byDisposition).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="pad" style={{ maxWidth: 780 }}>
+    <div className="pad">
       <div style={{ width: 54, height: 54, borderRadius: 18, background: T.greenTint, display: 'grid', placeItems: 'center' }}>
         <Icon name="task_alt" size={30} color={T.green} />
       </div>
