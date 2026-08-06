@@ -18,7 +18,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.hiring import Candidate, CallLog, CALL_DISPOSITIONS
 from app.models.user import User
-from app.services.auth import get_admin_user, get_current_user
+from app.services.auth import get_admin_user, get_current_user  # noqa: F401
+from app.services.personas import WorkspaceIdentity, get_workspace_user, require_cap
 from app.schemas.calls import (
     CallLogCreate,
     CallLogUpdate,
@@ -32,10 +33,12 @@ from app.schemas.calls import (
     validate_disposition,
 )
 
+#: Anyone with a workspace persona — see the note on the hiring router.
+#: Dialling and logging are gated per-capability below, not by portal role.
 router = APIRouter(
     prefix="/api/calls",
     tags=["calls"],
-    dependencies=[Depends(get_admin_user)],
+    dependencies=[Depends(get_workspace_user)],
 )
 
 
@@ -76,7 +79,7 @@ async def list_dispositions():
 
 @router.get("/stats", response_model=CallStatsResponse)
 async def call_stats(
-    user: User = Depends(get_admin_user),
+    me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
     now = _utcnow()
@@ -237,7 +240,7 @@ async def get_call(call_id: str, db: AsyncSession = Depends(get_db)):
 @router.post("", response_model=CallLogResponse, status_code=201)
 async def create_call(
     body: CallLogCreate,
-    user: User = Depends(get_admin_user),
+    me: WorkspaceIdentity = Depends(require_cap("log", "Your role cannot log calls.")),
     db: AsyncSession = Depends(get_db),
 ):
     if not validate_disposition(body.disposition):
@@ -257,8 +260,8 @@ async def create_call(
         candidate_phone=body.candidatePhone or cand.phone,
         role_id=body.roleId or cand.role_id,
         role_name=body.roleName or cand.role_name,
-        user_id=user.id,
-        user_email=user.email,
+        user_id=me.user.id,
+        user_email=me.user.email,
         disposition=body.disposition,
         note=body.note or "",
         duration_seconds=body.durationSeconds,

@@ -6,7 +6,11 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import engine, Base
-from app.api import auth, jobs, events, courses, companies, dashboard, uploads, hiring, calls
+from app.migrations import run_migrations
+from app.api import (
+    auth, jobs, events, courses, companies, dashboard, uploads, hiring, calls,
+    workspace, recruiting,
+)
 from app.admin.routes import router as admin_router
 # Ensure models are registered on Base.metadata
 import app.models  # noqa: F401
@@ -19,6 +23,9 @@ async def lifespan(app: FastAPI):
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+        # create_all adds missing tables but never missing columns; this adds
+        # those, idempotently, without touching existing data.
+        await run_migrations(engine)
         print(f"[startup] DB ready (pooler={settings.DB_IS_POOLER}, ssl={settings.DB_NEEDS_SSL})")
     except Exception as e:
         print(f"[startup] WARNING: could not init DB: {type(e).__name__}: {e}")
@@ -51,6 +58,9 @@ app.include_router(dashboard.router)
 app.include_router(uploads.router)
 app.include_router(hiring.router)
 app.include_router(calls.router)
+# TalentDialer recruiting workspace (additive; existing routes unchanged)
+app.include_router(workspace.router)
+app.include_router(recruiting.router)
 
 # Admin dashboard
 app.include_router(admin_router)

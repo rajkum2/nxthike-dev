@@ -92,6 +92,22 @@ class CandidateBase(BaseModel):
     aiInterviewScores: dict[str, Any] = Field(default_factory=dict)
     skillFlags: dict[str, Any] = Field(default_factory=dict)
 
+    # --- TalentDialer workspace columns -----------------------------------
+    # Added by migrations, all nullable. They are read here so the dashboard
+    # sees the same record the compliance and call screens are counting.
+    ownerId: str | None = None
+    source: str | None = None
+    currentCtc: float | None = None
+    expectedCtc: float | None = None
+    noticeDays: int | None = None
+    buyout: bool | None = None
+    consentAt: str | None = None
+    consentChannel: str | None = None
+    dnc: bool | None = None
+    requisitionId: str | None = None
+    #: True when phone/email were masked for this caller's role.
+    piiMasked: bool = False
+
 
 class CandidateCreate(CandidateBase):
     id: str | None = None
@@ -147,6 +163,17 @@ class CandidateUpdate(BaseModel):
     availability: str | None = None
     aiInterviewScores: dict[str, Any] | None = None
     skillFlags: dict[str, Any] | None = None
+
+    ownerId: str | None = None
+    source: str | None = None
+    currentCtc: float | None = None
+    expectedCtc: float | None = None
+    noticeDays: int | None = None
+    buyout: bool | None = None
+    consentAt: str | None = None
+    consentChannel: str | None = None
+    dnc: bool | None = None
+    requisitionId: str | None = None
 
 
 class CandidateResponse(CandidateBase):

@@ -14,6 +14,16 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[str] = mapped_column(String, nullable=False, default="student")  # student, employer, admin
+
+    # --- TalentDialer workspace fields (all nullable; added by migrations) ---
+    #: One of the eight product personas (p1..p8). Null falls back to `role`.
+    persona: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="active")
+    title: Mapped[str | None] = mapped_column(String, nullable=True)
+    org: Mapped[str | None] = mapped_column(String, nullable=True)
+    phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    invited_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_active_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     profile_picture: Mapped[str | None] = mapped_column(String, nullable=True)

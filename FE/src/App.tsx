@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -13,7 +13,6 @@ import CourseDetailsPage from './pages/CourseDetailsPage';
 import CompaniesPage from './pages/CompaniesPage';
 import CompanyDetailsPage from './pages/CompanyDetailsPage';
 import DashboardPage from './pages/DashboardPage';
-import HiringTrackerPage from './pages/HiringTrackerPage';
 import ContactPage from './pages/ContactPage';
 import PricingPage from './pages/PricingPage';
 import ResumeTipsPage from './pages/ResumeTipsPage';
@@ -33,16 +32,46 @@ import AdminEventsPage from './pages/admin/AdminEventsPage';
 import AdminCoursesPage from './pages/admin/AdminCoursesPage';
 import AdminCompaniesPage from './pages/admin/AdminCompaniesPage';
 import { useAuthStore } from './store/authStore';
-import RequireAdmin from './components/auth/RequireAdmin';
+import RequireWorkspace from './desk/RequireWorkspace';
+
+/** The dashboard is a large, self-contained app — keep it out of the site bundle. */
+const DeskApp = lazy(() => import('./desk/DeskApp'));
+
+function DeskRoute() {
+  return (
+    <RequireWorkspace>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-surface-50">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600" />
+          </div>
+        }
+      >
+        <DeskApp />
+      </Suspense>
+    </RequireWorkspace>
+  );
+}
 
 function AppShell() {
   const location = useLocation();
-  const isHiring = location.pathname.startsWith('/hiring');
+
+  /*
+   * The dashboard brings its own full-height rail and top bar, so it renders
+   * outside the site chrome entirely. Every other route is untouched.
+   */
+  if (location.pathname.startsWith('/hiring')) {
+    return (
+      <Routes>
+        <Route path="/hiring/*" element={<DeskRoute />} />
+      </Routes>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className={`flex-grow ${isHiring ? 'p-0' : ''}`}>
+      <main className="flex-grow">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/internships" element={<InternshipsPage />} />
@@ -66,39 +95,7 @@ function AppShell() {
             <Route path="courses" element={<AdminCoursesPage />} />
             <Route path="companies" element={<AdminCompaniesPage />} />
           </Route>
-          {/* Hiring CRM: admin-only (menu hidden + route guarded) */}
-          <Route
-            path="/hiring"
-            element={
-              <RequireAdmin>
-                <HiringTrackerPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/hiring/dashboard"
-            element={
-              <RequireAdmin>
-                <HiringTrackerPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/hiring/candidates"
-            element={
-              <RequireAdmin>
-                <HiringTrackerPage />
-              </RequireAdmin>
-            }
-          />
-          <Route
-            path="/hiring/pipeline"
-            element={
-              <RequireAdmin>
-                <HiringTrackerPage />
-              </RequireAdmin>
-            }
-          />
+          {/* /hiring/* is handled above, outside the site chrome. */}
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/resume-tips" element={<ResumeTipsPage />} />

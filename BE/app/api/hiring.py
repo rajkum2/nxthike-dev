@@ -9,7 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.hiring import Candidate, HiringRole
 from app.models.user import User
-from app.services.auth import get_admin_user
+from app.services.auth import get_admin_user  # noqa: F401  (kept for per-route use)
+from app.services.personas import (
+    WorkspaceIdentity,
+    apply_pii_policy,
+    get_workspace_user,
+    require_cap,
+    require_cap_in,
+)
 from app.schemas.hiring import (
     PIPELINE_STATUSES,
     CandidateCreate,
@@ -24,11 +31,16 @@ from app.schemas.hiring import (
     HiringDashboardStats,
 )
 
-# All hiring CRM endpoints require an authenticated admin user
+#: Anyone with a workspace persona — not only `role == "admin"`.
+#:
+#: This used to be `get_admin_user`, which pre-dated personas and meant a
+#: recruiter (portal role `employer`, persona `p1`) was refused their own
+#: candidate list. `get_workspace_user` still refuses every portal-only
+#: account, so the public site's students and employers stay locked out.
 router = APIRouter(
     prefix="/api/hiring",
     tags=["hiring"],
-    dependencies=[Depends(get_admin_user)],
+    dependencies=[Depends(get_workspace_user)],
 )
 
 
@@ -36,6 +48,35 @@ def _str_or_none(v) -> str | None:
     if v is None:
         return None
     return str(v)
+
+
+def _to_datetime(v) -> datetime | None:
+    """Accept an ISO string (what the browser sends) or a datetime, or None."""
+    if v is None or isinstance(v, datetime):
+        return v
+    try:
+        return datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Not a valid timestamp: {v!r}")
+
+
+#: Fields a role that only sees masked contact details must never write, so a
+#: masked value cannot be echoed back and overwrite the real one.
+MASKED_FIELDS = ("phone", "email")
+
+
+def candidate_for(c: Candidate, me: WorkspaceIdentity | None) -> CandidateResponse:
+    """
+    Serialise a candidate for one caller, masking contact details for roles that
+    may see the record but not how to reach the person.
+
+    Masking happens here, on the way out, rather than in the browser — a client
+    that is not entitled to a phone number never receives it.
+    """
+    payload = candidate_to_response(c)
+    if me is None:
+        return payload
+    return CandidateResponse(**apply_pii_policy(payload.model_dump(), me))
 
 
 def candidate_to_response(c: Candidate) -> CandidateResponse:
@@ -90,6 +131,17 @@ def candidate_to_response(c: Candidate) -> CandidateResponse:
         availability=c.availability,
         aiInterviewScores=c.ai_interview_scores or {},
         skillFlags=c.skill_flags or {},
+        # TalentDialer workspace columns
+        ownerId=c.owner_id,
+        source=c.source,
+        currentCtc=c.current_ctc,
+        expectedCtc=c.expected_ctc,
+        noticeDays=c.notice_days,
+        buyout=c.buyout,
+        consentAt=c.consent_at.isoformat() if c.consent_at else None,
+        consentChannel=c.consent_channel,
+        dnc=bool(c.dnc) if c.dnc is not None else None,
+        requisitionId=c.requisition_id,
         createdAt=c.created_at.isoformat() if c.created_at else None,
         updatedAt=c.updated_at.isoformat() if c.updated_at else None,
     )
@@ -147,6 +199,17 @@ def apply_candidate_payload(c: Candidate, data: dict) -> None:
         "availability": "availability",
         "aiInterviewScores": "ai_interview_scores",
         "skillFlags": "skill_flags",
+        # TalentDialer workspace columns
+        "ownerId": "owner_id",
+        "source": "source",
+        "currentCtc": "current_ctc",
+        "expectedCtc": "expected_ctc",
+        "noticeDays": "notice_days",
+        "buyout": "buyout",
+        "consentAt": "consent_at",
+        "consentChannel": "consent_channel",
+        "dnc": "dnc",
+        "requisitionId": "requisition_id",
     }
     for api_key, col in mapping.items():
         if api_key not in data or data[api_key] is None and api_key not in (
@@ -172,6 +235,8 @@ def apply_candidate_payload(c: Candidate, data: dict) -> None:
             val = []
         if api_key in ("aiInterviewScores", "skillFlags") and val is None:
             val = {}
+        if api_key == "consentAt":
+            val = _to_datetime(val)
         setattr(c, col, val)
     c.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
@@ -217,7 +282,13 @@ async def list_roles(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/roles", response_model=HiringRoleResponse, status_code=201)
-async def create_role(body: HiringRoleCreate, db: AsyncSession = Depends(get_db)):
+async def create_role(
+    body: HiringRoleCreate,
+    me: WorkspaceIdentity = Depends(
+        require_cap_in("reqs", ("all", "own"), "Your role cannot create requisitions.")
+    ),
+    db: AsyncSession = Depends(get_db),
+):
     existing = await db.get(HiringRole, body.id)
     if existing:
         raise HTTPException(status_code=400, detail="Role id already exists")
@@ -242,7 +313,14 @@ async def create_role(body: HiringRoleCreate, db: AsyncSession = Depends(get_db)
 
 
 @router.patch("/roles/{role_id}", response_model=HiringRoleResponse)
-async def update_role(role_id: str, body: HiringRoleUpdate, db: AsyncSession = Depends(get_db)):
+async def update_role(
+    role_id: str,
+    body: HiringRoleUpdate,
+    me: WorkspaceIdentity = Depends(
+        require_cap_in("reqs", ("all", "own"), "Your role cannot edit requisitions.")
+    ),
+    db: AsyncSession = Depends(get_db),
+):
     role = await db.get(HiringRole, role_id)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
@@ -265,7 +343,11 @@ async def update_role(role_id: str, body: HiringRoleUpdate, db: AsyncSession = D
 
 
 @router.delete("/roles/{role_id}", status_code=204)
-async def delete_role(role_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_role(
+    role_id: str,
+    me: WorkspaceIdentity = Depends(require_cap("admin", "Only admins can delete requisitions.")),
+    db: AsyncSession = Depends(get_db),
+):
     role = await db.get(HiringRole, role_id)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
@@ -331,6 +413,7 @@ async def list_candidates(
     sort_dir: str = Query("asc", alias="sortDir"),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200, alias="pageSize"),
+    me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Candidate)
@@ -403,7 +486,7 @@ async def list_candidates(
     total_pages = max(1, math.ceil(total / page_size)) if total else 1
 
     return PaginatedCandidateResponse(
-        items=[candidate_to_response(c) for c in items],
+        items=[candidate_for(c, me) for c in items],
         total=total,
         page=page,
         pageSize=page_size,
@@ -412,15 +495,23 @@ async def list_candidates(
 
 
 @router.get("/candidates/{candidate_id}", response_model=CandidateResponse)
-async def get_candidate(candidate_id: str, db: AsyncSession = Depends(get_db)):
+async def get_candidate(
+    candidate_id: str,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
-    return candidate_to_response(c)
+    return candidate_for(c, me)
 
 
 @router.post("/candidates", response_model=CandidateResponse, status_code=201)
-async def create_candidate(body: CandidateCreate, db: AsyncSession = Depends(get_db)):
+async def create_candidate(
+    body: CandidateCreate,
+    me: WorkspaceIdentity = Depends(require_cap("create", "Your role cannot add candidates.")),
+    db: AsyncSession = Depends(get_db),
+):
     cid = body.id or f"custom_{uuid.uuid4().hex[:12]}"
     if await db.get(Candidate, cid):
         raise HTTPException(status_code=400, detail="Candidate id already exists")
@@ -437,7 +528,12 @@ async def create_candidate(body: CandidateCreate, db: AsyncSession = Depends(get
 
 
 @router.put("/candidates/{candidate_id}", response_model=CandidateResponse)
-async def replace_candidate(candidate_id: str, body: CandidateCreate, db: AsyncSession = Depends(get_db)):
+async def replace_candidate(
+    candidate_id: str,
+    body: CandidateCreate,
+    me: WorkspaceIdentity = Depends(require_cap("create", "Your role cannot edit candidates.")),
+    db: AsyncSession = Depends(get_db),
+):
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
@@ -448,18 +544,49 @@ async def replace_candidate(candidate_id: str, body: CandidateCreate, db: AsyncS
 
 
 @router.patch("/candidates/{candidate_id}", response_model=CandidateResponse)
-async def patch_candidate(candidate_id: str, body: CandidateUpdate, db: AsyncSession = Depends(get_db)):
+async def patch_candidate(
+    candidate_id: str,
+    body: CandidateUpdate,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
-    apply_candidate_payload(c, body.model_dump(exclude_unset=True))
+
+    data = body.model_dump(exclude_unset=True)
+
+    # A stage move needs `stage`; editing anything else needs `create`.
+    if "status" in data and not me.can("stage"):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Your role ({me.persona_name}) cannot move candidates between stages.",
+        )
+    if any(k != "status" for k in data) and not me.can("create"):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Your role ({me.persona_name}) cannot edit candidate records.",
+        )
+    # A caller who only ever saw a masked number must not be able to write one
+    # back — that would replace the real value with bullets.
+    if me.masks_pii and any(k in data for k in MASKED_FIELDS):
+        raise HTTPException(
+            status_code=403,
+            detail="Contact details are masked for your role and cannot be edited.",
+        )
+
+    apply_candidate_payload(c, data)
     await db.commit()
     await db.refresh(c)
-    return candidate_to_response(c)
+    return candidate_for(c, me)
 
 
 @router.delete("/candidates/{candidate_id}", status_code=204)
-async def delete_candidate(candidate_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_candidate(
+    candidate_id: str,
+    me: WorkspaceIdentity = Depends(require_cap("admin", "Only admins can delete candidate records.")),
+    db: AsyncSession = Depends(get_db),
+):
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
@@ -468,7 +595,11 @@ async def delete_candidate(candidate_id: str, db: AsyncSession = Depends(get_db)
 
 
 @router.post("/candidates/bulk-status")
-async def bulk_status(body: BulkStatusRequest, db: AsyncSession = Depends(get_db)):
+async def bulk_status(
+    body: BulkStatusRequest,
+    me: WorkspaceIdentity = Depends(require_cap("stage", "Your role cannot move candidates between stages.")),
+    db: AsyncSession = Depends(get_db),
+):
     if body.status not in PIPELINE_STATUSES:
         raise HTTPException(status_code=400, detail=f"Invalid status: {body.status}")
     if not body.ids:
@@ -484,7 +615,11 @@ async def bulk_status(body: BulkStatusRequest, db: AsyncSession = Depends(get_db
 
 
 @router.post("/candidates/bulk-delete")
-async def bulk_delete(body: BulkDeleteRequest, db: AsyncSession = Depends(get_db)):
+async def bulk_delete(
+    body: BulkDeleteRequest,
+    me: WorkspaceIdentity = Depends(require_cap("admin", "Only admins can delete candidate records.")),
+    db: AsyncSession = Depends(get_db),
+):
     if not body.ids:
         return {"deleted": 0}
     result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
@@ -496,7 +631,11 @@ async def bulk_delete(body: BulkDeleteRequest, db: AsyncSession = Depends(get_db
 
 
 @router.post("/candidates/bulk-import")
-async def bulk_import(candidates: list[CandidateCreate], db: AsyncSession = Depends(get_db)):
+async def bulk_import(
+    candidates: list[CandidateCreate],
+    me: WorkspaceIdentity = Depends(require_cap("create", "Your role cannot import candidates.")),
+    db: AsyncSession = Depends(get_db),
+):
     """Import many candidates (upsert by id)."""
     created = 0
     updated = 0

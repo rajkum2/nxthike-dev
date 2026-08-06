@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import String, Boolean, DateTime, JSON, Text, Integer
+from sqlalchemy import String, Boolean, DateTime, Float, JSON, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -21,6 +21,25 @@ class HiringRole(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
+
+    # --- Requisition fields (all nullable; added by migrations) ---
+    client_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    department: Mapped[str | None] = mapped_column(String, nullable=True)
+    priority: Mapped[str] = mapped_column(String, default="P2")
+    openings: Mapped[int] = mapped_column(Integer, default=1)
+    filled: Mapped[int] = mapped_column(Integer, default=0)
+    sla_due: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    comp_min: Mapped[float | None] = mapped_column(Float, nullable=True)
+    comp_max: Mapped[float | None] = mapped_column(Float, nullable=True)
+    #: Agency commercials — hidden from roles without the `rates` capability.
+    bill_rate: Mapped[str | None] = mapped_column(String, nullable=True)
+    pay_rate: Mapped[str | None] = mapped_column(String, nullable=True)
+    owner_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    location: Mapped[str | None] = mapped_column(String, nullable=True)
+    skills: Mapped[list] = mapped_column(JSON, default=list)
+    #: open | on_hold | closed | pending_approval
+    status: Mapped[str] = mapped_column(String, default="open", index=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -86,6 +105,22 @@ class Candidate(Base):
 
     ai_interview_scores: Mapped[dict] = mapped_column(JSON, default=dict)
     skill_flags: Mapped[dict] = mapped_column(JSON, default=dict)
+
+    # --- Recruiting fields the web design needs as first-class data ---
+    owner_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    #: Naukri | LinkedIn | Referral | Walk-in
+    source: Mapped[str | None] = mapped_column(String, nullable=True)
+    current_ctc: Mapped[float | None] = mapped_column(Float, nullable=True)
+    expected_ctc: Mapped[float | None] = mapped_column(Float, nullable=True)
+    notice_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    buyout: Mapped[bool] = mapped_column(Boolean, default=False)
+    #: DPDP consent, with the channel it was obtained through.
+    consent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    consent_channel: Mapped[str | None] = mapped_column(String, nullable=True)
+    #: NCPR / do-not-call lock. Blocks dialling server-side, not just in the UI.
+    dnc: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    #: The requisition this candidate is being worked against.
+    requisition_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
