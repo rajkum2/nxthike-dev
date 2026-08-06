@@ -40,6 +40,21 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
         )}
       </div>
 
+      {!wide && (
+        <div style={{ padding: '0 10px 10px', flexShrink: 0 }}>
+          <button
+            onClick={() => setPalette(true)}
+            title="Search (⌘K)"
+            style={{
+              width: '100%', height: 36, borderRadius: 9, background: T.railField,
+              display: 'grid', placeItems: 'center',
+            }}
+          >
+            <Icon name="search" size={18} color={T.railFaint} />
+          </button>
+        </div>
+      )}
+
       {wide && (
         <div style={{ padding: '0 12px 12px', flexShrink: 0 }}>
           <button
@@ -63,11 +78,21 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
       )}
 
       <nav style={{ flex: 1, overflowY: 'auto', padding: '0 10px 20px' }}>
-        {NAV.map((group) => {
+        {NAV.map((group, gi) => {
           const items = group.items.filter((i) => allowed(i.key));
           if (!items.length) return null;
           return (
-            <div key={group.name} style={{ marginBottom: 10 }}>
+            <div
+              key={group.name}
+              style={{
+                marginBottom: 10,
+                // Narrow rail has no group headings, so a rule keeps the icon
+                // column scannable instead of one undifferentiated stack.
+                ...(wide || gi === 0 ? null : {
+                  borderTop: `1px solid ${T.railBorder}`, paddingTop: 10,
+                }),
+              }}
+            >
               {wide && (
                 <div className="mono" style={{
                   fontSize: 8.5, letterSpacing: '.14em', color: T.railDim, padding: '8px 8px 5px',
@@ -84,7 +109,10 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
                     className="rail-item"
                     title={item.label}
                     onClick={() => { go(item.key); onNavigate?.(); }}
-                    style={{ background: on ? T.railActive : 'transparent' }}
+                    style={{
+                      background: on ? T.railActive : 'transparent',
+                      justifyContent: wide ? 'flex-start' : 'center',
+                    }}
                   >
                     <Icon name={item.icon} size={19} color={on ? '#fff' : T.railMuted} />
                     {wide && (
@@ -118,12 +146,13 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
       <div style={{
         padding: 10, borderTop: `1px solid ${T.railBorder}`, flexShrink: 0,
         display: 'flex', alignItems: 'center', gap: 9,
+        flexDirection: wide ? 'row' : 'column',
       }}
       >
-        <button onClick={() => openModal('personas')} title="Switch persona">
+        <button onClick={() => openModal('personas')} title={`${session?.name} · ${session?.personaName}`}>
           <Avatar name={session?.name} id={session?.userId || 'me'} size={30} />
         </button>
-        {wide && (
+        {wide ? (
           <>
             <button
               onClick={() => openModal('personas')}
@@ -151,6 +180,14 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
               <Icon name="left_panel_close" size={18} color={T.railFaint} />
             </button>
           </>
+        ) : (
+          // The narrow rail keeps its own way back out, so expanding never
+          // depends on finding the control in the top bar.
+          !onNavigate && (
+            <button onClick={toggleRail} title="Expand sidebar" style={{ padding: 4 }}>
+              <Icon name="left_panel_open" size={18} color={T.railFaint} />
+            </button>
+          )
         )}
       </div>
     </>
@@ -168,9 +205,18 @@ export function Shell({ children }: { children: React.ReactNode }) {
   } = useDesk();
 
   const isMobile = useMediaQuery('(max-width: 899px)');
-  const isTablet = useMediaQuery('(min-width: 900px) and (max-width: 1239px)');
-  const railWide = !isMobile && railOpen && !isTablet;
-  const showRail = !isMobile && railOpen;
+
+  /*
+   * Collapsing narrows the rail to icons rather than removing it. Hiding it
+   * outright cost the only always-visible way to move between screens, and
+   * left the toggle pointing at nothing.
+   *
+   * Previously tablet widths forced the rail closed (labels never expanded),
+   * so the toggle looked broken. Wide vs icon rail is now purely railOpen.
+   */
+  const showRail = !isMobile;
+  const railWide = showRail && railOpen;
+  const railWidth = railWide ? 248 : 68;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -192,27 +238,38 @@ export function Shell({ children }: { children: React.ReactNode }) {
     })));
 
   return (
-    <div className="desk">
+    <>
       {showRail && (
-        <aside className="rail" style={{ width: isTablet ? 62 : 244 }}>
+        <aside
+          className={`rail ${railWide ? 'rail-wide' : 'rail-narrow'}`}
+          style={{ width: railWidth }}
+          aria-label="Workspace navigation"
+        >
           <RailContent wide={railWide} />
         </aside>
       )}
 
       {drawer && isMobile && (
         <>
-          <div className="scrim" onClick={() => setDrawer(false)} />
-          <aside className="rail drawer">
+          <div className="scrim" onClick={() => setDrawer(false)} aria-hidden />
+          <aside className="rail drawer rail-wide" aria-label="Workspace navigation">
             <RailContent wide onNavigate={() => setDrawer(false)} />
           </aside>
         </>
       )}
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: T.appBg }}>
+      <div className="stage">
         <header className="topbar">
-          {isMobile && <IconButton name="menu" onClick={() => setDrawer(true)} title="Open navigation" />}
-          {!isMobile && !railOpen && (
-            <IconButton name="left_panel_open" onClick={toggleRail} title="Open sidebar" />
+          {isMobile && (
+            <IconButton name="menu" onClick={() => setDrawer(true)} title="Open navigation" />
+          )}
+          {/* Always offer a top-bar toggle on desktop so collapse/expand is not buried. */}
+          {!isMobile && (
+            <IconButton
+              name={railOpen ? 'left_panel_close' : 'left_panel_open'}
+              onClick={toggleRail}
+              title={railOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            />
           )}
 
           <div style={{ minWidth: 0, flex: 1 }}>
@@ -258,6 +315,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </div>
 
       {palette && <CommandPalette items={paletteItems} onClose={() => setPalette(false)} />}
-    </div>
+    </>
   );
 }

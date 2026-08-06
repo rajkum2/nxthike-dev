@@ -147,14 +147,16 @@ export default function DeskApp() {
     if (session) document.title = `${SCREENS[screen].name} · TalentDialer`;
   }, [screen, session]);
 
-  if (loading) return <div className="desk"><BootLoading /></div>;
+  if (loading) return <div className="desk desk-boot"><BootLoading /></div>;
   if (error || !session) {
-    return <div className="desk"><BootError message={error || 'No session'} onRetry={boot} /></div>;
+    return <div className="desk desk-boot"><BootError message={error || 'No session'} onRetry={boot} /></div>;
   }
 
   const Screen = SCREEN_MAP[screen];
   const permitted = allowed(screen);
 
+  // Single `.desk` root — Shell must not nest another fixed full-screen shell
+  // or the main pane can fail to fill the viewport / clip content.
   return (
     <div className="desk">
       <Shell>
