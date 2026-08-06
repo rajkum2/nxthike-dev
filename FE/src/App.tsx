@@ -55,12 +55,14 @@ function DeskRoute() {
 
 function AppShell() {
   const location = useLocation();
+  // Hiring workspace uses its own chrome (no site Navbar/Footer).
+  const isHiring = location.pathname.startsWith('/hiring');
 
   /*
    * The dashboard brings its own full-height rail and top bar, so it renders
    * outside the site chrome entirely. Every other route is untouched.
    */
-  if (location.pathname.startsWith('/hiring')) {
+  if (isHiring) {
     return (
       <Routes>
         <Route path="/hiring/*" element={<DeskRoute />} />
@@ -108,7 +110,7 @@ function AppShell() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-      {!isHiring && <Footer />}
+      <Footer />
     </div>
   );
 }
