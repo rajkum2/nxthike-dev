@@ -31,10 +31,10 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
         {wide && (
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>
-              TalentDialer
+              NxtHike
             </div>
             <div className="mono" style={{ fontSize: 9, color: T.railFaint, letterSpacing: '.05em' }}>
-              {session?.mode === 'IN_HOUSE' ? 'IN-HOUSE WORKSPACE' : 'AGENCY WORKSPACE'}
+              {session?.mode === 'IN_HOUSE' ? 'WORKSPACE · IN-HOUSE' : 'WORKSPACE · AGENCY'}
             </div>
           </div>
         )}

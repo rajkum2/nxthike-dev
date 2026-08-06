@@ -67,15 +67,8 @@ const adminNavItem = {
   links: [
     { to: '/admin', label: 'Admin Console' },
     { to: '/admin/profile', label: 'My Profile' },
-    { to: '/admin/users', label: 'Users' },
-    { to: '/admin/jobs', label: 'Manage Jobs' },
-    { to: '/admin/events', label: 'Manage Events' },
-    { to: '/admin/courses', label: 'Manage Courses' },
-    { to: '/admin/companies', label: 'Manage Companies' },
-    { to: '/admin/hiring-roles', label: 'Hiring Roles' },
-    { to: '/hiring/dashboard', label: 'Hiring CRM' },
-    { to: '/hiring/candidates', label: 'Candidates' },
-    { to: '/hiring/pipeline', label: 'Pipeline Board' },
+    { to: '/hiring', label: 'Open Workspace' },
+    { to: '/admin', label: 'Portal catalog (workspace)' },
   ],
 };
 

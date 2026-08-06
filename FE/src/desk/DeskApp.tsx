@@ -30,6 +30,10 @@ import {
   SettingsScreen, UsersScreen, CallWindowScreen, RolesScreen,
   ComplianceScreen, AuditScreen, TaxonomyScreen, SyncScreen, StatesScreen,
 } from './screens/Admin';
+import {
+  CatalogOverviewScreen, CatalogJobsScreen, CatalogEventsScreen,
+  CatalogCoursesScreen, CatalogCompaniesScreen, CatalogHiringRolesScreen,
+} from './screens/Catalog';
 
 const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
   home: HomeScreen,
@@ -79,6 +83,13 @@ const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
   taxonomy: TaxonomyScreen,
   sync: SyncScreen,
   states: StatesScreen,
+
+  portalOverview: CatalogOverviewScreen,
+  portalJobs: CatalogJobsScreen,
+  portalEvents: CatalogEventsScreen,
+  portalCourses: CatalogCoursesScreen,
+  portalCompanies: CatalogCompaniesScreen,
+  portalRoles: CatalogHiringRolesScreen,
 };
 
 /* ------------------------------------------------------------------ *
@@ -144,7 +155,7 @@ export default function DeskApp() {
 
   // Keep the document title in step with the screen so browser history is readable.
   useEffect(() => {
-    if (session) document.title = `${SCREENS[screen].name} · TalentDialer`;
+    if (session) document.title = `${SCREENS[screen].name} · NxtHike Workspace`;
   }, [screen, session]);
 
   if (loading) return <div className="desk desk-boot"><BootLoading /></div>;

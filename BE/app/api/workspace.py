@@ -263,6 +263,13 @@ NAV_RULES: dict[str, callable] = {
     "audit": lambda c: bool(c.get("admin")),
     "taxonomy": lambda c: c.get("admin") is True,
     "callwindow": lambda c: bool(c.get("admin")),
+    # Portal catalog (old Admin Console) — full admins only
+    "portalOverview": lambda c: c.get("admin") is True,
+    "portalJobs": lambda c: c.get("admin") is True,
+    "portalEvents": lambda c: c.get("admin") is True,
+    "portalCourses": lambda c: c.get("admin") is True,
+    "portalCompanies": lambda c: c.get("admin") is True,
+    "portalRoles": lambda c: c.get("admin") is True,
 }
 
 #: Always available to anyone with workspace access.

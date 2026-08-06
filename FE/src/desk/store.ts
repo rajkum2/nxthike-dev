@@ -19,7 +19,8 @@ export type ScreenKey =
   | 'offers' | 'offer' | 'offerletter' | 'approvals'
   | 'feed' | 'perf' | 'team'
   | 'settings' | 'users' | 'callwindow' | 'roles' | 'compliance' | 'audit' | 'taxonomy'
-  | 'sync' | 'states';
+  | 'sync' | 'states'
+  | 'portalOverview' | 'portalJobs' | 'portalEvents' | 'portalCourses' | 'portalCompanies' | 'portalRoles';
 
 export type ModalKey =
   | 'disposition' | 'callback' | 'dnc' | 'consent' | 'erasure'
@@ -70,6 +71,12 @@ export const SCREENS: Record<ScreenKey, ScreenMeta> = {
   taxonomy: { id: 'SCR-W-SET-07', name: 'Disposition taxonomy', purpose: 'Outcome codes and next-action rules.' },
   sync: { id: 'SCR-W-GLOBAL-01', name: 'Offline & sync', purpose: 'Outbox with retry.' },
   states: { id: 'SCR-W-GLOBAL-02', name: 'State gallery', purpose: 'Loading, empty, error and denied states.' },
+  portalOverview: { id: 'SCR-W-CAT-00', name: 'Portal overview', purpose: 'Public site catalog stats.' },
+  portalJobs: { id: 'SCR-W-CAT-01', name: 'Portal jobs', purpose: 'Jobs and internships on the public site.' },
+  portalEvents: { id: 'SCR-W-CAT-02', name: 'Portal events', purpose: 'Events on the public site.' },
+  portalCourses: { id: 'SCR-W-CAT-03', name: 'Portal courses', purpose: 'Courses on the public site.' },
+  portalCompanies: { id: 'SCR-W-CAT-04', name: 'Portal companies', purpose: 'Company directory on the public site.' },
+  portalRoles: { id: 'SCR-W-CAT-05', name: 'Hiring roles', purpose: 'Candidate role buckets for the CRM.' },
 };
 
 export interface NavItem { key: ScreenKey; label: string; icon: string }
@@ -108,11 +115,19 @@ export const NAV: NavGroup[] = [
     { key: 'team', label: 'Team dashboard', icon: 'leaderboard' },
     { key: 'feed', label: 'Activity', icon: 'forum' },
   ] },
+  { name: 'PORTAL', items: [
+    { key: 'portalOverview', label: 'Portal overview', icon: 'dashboard' },
+    { key: 'portalJobs', label: 'Portal jobs', icon: 'work_history' },
+    { key: 'portalEvents', label: 'Events', icon: 'event_note' },
+    { key: 'portalCourses', label: 'Courses', icon: 'school' },
+    { key: 'portalCompanies', label: 'Companies', icon: 'storefront' },
+    { key: 'portalRoles', label: 'Hiring roles', icon: 'sell' },
+  ] },
   { name: 'ADMIN', items: [
-    { key: 'settings', label: 'Settings', icon: 'settings' },
+    { key: 'settings', label: 'My profile & settings', icon: 'settings' },
     { key: 'users', label: 'Users', icon: 'manage_accounts' },
     { key: 'callwindow', label: 'Calling window', icon: 'schedule' },
-    { key: 'roles', label: 'Roles', icon: 'admin_panel_settings' },
+    { key: 'roles', label: 'Personas & permissions', icon: 'admin_panel_settings' },
     { key: 'compliance', label: 'Compliance', icon: 'verified_user' },
     { key: 'audit', label: 'Audit log', icon: 'receipt_long' },
     { key: 'taxonomy', label: 'Taxonomy', icon: 'category' },
@@ -179,11 +194,23 @@ export const useDesk = create<DeskState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const session = await deskApi.session();
+      // Optional deep-link from /admin redirects (portal catalog screens).
+      let preferred: ScreenKey | null = null;
+      try {
+        const raw = sessionStorage.getItem('nxthike_workspace_screen');
+        if (raw && raw in SCREENS) preferred = raw as ScreenKey;
+        sessionStorage.removeItem('nxthike_workspace_screen');
+      } catch {
+        /* ignore */
+      }
+      const landing = (session.landing as ScreenKey) in SCREENS ? (session.landing as ScreenKey) : 'home';
+      const nav = session.nav || [];
+      const screen =
+        preferred && nav.includes(preferred) ? preferred : landing;
       set({
         session,
         loading: false,
-        // Land where this persona starts their day.
-        screen: (session.landing as ScreenKey) in SCREENS ? (session.landing as ScreenKey) : 'home',
+        screen,
       });
     } catch (e) {
       set({ loading: false, error: (e as Error).message });
