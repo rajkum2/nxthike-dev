@@ -50,6 +50,10 @@ async def get_current_user(
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    # Workspace / portal accounts can be suspended without deleting the row.
+    status_val = (getattr(user, "status", None) or "active").lower()
+    if status_val == "suspended":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account is suspended")
     return user
 
 

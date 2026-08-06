@@ -1,11 +1,11 @@
 /**
- * The TalentDialer dashboard.
+ * NxtHike Workspace (recruiting + portal catalog).
  *
- * Mounted under /hiring/*. The public NxtHike site is untouched — this replaces
- * only the logged-in hiring workspace.
+ * Mounted under /hiring/*. Screen modules are lazy-loaded so the initial
+ * workspace chunk stays smaller; home boots first.
  */
 
-import React, { useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, type ComponentType } from 'react';
 import './desk.css';
 import { T } from './tokens';
 import { useDesk, SCREENS, type ScreenKey } from './store';
@@ -13,44 +13,75 @@ import { Shell } from './Shell';
 import { Modals } from './Modals';
 import { Button, EmptyState, Icon, SkeletonRows } from './ui';
 
-import { HomeScreen, NotificationsScreen, TasksScreen } from './screens/Today';
-import { QueueScreen, CallbacksScreen, HistoryScreen, SummaryScreen } from './screens/Calls';
-import { CandidatesScreen, AddCandidateScreen, MergeScreen, TagsScreen, ResumeScreen } from './screens/People';
-import {
-  RequisitionsScreen, RequisitionScreen, NewRequisitionScreen, KanbanScreen,
-  ClientsScreen, ClientScreen, SubmissionsScreen,
-} from './screens/Demand';
-import {
-  ComposerScreen, TemplatesScreen, InterviewsScreen, ScheduleInterviewScreen,
-  InterviewKitScreen, ScorecardScreen, OffersScreen, OfferScreen,
-  OfferLetterScreen, ApprovalsScreen,
-} from './screens/Process';
-import { FeedScreen, PerformanceScreen, TeamScreen } from './screens/Insight';
-import {
-  SettingsScreen, UsersScreen, CallWindowScreen, RolesScreen,
-  ComplianceScreen, AuditScreen, TaxonomyScreen, SyncScreen, StatesScreen,
-} from './screens/Admin';
-import {
-  CatalogOverviewScreen, CatalogJobsScreen, CatalogEventsScreen,
-  CatalogCoursesScreen, CatalogCompaniesScreen, CatalogHiringRolesScreen,
-} from './screens/Catalog';
+// Core screens used at boot / daily — still code-split but prioritized
+const HomeScreen = lazy(() => import('./screens/Today').then((m) => ({ default: m.HomeScreen })));
+const NotificationsScreen = lazy(() => import('./screens/Today').then((m) => ({ default: m.NotificationsScreen })));
+const TasksScreen = lazy(() => import('./screens/Today').then((m) => ({ default: m.TasksScreen })));
 
-const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
+const QueueScreen = lazy(() => import('./screens/Calls').then((m) => ({ default: m.QueueScreen })));
+const CallbacksScreen = lazy(() => import('./screens/Calls').then((m) => ({ default: m.CallbacksScreen })));
+const HistoryScreen = lazy(() => import('./screens/Calls').then((m) => ({ default: m.HistoryScreen })));
+const SummaryScreen = lazy(() => import('./screens/Calls').then((m) => ({ default: m.SummaryScreen })));
+
+const CandidatesScreen = lazy(() => import('./screens/People').then((m) => ({ default: m.CandidatesScreen })));
+const AddCandidateScreen = lazy(() => import('./screens/People').then((m) => ({ default: m.AddCandidateScreen })));
+const MergeScreen = lazy(() => import('./screens/People').then((m) => ({ default: m.MergeScreen })));
+const TagsScreen = lazy(() => import('./screens/People').then((m) => ({ default: m.TagsScreen })));
+const ResumeScreen = lazy(() => import('./screens/People').then((m) => ({ default: m.ResumeScreen })));
+
+const RequisitionsScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.RequisitionsScreen })));
+const RequisitionScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.RequisitionScreen })));
+const NewRequisitionScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.NewRequisitionScreen })));
+const KanbanScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.KanbanScreen })));
+const ClientsScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.ClientsScreen })));
+const ClientScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.ClientScreen })));
+const SubmissionsScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.SubmissionsScreen })));
+
+const ComposerScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.ComposerScreen })));
+const TemplatesScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.TemplatesScreen })));
+const InterviewsScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.InterviewsScreen })));
+const ScheduleInterviewScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.ScheduleInterviewScreen })));
+const InterviewKitScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.InterviewKitScreen })));
+const ScorecardScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.ScorecardScreen })));
+const OffersScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.OffersScreen })));
+const OfferScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.OfferScreen })));
+const OfferLetterScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.OfferLetterScreen })));
+const ApprovalsScreen = lazy(() => import('./screens/Process').then((m) => ({ default: m.ApprovalsScreen })));
+
+const FeedScreen = lazy(() => import('./screens/Insight').then((m) => ({ default: m.FeedScreen })));
+const PerformanceScreen = lazy(() => import('./screens/Insight').then((m) => ({ default: m.PerformanceScreen })));
+const TeamScreen = lazy(() => import('./screens/Insight').then((m) => ({ default: m.TeamScreen })));
+
+const SettingsScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.SettingsScreen })));
+const UsersScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.UsersScreen })));
+const CallWindowScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.CallWindowScreen })));
+const RolesScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.RolesScreen })));
+const ComplianceScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.ComplianceScreen })));
+const AuditScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.AuditScreen })));
+const TaxonomyScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.TaxonomyScreen })));
+const SyncScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.SyncScreen })));
+const StatesScreen = lazy(() => import('./screens/Admin').then((m) => ({ default: m.StatesScreen })));
+
+const CatalogOverviewScreen = lazy(() => import('./screens/Catalog').then((m) => ({ default: m.CatalogOverviewScreen })));
+const CatalogJobsScreen = lazy(() => import('./screens/Catalog').then((m) => ({ default: m.CatalogJobsScreen })));
+const CatalogEventsScreen = lazy(() => import('./screens/Catalog').then((m) => ({ default: m.CatalogEventsScreen })));
+const CatalogCoursesScreen = lazy(() => import('./screens/Catalog').then((m) => ({ default: m.CatalogCoursesScreen })));
+const CatalogCompaniesScreen = lazy(() => import('./screens/Catalog').then((m) => ({ default: m.CatalogCompaniesScreen })));
+const CatalogHiringRolesScreen = lazy(() => import('./screens/Catalog').then((m) => ({ default: m.CatalogHiringRolesScreen })));
+
+const SCREEN_MAP: Record<ScreenKey, React.LazyExoticComponent<ComponentType>> = {
   home: HomeScreen,
   notifs: NotificationsScreen,
   tasks: TasksScreen,
-
   queue: QueueScreen,
   callbacks: CallbacksScreen,
   history: HistoryScreen,
   summary: SummaryScreen,
-
   cands: CandidatesScreen,
   addcand: AddCandidateScreen,
   merge: MergeScreen,
   resume: ResumeScreen,
   tags: TagsScreen,
-
   jobs: RequisitionsScreen,
   job: RequisitionScreen,
   newjob: NewRequisitionScreen,
@@ -58,7 +89,6 @@ const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
   clients: ClientsScreen,
   client: ClientScreen,
   subs: SubmissionsScreen,
-
   composer: ComposerScreen,
   templates: TemplatesScreen,
   intcal: InterviewsScreen,
@@ -69,11 +99,9 @@ const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
   offer: OfferScreen,
   offerletter: OfferLetterScreen,
   approvals: ApprovalsScreen,
-
   feed: FeedScreen,
   perf: PerformanceScreen,
   team: TeamScreen,
-
   settings: SettingsScreen,
   users: UsersScreen,
   callwindow: CallWindowScreen,
@@ -83,7 +111,6 @@ const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
   taxonomy: TaxonomyScreen,
   sync: SyncScreen,
   states: StatesScreen,
-
   portalOverview: CatalogOverviewScreen,
   portalJobs: CatalogJobsScreen,
   portalEvents: CatalogEventsScreen,
@@ -92,25 +119,29 @@ const SCREEN_MAP: Record<ScreenKey, React.ComponentType> = {
   portalRoles: CatalogHiringRolesScreen,
 };
 
-/* ------------------------------------------------------------------ *
- *  Boot states                                                       *
- * ------------------------------------------------------------------ */
+function ScreenFallback() {
+  return (
+    <div className="pad">
+      <SkeletonRows rows={6} />
+    </div>
+  );
+}
 
 function BootError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  // 401/403 mean the account exists but has no workspace role — a different
-  // problem from the API being unreachable, and it needs a different answer.
   const denied = /403|forbidden|not authorised|not authorized|no workspace/i.test(message);
-  const unauth = /401|unauthor/i.test(message);
+  const unauth = /401|unauthor|session expired/i.test(message);
 
   return (
     <div style={{
       minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: T.canvas,
-    }}>
+    }}
+    >
       <div style={{ maxWidth: 460, textAlign: 'center' }}>
         <span style={{
           width: 56, height: 56, borderRadius: 16, background: denied ? T.amberTint : T.redTint,
           display: 'grid', placeItems: 'center', margin: '0 auto',
-        }}>
+        }}
+        >
           <Icon name={denied ? 'lock' : unauth ? 'login' : 'cloud_off'} size={27} color={denied ? T.amber : T.red} />
         </span>
         <h2 style={{ margin: '16px 0 0', fontSize: 19, fontWeight: 700 }}>
@@ -144,16 +175,11 @@ function BootLoading() {
   );
 }
 
-/* ------------------------------------------------------------------ *
- *  App                                                               *
- * ------------------------------------------------------------------ */
-
 export default function DeskApp() {
   const { loading, error, session, screen, allowed, boot, go } = useDesk();
 
   useEffect(() => { boot(); }, [boot]);
 
-  // Keep the document title in step with the screen so browser history is readable.
   useEffect(() => {
     if (session) document.title = `${SCREENS[screen].name} · NxtHike Workspace`;
   }, [screen, session]);
@@ -166,13 +192,13 @@ export default function DeskApp() {
   const Screen = SCREEN_MAP[screen];
   const permitted = allowed(screen);
 
-  // Single `.desk` root — Shell must not nest another fixed full-screen shell
-  // or the main pane can fail to fill the viewport / clip content.
   return (
     <div className="desk">
       <Shell>
         {permitted ? (
-          <Screen />
+          <Suspense fallback={<ScreenFallback />}>
+            <Screen />
+          </Suspense>
         ) : (
           <div className="pad">
             <EmptyState

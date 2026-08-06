@@ -32,21 +32,35 @@ export function HomeScreen() {
   const c = caps();
   const w = words();
 
+  // Load only what this persona's tiles need — avoid 11 parallel full scans for every role.
   const load = useLoad(async () => {
-    const [stats, queue, dash, tasks, approvals, offers, interviews, subs, compliance, audit, users] =
-      await Promise.all([
-        deskApi.callStats().catch(() => null),
-        c.dial ? deskApi.callQueue({ pageSize: 6 }).catch(() => null) : Promise.resolve(null),
-        deskApi.hiringDashboard().catch(() => null),
-        deskApi.tasks({ mine: true }).catch(() => []),
-        c.approve ? deskApi.approvals({ mine: true, status: 'pending' }).catch(() => []) : Promise.resolve([]),
-        deskApi.offers().catch(() => []),
-        deskApi.interviews({ mine: home === 'panel' }).catch(() => []),
-        deskApi.submissions().catch(() => []),
-        c.admin ? deskApi.compliance().catch(() => null) : Promise.resolve(null),
-        c.admin ? deskApi.audit(30).catch(() => []) : Promise.resolve([]),
-        c.admin ? deskApi.users().catch(() => []) : Promise.resolve([]),
-      ]);
+    const needQueue = !!c.dial;
+    const needApprovals = !!c.approve;
+    const needAdmin = !!c.admin;
+    const needPanel = home === 'panel' || home === 'ta' || home === 'hm';
+    const needSubs = home === 'dialer' || home === 'lead' || home === 'am' || !!c.dial;
+
+    const [
+      stats, queue, dash, tasks, approvals, offers, interviews, subs, compliance, audit, users,
+    ] = await Promise.all([
+      deskApi.callStats().catch(() => null),
+      needQueue ? deskApi.callQueue({ pageSize: 6 }).catch(() => null) : Promise.resolve(null),
+      deskApi.hiringDashboard().catch(() => null),
+      deskApi.tasks({ mine: true }).catch(() => []),
+      needApprovals
+        ? deskApi.approvals({ mine: true, status: 'pending' }).catch(() => [])
+        : Promise.resolve([]),
+      home === 'hm' || home === 'lead' || needApprovals
+        ? deskApi.offers().catch(() => [])
+        : Promise.resolve([]),
+      needPanel
+        ? deskApi.interviews({ mine: home === 'panel' }).catch(() => [])
+        : Promise.resolve([]),
+      needSubs ? deskApi.submissions().catch(() => []) : Promise.resolve([]),
+      needAdmin ? deskApi.compliance().catch(() => null) : Promise.resolve(null),
+      needAdmin ? deskApi.audit(30).catch(() => []) : Promise.resolve([]),
+      needAdmin ? deskApi.users().catch(() => []) : Promise.resolve([]),
+    ]);
     return { stats, queue, dash, tasks, approvals, offers, interviews, subs, compliance, audit, users };
   }, [home, c.dial, c.admin, c.approve]);
 

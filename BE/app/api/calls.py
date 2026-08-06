@@ -162,12 +162,13 @@ async def call_queue(
     ids = [c.id for c in candidates]
     last_map: dict[str, CallLog] = {}
     if ids:
-        # simple approach: load recent logs for these ids
+        # Cap history scan: only need latest disposition per candidate in this page
         logs = (
             await db.execute(
                 select(CallLog)
                 .where(CallLog.candidate_id.in_(ids))
                 .order_by(CallLog.called_at.desc())
+                .limit(max(len(ids) * 3, 50))
             )
         ).scalars().all()
         for log in logs:

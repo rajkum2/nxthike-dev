@@ -5,39 +5,11 @@
  * `/api/hiring/*` and `/api/calls/*` routes unchanged for candidates and calls.
  */
 
-import { API_URL } from '../config/dataSource';
-import { getToken } from '../services/apiClient';
+import { apiFetch } from '../services/apiClient';
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...((init?.headers as Record<string, string>) || {}),
-    },
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    let detail = text || `HTTP ${res.status}`;
-    try {
-      const parsed = JSON.parse(text);
-      if (parsed.detail) {
-        detail = typeof parsed.detail === 'string' ? parsed.detail : JSON.stringify(parsed.detail);
-      }
-    } catch {
-      /* keep the raw text */
-    }
-    const err = new Error(detail) as Error & { status?: number };
-    err.status = res.status;
-    throw err;
-  }
-
-  if (res.status === 204) return undefined as T;
-  const body = await res.text();
-  return (body ? JSON.parse(body) : undefined) as T;
+  // Reuse the hardened client (timeout, 401 logout, credentials omit)
+  return apiFetch<T>(path, init);
 }
 
 const qs = (params: Record<string, unknown>) => {

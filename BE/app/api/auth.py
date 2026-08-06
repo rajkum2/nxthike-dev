@@ -50,7 +50,10 @@ def user_to_response(user: User) -> UserResponse:
 
 @router.post("/register", response_model=TokenResponse)
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == req.email))
+    email = (req.email or "").strip().lower()
+    if len(req.password or "") < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    result = await db.execute(select(User).where(User.email == email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -58,7 +61,7 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
     safe_role = req.role if req.role in ("student", "employer") else "student"
 
     user = User(
-        email=req.email,
+        email=email,
         password_hash=hash_password(req.password),
         role=safe_role,
         first_name=req.first_name,
@@ -78,11 +81,18 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == req.email))
+    # Normalize email to reduce duplicate-account / case-trick attacks
+    email = (req.email or "").strip().lower()
+    result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
     if not user or not verify_password(req.password, user.password_hash):
+        # Constant-ish message; do not reveal which field failed
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    status_val = (getattr(user, "status", None) or "active").lower()
+    if status_val == "suspended":
+        raise HTTPException(status_code=403, detail="This account is suspended")
 
     token = create_access_token(user.id)
     return TokenResponse(access_token=token, user=user_to_response(user))

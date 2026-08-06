@@ -368,26 +368,43 @@ async def hiring_dashboard(
     role_id: str | None = Query(None, alias="roleId"),
     db: AsyncSession = Depends(get_db),
 ):
-    q = select(Candidate)
+    """
+    Aggregate stats via SQL — do not load all candidate rows into memory
+    (tens of thousands in production).
+    """
+    base = select(Candidate)
     if role_id and role_id != "all":
-        q = q.where(Candidate.role_id == role_id)
-    candidates = (await db.execute(q)).scalars().all()
+        base = base.where(Candidate.role_id == role_id)
 
+    total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar() or 0
+
+    starred_q = select(func.count()).select_from(Candidate).where(Candidate.starred.is_(True))
+    if role_id and role_id != "all":
+        starred_q = starred_q.where(Candidate.role_id == role_id)
+    starred = (await db.execute(starred_q)).scalar() or 0
+
+    exp_q = select(func.count()).select_from(Candidate).where(
+        func.lower(Candidate.has_work_experience) == "yes"
+    )
+    if role_id and role_id != "all":
+        exp_q = exp_q.where(Candidate.role_id == role_id)
+    with_exp = (await db.execute(exp_q)).scalar() or 0
+
+    status_q = select(Candidate.status, func.count()).group_by(Candidate.status)
+    if role_id and role_id != "all":
+        status_q = status_q.where(Candidate.role_id == role_id)
     by_status: dict[str, int] = {s: 0 for s in PIPELINE_STATUSES}
-    by_role: dict[str, int] = {}
-    starred = 0
-    with_exp = 0
-    for c in candidates:
-        by_status[c.status] = by_status.get(c.status, 0) + 1
-        by_role[c.role_id] = by_role.get(c.role_id, 0) + 1
-        if c.starred:
-            starred += 1
-        if (c.has_work_experience or "").lower() == "yes":
-            with_exp += 1
+    for st, n in (await db.execute(status_q)).all():
+        by_status[st or "new"] = n
+
+    role_q = select(Candidate.role_id, func.count()).group_by(Candidate.role_id)
+    if role_id and role_id != "all":
+        role_q = role_q.where(Candidate.role_id == role_id)
+    by_role = {rid: n for rid, n in (await db.execute(role_q)).all() if rid}
 
     roles = await list_roles(db)
     return HiringDashboardStats(
-        total=len(candidates),
+        total=total,
         starred=starred,
         withExp=with_exp,
         byStatus=by_status,
