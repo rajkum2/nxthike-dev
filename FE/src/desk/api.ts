@@ -351,11 +351,25 @@ export interface DeskCandidate {
   latestRole?: string | null;
   latestCompany?: string | null;
   institute?: string | null;
+  degree?: string | null;
+  stream?: string | null;
+  graduationYear?: string | null;
+  gender?: string | null;
   relevantSkills?: string | null;
   otherSkills?: string | null;
   experienceDuration?: string | null;
+  hasWorkExperience?: string | null;
   availability?: string | null;
   resumeLink?: string | null;
+  downloadLink?: string | null;
+  notes?: string;
+  applicationLink?: string | null;
+  companies?: string | null;
+  jobTitles?: string | null;
+  careerObjective?: string | null;
+  languages?: string | null;
+  certifications?: string | null;
+  projects?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
 }

@@ -17,13 +17,16 @@ import {
 } from '../ui';
 import { CallRow } from './Calls';
 
-const CHIPS = [
-  { key: 'all', label: 'All' },
-  { key: 'reviewing', label: 'In screening' },
-  { key: 'interview', label: 'At interview' },
-  { key: 'offer', label: 'At offer' },
-  { key: 'starred', label: 'Starred' },
-  { key: 'dnc', label: 'DND flagged' },
+const STATUS_CHIPS = [
+  { key: 'all', label: 'All stages' },
+  { key: 'new', label: 'Sourced' },
+  { key: 'reviewing', label: 'Screening' },
+  { key: 'shortlisted', label: 'Submitted' },
+  { key: 'interview', label: 'Interview' },
+  { key: 'offer', label: 'Offer' },
+  { key: 'hired', label: 'Hired' },
+  { key: 'rejected', label: 'Rejected' },
+  { key: 'on_hold', label: 'On hold' },
 ];
 
 /* ------------------------------------------------------------------ *
@@ -34,21 +37,61 @@ export function CandidatesScreen() {
   const { candidateId, go, caps, session, openModal, selection, toggleSelect, clearSelection } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
-  const [query, setQuery] = useState('');
-  const [chip, setChip] = useState('all');
-  const [showList, setShowList] = useState(!candidateId);
-  const [unmask, setUnmask] = useState(false);
+  const isFullAdmin = c.admin === true;
+  const canEdit = isFullAdmin || !!c.create;
 
-  const status = ['reviewing', 'interview', 'offer'].includes(chip) ? chip : undefined;
+  const [query, setQuery] = useState('');
+  const [debouncedQ, setDebouncedQ] = useState('');
+  const [status, setStatus] = useState('all');
+  const [roleId, setRoleId] = useState('all');
+  const [experience, setExperience] = useState('all'); // all | yes | no
+  const [starredOnly, setStarredOnly] = useState(false);
+  const [hasNotes, setHasNotes] = useState(false);
+  const [hasPhone, setHasPhone] = useState(false);
+  const [hasResume, setHasResume] = useState(false);
+  const [dncOnly, setDncOnly] = useState(false);
+  const [noConsent, setNoConsent] = useState(false);
+  const [sortKey, setSortKey] = useState('updatedAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(1);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [showList, setShowList] = useState(!candidateId);
+  // Admins with full DB access start unmasked; restricted roles stay masked.
+  const [unmask, setUnmask] = useState(() => c.db === 'all' || c.admin === true);
+  const [editOpen, setEditOpen] = useState(false);
+
+  // Debounce search so we don't hit the API on every keystroke (23k rows).
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQ(query.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [query]);
+
+  React.useEffect(() => { setPage(1); }, [debouncedQ, status, roleId, experience, starredOnly, hasNotes, sortKey, sortDir]);
+
+  const rolesLoad = useLoad(() => deskApi.hiringDashboard().then((d) => d.roles || []), []);
 
   const list = useLoad(
-    () => deskApi.candidates({ search: query || undefined, status, page: 1, pageSize: 60 }),
-    [query, status],
+    () => deskApi.candidates({
+      search: debouncedQ || undefined,
+      status: status !== 'all' ? status : undefined,
+      roleId: roleId !== 'all' ? roleId : undefined,
+      experience: experience !== 'all' ? experience : undefined,
+      starredOnly: starredOnly || undefined,
+      hasNotes: hasNotes || undefined,
+      sortKey,
+      sortDir,
+      page,
+      pageSize: 60,
+    }),
+    [debouncedQ, status, roleId, experience, starredOnly, hasNotes, sortKey, sortDir, page],
   );
 
   let rows = list.data?.items || [];
-  if (chip === 'starred') rows = rows.filter((r) => r.starred);
-  if (chip === 'dnc') rows = rows.filter((r) => r.dnc);
+  // Client-side filters for fields not (yet) on the list API
+  if (dncOnly) rows = rows.filter((r) => r.dnc);
+  if (hasPhone) rows = rows.filter((r) => !!(r.phone && String(r.phone).replace(/\D/g, '').length >= 8));
+  if (hasResume) rows = rows.filter((r) => !!(r.resumeLink || r.downloadLink));
+  if (noConsent) rows = rows.filter((r) => !r.consentAt);
 
   const selectedId = candidateId || rows[0]?.id || null;
   const detail = useLoad(async () => (selectedId ? deskApi.candidate(selectedId) : null), [selectedId]);
@@ -62,6 +105,18 @@ export function CandidatesScreen() {
     ?? (c.db === 'limitedPII' || c.db === 'ownReqs' || c.db === 'ownInterviews');
   const masked = lockedByRole || !unmask;
   const selectedCount = Object.keys(selection).length;
+  const totalPages = list.data?.totalPages || 1;
+  const activeFilterCount = [
+    status !== 'all', roleId !== 'all', experience !== 'all', starredOnly, hasNotes,
+    hasPhone, hasResume, dncOnly, noConsent, !!debouncedQ,
+  ].filter(Boolean).length;
+
+  const clearFilters = () => {
+    setQuery(''); setDebouncedQ(''); setStatus('all'); setRoleId('all');
+    setExperience('all'); setStarredOnly(false); setHasNotes(false);
+    setHasPhone(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
+    setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
+  };
 
   const listPane = (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
@@ -71,15 +126,121 @@ export function CandidatesScreen() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Name, phone, email, city"
+            placeholder="Name, phone, email, city, skills…"
             style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: 13 }}
           />
+          {query && (
+            <button type="button" onClick={() => setQuery('')} title="Clear search">
+              <Icon name="close" size={16} color={T.inkFaint} />
+            </button>
+          )}
         </div>
+
         <div style={{ marginTop: 10, display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
-          {CHIPS.map((x) => <Chip key={x.key} label={x.label} on={chip === x.key} onClick={() => setChip(x.key)} />)}
+          {STATUS_CHIPS.map((x) => (
+            <Chip key={x.key} label={x.label} on={status === x.key} onClick={() => setStatus(x.key)} />
+          ))}
         </div>
-        <div style={{ marginTop: 10, fontSize: 11, color: T.inkFaint }}>
-          {list.data ? `${num(rows.length)} shown of ${num(list.data.total)}` : 'Loading…'}
+
+        <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Select
+            value={roleId}
+            onChange={(e) => setRoleId(e.target.value)}
+            style={{ height: 34, fontSize: 12, minWidth: 140, flex: 1 }}
+          >
+            <option value="all">All hiring roles</option>
+            {(rolesLoad.data || []).map((r) => (
+              <option key={r.id} value={r.id}>{r.name} ({r.count})</option>
+            ))}
+          </Select>
+          <Button
+            variant={showMoreFilters ? 'soft' : 'ghost'}
+            icon="tune"
+            onClick={() => setShowMoreFilters((v) => !v)}
+          >
+            Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+          </Button>
+          {activeFilterCount > 0 && (
+            <button type="button" onClick={clearFilters} style={{ fontSize: 11.5, fontWeight: 600, color: T.indigo }}>
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {showMoreFilters && (
+          <div style={{
+            marginTop: 12, padding: 12, borderRadius: 12, background: T.surfaceAlt,
+            border: `1px solid ${T.border}`, display: 'grid', gap: 10,
+            gridTemplateColumns: '1fr 1fr',
+          }}
+          >
+            <label style={{ fontSize: 11, fontWeight: 600, color: T.inkMuted, gridColumn: '1 / -1' }}>
+              Experience
+              <Select value={experience} onChange={(e) => setExperience(e.target.value)} style={{ marginTop: 4, height: 34, fontSize: 12 }}>
+                <option value="all">Any</option>
+                <option value="yes">Has work experience</option>
+                <option value="no">No / fresher</option>
+              </Select>
+            </label>
+            <label style={{ fontSize: 11, fontWeight: 600, color: T.inkMuted, gridColumn: '1 / -1' }}>
+              Sort by
+              <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} style={{ flex: 1, height: 34, fontSize: 12 }}>
+                  <option value="updatedAt">Recently updated</option>
+                  <option value="createdAt">Recently added</option>
+                  <option value="name">Name</option>
+                  <option value="status">Status</option>
+                  <option value="city">City</option>
+                </Select>
+                <Select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} style={{ width: 90, height: 34, fontSize: 12 }}>
+                  <option value="desc">Desc</option>
+                  <option value="asc">Asc</option>
+                </Select>
+              </div>
+            </label>
+            {([
+              [starredOnly, setStarredOnly, 'Starred only'],
+              [hasNotes, setHasNotes, 'Has notes'],
+              [hasPhone, setHasPhone, 'Has phone'],
+              [hasResume, setHasResume, 'Has resume'],
+              [dncOnly, setDncOnly, 'DND flagged'],
+              [noConsent, setNoConsent, 'No consent'],
+            ] as const).map(([on, set, label]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => set( !on )}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
+                  padding: '8px 10px', borderRadius: 9,
+                  background: on ? T.indigoTint : T.surface,
+                  color: on ? T.indigoInk : T.inkMuted,
+                  border: `1px solid ${on ? T.indigo : T.border}`,
+                  textAlign: 'left',
+                }}
+              >
+                <Icon name={on ? 'check_box' : 'check_box_outline_blank'} size={16} color={on ? T.indigo : T.borderInput} />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: T.inkFaint }}>
+          <span>{list.data ? `${num(rows.length)} on page · ${num(list.data.total)} total` : 'Loading…'}</span>
+          {totalPages > 1 && (
+            <span style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
+              <button type="button" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}
+                style={{ opacity: page <= 1 ? 0.4 : 1, padding: 4 }}>
+                <Icon name="chevron_left" size={18} color={T.inkMuted} />
+              </button>
+              <span className="mono">{page}/{totalPages}</span>
+              <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}
+                style={{ opacity: page >= totalPages ? 0.4 : 1, padding: 4 }}>
+                <Icon name="chevron_right" size={18} color={T.inkMuted} />
+              </button>
+            </span>
+          )}
         </div>
       </div>
 
@@ -143,14 +304,28 @@ export function CandidatesScreen() {
   const detailPane = !cand ? (
     <Card><EmptyState icon="groups" title="No candidate selected" body="Pick someone from the list." /></Card>
   ) : (
-    <CandidateProfile
-      cand={cand}
-      masked={masked}
-      lockedByRole={lockedByRole}
-      onToggleMask={() => setUnmask((u) => !u)}
-      onReload={detail.reload}
-      onBack={isMobile ? () => setShowList(true) : undefined}
-    />
+    <>
+      <CandidateProfile
+        cand={cand}
+        masked={masked}
+        lockedByRole={lockedByRole}
+        canEdit={canEdit}
+        isAdmin={isFullAdmin}
+        onToggleMask={() => setUnmask((u) => !u)}
+        onEdit={() => setEditOpen(true)}
+        onReload={() => { detail.reload(); list.reload(); }}
+        onBack={isMobile ? () => setShowList(true) : undefined}
+      />
+      {editOpen && canEdit && (
+        <EditCandidateModal
+          cand={cand}
+          roles={rolesLoad.data || []}
+          isAdmin={isFullAdmin}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => { setEditOpen(false); detail.reload(); list.reload(); }}
+        />
+      )}
+    </>
   );
 
   return (
@@ -174,10 +349,11 @@ export function CandidatesScreen() {
 const TABS = ['Overview', 'Timeline', 'Documents', 'Notes', 'Submissions', 'Calls'] as const;
 
 function CandidateProfile({
-  cand, masked, lockedByRole, onToggleMask, onReload, onBack,
+  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onReload, onBack,
 }: {
   cand: DeskCandidate; masked: boolean; lockedByRole: boolean;
-  onToggleMask: () => void; onReload: () => void; onBack?: () => void;
+  canEdit: boolean; isAdmin: boolean;
+  onToggleMask: () => void; onEdit: () => void; onReload: () => void; onBack?: () => void;
 }) {
   const { go, caps, openModal } = useDesk();
   const c = caps();
@@ -260,6 +436,11 @@ function CandidateProfile({
               {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               <option value="on_hold">On hold</option>
             </Select>
+          )}
+          {canEdit && (
+            <Button variant={isAdmin ? 'primary' : 'soft'} icon="edit" onClick={onEdit}>
+              {isAdmin ? 'Edit all details' : 'Edit'}
+            </Button>
           )}
           <Button variant="ghost" icon="content_copy" onClick={() => go('merge', { candidateId: cand.id })}>
             Find duplicates
@@ -465,6 +646,261 @@ function Row({ label, value, tone }: { label: string; value: string; tone?: stri
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
       <span style={{ fontSize: 12, color: T.inkMuted }}>{label}</span>
       <span style={{ fontSize: 12.5, fontWeight: 700, color: tone || T.ink }}>{value}</span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ *  Full edit modal (admin / create-capable roles)                    *
+ * ------------------------------------------------------------------ */
+
+type RoleOpt = { id: string; name: string; count?: number };
+
+function EditCandidateModal({
+  cand, roles, isAdmin, onClose, onSaved,
+}: {
+  cand: DeskCandidate;
+  roles: RoleOpt[];
+  isAdmin: boolean;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState({
+    name: cand.name || '',
+    phone: cand.phone || '',
+    email: cand.email || '',
+    city: cand.city || '',
+    gender: cand.gender || '',
+    status: cand.status || 'new',
+    roleId: cand.roleId || '',
+    roleName: cand.roleName || '',
+    source: cand.source || '',
+    latestRole: cand.latestRole || '',
+    latestCompany: cand.latestCompany || '',
+    experienceDuration: cand.experienceDuration || '',
+    hasWorkExperience: cand.hasWorkExperience || '',
+    institute: cand.institute || '',
+    degree: cand.degree || '',
+    stream: cand.stream || '',
+    graduationYear: cand.graduationYear || '',
+    currentCtc: cand.currentCtc != null ? String(cand.currentCtc) : '',
+    expectedCtc: cand.expectedCtc != null ? String(cand.expectedCtc) : '',
+    noticeDays: cand.noticeDays != null ? String(cand.noticeDays) : '',
+    buyout: !!cand.buyout,
+    dnc: !!cand.dnc,
+    starred: !!cand.starred,
+    availability: cand.availability || '',
+    otherSkills: cand.otherSkills || '',
+    relevantSkills: cand.relevantSkills || '',
+    resumeLink: cand.resumeLink || '',
+    downloadLink: cand.downloadLink || '',
+    applicationLink: cand.applicationLink || '',
+    notes: cand.notes || '',
+    careerObjective: cand.careerObjective || '',
+    languages: cand.languages || '',
+    certifications: cand.certifications || '',
+    projects: cand.projects || '',
+    companies: cand.companies || '',
+    jobTitles: cand.jobTitles || '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
+
+  const save = async () => {
+    setSaving(true); setError(null);
+    try {
+      const role = roles.find((r) => r.id === form.roleId);
+      const body: Record<string, unknown> = {
+        name: form.name.trim() || null,
+        phone: form.phone.trim() || null,
+        email: form.email.trim() || null,
+        city: form.city.trim() || null,
+        gender: form.gender.trim() || null,
+        status: form.status,
+        roleId: form.roleId || cand.roleId,
+        roleName: role?.name || form.roleName || cand.roleName,
+        source: form.source.trim() || null,
+        latestRole: form.latestRole.trim() || null,
+        latestCompany: form.latestCompany.trim() || null,
+        experienceDuration: form.experienceDuration.trim() || null,
+        hasWorkExperience: form.hasWorkExperience || null,
+        institute: form.institute.trim() || null,
+        degree: form.degree.trim() || null,
+        stream: form.stream.trim() || null,
+        graduationYear: form.graduationYear.trim() || null,
+        currentCtc: form.currentCtc === '' ? null : Number(form.currentCtc),
+        expectedCtc: form.expectedCtc === '' ? null : Number(form.expectedCtc),
+        noticeDays: form.noticeDays === '' ? null : Number(form.noticeDays),
+        buyout: form.buyout,
+        dnc: form.dnc,
+        starred: form.starred,
+        availability: form.availability.trim() || null,
+        otherSkills: form.otherSkills.trim() || null,
+        relevantSkills: form.relevantSkills.trim() || null,
+        resumeLink: form.resumeLink.trim() || null,
+        downloadLink: form.downloadLink.trim() || null,
+        applicationLink: form.applicationLink.trim() || null,
+        notes: form.notes,
+        careerObjective: form.careerObjective.trim() || null,
+        languages: form.languages.trim() || null,
+        certifications: form.certifications.trim() || null,
+        projects: form.projects.trim() || null,
+        companies: form.companies.trim() || null,
+        jobTitles: form.jobTitles.trim() || null,
+      };
+      await deskApi.patchCandidate(cand.id, body);
+      onSaved();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const field = (label: string, key: keyof typeof form, opts?: { multiline?: boolean; type?: string }) => (
+    <div key={String(key)}>
+      <label className="label">{label}</label>
+      {opts?.multiline ? (
+        <Textarea
+          value={String(form[key] ?? '')}
+          onChange={(e) => set(key, e.target.value)}
+          rows={3}
+        />
+      ) : (
+        <Input
+          type={opts?.type || 'text'}
+          value={String(form[key] ?? '')}
+          onChange={(e) => set(key, e.target.value)}
+        />
+      )}
+    </div>
+  );
+
+  return (
+    <div className="scrim" onClick={onClose}>
+      <div
+        className="modal"
+        style={{
+          width: 'min(720px, calc(100vw - 24px))',
+          maxHeight: '92vh',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>Edit candidate</div>
+            <div style={{ fontSize: 11.5, color: T.inkMuted, marginTop: 2 }}>
+              {isAdmin ? 'Full admin edit — all profile fields' : 'Update candidate details'}
+            </div>
+          </div>
+          <Button variant="ghost" onClick={onClose}>Close</Button>
+        </div>
+        <div className="modal-body">
+          {error && (
+            <div style={{ marginBottom: 12 }}>
+              <Banner icon="error" tone="danger">{error}</Banner>
+            </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+            {field('Full name', 'name')}
+            {field('Phone', 'phone')}
+            {field('Email', 'email')}
+            {field('City', 'city')}
+            {field('Gender', 'gender')}
+            <div>
+              <label className="label">Stage / status</label>
+              <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
+                {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                <option value="on_hold">On hold</option>
+                <option value="rejected">Rejected</option>
+                <option value="hired">Hired</option>
+              </Select>
+            </div>
+            <div>
+              <label className="label">Hiring role</label>
+              <Select
+                value={form.roleId}
+                onChange={(e) => {
+                  const id = e.target.value;
+                  const r = roles.find((x) => x.id === id);
+                  setForm((f) => ({ ...f, roleId: id, roleName: r?.name || f.roleName }));
+                }}
+              >
+                {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                {!roles.find((r) => r.id === form.roleId) && form.roleId && (
+                  <option value={form.roleId}>{form.roleName || form.roleId}</option>
+                )}
+              </Select>
+            </div>
+            {field('Source', 'source')}
+            {field('Latest role', 'latestRole')}
+            {field('Latest company', 'latestCompany')}
+            {field('Experience', 'experienceDuration')}
+            <div>
+              <label className="label">Has work experience</label>
+              <Select value={form.hasWorkExperience} onChange={(e) => set('hasWorkExperience', e.target.value)}>
+                <option value="">—</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </Select>
+            </div>
+            {field('Institute', 'institute')}
+            {field('Degree', 'degree')}
+            {field('Stream', 'stream')}
+            {field('Graduation year', 'graduationYear')}
+            {field('Current CTC (LPA)', 'currentCtc', { type: 'number' })}
+            {field('Expected CTC (LPA)', 'expectedCtc', { type: 'number' })}
+            {field('Notice days', 'noticeDays', { type: 'number' })}
+            {field('Availability', 'availability')}
+            {field('Skills (other)', 'otherSkills', { multiline: true })}
+            {field('Relevant skills', 'relevantSkills', { multiline: true })}
+            {field('Resume URL', 'resumeLink')}
+            {field('Download URL', 'downloadLink')}
+            {field('Application link', 'applicationLink')}
+            {field('Languages', 'languages')}
+            {field('Certifications', 'certifications', { multiline: true })}
+            {field('Projects', 'projects', { multiline: true })}
+            {field('Companies history', 'companies', { multiline: true })}
+            {field('Job titles history', 'jobTitles', { multiline: true })}
+            {field('Career objective', 'careerObjective', { multiline: true })}
+            {field('Notes', 'notes', { multiline: true })}
+          </div>
+          <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {([
+              ['starred', 'Starred'],
+              ['buyout', 'Buyout available'],
+              ['dnc', 'Do not call (DND)'],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => set(key, !form[key])}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
+                  padding: '8px 12px', borderRadius: 9,
+                  background: form[key] ? T.indigoTint : T.fill,
+                  color: form[key] ? T.indigoInk : T.inkMuted,
+                  border: `1px solid ${form[key] ? T.indigo : T.border}`,
+                }}
+              >
+                <Icon name={form[key] ? 'check_box' : 'check_box_outline_blank'} size={16} color={form[key] ? T.indigo : T.borderInput} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="modal-foot">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button onClick={() => void save()} disabled={saving}>
+            {saving ? 'Saving…' : 'Save all changes'}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
