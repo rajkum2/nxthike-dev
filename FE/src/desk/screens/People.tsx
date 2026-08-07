@@ -18,7 +18,7 @@ import {
 import { CallRow } from './Calls';
 
 const STATUS_CHIPS = [
-  { key: 'all', label: 'All stages' },
+  { key: 'all', label: 'All' },
   { key: 'new', label: 'Sourced' },
   { key: 'reviewing', label: 'Screening' },
   { key: 'shortlisted', label: 'Submitted' },
@@ -29,12 +29,74 @@ const STATUS_CHIPS = [
   { key: 'on_hold', label: 'On hold' },
 ];
 
+type ViewMode = 'split' | 'table';
+
+type ColId =
+  | 'name' | 'status' | 'role' | 'phone' | 'email' | 'city' | 'latestRole' | 'company'
+  | 'experience' | 'source' | 'currentCtc' | 'expectedCtc' | 'notice' | 'institute'
+  | 'degree' | 'skills' | 'updatedAt' | 'starred' | 'dnc' | 'gender';
+
+const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number }[] = [
+  { id: 'name', label: 'Name', defaultOn: true, minW: 160 },
+  { id: 'status', label: 'Stage', defaultOn: true, minW: 100 },
+  { id: 'role', label: 'Hiring role', defaultOn: true, minW: 140 },
+  { id: 'phone', label: 'Phone', defaultOn: true, minW: 120 },
+  { id: 'email', label: 'Email', defaultOn: false, minW: 180 },
+  { id: 'city', label: 'City', defaultOn: true, minW: 100 },
+  { id: 'latestRole', label: 'Latest role', defaultOn: true, minW: 140 },
+  { id: 'company', label: 'Company', defaultOn: false, minW: 130 },
+  { id: 'experience', label: 'Experience', defaultOn: true, minW: 100 },
+  { id: 'source', label: 'Source', defaultOn: false, minW: 100 },
+  { id: 'currentCtc', label: 'Current CTC', defaultOn: false, minW: 100 },
+  { id: 'expectedCtc', label: 'Expected CTC', defaultOn: false, minW: 100 },
+  { id: 'notice', label: 'Notice', defaultOn: false, minW: 70 },
+  { id: 'institute', label: 'Institute', defaultOn: false, minW: 140 },
+  { id: 'degree', label: 'Degree', defaultOn: false, minW: 100 },
+  { id: 'skills', label: 'Skills', defaultOn: false, minW: 160 },
+  { id: 'gender', label: 'Gender', defaultOn: false, minW: 80 },
+  { id: 'updatedAt', label: 'Updated', defaultOn: true, minW: 100 },
+  { id: 'starred', label: 'Starred', defaultOn: false, minW: 70 },
+  { id: 'dnc', label: 'DND', defaultOn: false, minW: 60 },
+];
+
+const COLS_STORAGE_KEY = 'nxthike.candidates.visibleCols';
+const VIEW_STORAGE_KEY = 'nxthike.candidates.viewMode';
+
+function loadVisibleCols(): Record<ColId, boolean> {
+  const base = Object.fromEntries(COLUMN_DEFS.map((c) => [c.id, c.defaultOn])) as Record<ColId, boolean>;
+  try {
+    const raw = localStorage.getItem(COLS_STORAGE_KEY);
+    if (!raw) return base;
+    const parsed = JSON.parse(raw) as Partial<Record<ColId, boolean>>;
+    return { ...base, ...parsed, name: true };
+  } catch {
+    return base;
+  }
+}
+
+function fmtCtc(v?: number | null) {
+  if (v == null || Number.isNaN(Number(v))) return '—';
+  const n = Number(v);
+  if (n >= 100000) return `${(n / 100000).toFixed(n % 100000 === 0 ? 0 : 1)} L`;
+  if (n >= 1000) return `${(n / 1000).toFixed(0)}k`;
+  return String(n);
+}
+
+const compactCtrl: React.CSSProperties = {
+  height: 32,
+  fontSize: 12,
+  width: '100%',
+  minWidth: 0,
+  padding: '0 8px',
+  borderRadius: 8,
+};
+
 /* ------------------------------------------------------------------ *
  *  Candidates                                                        *
  * ------------------------------------------------------------------ */
 
 export function CandidatesScreen() {
-  const { candidateId, go, caps, session, openModal, selection, toggleSelect, clearSelection } = useDesk();
+  const { candidateId, go, caps, openModal, selection, toggleSelect, clearSelection } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
   const isFullAdmin = c.admin === true;
@@ -44,10 +106,16 @@ export function CandidatesScreen() {
   const [debouncedQ, setDebouncedQ] = useState('');
   const [status, setStatus] = useState('all');
   const [roleId, setRoleId] = useState('all');
-  const [experience, setExperience] = useState('all'); // all | yes | no
+  const [experience, setExperience] = useState('all');
+  const [city, setCity] = useState('');
+  const [debouncedCity, setDebouncedCity] = useState('');
+  const [source, setSource] = useState('');
+  const [debouncedSource, setDebouncedSource] = useState('');
+  const [gender, setGender] = useState('all');
   const [starredOnly, setStarredOnly] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
   const [hasPhone, setHasPhone] = useState(false);
+  const [hasEmail, setHasEmail] = useState(false);
   const [hasResume, setHasResume] = useState(false);
   const [dncOnly, setDncOnly] = useState(false);
   const [noConsent, setNoConsent] = useState(false);
@@ -55,381 +123,532 @@ export function CandidatesScreen() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [showColsMenu, setShowColsMenu] = useState(false);
   const [showList, setShowList] = useState(!candidateId);
-  // Admins with full DB access start unmasked; restricted roles stay masked.
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      const v = localStorage.getItem(VIEW_STORAGE_KEY);
+      return v === 'table' || v === 'split' ? v : 'table';
+    } catch {
+      return 'table';
+    }
+  });
+  const [visibleCols, setVisibleCols] = useState<Record<ColId, boolean>>(loadVisibleCols);
   const [unmask, setUnmask] = useState(() => c.db === 'all' || c.admin === true);
   const [editOpen, setEditOpen] = useState(false);
+  const [tableDetailOpen, setTableDetailOpen] = useState(!!candidateId);
 
-  // Debounce search so we don't hit the API on every keystroke (23k rows).
   React.useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQ(query.trim()), 320);
     return () => window.clearTimeout(t);
   }, [query]);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedCity(city.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [city]);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedSource(source.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [source]);
 
-  React.useEffect(() => { setPage(1); }, [debouncedQ, status, roleId, experience, starredOnly, hasNotes, sortKey, sortDir]);
+  const filterDeps = [
+    debouncedQ, status, roleId, experience, debouncedCity, debouncedSource, gender,
+    starredOnly, hasNotes, hasPhone, hasEmail, hasResume, dncOnly, noConsent, sortKey, sortDir,
+  ];
+  React.useEffect(() => { setPage(1); }, filterDeps); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
+    try { localStorage.setItem(VIEW_STORAGE_KEY, viewMode); } catch { /* ignore */ }
+  }, [viewMode]);
+  React.useEffect(() => {
+    try { localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(visibleCols)); } catch { /* ignore */ }
+  }, [visibleCols]);
 
   const rolesLoad = useLoad(() => deskApi.hiringDashboard().then((d) => d.roles || []), []);
 
+  const pageSize = viewMode === 'table' ? 100 : 60;
   const list = useLoad(
     () => deskApi.candidates({
       search: debouncedQ || undefined,
       status: status !== 'all' ? status : undefined,
       roleId: roleId !== 'all' ? roleId : undefined,
       experience: experience !== 'all' ? experience : undefined,
+      city: debouncedCity || undefined,
+      source: debouncedSource || undefined,
+      gender: gender !== 'all' ? gender : undefined,
       starredOnly: starredOnly || undefined,
       hasNotes: hasNotes || undefined,
+      hasPhone: hasPhone || undefined,
+      hasEmail: hasEmail || undefined,
+      hasResume: hasResume || undefined,
+      dncOnly: dncOnly || undefined,
+      noConsent: noConsent || undefined,
       sortKey,
       sortDir,
       page,
-      pageSize: 60,
+      pageSize,
     }),
-    [debouncedQ, status, roleId, experience, starredOnly, hasNotes, sortKey, sortDir, page],
+    [...filterDeps, page, pageSize],
   );
 
-  let rows = list.data?.items || [];
-  // Client-side filters for fields not (yet) on the list API
-  if (dncOnly) rows = rows.filter((r) => r.dnc);
-  if (hasPhone) rows = rows.filter((r) => !!(r.phone && String(r.phone).replace(/\D/g, '').length >= 8));
-  if (hasResume) rows = rows.filter((r) => !!(r.resumeLink || r.downloadLink));
-  if (noConsent) rows = rows.filter((r) => !r.consentAt);
-
-  const selectedId = candidateId || rows[0]?.id || null;
+  const rows = list.data?.items || [];
+  const selectedId = candidateId || (viewMode === 'split' ? rows[0]?.id : null) || null;
   const detail = useLoad(async () => (selectedId ? deskApi.candidate(selectedId) : null), [selectedId]);
 
-  /*
-   * `piiMasked` comes from the API, which masks on the way out for these roles
-   * — the real number never reaches this browser, so the toggle below cannot
-   * reveal it and says so instead of pretending.
-   */
   const lockedByRole = detail.data?.piiMasked
     ?? (c.db === 'limitedPII' || c.db === 'ownReqs' || c.db === 'ownInterviews');
   const masked = lockedByRole || !unmask;
   const selectedCount = Object.keys(selection).length;
   const totalPages = list.data?.totalPages || 1;
+  const activeCols = COLUMN_DEFS.filter((col) => visibleCols[col.id]);
+
   const activeFilterCount = [
     status !== 'all', roleId !== 'all', experience !== 'all', starredOnly, hasNotes,
-    hasPhone, hasResume, dncOnly, noConsent, !!debouncedQ,
+    hasPhone, hasEmail, hasResume, dncOnly, noConsent, !!debouncedQ, !!debouncedCity,
+    !!debouncedSource, gender !== 'all',
   ].filter(Boolean).length;
 
   const clearFilters = () => {
     setQuery(''); setDebouncedQ(''); setStatus('all'); setRoleId('all');
-    setExperience('all'); setStarredOnly(false); setHasNotes(false);
-    setHasPhone(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
+    setExperience('all'); setCity(''); setDebouncedCity(''); setSource(''); setDebouncedSource('');
+    setGender('all'); setStarredOnly(false); setHasNotes(false);
+    setHasPhone(false); setHasEmail(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
     setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
   };
 
   const toggleOpts = [
     [starredOnly, setStarredOnly, 'Starred', 'star'] as const,
-    [hasNotes, setHasNotes, 'Has notes', 'note'] as const,
-    [hasPhone, setHasPhone, 'Has phone', 'call'] as const,
-    [hasResume, setHasResume, 'Has resume', 'description'] as const,
-    [dncOnly, setDncOnly, 'DND flagged', 'block'] as const,
+    [hasNotes, setHasNotes, 'Notes', 'note'] as const,
+    [hasPhone, setHasPhone, 'Phone', 'call'] as const,
+    [hasEmail, setHasEmail, 'Email', 'mail'] as const,
+    [hasResume, setHasResume, 'Resume', 'description'] as const,
+    [dncOnly, setDncOnly, 'DND', 'block'] as const,
     [noConsent, setNoConsent, 'No consent', 'gpp_maybe'] as const,
   ];
 
-  const fieldLabel: React.CSSProperties = {
-    display: 'block',
-    fontSize: 11,
-    fontWeight: 700,
-    color: T.inkMuted,
-    marginBottom: 6,
-    letterSpacing: '0.04em',
-    textTransform: 'uppercase',
+  const toggleCol = (id: ColId) => {
+    if (id === 'name') return;
+    setVisibleCols((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const selectAllOnPage = () => {
+    rows.forEach((r) => {
+      if (!selection[r.id]) toggleSelect(r.id);
+    });
+  };
+
+  const deselectAllOnPage = () => {
+    rows.forEach((r) => {
+      if (selection[r.id]) toggleSelect(r.id);
+    });
+  };
+
+  const allOnPageSelected = rows.length > 0 && rows.every((r) => selection[r.id]);
+
+  const openRow = (id: string) => {
+    go('cands', { candidateId: id });
+    if (viewMode === 'table') {
+      setTableDetailOpen(true);
+    } else {
+      setShowList(false);
+    }
+  };
+
+  const cellValue = (r: DeskCandidate, col: ColId): React.ReactNode => {
+    const st = stage(r.status);
+    switch (col) {
+      case 'name':
+        return (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 650 }}>
+            {r.name || 'Unnamed'}
+            {r.dnc ? <Icon name="block" size={13} color={T.maroon} /> : null}
+            {r.starred ? <Icon name="star" size={13} color="#E6A817" /> : null}
+          </span>
+        );
+      case 'status':
+        return <Badge label={st.label} bg={st.tint} fg={st.color} />;
+      case 'role':
+        return r.roleName || '—';
+      case 'phone':
+        return masked ? maskPhone(r.phone) : (r.phone || '—');
+      case 'email':
+        return masked ? maskEmail(r.email) : (r.email || '—');
+      case 'city':
+        return r.city || '—';
+      case 'latestRole':
+        return r.latestRole || '—';
+      case 'company':
+        return r.latestCompany || '—';
+      case 'experience':
+        return r.experienceDuration || (r.hasWorkExperience === 'yes' ? 'Exp' : r.hasWorkExperience === 'no' ? 'Fresher' : '—');
+      case 'source':
+        return r.source || '—';
+      case 'currentCtc':
+        return fmtCtc(r.currentCtc);
+      case 'expectedCtc':
+        return fmtCtc(r.expectedCtc);
+      case 'notice':
+        return r.noticeDays != null ? `${r.noticeDays}d` : '—';
+      case 'institute':
+        return r.institute || '—';
+      case 'degree':
+        return r.degree || '—';
+      case 'skills': {
+        const s = (r.relevantSkills || r.otherSkills || '').slice(0, 80);
+        return s || '—';
+      }
+      case 'gender':
+        return r.gender || '—';
+      case 'updatedAt':
+        return shortDate(r.updatedAt);
+      case 'starred':
+        return r.starred ? '★' : '—';
+      case 'dnc':
+        return r.dnc ? 'Yes' : '—';
+      default:
+        return '—';
+    }
+  };
+
+  /* ---- Compact filter bar ---------------------------------------- */
   const filterBar = (
     <div
-      className="card people-filter-bar"
-      style={{
-        flexShrink: 0,
-        padding: isMobile ? 12 : '16px 18px',
-        marginBottom: 14,
-      }}
+      className="card"
+      style={{ flexShrink: 0, padding: isMobile ? '8px 10px' : '10px 12px', marginBottom: 10 }}
     >
-      {/* Primary toolbar — full workspace width */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile
-            ? '1fr'
-            : 'minmax(0, 1.6fr) minmax(220px, 280px) minmax(160px, 200px) auto',
-          gap: 12,
-          alignItems: 'end',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+          alignItems: 'center',
         }}
       >
-        <label style={{ display: 'block', minWidth: 0 }}>
-          <span style={fieldLabel}>Search</span>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              background: T.fill,
-              borderRadius: 10,
-              padding: '0 12px',
-              height: 40,
-              border: `1px solid ${T.border}`,
-              minWidth: 0,
-            }}
-          >
-            <Icon name="search" size={19} color={T.inkMuted} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Name, phone, email, city, skills…"
-              style={{
-                flex: 1, border: 'none', outline: 'none', background: 'transparent',
-                fontSize: 13, minWidth: 0,
-              }}
-            />
-            {query ? (
-              <button type="button" onClick={() => setQuery('')} title="Clear search" style={{ padding: 2 }}>
-                <Icon name="close" size={16} color={T.inkFaint} />
-              </button>
-            ) : null}
-          </div>
-        </label>
-
-        <label style={{ display: 'block', minWidth: 0 }}>
-          <span style={fieldLabel}>Hiring role</span>
-          <Select
-            value={roleId}
-            onChange={(e) => setRoleId(e.target.value)}
-            style={{ height: 40, fontSize: 13, width: '100%', minWidth: 0 }}
-          >
-            <option value="all">All roles</option>
-            {(rolesLoad.data || []).map((r) => (
-              <option key={r.id} value={r.id}>{r.name} ({r.count})</option>
-            ))}
-          </Select>
-        </label>
-
-        <label style={{ display: 'block', minWidth: 0 }}>
-          <span style={fieldLabel}>Experience</span>
-          <Select
-            value={experience}
-            onChange={(e) => setExperience(e.target.value)}
-            style={{ height: 40, fontSize: 13, width: '100%' }}
-          >
-            <option value="all">Any</option>
-            <option value="yes">Has experience</option>
-            <option value="no">Fresher</option>
-          </Select>
-        </label>
-
         <div
           style={{
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: 8,
             alignItems: 'center',
-            justifyContent: isMobile ? 'flex-start' : 'flex-end',
-            paddingBottom: 0,
+            gap: 6,
+            flex: '1 1 200px',
+            minWidth: isMobile ? '100%' : 180,
+            maxWidth: isMobile ? '100%' : 320,
+            background: T.fill,
+            borderRadius: 8,
+            padding: '0 8px',
+            height: 32,
+            border: `1px solid ${T.border}`,
           }}
         >
-          <Button
-            variant={showMoreFilters || activeFilterCount > 0 ? 'soft' : 'ghost'}
-            icon="tune"
-            onClick={() => setShowMoreFilters((v) => !v)}
-          >
-            {showMoreFilters ? 'Less' : 'More'}
-            {activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
+          <Icon name="search" size={16} color={T.inkMuted} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search name, phone, email…"
+            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: 12, minWidth: 0 }}
+          />
+          {query ? (
+            <button type="button" onClick={() => setQuery('')} style={{ padding: 1 }}>
+              <Icon name="close" size={14} color={T.inkFaint} />
+            </button>
+          ) : null}
+        </div>
+
+        <Select value={roleId} onChange={(e) => setRoleId(e.target.value)} style={{ ...compactCtrl, flex: '0 1 180px', maxWidth: 220 }}>
+          <option value="all">All roles</option>
+          {(rolesLoad.data || []).map((r) => (
+            <option key={r.id} value={r.id}>{r.name} ({r.count})</option>
+          ))}
+        </Select>
+
+        <Select value={status} onChange={(e) => setStatus(e.target.value)} style={{ ...compactCtrl, flex: '0 1 120px', maxWidth: 140 }}>
+          {STATUS_CHIPS.map((x) => (
+            <option key={x.key} value={x.key}>{x.key === 'all' ? 'All stages' : x.label}</option>
+          ))}
+        </Select>
+
+        <Select value={experience} onChange={(e) => setExperience(e.target.value)} style={{ ...compactCtrl, flex: '0 1 110px', maxWidth: 130 }}>
+          <option value="all">Any exp</option>
+          <option value="yes">Has exp</option>
+          <option value="no">Fresher</option>
+        </Select>
+
+        <Button
+          variant={showMoreFilters || activeFilterCount > 0 ? 'soft' : 'ghost'}
+          icon="tune"
+          onClick={() => setShowMoreFilters((v) => !v)}
+          style={{ height: 32, padding: '0 10px', fontSize: 12 }}
+        >
+          Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
+        </Button>
+        {activeFilterCount > 0 && (
+          <Button variant="ghost" icon="filter_alt_off" onClick={clearFilters} style={{ height: 32, padding: '0 8px', fontSize: 12 }}>
+            Clear
           </Button>
-          {activeFilterCount > 0 && (
-            <Button variant="ghost" icon="filter_alt_off" onClick={clearFilters}>
-              Clear
-            </Button>
-          )}
+        )}
+
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          {/* View toggle */}
           <div
             style={{
               display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              marginLeft: isMobile ? 0 : 4,
-              padding: '0 4px',
-              height: 36,
-              fontSize: 12,
-              color: T.inkFaint,
-              whiteSpace: 'nowrap',
+              border: `1px solid ${T.border}`,
+              borderRadius: 8,
+              overflow: 'hidden',
+              height: 32,
             }}
           >
-            <span style={{ fontWeight: 600, color: T.inkMuted }}>
-              {list.data
-                ? `${num(list.data.total)} match${list.data.total === 1 ? '' : 'es'}`
-                : '…'}
-            </span>
-            {totalPages > 1 && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 0, marginLeft: 4 }}>
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  style={{ opacity: page <= 1 ? 0.35 : 1, padding: 2, borderRadius: 8 }}
-                  title="Previous page"
-                >
-                  <Icon name="chevron_left" size={20} color={T.inkMuted} />
-                </button>
-                <span className="mono" style={{ minWidth: 40, textAlign: 'center', fontSize: 11 }}>
-                  {page}/{totalPages}
-                </span>
-                <button
-                  type="button"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => p + 1)}
-                  style={{ opacity: page >= totalPages ? 0.35 : 1, padding: 2, borderRadius: 8 }}
-                  title="Next page"
-                >
-                  <Icon name="chevron_right" size={20} color={T.inkMuted} />
-                </button>
-              </span>
-            )}
+            {([
+              ['table', 'table_rows', 'Table'],
+              ['split', 'view_sidebar', 'Split'],
+            ] as const).map(([mode, icon, label]) => (
+              <button
+                key={mode}
+                type="button"
+                title={label}
+                onClick={() => setViewMode(mode)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '0 10px',
+                  height: 30,
+                  fontSize: 11.5,
+                  fontWeight: 650,
+                  background: viewMode === mode ? T.indigoTint : 'transparent',
+                  color: viewMode === mode ? T.indigoInk : T.inkMuted,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name={icon} size={15} color={viewMode === mode ? T.indigo : T.inkFaint} />
+                {!isMobile && label}
+              </button>
+            ))}
           </div>
+
+          {viewMode === 'table' && (
+            <div style={{ position: 'relative' }}>
+              <Button
+                variant="ghost"
+                icon="view_column"
+                onClick={() => setShowColsMenu((v) => !v)}
+                style={{ height: 32, padding: '0 10px', fontSize: 12 }}
+              >
+                Columns
+              </Button>
+              {showColsMenu && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                    onClick={() => setShowColsMenu(false)}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: 36,
+                      zIndex: 50,
+                      width: 220,
+                      maxHeight: 360,
+                      overflowY: 'auto',
+                      background: T.surface,
+                      border: `1px solid ${T.border}`,
+                      borderRadius: 10,
+                      boxShadow: '0 8px 28px rgba(20,18,40,.14)',
+                      padding: 8,
+                    }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 700, color: T.inkFaint, padding: '4px 8px 8px' }}>
+                      SHOW COLUMNS
+                    </div>
+                    {COLUMN_DEFS.map((col) => (
+                      <label
+                        key={col.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '6px 8px',
+                          borderRadius: 6,
+                          cursor: col.id === 'name' ? 'default' : 'pointer',
+                          fontSize: 12.5,
+                          opacity: col.id === 'name' ? 0.6 : 1,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={!!visibleCols[col.id]}
+                          disabled={col.id === 'name'}
+                          onChange={() => toggleCol(col.id)}
+                        />
+                        {col.label}
+                      </label>
+                    ))}
+                    <div style={{ borderTop: `1px solid ${T.divider}`, marginTop: 6, paddingTop: 6, display: 'flex', gap: 6 }}>
+                      <button
+                        type="button"
+                        style={{ flex: 1, fontSize: 11, fontWeight: 650, color: T.indigo, padding: 6 }}
+                        onClick={() => setVisibleCols(Object.fromEntries(COLUMN_DEFS.map((x) => [x.id, true])) as Record<ColId, boolean>)}
+                      >
+                        All
+                      </button>
+                      <button
+                        type="button"
+                        style={{ flex: 1, fontSize: 11, fontWeight: 650, color: T.inkMuted, padding: 6 }}
+                        onClick={() => setVisibleCols(Object.fromEntries(COLUMN_DEFS.map((x) => [x.id, x.defaultOn])) as Record<ColId, boolean>)}
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <span style={{ fontSize: 11.5, fontWeight: 600, color: T.inkMuted, whiteSpace: 'nowrap' }}>
+            {list.data ? `${num(list.data.total)}` : '…'}
+          </span>
+          {totalPages > 1 && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 0 }}>
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                style={{ opacity: page <= 1 ? 0.35 : 1, padding: 2 }}
+              >
+                <Icon name="chevron_left" size={18} color={T.inkMuted} />
+              </button>
+              <span className="mono" style={{ fontSize: 11, minWidth: 36, textAlign: 'center' }}>{page}/{totalPages}</span>
+              <button
+                type="button"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                style={{ opacity: page >= totalPages ? 0.35 : 1, padding: 2 }}
+              >
+                <Icon name="chevron_right" size={18} color={T.inkMuted} />
+              </button>
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Pipeline stages — full-width chip row */}
-      <div style={{ marginTop: 14 }}>
-        <span style={{ ...fieldLabel, marginBottom: 8 }}>Stage</span>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 8,
-          }}
-        >
-          {STATUS_CHIPS.map((x) => (
-            <Chip key={x.key} label={x.label} on={status === x.key} onClick={() => setStatus(x.key)} />
-          ))}
-        </div>
+      {/* Stage chips — compact, single row scroll */}
+      <div
+        style={{
+          marginTop: 8,
+          display: 'flex',
+          gap: 5,
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: 1,
+        }}
+      >
+        {STATUS_CHIPS.map((x) => (
+          <button
+            key={x.key}
+            type="button"
+            onClick={() => setStatus(x.key)}
+            style={{
+              height: 26,
+              padding: '0 10px',
+              borderRadius: 7,
+              fontSize: 11.5,
+              fontWeight: 650,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              border: `1px solid ${status === x.key ? T.indigo : T.border}`,
+              background: status === x.key ? T.indigoTint : T.surface,
+              color: status === x.key ? T.indigoInk : T.inkBody,
+              cursor: 'pointer',
+            }}
+          >
+            {x.label}
+          </button>
+        ))}
       </div>
 
-      {/* Expanded filters — equal columns across the workspace */}
       {showMoreFilters && (
-        <div
-          style={{
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: `1px solid ${T.divider}`,
-          }}
-        >
+        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${T.divider}` }}>
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: isMobile
-                ? '1fr'
-                : 'repeat(2, minmax(0, 1fr))',
-              gap: 14,
-              maxWidth: 560,
+                ? '1fr 1fr'
+                : 'repeat(auto-fill, minmax(140px, 1fr))',
+              gap: 8,
             }}
           >
-            <label style={{ display: 'block', minWidth: 0 }}>
-              <span style={fieldLabel}>Sort by</span>
-              <Select
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value)}
-                style={{ height: 40, fontSize: 13, width: '100%' }}
-              >
-                <option value="updatedAt">Recently updated</option>
-                <option value="createdAt">Recently added</option>
-                <option value="name">Name A–Z</option>
-                <option value="status">Stage</option>
-                <option value="city">City</option>
-              </Select>
-            </label>
-
-            <label style={{ display: 'block', minWidth: 0 }}>
-              <span style={fieldLabel}>Order</span>
-              <Select
-                value={sortDir}
-                onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
-                style={{ height: 40, fontSize: 13, width: '100%' }}
-              >
-                <option value="desc">Descending</option>
-                <option value="asc">Ascending</option>
-              </Select>
-            </label>
-          </div>
-
-          <div style={{ marginTop: 16 }}>
-            <span style={{ ...fieldLabel, marginBottom: 10 }}>Quick filters</span>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile
-                  ? 'repeat(2, minmax(0, 1fr))'
-                  : 'repeat(auto-fill, minmax(168px, 1fr))',
-                gap: 10,
-              }}
-            >
-              {toggleOpts.map(([on, set, label, icon]) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => set(!on)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    width: '100%',
-                    minHeight: 44,
-                    padding: '10px 14px',
-                    borderRadius: 10,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    background: on ? T.indigoTint : T.fill,
-                    color: on ? T.indigoInk : T.inkBody,
-                    border: `1.5px solid ${on ? T.indigo : T.border}`,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'background .12s, border-color .12s',
-                  }}
-                >
-                  <Icon
-                    name={on ? 'check_circle' : icon}
-                    size={18}
-                    color={on ? T.indigo : T.inkFaint}
-                  />
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Active filter pills when advanced panel is collapsed */}
-      {!showMoreFilters && activeFilterCount > 0 && (
-        <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-          <span style={{ fontSize: 11, color: T.inkFaint, fontWeight: 600 }}>Active:</span>
-          {status !== 'all' && (
-            <Chip label={`Stage: ${STATUS_CHIPS.find((x) => x.key === status)?.label || status}`} on onClick={() => setStatus('all')} />
-          )}
-          {roleId !== 'all' && (
-            <Chip
-              label={`Role: ${rolesLoad.data?.find((r) => r.id === roleId)?.name || roleId}`}
-              on
-              onClick={() => setRoleId('all')}
+            <input
+              className="field"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="City contains…"
+              style={compactCtrl}
             />
-          )}
-          {experience !== 'all' && (
-            <Chip label={experience === 'yes' ? 'With experience' : 'Fresher'} on onClick={() => setExperience('all')} />
-          )}
-          {toggleOpts.filter(([on]) => on).map(([, set, label]) => (
-            <Chip key={label} label={label} on onClick={() => set(false)} />
-          ))}
-          {debouncedQ && (
-            <Chip label={`“${debouncedQ}”`} on onClick={() => { setQuery(''); setDebouncedQ(''); }} />
-          )}
+            <input
+              className="field"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              placeholder="Source contains…"
+              style={compactCtrl}
+            />
+            <Select value={gender} onChange={(e) => setGender(e.target.value)} style={compactCtrl}>
+              <option value="all">Any gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </Select>
+            <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} style={compactCtrl}>
+              <option value="updatedAt">Sort: Updated</option>
+              <option value="createdAt">Sort: Added</option>
+              <option value="name">Sort: Name</option>
+              <option value="status">Sort: Stage</option>
+              <option value="city">Sort: City</option>
+              <option value="latestRole">Sort: Latest role</option>
+            </Select>
+            <Select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} style={compactCtrl}>
+              <option value="desc">Desc</option>
+              <option value="asc">Asc</option>
+            </Select>
+          </div>
+          <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            {toggleOpts.map(([on, set, label, icon]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => set(!on)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  height: 28,
+                  padding: '0 10px',
+                  borderRadius: 7,
+                  fontSize: 11.5,
+                  fontWeight: 650,
+                  background: on ? T.indigoTint : T.fill,
+                  color: on ? T.indigoInk : T.inkBody,
+                  border: `1px solid ${on ? T.indigo : T.border}`,
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name={on ? 'check' : icon} size={14} color={on ? T.indigo : T.inkFaint} />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
 
+  /* ---- List (split) pane ----------------------------------------- */
   const listPane = (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', height: '100%' }}>
       <div
         style={{
-          padding: '10px 14px',
+          padding: '8px 12px',
           borderBottom: `1px solid ${T.divider}`,
           flexShrink: 0,
           display: 'flex',
@@ -438,16 +657,16 @@ export function CandidatesScreen() {
           gap: 8,
         }}
       >
-        <span style={{ fontSize: 12.5, fontWeight: 700, color: T.inkBody }}>Results</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: T.inkBody }}>Results</span>
         <span style={{ fontSize: 11, color: T.inkFaint }}>
           {list.data ? `${num(rows.length)} of ${num(list.data.total)}` : '…'}
         </span>
       </div>
 
       {selectedCount > 0 && (
-        <div style={{ padding: '10px 14px', background: T.indigoTint, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ padding: '8px 12px', background: T.indigoTint, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: T.indigoInk }}>{selectedCount} selected</span>
-          <Button variant="soft" onClick={() => openModal('filters')}>Tag / hand off</Button>
+          <Button variant="soft" onClick={() => openModal('filters')} style={{ height: 28, fontSize: 11.5 }}>Tag / hand off</Button>
           <button type="button" onClick={clearSelection} style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk }}>Clear</button>
         </div>
       )}
@@ -459,7 +678,7 @@ export function CandidatesScreen() {
           <EmptyState
             icon="person_search"
             title="No candidates match"
-            body="Widen or clear filters, or add this person to the database."
+            body="Widen or clear filters, or add this person."
             actionLabel={c.create ? 'Add candidate' : undefined}
             onAction={() => go('addcand')}
           />
@@ -470,9 +689,9 @@ export function CandidatesScreen() {
           return (
             <div
               key={r.id}
-              onClick={() => { go('cands', { candidateId: r.id }); setShowList(false); }}
+              onClick={() => openRow(r.id)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 11, padding: '11px 14px',
+                display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px',
                 borderBottom: `1px solid ${T.dividerFaint}`, cursor: 'pointer',
                 background: on ? T.indigoTint : 'transparent',
               }}
@@ -506,9 +725,120 @@ export function CandidatesScreen() {
     </div>
   );
 
+  /* ---- Table pane ------------------------------------------------ */
+  const tablePane = (
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', height: '100%', flex: 1 }}>
+      {selectedCount > 0 && (
+        <div style={{ padding: '8px 12px', background: T.indigoTint, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: T.indigoInk }}>{selectedCount} selected</span>
+          <Button variant="soft" onClick={() => openModal('filters')} style={{ height: 28, fontSize: 11.5 }}>Tag / hand off</Button>
+          <button type="button" onClick={clearSelection} style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk }}>Clear</button>
+        </div>
+      )}
+      <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+        {list.loading && <div style={{ padding: 12 }}><SkeletonRows rows={10} /></div>}
+        {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
+        {list.data && !rows.length && (
+          <EmptyState icon="person_search" title="No candidates match" body="Widen or clear filters." />
+        )}
+        {!!rows.length && (
+          <table className="tbl" style={{ width: '100%', minWidth: activeCols.length * 110, borderCollapse: 'separate', borderSpacing: 0 }}>
+            <thead>
+              <tr>
+                {c.create && (
+                  <th
+                    style={{
+                      position: 'sticky', top: 0, zIndex: 2, background: T.surface,
+                      width: 40, padding: '8px 10px', textAlign: 'left',
+                      borderBottom: `1px solid ${T.divider}`, fontSize: 11, fontWeight: 700, color: T.inkMuted,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => (allOnPageSelected ? deselectAllOnPage() : selectAllOnPage())}
+                      aria-label="Select page"
+                    >
+                      <Icon
+                        name={allOnPageSelected ? 'check_box' : 'check_box_outline_blank'}
+                        size={18}
+                        color={allOnPageSelected ? T.indigo : T.borderInput}
+                      />
+                    </button>
+                  </th>
+                )}
+                {activeCols.map((col) => (
+                  <th
+                    key={col.id}
+                    style={{
+                      position: 'sticky', top: 0, zIndex: 2, background: T.surface,
+                      padding: '8px 10px', textAlign: 'left', whiteSpace: 'nowrap',
+                      borderBottom: `1px solid ${T.divider}`, fontSize: 11, fontWeight: 700,
+                      color: T.inkMuted, minWidth: col.minW,
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    {col.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const on = r.id === selectedId && tableDetailOpen;
+                return (
+                  <tr
+                    key={r.id}
+                    onClick={() => openRow(r.id)}
+                    style={{
+                      cursor: 'pointer',
+                      background: on ? T.indigoTint : selection[r.id] ? `${T.indigo}08` : 'transparent',
+                    }}
+                  >
+                    {c.create && (
+                      <td
+                        style={{ padding: '7px 10px', borderBottom: `1px solid ${T.dividerFaint}`, verticalAlign: 'middle' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button type="button" onClick={() => toggleSelect(r.id)} aria-label="Select">
+                          <Icon
+                            name={selection[r.id] ? 'check_box' : 'check_box_outline_blank'}
+                            size={18}
+                            color={selection[r.id] ? T.indigo : T.borderInput}
+                          />
+                        </button>
+                      </td>
+                    )}
+                    {activeCols.map((col) => (
+                      <td
+                        key={col.id}
+                        style={{
+                          padding: '7px 10px',
+                          borderBottom: `1px solid ${T.dividerFaint}`,
+                          fontSize: 12.5,
+                          color: T.inkBody,
+                          maxWidth: col.id === 'skills' || col.id === 'email' ? 220 : 200,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          verticalAlign: 'middle',
+                        }}
+                      >
+                        {cellValue(r, col.id)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+
   const cand = detail.data;
   const detailPane = !cand ? (
-    <Card><EmptyState icon="groups" title="No candidate selected" body="Pick someone from the list." /></Card>
+    <Card><EmptyState icon="groups" title="No candidate selected" body="Pick someone from the list or table." /></Card>
   ) : (
     <>
       <CandidateProfile
@@ -520,7 +850,14 @@ export function CandidatesScreen() {
         onToggleMask={() => setUnmask((u) => !u)}
         onEdit={() => setEditOpen(true)}
         onReload={() => { detail.reload(); list.reload(); }}
-        onBack={isMobile ? () => setShowList(true) : undefined}
+        onBack={
+          isMobile || viewMode === 'table'
+            ? () => {
+              if (viewMode === 'table') setTableDetailOpen(false);
+              else setShowList(true);
+            }
+            : undefined
+        }
       />
       {editOpen && canEdit && (
         <EditCandidateModal
@@ -534,21 +871,43 @@ export function CandidatesScreen() {
     </>
   );
 
+  const showFilters = isMobile ? (viewMode === 'table' ? !tableDetailOpen : showList) : true;
+
   return (
     <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, boxSizing: 'border-box' }}>
-      {/* Filters span the full content width — not the narrow list column */}
-      {(isMobile ? showList : true) && filterBar}
+      {showFilters && filterBar}
 
       {isMobile ? (
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{showList ? listPane : detailPane}</div>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          {viewMode === 'table'
+            ? (tableDetailOpen && selectedId ? detailPane : tablePane)
+            : (showList ? listPane : detailPane)}
+        </div>
+      ) : viewMode === 'table' ? (
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: 'grid',
+            gridTemplateColumns: tableDetailOpen && selectedId
+              ? 'minmax(0, 1fr) minmax(340px, 420px)'
+              : '1fr',
+            gap: 12,
+          }}
+        >
+          {tablePane}
+          {tableDetailOpen && selectedId && (
+            <div style={{ overflowY: 'auto', minHeight: 0, minWidth: 0 }}>{detailPane}</div>
+          )}
+        </div>
       ) : (
         <div
           style={{
             flex: 1,
             minHeight: 0,
             display: 'grid',
-            gridTemplateColumns: 'minmax(320px, 380px) minmax(0, 1fr)',
-            gap: 16,
+            gridTemplateColumns: 'minmax(300px, 360px) minmax(0, 1fr)',
+            gap: 14,
           }}
         >
           {listPane}

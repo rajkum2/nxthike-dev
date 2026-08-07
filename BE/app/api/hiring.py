@@ -422,10 +422,17 @@ async def list_candidates(
     role_id: str | None = Query(None, alias="roleId"),
     status: str | None = None,
     city: str | None = None,
+    source: str | None = None,
+    gender: str | None = None,
     experience: str | None = None,
     ai_match: str | None = Query(None, alias="aiMatch"),
     starred_only: bool = Query(False, alias="starredOnly"),
     has_notes: bool = Query(False, alias="hasNotes"),
+    has_phone: bool = Query(False, alias="hasPhone"),
+    has_resume: bool = Query(False, alias="hasResume"),
+    has_email: bool = Query(False, alias="hasEmail"),
+    dnc_only: bool = Query(False, alias="dncOnly"),
+    no_consent: bool = Query(False, alias="noConsent"),
     sort_key: str = Query("name", alias="sortKey"),
     sort_dir: str = Query("asc", alias="sortDir"),
     page: int = Query(1, ge=1),
@@ -441,7 +448,11 @@ async def list_candidates(
     if status and status != "all":
         filters.append(Candidate.status == status)
     if city:
-        filters.append(func.lower(Candidate.city) == city.lower())
+        filters.append(Candidate.city.ilike(f"%{city.strip()}%"))
+    if source:
+        filters.append(Candidate.source.ilike(f"%{source.strip()}%"))
+    if gender and gender != "all":
+        filters.append(func.lower(Candidate.gender) == gender.lower())
     if experience == "yes":
         filters.append(func.lower(Candidate.has_work_experience) == "yes")
     elif experience == "no":
@@ -457,6 +468,21 @@ async def list_candidates(
         filters.append(Candidate.starred.is_(True))
     if has_notes:
         filters.append(and_(Candidate.notes.is_not(None), Candidate.notes != ""))
+    if has_phone:
+        filters.append(and_(Candidate.phone.is_not(None), Candidate.phone != ""))
+    if has_email:
+        filters.append(and_(Candidate.email.is_not(None), Candidate.email != ""))
+    if has_resume:
+        filters.append(
+            or_(
+                and_(Candidate.resume_link.is_not(None), Candidate.resume_link != ""),
+                and_(Candidate.download_link.is_not(None), Candidate.download_link != ""),
+            )
+        )
+    if dnc_only:
+        filters.append(Candidate.dnc.is_(True))
+    if no_consent:
+        filters.append(Candidate.consent_at.is_(None))
     if search:
         term = f"%{search.strip()}%"
         filters.append(
@@ -471,6 +497,7 @@ async def list_candidates(
                 Candidate.other_skills.ilike(term),
                 Candidate.notes.ilike(term),
                 Candidate.latest_role.ilike(term),
+                Candidate.source.ilike(term),
             )
         )
 
