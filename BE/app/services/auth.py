@@ -15,21 +15,63 @@ security = HTTPBearer(auto_error=False)
 
 
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    except (ValueError, TypeError):
+        return False
+
+
+def validate_password_strength(password: str) -> str | None:
+    """Return an error message if the password is too weak, else None."""
+    if not password or len(password) < 8:
+        return "Password must be at least 8 characters"
+    if len(password) > 128:
+        return "Password must be at most 128 characters"
+    if password.lower() in ("password", "password1", "admin123", "12345678", "qwerty123"):
+        return "Password is too common"
+    # Require some complexity without being hostile to users
+    classes = sum(
+        [
+            any(c.islower() for c in password),
+            any(c.isupper() for c in password),
+            any(c.isdigit() for c in password),
+            any(not c.isalnum() for c in password),
+        ]
+    )
+    if classes < 2:
+        return "Password needs at least two of: lowercase, uppercase, digit, symbol"
+    return None
 
 
 def create_access_token(user_id: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return jwt.encode({"sub": user_id, "exp": expire}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(
+        {
+            "sub": user_id,
+            "exp": expire,
+            "iat": datetime.now(timezone.utc),
+            "iss": "nxthike",
+            "typ": "access",
+        },
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
 
 
 def decode_token(token: str) -> str | None:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            options={"require": ["exp", "sub"]},
+        )
+        if payload.get("typ") not in (None, "access"):
+            return None
         return payload.get("sub")
     except JWTError:
         return None

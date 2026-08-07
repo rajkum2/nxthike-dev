@@ -122,7 +122,8 @@ async def call_queue(
     search: str | None = None,
     has_phone: bool = Query(True, alias="hasPhone"),
     page: int = Query(1, ge=1),
-    page_size: int = Query(50, ge=1, le=200, alias="pageSize"),
+    page_size: int = Query(50, ge=1, le=100, alias="pageSize"),
+    me: WorkspaceIdentity = Depends(require_cap("dial", "Your role cannot access the dialer queue.")),
     db: AsyncSession = Depends(get_db),
 ):
     """Candidates ready to call (have phone). Sorted by least-recently called."""
@@ -175,23 +176,29 @@ async def call_queue(
             if log.candidate_id not in last_map:
                 last_map[log.candidate_id] = log
 
-    items = [
-        CallQueueItem(
-            candidateId=c.id,
-            name=c.name,
-            phone=c.phone,
-            email=c.email,
-            city=c.city,
-            roleId=c.role_id,
-            roleName=c.role_name or "",
-            status=c.status or "new",
-            notes=(c.notes or "")[:400],
-            lastDisposition=last_map[c.id].disposition if c.id in last_map else None,
-            lastCalledAt=_iso(last_map[c.id].called_at) if c.id in last_map else None,
-            starred=bool(c.starred),
+    items = []
+    for c in candidates:
+        phone, email = c.phone, c.email
+        if me.masks_pii:
+            from app.services.personas import mask_phone, mask_email
+            phone = mask_phone(phone)
+            email = mask_email(email)
+        items.append(
+            CallQueueItem(
+                candidateId=c.id,
+                name=c.name,
+                phone=phone,
+                email=email,
+                city=c.city,
+                roleId=c.role_id,
+                roleName=c.role_name or "",
+                status=c.status or "new",
+                notes=(c.notes or "")[:400] if not me.masks_pii else "",
+                lastDisposition=last_map[c.id].disposition if c.id in last_map else None,
+                lastCalledAt=_iso(last_map[c.id].called_at) if c.id in last_map else None,
+                starred=bool(c.starred),
+            )
         )
-        for c in candidates
-    ]
     pages = max(1, math.ceil(total / page_size)) if total else 1
     return PaginatedCallQueueResponse(
         items=items, total=total, page=page, pageSize=page_size, totalPages=pages
@@ -304,11 +311,15 @@ async def create_call(
 async def update_call(
     call_id: str,
     body: CallLogUpdate,
+    me: WorkspaceIdentity = Depends(require_cap("log", "Your role cannot edit call logs.")),
     db: AsyncSession = Depends(get_db),
 ):
     c = await db.get(CallLog, call_id)
     if not c:
         raise HTTPException(status_code=404, detail="Call log not found")
+    # Non-admins may only edit their own logs
+    if not me.can("admin") and c.user_id and c.user_id != me.user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own call logs.")
     data = body.model_dump(exclude_unset=True)
     if "disposition" in data and data["disposition"] is not None:
         if not validate_disposition(data["disposition"]):
@@ -331,7 +342,11 @@ async def update_call(
 
 
 @router.delete("/{call_id}", status_code=204)
-async def delete_call(call_id: str, db: AsyncSession = Depends(get_db)):
+async def delete_call(
+    call_id: str,
+    me: WorkspaceIdentity = Depends(require_cap("admin", "Only admins can delete call logs.")),
+    db: AsyncSession = Depends(get_db),
+):
     c = await db.get(CallLog, call_id)
     if not c:
         raise HTTPException(status_code=404, detail="Call log not found")

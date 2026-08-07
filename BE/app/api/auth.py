@@ -13,9 +13,11 @@ from app.schemas.auth import (
     ChangePasswordRequest,
     AdminUserRoleUpdate,
 )
+from app.config import settings
 from app.services.auth import (
     hash_password,
     verify_password,
+    validate_password_strength,
     create_access_token,
     get_current_user,
     get_admin_user,
@@ -50,14 +52,20 @@ def user_to_response(user: User) -> UserResponse:
 
 @router.post("/register", response_model=TokenResponse)
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    if not settings.ALLOW_PUBLIC_REGISTER:
+        raise HTTPException(
+            status_code=403,
+            detail="Public registration is disabled. Ask an admin for an invite.",
+        )
     email = (req.email or "").strip().lower()
-    if len(req.password or "") < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    weak = validate_password_strength(req.password or "")
+    if weak:
+        raise HTTPException(status_code=400, detail=weak)
     result = await db.execute(select(User).where(User.email == email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # Never allow self-registration as admin
+    # Never allow self-registration as admin / never grant workspace persona here
     safe_role = req.role if req.role in ("student", "employer") else "student"
 
     user = User(
@@ -138,8 +146,9 @@ async def change_password(
 ):
     if not verify_password(body.currentPassword, user.password_hash):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
-    if len(body.newPassword) < 6:
-        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    weak = validate_password_strength(body.newPassword or "")
+    if weak:
+        raise HTTPException(status_code=400, detail=weak)
     user.password_hash = hash_password(body.newPassword)
     await db.commit()
     return {"ok": True}

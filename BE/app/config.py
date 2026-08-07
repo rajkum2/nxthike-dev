@@ -84,6 +84,12 @@ def _is_pooler(url: str) -> bool:
     return "pgbouncer=true" in url.lower()
 
 
+_WEAK_SECRETS = frozenset({
+    "", "change-me", "secret", "changeme", "password", "admin", "nxthike",
+    "dev", "development", "test", "jwt-secret",
+})
+
+
 class Settings:
     # Prefer SUPABASE_DB_URL, then DATABASE_URL. Local default: SQLite.
     _raw_db = (
@@ -97,12 +103,28 @@ class Settings:
         "sqlite"
     )
 
+    ENVIRONMENT: str = (os.getenv("ENVIRONMENT") or os.getenv("ENV") or "development").lower()
+    IS_PRODUCTION: bool = ENVIRONMENT in ("production", "prod", "staging")
+    # Trust X-Forwarded-For / X-Real-IP only behind a reverse proxy you control.
+    TRUST_PROXY: bool = os.getenv("TRUST_PROXY", "0").lower() in ("1", "true", "yes")
+    # Public student/employer self-signup. Turn off in locked CRM deploys.
+    ALLOW_PUBLIC_REGISTER: bool = os.getenv(
+        "ALLOW_PUBLIC_REGISTER",
+        "false" if (os.getenv("ENVIRONMENT") or "").lower() in ("production", "prod", "staging") else "true",
+    ).lower() in ("1", "true", "yes")
+    # Swagger / OpenAPI — off by default in production.
+    ENABLE_API_DOCS: bool = os.getenv(
+        "ENABLE_API_DOCS",
+        "false" if (os.getenv("ENVIRONMENT") or "").lower() in ("production", "prod", "staging") else "true",
+    ).lower() in ("1", "true", "yes")
+
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "")
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change-me")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    # Shorter sessions reduce blast radius if a token is stolen from localStorage.
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 12)))  # 12h default
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@nxthike.com")
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "admin123")
     CORS_ORIGINS: list[str] = [
@@ -125,9 +147,17 @@ class Settings:
     R2_PUBLIC_URL: str = os.getenv("R2_PUBLIC_URL", "")
     R2_ENDPOINT: str = os.getenv("R2_ENDPOINT", "")
     MAX_UPLOAD_MB: int = int(os.getenv("MAX_UPLOAD_MB", "15"))
+    # Hard caps against bulk abuse
+    MAX_BULK_IDS: int = int(os.getenv("MAX_BULK_IDS", "200"))
+    MAX_BULK_IMPORT: int = int(os.getenv("MAX_BULK_IMPORT", "500"))
 
     # If true, skip alembic on boot (use create_all). Safer when migrations lag schema.
     SKIP_ALEMBIC: bool = os.getenv("SKIP_ALEMBIC", "true").lower() in ("1", "true", "yes")
+
+    @property
+    def secret_is_weak(self) -> bool:
+        sk = (self.SECRET_KEY or "").strip()
+        return sk.lower() in _WEAK_SECRETS or len(sk) < 24
 
 
 settings = Settings()

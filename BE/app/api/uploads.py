@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Query
 from pydantic import BaseModel
 
 from app.config import settings
-from app.services.auth import get_current_user, get_current_user_optional
+from app.services.auth import get_current_user
 from app.models.user import User
 from app.services.storage import get_storage, unique_filename, R2Storage
 
@@ -36,37 +36,31 @@ async def _read_limited(file: UploadFile) -> bytes:
 
 
 @router.get("/status")
-async def storage_status():
-    """Report active storage backend (no secrets)."""
+async def storage_status(user: User = Depends(get_current_user)):
+    """Report active storage backend (authenticated; no secrets or paths)."""
     try:
         storage = get_storage()
-        info = {
+        return {
             "backend": storage.name,
             "maxUploadMb": settings.MAX_UPLOAD_MB,
         }
-        if storage.name == "r2":
-            info["bucket"] = settings.R2_BUCKET_NAME
-            info["publicUrl"] = settings.R2_PUBLIC_URL
-        else:
-            info["uploadDir"] = settings.UPLOAD_DIR
-        return info
-    except Exception as e:
-        return {"backend": "error", "error": str(e)}
+    except Exception:
+        return {"backend": "error"}
 
 
 @router.post("/resume")
 async def upload_resume(
     file: UploadFile = File(...),
-    user: User | None = Depends(get_current_user_optional),
+    user: User = Depends(get_current_user),
 ):
-    """Upload a resume to local disk or Cloudflare R2."""
+    """Upload a resume to local disk or Cloudflare R2. Auth required."""
     ct = file.content_type or ""
     ext = (file.filename or "resume.pdf").rsplit(".", 1)[-1].lower()
     if ct not in ALLOWED_RESUME and ext not in ALLOWED_RESUME_EXT:
         raise HTTPException(status_code=400, detail="Only PDF and DOCX files are allowed")
 
     content = await _read_limited(file)
-    owner = user.id if user else "anon"
+    owner = user.id
     filename = f"{owner}-{uuid.uuid4().hex[:8]}.{ext if ext in ALLOWED_RESUME_EXT else 'pdf'}"
 
     try:
@@ -91,7 +85,7 @@ async def upload_resume(
 @router.post("/image")
 async def upload_image(
     file: UploadFile = File(...),
-    user: User | None = Depends(get_current_user_optional),
+    user: User = Depends(get_current_user),
 ):
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed")

@@ -28,32 +28,55 @@ async def lifespan(app: FastAPI):
         # those, idempotently, without touching existing data.
         await run_migrations(engine)
         print(f"[startup] DB ready (pooler={settings.DB_IS_POOLER}, ssl={settings.DB_NEEDS_SSL})")
-        if settings.SECRET_KEY in ("change-me", "secret", "changeme", ""):
-            print("[startup] WARNING: SECRET_KEY is insecure — set a strong secret in production")
+        if settings.secret_is_weak:
+            msg = "SECRET_KEY is weak/default — set a long random SECRET_KEY"
+            if settings.IS_PRODUCTION:
+                raise RuntimeError(f"[startup] FATAL: {msg} (required in production)")
+            print(f"[startup] WARNING: {msg}")
+        if settings.IS_PRODUCTION and settings.ADMIN_PASSWORD in ("admin123", "admin", "password"):
+            print("[startup] WARNING: ADMIN_PASSWORD is a default value — change it immediately")
+        if not settings.ALLOW_PUBLIC_REGISTER:
+            print("[startup] Public registration is DISABLED (ALLOW_PUBLIC_REGISTER=false)")
+        if not settings.ENABLE_API_DOCS:
+            print("[startup] OpenAPI docs are DISABLED")
     except Exception as e:
         print(f"[startup] WARNING: could not init DB: {type(e).__name__}: {e}")
     yield
 
 
-app = FastAPI(title="NxtHike API", version="1.0.0", lifespan=lifespan)
+_docs = "/docs" if settings.ENABLE_API_DOCS else None
+_redoc = "/redoc" if settings.ENABLE_API_DOCS else None
+_openapi = "/openapi.json" if settings.ENABLE_API_DOCS else None
 
-# Security headers + auth rate limits (outermost after reverse proxy)
+app = FastAPI(
+    title="NxtHike API",
+    version="1.2.0",
+    lifespan=lifespan,
+    docs_url=_docs,
+    redoc_url=_redoc,
+    openapi_url=_openapi,
+)
+
+# Security headers + rate limits (outermost after reverse proxy)
 app.add_middleware(SecurityHeadersMiddleware)
 
-# CORS — explicit methods only (no wildcard when credentials are used)
+# CORS — explicit origins only (never "*") when credentials / tokens are used
+_cors = [o for o in settings.CORS_ORIGINS if o and o != "*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=_cors,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
     max_age=600,
 )
 
-# Static files for uploads
+# Static files for uploads — local disk only; prefer R2 private URLs in production.
+# These files are not ACL-gated by JWT; do not put sensitive PII here without signed URLs.
 import os
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+if settings.STORAGE_BACKEND == "local":
+    app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # API routes
 app.include_router(auth.router)

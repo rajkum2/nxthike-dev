@@ -47,7 +47,17 @@ async def login_submit(request: Request, email: str = Form(...), password: str =
 
     token = create_access_token(user.id)
     response = RedirectResponse(url="/admin/", status_code=303)
-    response.set_cookie("admin_token", token, httponly=True, max_age=60 * 60 * 24 * 7)
+    # HttpOnly cookie — not readable by JS. Secure in production; SameSite=Lax for CSRF basics.
+    from app.config import settings as _settings
+    response.set_cookie(
+        "admin_token",
+        token,
+        httponly=True,
+        secure=_settings.IS_PRODUCTION,
+        samesite="lax",
+        max_age=60 * 60 * 12,  # 12h — match API session default
+        path="/admin",
+    )
     return response
 
 

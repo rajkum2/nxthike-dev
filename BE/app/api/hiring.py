@@ -17,6 +17,7 @@ from app.services.personas import (
     require_cap,
     require_cap_in,
 )
+from app.config import settings
 from app.schemas.hiring import (
     PIPELINE_STATUSES,
     CandidateCreate,
@@ -32,6 +33,23 @@ from app.schemas.hiring import (
     BulkUpdateRequest,
     HiringDashboardStats,
 )
+
+
+def _cap_bulk_ids(ids: list[str]) -> list[str]:
+    """Reject oversized bulk payloads (scrape / wipe protection)."""
+    if len(ids) > settings.MAX_BULK_IDS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too many ids (max {settings.MAX_BULK_IDS} per request).",
+        )
+    # De-dupe while preserving order
+    seen: set[str] = set()
+    out: list[str] = []
+    for i in ids:
+        if i and i not in seen:
+            seen.add(i)
+            out.append(i)
+    return out
 
 #: Anyone with a workspace persona — not only `role == "admin"`.
 #:
@@ -438,7 +456,7 @@ async def list_candidates(
     sort_key: str = Query("name", alias="sortKey"),
     sort_dir: str = Query("asc", alias="sortDir"),
     page: int = Query(1, ge=1),
-    page_size: int = Query(50, ge=1, le=200, alias="pageSize"),
+    page_size: int = Query(50, ge=1, le=100, alias="pageSize"),
     me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -648,9 +666,10 @@ async def bulk_status(
 ):
     if body.status not in PIPELINE_STATUSES:
         raise HTTPException(status_code=400, detail=f"Invalid status: {body.status}")
-    if not body.ids:
+    ids = _cap_bulk_ids(body.ids or [])
+    if not ids:
         return {"updated": 0}
-    result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
+    result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
     rows = result.scalars().all()
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     for c in rows:
@@ -668,13 +687,14 @@ async def bulk_role(
 ):
     if not (me.can("create") or me.can("admin") or me.can("stage")):
         raise HTTPException(status_code=403, detail="Your role cannot change hiring roles.")
-    if not body.ids:
+    ids = _cap_bulk_ids(body.ids or [])
+    if not ids:
         return {"updated": 0}
     role_name = body.roleName
     if not role_name:
         role = await db.get(HiringRole, body.roleId)
         role_name = role.name if role else body.roleId
-    result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
+    result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
     rows = result.scalars().all()
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     for c in rows:
@@ -697,7 +717,8 @@ async def bulk_update(
     """
     if not (me.can("create") or me.can("admin") or me.can("stage")):
         raise HTTPException(status_code=403, detail="Your role cannot bulk-edit candidates.")
-    if not body.ids:
+    ids = _cap_bulk_ids(body.ids or [])
+    if not ids:
         return {"updated": 0}
     if body.status is not None and body.status not in PIPELINE_STATUSES:
         raise HTTPException(status_code=400, detail=f"Invalid status: {body.status}")
@@ -706,7 +727,7 @@ async def bulk_update(
     if me.masks_pii:
         raise HTTPException(status_code=403, detail="Bulk edit is not available while PII is masked for your role.")
 
-    result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
+    result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
     rows = result.scalars().all()
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     role_name = body.roleName
@@ -763,9 +784,10 @@ async def bulk_delete(
     me: WorkspaceIdentity = Depends(require_cap("admin", "Only admins can delete candidate records.")),
     db: AsyncSession = Depends(get_db),
 ):
-    if not body.ids:
+    ids = _cap_bulk_ids(body.ids or [])
+    if not ids:
         return {"deleted": 0}
-    result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
+    result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
     rows = result.scalars().all()
     for c in rows:
         await db.delete(c)
@@ -780,6 +802,11 @@ async def bulk_import(
     db: AsyncSession = Depends(get_db),
 ):
     """Import many candidates (upsert by id)."""
+    if len(candidates) > settings.MAX_BULK_IMPORT:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too many rows (max {settings.MAX_BULK_IMPORT} per import request).",
+        )
     created = 0
     updated = 0
     for body in candidates:

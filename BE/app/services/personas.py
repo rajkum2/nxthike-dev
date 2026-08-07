@@ -213,6 +213,10 @@ def apply_pii_policy(payload: dict, me: WorkspaceIdentity) -> dict:
         out["phone"] = mask_phone(out.get("phone"))
     if "email" in out:
         out["email"] = mask_email(out.get("email"))
+    # Hide direct resume / chat deep-links for limited roles (still may see that a doc exists)
+    for k in ("resumeLink", "downloadLink", "chatLink", "applicationLink"):
+        if out.get(k):
+            out[k] = "[redacted]"
     out["piiMasked"] = True
     return out
 
