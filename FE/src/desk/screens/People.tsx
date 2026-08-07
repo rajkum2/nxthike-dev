@@ -12,7 +12,7 @@ import { STAGES, T, disposition, stage } from '../tokens';
 import { useDesk } from '../store';
 import {
   Avatar, Badge, Banner, Button, Card, Chip, EmptyState, ErrorState, Eyebrow,
-  FactGrid, Icon, Input, Panel, Select, SkeletonRows, Textarea,
+  FactGrid, Icon, Input, Modal, Panel, Select, SkeletonRows, Textarea,
   maskEmail, maskPhone, num, shortDate, splitList, useLoad, useMediaQuery, whenLabel,
 } from '../ui';
 import { CallRow } from './Calls';
@@ -96,11 +96,14 @@ const compactCtrl: React.CSSProperties = {
  * ------------------------------------------------------------------ */
 
 export function CandidatesScreen() {
-  const { candidateId, go, caps, openModal, selection, toggleSelect, clearSelection } = useDesk();
+  const { candidateId, go, caps, selection, toggleSelect, clearSelection } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
   const isFullAdmin = c.admin === true;
   const canEdit = isFullAdmin || !!c.create;
+  const canStage = isFullAdmin || !!c.stage;
+  const canSelect = canEdit || canStage || isFullAdmin;
+  const canDelete = isFullAdmin;
 
   const [query, setQuery] = useState('');
   const [debouncedQ, setDebouncedQ] = useState('');
@@ -137,6 +140,11 @@ export function CandidatesScreen() {
   const [unmask, setUnmask] = useState(() => c.db === 'all' || c.admin === true);
   const [editOpen, setEditOpen] = useState(false);
   const [tableDetailOpen, setTableDetailOpen] = useState(!!candidateId);
+  const [bulkPanel, setBulkPanel] = useState<null | 'stage' | 'role' | 'edit' | 'tags'>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkMsg, setBulkMsg] = useState<string | null>(null);
+
+  const selectedIds = Object.keys(selection);
 
   React.useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQ(query.trim()), 320);
@@ -194,6 +202,70 @@ export function CandidatesScreen() {
   const rows = list.data?.items || [];
   const selectedId = candidateId || (viewMode === 'split' ? rows[0]?.id : null) || null;
   const detail = useLoad(async () => (selectedId ? deskApi.candidate(selectedId) : null), [selectedId]);
+
+  const afterBulk = async (message: string) => {
+    setBulkMsg(message);
+    clearSelection();
+    setBulkPanel(null);
+    await list.reload();
+    detail.reload();
+    window.setTimeout(() => setBulkMsg(null), 3200);
+  };
+
+  const runBulkStatus = async (nextStatus: string) => {
+    if (!selectedIds.length || !nextStatus) return;
+    setBulkBusy(true);
+    try {
+      const r = await deskApi.bulkStatus(selectedIds, nextStatus);
+      await afterBulk(`Updated stage for ${r.updated} candidate${r.updated === 1 ? '' : 's'}`);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const runBulkRole = async (nextRoleId: string) => {
+    if (!selectedIds.length || !nextRoleId) return;
+    const role = (rolesLoad.data || []).find((r) => r.id === nextRoleId);
+    setBulkBusy(true);
+    try {
+      const r = await deskApi.bulkRole(selectedIds, nextRoleId, role?.name);
+      await afterBulk(`Moved ${r.updated} to ${role?.name || 'role'}`);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const runBulkDelete = async () => {
+    if (!selectedIds.length || !canDelete) return;
+    if (!window.confirm(`Permanently delete ${selectedIds.length} candidate${selectedIds.length === 1 ? '' : 's'}? This cannot be undone.`)) return;
+    setBulkBusy(true);
+    try {
+      const r = await deskApi.bulkDelete(selectedIds);
+      await afterBulk(`Deleted ${r.deleted} candidate${r.deleted === 1 ? '' : 's'}`);
+      go('cands', { candidateId: null });
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const runBulkQuick = async (patch: Record<string, unknown>, label: string) => {
+    if (!selectedIds.length) return;
+    setBulkBusy(true);
+    try {
+      const r = await deskApi.bulkUpdate({ ids: selectedIds, ...patch });
+      await afterBulk(`${label} · ${r.updated} updated`);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   const lockedByRole = detail.data?.piiMasked
     ?? (c.db === 'limitedPII' || c.db === 'ownReqs' || c.db === 'ownInterviews');
@@ -664,11 +736,22 @@ export function CandidatesScreen() {
       </div>
 
       {selectedCount > 0 && (
-        <div style={{ padding: '8px 12px', background: T.indigoTint, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: T.indigoInk }}>{selectedCount} selected</span>
-          <Button variant="soft" onClick={() => openModal('filters')} style={{ height: 28, fontSize: 11.5 }}>Tag / hand off</Button>
-          <button type="button" onClick={clearSelection} style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk }}>Clear</button>
-        </div>
+        <BulkActionBar
+          count={selectedCount}
+          busy={bulkBusy}
+          canEdit={canEdit}
+          canStage={canStage}
+          canDelete={canDelete}
+          onStage={() => setBulkPanel('stage')}
+          onRole={() => setBulkPanel('role')}
+          onEdit={() => setBulkPanel('edit')}
+          onTags={() => setBulkPanel('tags')}
+          onStar={() => runBulkQuick({ starred: true }, 'Starred')}
+          onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
+          onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
+          onDelete={runBulkDelete}
+          onClear={clearSelection}
+        />
       )}
 
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
@@ -696,7 +779,7 @@ export function CandidatesScreen() {
                 background: on ? T.indigoTint : 'transparent',
               }}
             >
-              {c.create && (
+              {canSelect && (
                 <button type="button" onClick={(e) => { e.stopPropagation(); toggleSelect(r.id); }} aria-label="Select">
                   <Icon
                     name={selection[r.id] ? 'check_box' : 'check_box_outline_blank'}
@@ -729,11 +812,22 @@ export function CandidatesScreen() {
   const tablePane = (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', height: '100%', flex: 1 }}>
       {selectedCount > 0 && (
-        <div style={{ padding: '8px 12px', background: T.indigoTint, display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: T.indigoInk }}>{selectedCount} selected</span>
-          <Button variant="soft" onClick={() => openModal('filters')} style={{ height: 28, fontSize: 11.5 }}>Tag / hand off</Button>
-          <button type="button" onClick={clearSelection} style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk }}>Clear</button>
-        </div>
+        <BulkActionBar
+          count={selectedCount}
+          busy={bulkBusy}
+          canEdit={canEdit}
+          canStage={canStage}
+          canDelete={canDelete}
+          onStage={() => setBulkPanel('stage')}
+          onRole={() => setBulkPanel('role')}
+          onEdit={() => setBulkPanel('edit')}
+          onTags={() => setBulkPanel('tags')}
+          onStar={() => runBulkQuick({ starred: true }, 'Starred')}
+          onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
+          onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
+          onDelete={runBulkDelete}
+          onClear={clearSelection}
+        />
       )}
       <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
         {list.loading && <div style={{ padding: 12 }}><SkeletonRows rows={10} /></div>}
@@ -745,7 +839,7 @@ export function CandidatesScreen() {
           <table className="tbl" style={{ width: '100%', minWidth: activeCols.length * 110, borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
               <tr>
-                {c.create && (
+                {canSelect && (
                   <th
                     style={{
                       position: 'sticky', top: 0, zIndex: 2, background: T.surface,
@@ -794,7 +888,7 @@ export function CandidatesScreen() {
                       background: on ? T.indigoTint : selection[r.id] ? `${T.indigo}08` : 'transparent',
                     }}
                   >
-                    {c.create && (
+                    {canSelect && (
                       <td
                         style={{ padding: '7px 10px', borderBottom: `1px solid ${T.dividerFaint}`, verticalAlign: 'middle' }}
                         onClick={(e) => e.stopPropagation()}
@@ -849,6 +943,17 @@ export function CandidatesScreen() {
         isAdmin={isFullAdmin}
         onToggleMask={() => setUnmask((u) => !u)}
         onEdit={() => setEditOpen(true)}
+        onDelete={canDelete ? async () => {
+          if (!window.confirm(`Delete ${cand.name || 'this candidate'} permanently?`)) return;
+          try {
+            await deskApi.deleteCandidate(cand.id);
+            go('cands', { candidateId: null });
+            setTableDetailOpen(false);
+            list.reload();
+          } catch (e) {
+            alert((e as Error).message);
+          }
+        } : undefined}
         onReload={() => { detail.reload(); list.reload(); }}
         onBack={
           isMobile || viewMode === 'table'
@@ -876,6 +981,55 @@ export function CandidatesScreen() {
   return (
     <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, boxSizing: 'border-box' }}>
       {showFilters && filterBar}
+      {bulkMsg && (
+        <div
+          style={{
+            flexShrink: 0,
+            marginBottom: 8,
+            padding: '8px 12px',
+            borderRadius: 10,
+            background: T.greenTint || T.indigoTint,
+            color: T.green || T.indigoInk,
+            fontSize: 12.5,
+            fontWeight: 650,
+          }}
+        >
+          {bulkMsg}
+        </div>
+      )}
+      {bulkPanel && (
+        <BulkActionModal
+          kind={bulkPanel}
+          count={selectedCount}
+          busy={bulkBusy}
+          roles={rolesLoad.data || []}
+          onClose={() => setBulkPanel(null)}
+          onStage={runBulkStatus}
+          onRole={runBulkRole}
+          onEdit={async (patch) => {
+            setBulkBusy(true);
+            try {
+              const r = await deskApi.bulkUpdate({ ids: selectedIds, ...patch });
+              await afterBulk(`Bulk edit · ${r.updated} updated`);
+            } catch (e) {
+              alert((e as Error).message);
+            } finally {
+              setBulkBusy(false);
+            }
+          }}
+          onTags={async (add) => {
+            setBulkBusy(true);
+            try {
+              await deskApi.applyTags({ candidateIds: selectedIds, add });
+              await afterBulk(`Tags applied to ${selectedIds.length}`);
+            } catch (e) {
+              alert((e as Error).message);
+            } finally {
+              setBulkBusy(false);
+            }
+          }}
+        />
+      )}
 
       {isMobile ? (
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -919,17 +1073,313 @@ export function CandidatesScreen() {
 }
 
 /* ------------------------------------------------------------------ *
+ *  Bulk actions                                                      *
+ * ------------------------------------------------------------------ */
+
+function BulkActionBar({
+  count, busy, canEdit, canStage, canDelete,
+  onStage, onRole, onEdit, onTags, onStar, onUnstar, onDnc, onDelete, onClear,
+}: {
+  count: number; busy: boolean;
+  canEdit: boolean; canStage: boolean; canDelete: boolean;
+  onStage: () => void; onRole: () => void; onEdit: () => void; onTags: () => void;
+  onStar: () => void; onUnstar: () => void; onDnc: () => void;
+  onDelete: () => void; onClear: () => void;
+}) {
+  const btn: React.CSSProperties = { height: 28, padding: '0 9px', fontSize: 11.5 };
+  return (
+    <div
+      style={{
+        padding: '8px 12px',
+        background: T.indigoTint,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        flexShrink: 0,
+        flexWrap: 'wrap',
+        borderBottom: `1px solid ${T.divider}`,
+      }}
+    >
+      <span style={{ fontSize: 12, fontWeight: 700, color: T.indigoInk, marginRight: 4 }}>
+        {count} selected
+      </span>
+      {canStage && (
+        <Button variant="soft" icon="swap_horiz" onClick={onStage} disabled={busy} style={btn}>
+          Stage
+        </Button>
+      )}
+      {canEdit && (
+        <Button variant="soft" icon="work" onClick={onRole} disabled={busy} style={btn}>
+          Role
+        </Button>
+      )}
+      {canEdit && (
+        <Button variant="soft" icon="edit_note" onClick={onEdit} disabled={busy} style={btn}>
+          Bulk edit
+        </Button>
+      )}
+      {canEdit && (
+        <Button variant="soft" icon="sell" onClick={onTags} disabled={busy} style={btn}>
+          Tags
+        </Button>
+      )}
+      {canEdit && (
+        <Button variant="ghost" icon="star" onClick={onStar} disabled={busy} style={btn}>
+          Star
+        </Button>
+      )}
+      {canEdit && (
+        <Button variant="ghost" icon="star_border" onClick={onUnstar} disabled={busy} style={btn}>
+          Unstar
+        </Button>
+      )}
+      {canEdit && (
+        <Button variant="ghost" icon="block" onClick={onDnc} disabled={busy} style={btn}>
+          DND
+        </Button>
+      )}
+      {canDelete && (
+        <Button variant="danger" icon="delete" onClick={onDelete} disabled={busy} style={btn}>
+          Delete
+        </Button>
+      )}
+      <button
+        type="button"
+        onClick={onClear}
+        disabled={busy}
+        style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk, fontWeight: 650 }}
+      >
+        Clear
+      </button>
+    </div>
+  );
+}
+
+function BulkActionModal({
+  kind, count, busy, roles, onClose, onStage, onRole, onEdit, onTags,
+}: {
+  kind: 'stage' | 'role' | 'edit' | 'tags';
+  count: number;
+  busy: boolean;
+  roles: { id: string; name: string; count?: number }[];
+  onClose: () => void;
+  onStage: (status: string) => void;
+  onRole: (roleId: string) => void;
+  onEdit: (patch: Record<string, unknown>) => void;
+  onTags: (add: string[]) => void;
+}) {
+  const [stageVal, setStageVal] = useState('');
+  const [roleVal, setRoleVal] = useState('');
+  const [city, setCity] = useState('');
+  const [source, setSource] = useState('');
+  const [gender, setGender] = useState('');
+  const [exp, setExp] = useState('');
+  const [expDur, setExpDur] = useState('');
+  const [notice, setNotice] = useState('');
+  const [availability, setAvailability] = useState('');
+  const [notesAppend, setNotesAppend] = useState('');
+  const [starred, setStarred] = useState<'keep' | 'yes' | 'no'>('keep');
+  const [dnc, setDnc] = useState<'keep' | 'yes' | 'no'>('keep');
+  const [statusEdit, setStatusEdit] = useState('');
+  const [roleEdit, setRoleEdit] = useState('');
+  const tagsLoad = useLoad(() => deskApi.tags(), []);
+  const [tagPick, setTagPick] = useState<string[]>([]);
+
+  const title = {
+    stage: 'Change stage',
+    role: 'Change hiring role',
+    edit: 'Bulk edit fields',
+    tags: 'Apply tags',
+  }[kind];
+
+  const applyEdit = () => {
+    const patch: Record<string, unknown> = {};
+    if (statusEdit) patch.status = statusEdit;
+    if (roleEdit) {
+      patch.roleId = roleEdit;
+      patch.roleName = roles.find((r) => r.id === roleEdit)?.name;
+    }
+    if (city.trim()) patch.city = city.trim();
+    if (source.trim()) patch.source = source.trim();
+    if (gender) patch.gender = gender;
+    if (exp) patch.hasWorkExperience = exp;
+    if (expDur.trim()) patch.experienceDuration = expDur.trim();
+    if (notice !== '') patch.noticeDays = Number(notice);
+    if (availability.trim()) patch.availability = availability.trim();
+    if (notesAppend.trim()) patch.notesAppend = notesAppend.trim();
+    if (starred === 'yes') patch.starred = true;
+    if (starred === 'no') patch.starred = false;
+    if (dnc === 'yes') patch.dnc = true;
+    if (dnc === 'no') patch.dnc = false;
+    if (!Object.keys(patch).length) {
+      alert('Fill at least one field to update.');
+      return;
+    }
+    onEdit(patch);
+  };
+
+  return (
+    <Modal
+      title={title}
+      subtitle={`${count} candidate${count === 1 ? '' : 's'} selected · empty fields are left unchanged`}
+      onClose={onClose}
+      width={kind === 'edit' ? 560 : 440}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>
+          {kind === 'stage' && (
+            <Button onClick={() => onStage(stageVal)} disabled={!stageVal || busy}>
+              {busy ? 'Updating…' : 'Update stage'}
+            </Button>
+          )}
+          {kind === 'role' && (
+            <Button onClick={() => onRole(roleVal)} disabled={!roleVal || busy}>
+              {busy ? 'Updating…' : 'Change role'}
+            </Button>
+          )}
+          {kind === 'edit' && (
+            <Button onClick={applyEdit} disabled={busy}>
+              {busy ? 'Saving…' : `Apply to ${count}`}
+            </Button>
+          )}
+          {kind === 'tags' && (
+            <Button onClick={() => onTags(tagPick)} disabled={!tagPick.length || busy}>
+              {busy ? 'Applying…' : `Apply tags`}
+            </Button>
+          )}
+        </>
+      }
+    >
+      {kind === 'stage' && (
+        <Select value={stageVal} onChange={(e) => setStageVal(e.target.value)}>
+          <option value="">Select stage…</option>
+          {STATUS_CHIPS.filter((x) => x.key !== 'all').map((x) => (
+            <option key={x.key} value={x.key}>{x.label}</option>
+          ))}
+        </Select>
+      )}
+      {kind === 'role' && (
+        <Select value={roleVal} onChange={(e) => setRoleVal(e.target.value)}>
+          <option value="">Select hiring role…</option>
+          {roles.map((r) => (
+            <option key={r.id} value={r.id}>{r.name}{r.count != null ? ` (${r.count})` : ''}</option>
+          ))}
+        </Select>
+      )}
+      {kind === 'tags' && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+          {(tagsLoad.data || []).map((t: { id: string; name: string; color?: string }) => {
+            const on = tagPick.includes(t.name);
+            return (
+              <Chip
+                key={t.id}
+                label={t.name}
+                on={on}
+                onClick={() => setTagPick(on ? tagPick.filter((x) => x !== t.name) : [...tagPick, t.name])}
+                accent={t.color || undefined}
+              />
+            );
+          })}
+          {tagsLoad.data && !tagsLoad.data.length && (
+            <span style={{ fontSize: 12, color: T.inkFaint }}>No tags yet — create some on the Tags screen.</span>
+          )}
+        </div>
+      )}
+      {kind === 'edit' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div>
+            <label className="label">Stage</label>
+            <Select value={statusEdit} onChange={(e) => setStatusEdit(e.target.value)}>
+              <option value="">No change</option>
+              {STATUS_CHIPS.filter((x) => x.key !== 'all').map((x) => (
+                <option key={x.key} value={x.key}>{x.label}</option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <label className="label">Hiring role</label>
+            <Select value={roleEdit} onChange={(e) => setRoleEdit(e.target.value)}>
+              <option value="">No change</option>
+              {roles.map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <label className="label">City</label>
+            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Leave blank = no change" />
+          </div>
+          <div>
+            <label className="label">Source</label>
+            <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="Leave blank = no change" />
+          </div>
+          <div>
+            <label className="label">Gender</label>
+            <Select value={gender} onChange={(e) => setGender(e.target.value)}>
+              <option value="">No change</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </Select>
+          </div>
+          <div>
+            <label className="label">Experience</label>
+            <Select value={exp} onChange={(e) => setExp(e.target.value)}>
+              <option value="">No change</option>
+              <option value="yes">Has experience</option>
+              <option value="no">Fresher</option>
+            </Select>
+          </div>
+          <div>
+            <label className="label">Exp. duration</label>
+            <Input value={expDur} onChange={(e) => setExpDur(e.target.value)} placeholder="e.g. 2 years" />
+          </div>
+          <div>
+            <label className="label">Notice (days)</label>
+            <Input type="number" value={notice} onChange={(e) => setNotice(e.target.value)} placeholder="No change" />
+          </div>
+          <div>
+            <label className="label">Starred</label>
+            <Select value={starred} onChange={(e) => setStarred(e.target.value as 'keep' | 'yes' | 'no')}>
+              <option value="keep">No change</option>
+              <option value="yes">Star all</option>
+              <option value="no">Unstar all</option>
+            </Select>
+          </div>
+          <div>
+            <label className="label">DND</label>
+            <Select value={dnc} onChange={(e) => setDnc(e.target.value as 'keep' | 'yes' | 'no')}>
+              <option value="keep">No change</option>
+              <option value="yes">Flag DND</option>
+              <option value="no">Clear DND</option>
+            </Select>
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label className="label">Availability</label>
+            <Input value={availability} onChange={(e) => setAvailability(e.target.value)} placeholder="Leave blank = no change" />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label className="label">Append note</label>
+            <Textarea value={notesAppend} onChange={(e) => setNotesAppend(e.target.value)} rows={2} placeholder="Added to every selected candidate" />
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  *  Profile                                                           *
  * ------------------------------------------------------------------ */
 
 const TABS = ['Overview', 'Timeline', 'Documents', 'Notes', 'Submissions', 'Calls'] as const;
 
 function CandidateProfile({
-  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onReload, onBack,
+  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onDelete, onReload, onBack,
 }: {
   cand: DeskCandidate; masked: boolean; lockedByRole: boolean;
   canEdit: boolean; isAdmin: boolean;
-  onToggleMask: () => void; onEdit: () => void; onReload: () => void; onBack?: () => void;
+  onToggleMask: () => void; onEdit: () => void; onDelete?: () => void; onReload: () => void; onBack?: () => void;
 }) {
   const { go, caps, openModal } = useDesk();
   const c = caps();
@@ -1021,6 +1471,11 @@ function CandidateProfile({
           <Button variant="ghost" icon="content_copy" onClick={() => go('merge', { candidateId: cand.id })}>
             Find duplicates
           </Button>
+          {onDelete && (
+            <Button variant="danger" icon="delete" onClick={onDelete}>
+              Delete
+            </Button>
+          )}
         </div>
       </Card>
 

@@ -222,11 +222,12 @@ export const useDesk = create<DeskState>((set, get) => ({
     modal: null,
     palette: false,
     drawer: false,
-    candidateId: ctx?.candidateId ?? s.candidateId,
-    requisitionId: ctx?.requisitionId ?? s.requisitionId,
-    clientId: ctx?.clientId ?? s.clientId,
-    offerId: ctx?.offerId ?? s.offerId,
-    interviewId: ctx?.interviewId ?? s.interviewId,
+    // Use `in` so callers can clear a context key by passing null.
+    candidateId: ctx && 'candidateId' in ctx ? (ctx.candidateId ?? null) : s.candidateId,
+    requisitionId: ctx && 'requisitionId' in ctx ? (ctx.requisitionId ?? null) : s.requisitionId,
+    clientId: ctx && 'clientId' in ctx ? (ctx.clientId ?? null) : s.clientId,
+    offerId: ctx && 'offerId' in ctx ? (ctx.offerId ?? null) : s.offerId,
+    interviewId: ctx && 'interviewId' in ctx ? (ctx.interviewId ?? null) : s.interviewId,
   })),
 
   openModal: (modal) => set({ modal }),

@@ -534,6 +534,24 @@ export const deskApi = {
     req<DeskCandidate>(`/api/hiring/candidates/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   createCandidate: (body: Record<string, unknown>) =>
     req<DeskCandidate>('/api/hiring/candidates', { method: 'POST', body: JSON.stringify(body) }),
+  deleteCandidate: (id: string) =>
+    req<void>(`/api/hiring/candidates/${id}`, { method: 'DELETE' }),
+  bulkStatus: (ids: string[], status: string) =>
+    req<{ updated: number }>('/api/hiring/candidates/bulk-status', {
+      method: 'POST', body: JSON.stringify({ ids, status }),
+    }),
+  bulkRole: (ids: string[], roleId: string, roleName?: string) =>
+    req<{ updated: number }>('/api/hiring/candidates/bulk-role', {
+      method: 'POST', body: JSON.stringify({ ids, roleId, roleName }),
+    }),
+  bulkUpdate: (body: Record<string, unknown>) =>
+    req<{ updated: number }>('/api/hiring/candidates/bulk-update', {
+      method: 'POST', body: JSON.stringify(body),
+    }),
+  bulkDelete: (ids: string[]) =>
+    req<{ deleted: number }>('/api/hiring/candidates/bulk-delete', {
+      method: 'POST', body: JSON.stringify({ ids }),
+    }),
 
   callQueue: (p: Record<string, unknown> = {}) =>
     req<Paginated<QueueItem>>(`/api/calls/queue${qs({ pageSize: 100, ...p })}`),

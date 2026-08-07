@@ -28,6 +28,8 @@ from app.schemas.hiring import (
     HiringRoleResponse,
     BulkStatusRequest,
     BulkDeleteRequest,
+    BulkRoleRequest,
+    BulkUpdateRequest,
     HiringDashboardStats,
 )
 
@@ -654,6 +656,103 @@ async def bulk_status(
     for c in rows:
         c.status = body.status
         c.updated_at = now
+    await db.commit()
+    return {"updated": len(rows)}
+
+
+@router.post("/candidates/bulk-role")
+async def bulk_role(
+    body: BulkRoleRequest,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not (me.can("create") or me.can("admin") or me.can("stage")):
+        raise HTTPException(status_code=403, detail="Your role cannot change hiring roles.")
+    if not body.ids:
+        return {"updated": 0}
+    role_name = body.roleName
+    if not role_name:
+        role = await db.get(HiringRole, body.roleId)
+        role_name = role.name if role else body.roleId
+    result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
+    rows = result.scalars().all()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    for c in rows:
+        c.role_id = body.roleId
+        c.role_name = role_name or c.role_name
+        c.updated_at = now
+    await db.commit()
+    return {"updated": len(rows)}
+
+
+@router.post("/candidates/bulk-update")
+async def bulk_update(
+    body: BulkUpdateRequest,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Bulk-set fields that were provided (non-null) on every selected candidate.
+    Contact PII (phone/email) is intentionally not bulk-writable.
+    """
+    if not (me.can("create") or me.can("admin") or me.can("stage")):
+        raise HTTPException(status_code=403, detail="Your role cannot bulk-edit candidates.")
+    if not body.ids:
+        return {"updated": 0}
+    if body.status is not None and body.status not in PIPELINE_STATUSES:
+        raise HTTPException(status_code=400, detail=f"Invalid status: {body.status}")
+    if body.status is not None and not me.can("stage") and not me.can("admin"):
+        raise HTTPException(status_code=403, detail="Your role cannot change pipeline stage.")
+    if me.masks_pii:
+        raise HTTPException(status_code=403, detail="Bulk edit is not available while PII is masked for your role.")
+
+    result = await db.execute(select(Candidate).where(Candidate.id.in_(body.ids)))
+    rows = result.scalars().all()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    role_name = body.roleName
+    if body.roleId and not role_name:
+        role = await db.get(HiringRole, body.roleId)
+        role_name = role.name if role else body.roleId
+
+    for c in rows:
+        if body.status is not None:
+            c.status = body.status
+        if body.roleId is not None:
+            c.role_id = body.roleId
+            c.role_name = role_name or c.role_name
+        if body.city is not None:
+            c.city = body.city or None
+        if body.source is not None:
+            c.source = body.source or None
+        if body.gender is not None:
+            c.gender = body.gender or None
+        if body.starred is not None:
+            c.starred = body.starred
+        if body.dnc is not None:
+            c.dnc = body.dnc
+        if body.hasWorkExperience is not None:
+            c.has_work_experience = body.hasWorkExperience or None
+        if body.experienceDuration is not None:
+            c.experience_duration = body.experienceDuration or None
+        if body.noticeDays is not None:
+            c.notice_days = body.noticeDays
+        if body.availability is not None:
+            c.availability = body.availability or None
+        if body.tagsAdd or body.tagsRemove:
+            tags = list(c.tags or [])
+            if body.tagsRemove:
+                remove = set(body.tagsRemove)
+                tags = [t for t in tags if t not in remove]
+            if body.tagsAdd:
+                for t in body.tagsAdd:
+                    if t and t not in tags:
+                        tags.append(t)
+            c.tags = tags
+        if body.notesAppend:
+            existing = (c.notes or "").rstrip()
+            c.notes = f"{existing}\n{body.notesAppend}".strip() if existing else body.notesAppend
+        c.updated_at = now
+
     await db.commit()
     return {"updated": len(rows)}
 

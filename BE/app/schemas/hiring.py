@@ -201,6 +201,32 @@ class BulkDeleteRequest(BaseModel):
     ids: list[str]
 
 
+class BulkRoleRequest(BaseModel):
+    ids: list[str]
+    roleId: str
+    roleName: str | None = None
+
+
+class BulkUpdateRequest(BaseModel):
+    """Apply the same non-empty fields to every selected candidate."""
+    ids: list[str]
+    status: str | None = None
+    roleId: str | None = None
+    roleName: str | None = None
+    city: str | None = None
+    source: str | None = None
+    gender: str | None = None
+    starred: bool | None = None
+    dnc: bool | None = None
+    hasWorkExperience: str | None = None
+    experienceDuration: str | None = None
+    noticeDays: int | None = None
+    availability: str | None = None
+    tagsAdd: list[str] | None = None
+    tagsRemove: list[str] | None = None
+    notesAppend: str | None = None
+
+
 class HiringDashboardStats(BaseModel):
     total: int
     starred: int
