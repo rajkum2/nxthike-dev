@@ -118,137 +118,337 @@ export function CandidatesScreen() {
     setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
   };
 
-  const listPane = (
-    <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-      <div style={{ padding: 14, borderBottom: `1px solid ${T.divider}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: T.fill, borderRadius: 10, padding: '0 12px', height: 40 }}>
-          <Icon name="search" size={19} color={T.inkMuted} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Name, phone, email, city, skills…"
-            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: 13 }}
-          />
-          {query && (
-            <button type="button" onClick={() => setQuery('')} title="Clear search">
-              <Icon name="close" size={16} color={T.inkFaint} />
-            </button>
-          )}
-        </div>
+  const toggleOpts = [
+    [starredOnly, setStarredOnly, 'Starred', 'star'] as const,
+    [hasNotes, setHasNotes, 'Has notes', 'note'] as const,
+    [hasPhone, setHasPhone, 'Has phone', 'call'] as const,
+    [hasResume, setHasResume, 'Has resume', 'description'] as const,
+    [dncOnly, setDncOnly, 'DND flagged', 'block'] as const,
+    [noConsent, setNoConsent, 'No consent', 'gpp_maybe'] as const,
+  ];
 
-        <div style={{ marginTop: 10, display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
-          {STATUS_CHIPS.map((x) => (
-            <Chip key={x.key} label={x.label} on={status === x.key} onClick={() => setStatus(x.key)} />
-          ))}
-        </div>
+  const fieldLabel: React.CSSProperties = {
+    display: 'block',
+    fontSize: 11,
+    fontWeight: 700,
+    color: T.inkMuted,
+    marginBottom: 6,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
+  };
 
-        <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+  const filterBar = (
+    <div
+      className="card people-filter-bar"
+      style={{
+        flexShrink: 0,
+        padding: isMobile ? 12 : '16px 18px',
+        marginBottom: 14,
+      }}
+    >
+      {/* Primary toolbar — full workspace width */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile
+            ? '1fr'
+            : 'minmax(0, 1.6fr) minmax(220px, 280px) minmax(160px, 200px) auto',
+          gap: 12,
+          alignItems: 'end',
+        }}
+      >
+        <label style={{ display: 'block', minWidth: 0 }}>
+          <span style={fieldLabel}>Search</span>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: T.fill,
+              borderRadius: 10,
+              padding: '0 12px',
+              height: 40,
+              border: `1px solid ${T.border}`,
+              minWidth: 0,
+            }}
+          >
+            <Icon name="search" size={19} color={T.inkMuted} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Name, phone, email, city, skills…"
+              style={{
+                flex: 1, border: 'none', outline: 'none', background: 'transparent',
+                fontSize: 13, minWidth: 0,
+              }}
+            />
+            {query ? (
+              <button type="button" onClick={() => setQuery('')} title="Clear search" style={{ padding: 2 }}>
+                <Icon name="close" size={16} color={T.inkFaint} />
+              </button>
+            ) : null}
+          </div>
+        </label>
+
+        <label style={{ display: 'block', minWidth: 0 }}>
+          <span style={fieldLabel}>Hiring role</span>
           <Select
             value={roleId}
             onChange={(e) => setRoleId(e.target.value)}
-            style={{ height: 34, fontSize: 12, minWidth: 140, flex: 1 }}
+            style={{ height: 40, fontSize: 13, width: '100%', minWidth: 0 }}
           >
-            <option value="all">All hiring roles</option>
+            <option value="all">All roles</option>
             {(rolesLoad.data || []).map((r) => (
               <option key={r.id} value={r.id}>{r.name} ({r.count})</option>
             ))}
           </Select>
+        </label>
+
+        <label style={{ display: 'block', minWidth: 0 }}>
+          <span style={fieldLabel}>Experience</span>
+          <Select
+            value={experience}
+            onChange={(e) => setExperience(e.target.value)}
+            style={{ height: 40, fontSize: 13, width: '100%' }}
+          >
+            <option value="all">Any</option>
+            <option value="yes">Has experience</option>
+            <option value="no">Fresher</option>
+          </Select>
+        </label>
+
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
+            alignItems: 'center',
+            justifyContent: isMobile ? 'flex-start' : 'flex-end',
+            paddingBottom: 0,
+          }}
+        >
           <Button
-            variant={showMoreFilters ? 'soft' : 'ghost'}
+            variant={showMoreFilters || activeFilterCount > 0 ? 'soft' : 'ghost'}
             icon="tune"
             onClick={() => setShowMoreFilters((v) => !v)}
           >
-            Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}
+            {showMoreFilters ? 'Less' : 'More'}
+            {activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
           </Button>
           {activeFilterCount > 0 && (
-            <button type="button" onClick={clearFilters} style={{ fontSize: 11.5, fontWeight: 600, color: T.indigo }}>
-              Clear all
-            </button>
+            <Button variant="ghost" icon="filter_alt_off" onClick={clearFilters}>
+              Clear
+            </Button>
           )}
-        </div>
-
-        {showMoreFilters && (
-          <div style={{
-            marginTop: 12, padding: 12, borderRadius: 12, background: T.surfaceAlt,
-            border: `1px solid ${T.border}`, display: 'grid', gap: 10,
-            gridTemplateColumns: '1fr 1fr',
-          }}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              marginLeft: isMobile ? 0 : 4,
+              padding: '0 4px',
+              height: 36,
+              fontSize: 12,
+              color: T.inkFaint,
+              whiteSpace: 'nowrap',
+            }}
           >
-            <label style={{ fontSize: 11, fontWeight: 600, color: T.inkMuted, gridColumn: '1 / -1' }}>
-              Experience
-              <Select value={experience} onChange={(e) => setExperience(e.target.value)} style={{ marginTop: 4, height: 34, fontSize: 12 }}>
-                <option value="all">Any</option>
-                <option value="yes">Has work experience</option>
-                <option value="no">No / fresher</option>
+            <span style={{ fontWeight: 600, color: T.inkMuted }}>
+              {list.data
+                ? `${num(list.data.total)} match${list.data.total === 1 ? '' : 'es'}`
+                : '…'}
+            </span>
+            {totalPages > 1 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 0, marginLeft: 4 }}>
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  style={{ opacity: page <= 1 ? 0.35 : 1, padding: 2, borderRadius: 8 }}
+                  title="Previous page"
+                >
+                  <Icon name="chevron_left" size={20} color={T.inkMuted} />
+                </button>
+                <span className="mono" style={{ minWidth: 40, textAlign: 'center', fontSize: 11 }}>
+                  {page}/{totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                  style={{ opacity: page >= totalPages ? 0.35 : 1, padding: 2, borderRadius: 8 }}
+                  title="Next page"
+                >
+                  <Icon name="chevron_right" size={20} color={T.inkMuted} />
+                </button>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Pipeline stages — full-width chip row */}
+      <div style={{ marginTop: 14 }}>
+        <span style={{ ...fieldLabel, marginBottom: 8 }}>Stage</span>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
+          }}
+        >
+          {STATUS_CHIPS.map((x) => (
+            <Chip key={x.key} label={x.label} on={status === x.key} onClick={() => setStatus(x.key)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Expanded filters — equal columns across the workspace */}
+      {showMoreFilters && (
+        <div
+          style={{
+            marginTop: 16,
+            paddingTop: 16,
+            borderTop: `1px solid ${T.divider}`,
+          }}
+        >
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile
+                ? '1fr'
+                : 'repeat(2, minmax(0, 1fr))',
+              gap: 14,
+              maxWidth: 560,
+            }}
+          >
+            <label style={{ display: 'block', minWidth: 0 }}>
+              <span style={fieldLabel}>Sort by</span>
+              <Select
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value)}
+                style={{ height: 40, fontSize: 13, width: '100%' }}
+              >
+                <option value="updatedAt">Recently updated</option>
+                <option value="createdAt">Recently added</option>
+                <option value="name">Name A–Z</option>
+                <option value="status">Stage</option>
+                <option value="city">City</option>
               </Select>
             </label>
-            <label style={{ fontSize: 11, fontWeight: 600, color: T.inkMuted, gridColumn: '1 / -1' }}>
-              Sort by
-              <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} style={{ flex: 1, height: 34, fontSize: 12 }}>
-                  <option value="updatedAt">Recently updated</option>
-                  <option value="createdAt">Recently added</option>
-                  <option value="name">Name</option>
-                  <option value="status">Status</option>
-                  <option value="city">City</option>
-                </Select>
-                <Select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} style={{ width: 90, height: 34, fontSize: 12 }}>
-                  <option value="desc">Desc</option>
-                  <option value="asc">Asc</option>
-                </Select>
-              </div>
-            </label>
-            {([
-              [starredOnly, setStarredOnly, 'Starred only'],
-              [hasNotes, setHasNotes, 'Has notes'],
-              [hasPhone, setHasPhone, 'Has phone'],
-              [hasResume, setHasResume, 'Has resume'],
-              [dncOnly, setDncOnly, 'DND flagged'],
-              [noConsent, setNoConsent, 'No consent'],
-            ] as const).map(([on, set, label]) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => set( !on )}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
-                  padding: '8px 10px', borderRadius: 9,
-                  background: on ? T.indigoTint : T.surface,
-                  color: on ? T.indigoInk : T.inkMuted,
-                  border: `1px solid ${on ? T.indigo : T.border}`,
-                  textAlign: 'left',
-                }}
-              >
-                <Icon name={on ? 'check_box' : 'check_box_outline_blank'} size={16} color={on ? T.indigo : T.borderInput} />
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
 
-        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: T.inkFaint }}>
-          <span>{list.data ? `${num(rows.length)} on page · ${num(list.data.total)} total` : 'Loading…'}</span>
-          {totalPages > 1 && (
-            <span style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
-              <button type="button" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}
-                style={{ opacity: page <= 1 ? 0.4 : 1, padding: 4 }}>
-                <Icon name="chevron_left" size={18} color={T.inkMuted} />
-              </button>
-              <span className="mono">{page}/{totalPages}</span>
-              <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}
-                style={{ opacity: page >= totalPages ? 0.4 : 1, padding: 4 }}>
-                <Icon name="chevron_right" size={18} color={T.inkMuted} />
-              </button>
-            </span>
+            <label style={{ display: 'block', minWidth: 0 }}>
+              <span style={fieldLabel}>Order</span>
+              <Select
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
+                style={{ height: 40, fontSize: 13, width: '100%' }}
+              >
+                <option value="desc">Descending</option>
+                <option value="asc">Ascending</option>
+              </Select>
+            </label>
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <span style={{ ...fieldLabel, marginBottom: 10 }}>Quick filters</span>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile
+                  ? 'repeat(2, minmax(0, 1fr))'
+                  : 'repeat(auto-fill, minmax(168px, 1fr))',
+                gap: 10,
+              }}
+            >
+              {toggleOpts.map(([on, set, label, icon]) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => set(!on)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    width: '100%',
+                    minHeight: 44,
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    background: on ? T.indigoTint : T.fill,
+                    color: on ? T.indigoInk : T.inkBody,
+                    border: `1.5px solid ${on ? T.indigo : T.border}`,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'background .12s, border-color .12s',
+                  }}
+                >
+                  <Icon
+                    name={on ? 'check_circle' : icon}
+                    size={18}
+                    color={on ? T.indigo : T.inkFaint}
+                  />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active filter pills when advanced panel is collapsed */}
+      {!showMoreFilters && activeFilterCount > 0 && (
+        <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+          <span style={{ fontSize: 11, color: T.inkFaint, fontWeight: 600 }}>Active:</span>
+          {status !== 'all' && (
+            <Chip label={`Stage: ${STATUS_CHIPS.find((x) => x.key === status)?.label || status}`} on onClick={() => setStatus('all')} />
+          )}
+          {roleId !== 'all' && (
+            <Chip
+              label={`Role: ${rolesLoad.data?.find((r) => r.id === roleId)?.name || roleId}`}
+              on
+              onClick={() => setRoleId('all')}
+            />
+          )}
+          {experience !== 'all' && (
+            <Chip label={experience === 'yes' ? 'With experience' : 'Fresher'} on onClick={() => setExperience('all')} />
+          )}
+          {toggleOpts.filter(([on]) => on).map(([, set, label]) => (
+            <Chip key={label} label={label} on onClick={() => set(false)} />
+          ))}
+          {debouncedQ && (
+            <Chip label={`“${debouncedQ}”`} on onClick={() => { setQuery(''); setDebouncedQ(''); }} />
           )}
         </div>
+      )}
+    </div>
+  );
+
+  const listPane = (
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', height: '100%' }}>
+      <div
+        style={{
+          padding: '10px 14px',
+          borderBottom: `1px solid ${T.divider}`,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+        }}
+      >
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: T.inkBody }}>Results</span>
+        <span style={{ fontSize: 11, color: T.inkFaint }}>
+          {list.data ? `${num(rows.length)} of ${num(list.data.total)}` : '…'}
+        </span>
       </div>
 
       {selectedCount > 0 && (
         <div style={{ padding: '10px 14px', background: T.indigoTint, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: T.indigoInk }}>{selectedCount} selected</span>
           <Button variant="soft" onClick={() => openModal('filters')}>Tag / hand off</Button>
-          <button onClick={clearSelection} style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk }}>Clear</button>
+          <button type="button" onClick={clearSelection} style={{ marginLeft: 'auto', fontSize: 11.5, color: T.indigoInk }}>Clear</button>
         </div>
       )}
 
@@ -256,10 +456,13 @@ export function CandidatesScreen() {
         {list.loading && <div style={{ padding: 12 }}><SkeletonRows rows={7} /></div>}
         {list.error && <ErrorState message={list.error} onRetry={list.reload} />}
         {list.data && !rows.length && (
-          <EmptyState icon="person_search" title="No candidates match"
-            body="Clear the filters, or add this person to the database."
+          <EmptyState
+            icon="person_search"
+            title="No candidates match"
+            body="Widen or clear filters, or add this person to the database."
             actionLabel={c.create ? 'Add candidate' : undefined}
-            onAction={() => go('addcand')} />
+            onAction={() => go('addcand')}
+          />
         )}
         {rows.map((r) => {
           const st = stage(r.status);
@@ -275,9 +478,12 @@ export function CandidatesScreen() {
               }}
             >
               {c.create && (
-                <button onClick={(e) => { e.stopPropagation(); toggleSelect(r.id); }} aria-label="Select">
-                  <Icon name={selection[r.id] ? 'check_box' : 'check_box_outline_blank'} size={18}
-                    color={selection[r.id] ? T.indigo : T.borderInput} />
+                <button type="button" onClick={(e) => { e.stopPropagation(); toggleSelect(r.id); }} aria-label="Select">
+                  <Icon
+                    name={selection[r.id] ? 'check_box' : 'check_box_outline_blank'}
+                    size={18}
+                    color={selection[r.id] ? T.indigo : T.borderInput}
+                  />
                 </button>
               )}
               <Avatar name={r.name} id={r.id} />
@@ -329,13 +535,24 @@ export function CandidatesScreen() {
   );
 
   return (
-    <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+    <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, boxSizing: 'border-box' }}>
+      {/* Filters span the full content width — not the narrow list column */}
+      {(isMobile ? showList : true) && filterBar}
+
       {isMobile ? (
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{showList ? listPane : detailPane}</div>
       ) : (
-        <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: '330px 1fr', gap: 16 }}>
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            display: 'grid',
+            gridTemplateColumns: 'minmax(320px, 380px) minmax(0, 1fr)',
+            gap: 16,
+          }}
+        >
           {listPane}
-          <div style={{ overflowY: 'auto', minHeight: 0, paddingRight: 4 }}>{detailPane}</div>
+          <div style={{ overflowY: 'auto', minHeight: 0, paddingRight: 4, minWidth: 0 }}>{detailPane}</div>
         </div>
       )}
     </div>
