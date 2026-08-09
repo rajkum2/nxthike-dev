@@ -92,7 +92,7 @@ export const NAV: NavGroup[] = [
   ] },
   { name: 'PEOPLE', items: [
     { key: 'cands', label: 'Candidates', icon: 'groups' },
-    { key: 'addcand', label: 'Add candidate', icon: 'person_add' },
+    // "Add candidate" lives on the Candidates screen (not a top-level nav item).
     { key: 'tags', label: 'Tags & long-lists', icon: 'label' },
     { key: 'history', label: 'Call history', icon: 'phone_in_talk' },
   ] },
@@ -149,6 +149,8 @@ interface DeskState {
 
   /** Currently focused records, so screens can deep-link into one another. */
   candidateId: string | null;
+  /** Hiring-role filter from the Candidates rail submenu (`null` = all roles). */
+  candidateRoleId: string | null;
   requisitionId: string | null;
   clientId: string | null;
   offerId: string | null;
@@ -157,7 +159,8 @@ interface DeskState {
 
   boot: () => Promise<void>;
   go: (screen: ScreenKey, ctx?: Partial<Pick<DeskState,
-    'candidateId' | 'requisitionId' | 'clientId' | 'offerId' | 'interviewId'>>) => void;
+    'candidateId' | 'candidateRoleId' | 'requisitionId' | 'clientId' | 'offerId' | 'interviewId'>>) => void;
+  setCandidateRoleId: (roleId: string | null) => void;
   openModal: (m: ModalKey) => void;
   closeModal: () => void;
   setPalette: (v: boolean) => void;
@@ -184,6 +187,7 @@ export const useDesk = create<DeskState>((set, get) => ({
   railOpen: true,
 
   candidateId: null,
+  candidateRoleId: null,
   requisitionId: null,
   clientId: null,
   offerId: null,
@@ -224,11 +228,14 @@ export const useDesk = create<DeskState>((set, get) => ({
     drawer: false,
     // Use `in` so callers can clear a context key by passing null.
     candidateId: ctx && 'candidateId' in ctx ? (ctx.candidateId ?? null) : s.candidateId,
+    candidateRoleId: ctx && 'candidateRoleId' in ctx ? (ctx.candidateRoleId ?? null) : s.candidateRoleId,
     requisitionId: ctx && 'requisitionId' in ctx ? (ctx.requisitionId ?? null) : s.requisitionId,
     clientId: ctx && 'clientId' in ctx ? (ctx.clientId ?? null) : s.clientId,
     offerId: ctx && 'offerId' in ctx ? (ctx.offerId ?? null) : s.offerId,
     interviewId: ctx && 'interviewId' in ctx ? (ctx.interviewId ?? null) : s.interviewId,
   })),
+
+  setCandidateRoleId: (roleId) => set({ candidateRoleId: roleId }),
 
   openModal: (modal) => set({ modal }),
   closeModal: () => set({ modal: null }),
@@ -250,7 +257,7 @@ export const useDesk = create<DeskState>((set, get) => ({
     if (!nav) return false;
     // Screens without their own nav entry inherit their parent's visibility.
     const inherit: Partial<Record<ScreenKey, ScreenKey>> = {
-      job: 'jobs', newjob: 'jobs', merge: 'cands', resume: 'cands',
+      job: 'jobs', newjob: 'jobs', merge: 'cands', resume: 'cands', addcand: 'cands',
       offer: 'offers', offerletter: 'offers', intsched: 'intcal', intkit: 'intcal',
       summary: 'queue', client: 'clients',
     };

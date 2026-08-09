@@ -5,18 +5,38 @@
  * Sourcer never sees Clients and a Panellist never sees the call console.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { deskApi } from './api';
 import { T } from './tokens';
 import { NAV, SCREENS, useDesk, type ScreenKey } from './store';
-import { Avatar, CommandPalette, Icon, IconButton, useMediaQuery } from './ui';
+import { Avatar, CommandPalette, Icon, IconButton, useLoad, useMediaQuery } from './ui';
 
 /* ------------------------------------------------------------------ *
  *  Rail                                                              *
  * ------------------------------------------------------------------ */
 
 function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => void }) {
-  const { screen, session, allowed, go, setPalette, openModal, toggleRail } = useDesk();
+  const {
+    screen, session, allowed, go, setPalette, openModal, toggleRail,
+    candidateRoleId,
+  } = useDesk();
   const badges: Partial<Record<ScreenKey, number>> = {};
+  const [candsOpen, setCandsOpen] = useState(true);
+  const canSeeCands = !!session?.nav?.includes('cands');
+  const rolesLoad = useLoad(
+    () => (canSeeCands
+      ? deskApi.hiringDashboard().then((d) => d.roles || [])
+      : Promise.resolve([] as { id: string; name: string; count: number }[])),
+    [session?.userId, canSeeCands],
+  );
+  const roles = rolesLoad.data || [];
+
+  // Keep the Candidates role tree open while that area is active.
+  useEffect(() => {
+    if (screen === 'cands' || screen === 'addcand' || screen === 'merge' || screen === 'resume') {
+      setCandsOpen(true);
+    }
+  }, [screen]);
 
   return (
     <>
@@ -102,40 +122,145 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
                 </div>
               )}
               {items.map((item) => {
-                const on = screen === item.key;
+                const isCands = item.key === 'cands';
+                const on = isCands
+                  ? (screen === 'cands' || screen === 'addcand' || screen === 'merge' || screen === 'resume')
+                    && !candidateRoleId
+                  : screen === item.key;
+                const candsSectionActive = isCands && (
+                  screen === 'cands' || screen === 'addcand' || screen === 'merge' || screen === 'resume'
+                );
+
                 return (
-                  <button
-                    key={item.key}
-                    className="rail-item"
-                    title={item.label}
-                    onClick={() => { go(item.key); onNavigate?.(); }}
-                    style={{
-                      background: on ? T.railActive : 'transparent',
-                      justifyContent: wide ? 'flex-start' : 'center',
-                    }}
-                  >
-                    <Icon name={item.icon} size={19} color={on ? '#fff' : T.railMuted} />
-                    {wide && (
-                      <>
-                        <span style={{
-                          fontSize: 12.5, fontWeight: on ? 700 : 500, color: on ? '#fff' : T.railMuted,
-                          whiteSpace: 'nowrap', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
-                        }}
-                        >
-                          {item.label}
-                        </span>
-                        {badges[item.key] ? (
-                          <span className="mono" style={{
-                            background: T.indigo, color: '#fff', fontSize: 9,
-                            padding: '2px 5px', borderRadius: 5,
+                  <div key={item.key}>
+                    <button
+                      className="rail-item"
+                      title={item.label}
+                      onClick={() => {
+                        if (isCands) {
+                          // Parent = all candidates (every role)
+                          go('cands', { candidateRoleId: null, candidateId: null });
+                          setCandsOpen(true);
+                        } else {
+                          go(item.key);
+                        }
+                        onNavigate?.();
+                      }}
+                      style={{
+                        background: on || (isCands && candsSectionActive && !wide) ? T.railActive : 'transparent',
+                        justifyContent: wide ? 'flex-start' : 'center',
+                      }}
+                    >
+                      <Icon name={item.icon} size={19} color={(on || (isCands && candsSectionActive)) ? '#fff' : T.railMuted} />
+                      {wide && (
+                        <>
+                          <span style={{
+                            fontSize: 12.5, fontWeight: (on || (isCands && candsSectionActive)) ? 700 : 500,
+                            color: (on || (isCands && candsSectionActive)) ? '#fff' : T.railMuted,
+                            whiteSpace: 'nowrap', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
                           }}
                           >
-                            {badges[item.key]}
+                            {item.label}
                           </span>
-                        ) : null}
-                      </>
+                          {isCands && roles.length > 0 && (
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              title={candsOpen ? 'Collapse roles' : 'Expand roles'}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCandsOpen((v) => !v);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setCandsOpen((v) => !v);
+                                }
+                              }}
+                              style={{
+                                display: 'grid', placeItems: 'center', width: 22, height: 22,
+                                borderRadius: 6, flexShrink: 0,
+                              }}
+                            >
+                              <Icon
+                                name={candsOpen ? 'expand_more' : 'chevron_right'}
+                                size={18}
+                                color={(on || candsSectionActive) ? 'rgba(255,255,255,.85)' : T.railFaint}
+                              />
+                            </span>
+                          )}
+                          {badges[item.key] ? (
+                            <span className="mono" style={{
+                              background: T.indigo, color: '#fff', fontSize: 9,
+                              padding: '2px 5px', borderRadius: 5,
+                            }}
+                            >
+                              {badges[item.key]}
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </button>
+
+                    {/* Hiring-role submenus under Candidates */}
+                    {isCands && wide && candsOpen && roles.length > 0 && (
+                      <div style={{ margin: '2px 0 6px 0', paddingLeft: 8 }}>
+                        {roles.map((role) => {
+                          const roleOn = screen === 'cands' && candidateRoleId === role.id;
+                          return (
+                            <button
+                              key={role.id}
+                              type="button"
+                              title={role.name}
+                              onClick={() => {
+                                go('cands', { candidateRoleId: role.id, candidateId: null });
+                                onNavigate?.();
+                              }}
+                              style={{
+                                width: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                padding: '6px 8px 6px 22px',
+                                borderRadius: 8,
+                                background: roleOn ? 'rgba(75,69,201,.35)' : 'transparent',
+                                textAlign: 'left',
+                                marginBottom: 1,
+                              }}
+                            >
+                              <Icon
+                                name="sell"
+                                size={14}
+                                color={roleOn ? '#fff' : T.railFaint}
+                              />
+                              <span style={{
+                                fontSize: 11.5,
+                                fontWeight: roleOn ? 700 : 500,
+                                color: roleOn ? '#fff' : T.railMuted,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                flex: 1,
+                                minWidth: 0,
+                              }}
+                              >
+                                {role.name}
+                              </span>
+                              <span className="mono" style={{
+                                fontSize: 9.5,
+                                color: roleOn ? 'rgba(255,255,255,.75)' : T.railDim,
+                                flexShrink: 0,
+                              }}
+                              >
+                                {role.count ?? 0}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>

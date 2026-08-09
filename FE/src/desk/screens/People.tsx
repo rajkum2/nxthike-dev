@@ -96,7 +96,10 @@ const compactCtrl: React.CSSProperties = {
  * ------------------------------------------------------------------ */
 
 export function CandidatesScreen() {
-  const { candidateId, go, caps, selection, toggleSelect, clearSelection } = useDesk();
+  const {
+    candidateId, candidateRoleId, go, caps, selection, toggleSelect, clearSelection,
+    setCandidateRoleId,
+  } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
   const isFullAdmin = c.admin === true;
@@ -108,7 +111,8 @@ export function CandidatesScreen() {
   const [query, setQuery] = useState('');
   const [debouncedQ, setDebouncedQ] = useState('');
   const [status, setStatus] = useState('all');
-  const [roleId, setRoleId] = useState('all');
+  // Seed from rail submenu (null → all roles).
+  const [roleId, setRoleId] = useState(candidateRoleId || 'all');
   const [experience, setExperience] = useState('all');
   const [city, setCity] = useState('');
   const [debouncedCity, setDebouncedCity] = useState('');
@@ -145,6 +149,12 @@ export function CandidatesScreen() {
   const [bulkMsg, setBulkMsg] = useState<string | null>(null);
 
   const selectedIds = Object.keys(selection);
+
+  // Keep filters in sync when the user picks a role from the rail submenu.
+  React.useEffect(() => {
+    setRoleId(candidateRoleId || 'all');
+    setPage(1);
+  }, [candidateRoleId]);
 
   React.useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQ(query.trim()), 320);
@@ -282,6 +292,7 @@ export function CandidatesScreen() {
 
   const clearFilters = () => {
     setQuery(''); setDebouncedQ(''); setStatus('all'); setRoleId('all');
+    setCandidateRoleId(null);
     setExperience('all'); setCity(''); setDebouncedCity(''); setSource(''); setDebouncedSource('');
     setGender('all'); setStarredOnly(false); setHasNotes(false);
     setHasPhone(false); setHasEmail(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
@@ -425,7 +436,15 @@ export function CandidatesScreen() {
           ) : null}
         </div>
 
-        <Select value={roleId} onChange={(e) => setRoleId(e.target.value)} style={{ ...compactCtrl, flex: '0 1 180px', maxWidth: 220 }}>
+        <Select
+          value={roleId}
+          onChange={(e) => {
+            const v = e.target.value;
+            setRoleId(v);
+            setCandidateRoleId(v === 'all' ? null : v);
+          }}
+          style={{ ...compactCtrl, flex: '0 1 180px', maxWidth: 220 }}
+        >
           <option value="all">All roles</option>
           {(rolesLoad.data || []).map((r) => (
             <option key={r.id} value={r.id}>{r.name} ({r.count})</option>
@@ -459,6 +478,15 @@ export function CandidatesScreen() {
         )}
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          {canEdit && (
+            <Button
+              icon="person_add"
+              onClick={() => go('addcand')}
+              style={{ height: 32, padding: '0 12px', fontSize: 12 }}
+            >
+              Add candidate
+            </Button>
+          )}
           {/* View toggle */}
           <div
             style={{
