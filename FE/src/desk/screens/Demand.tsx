@@ -367,7 +367,7 @@ export function KanbanScreen() {
   const reqs = useLoad(() => deskApi.requisitions(), []);
   const load = useLoad(
     async () => (await deskApi.candidates({
-      roleId: requisitionId || undefined, pageSize: 200,
+      roleId: requisitionId || undefined, pageSize: 100,
     })).items,
     [requisitionId],
   );
