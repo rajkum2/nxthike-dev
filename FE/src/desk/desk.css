@@ -229,6 +229,19 @@
   padding: 0;
   gap: 0;
 }
+/* Compact icon buttons (detail panes, dense toolbars) */
+.desk .btn.btn-icon-only.btn-sm {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+.desk .btn.btn-sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  border-radius: 8px;
+}
 .desk .btn-primary { background: var(--indigo); color: #fff; }
 .desk .btn-primary:hover { background: var(--indigo-hover); }
 .desk .btn-primary:disabled { background: #E6E4F0; color: #8B8996; cursor: not-allowed; }

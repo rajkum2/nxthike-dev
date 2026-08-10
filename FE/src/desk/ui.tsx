@@ -110,10 +110,12 @@ type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
    * a row of icon buttons without shouting over its neighbours.
    */
   tone?: 'brand' | 'danger' | 'success';
+  /** Compact control size (28px) for dense toolbars and detail panes. */
+  size?: 'md' | 'sm';
 };
 
 export function Button({
-  icon, variant = 'primary', tone, children, className = '', ...rest
+  icon, variant = 'primary', tone, size = 'md', children, className = '', ...rest
 }: BtnProps) {
   // Treat as icon-only when there is no visible label (undefined / null / empty).
   const hasLabel = (() => {
@@ -123,12 +125,13 @@ export function Button({
     return true;
   })();
   const iconOnly = Boolean(icon) && !hasLabel;
+  const iconPx = size === 'sm' ? 15 : 18;
   return (
     <button
-      className={`btn btn-${variant}${tone ? ` tone-${tone}` : ''}${iconOnly ? ' btn-icon-only' : ''}${className ? ` ${className}` : ''}`}
+      className={`btn btn-${variant}${tone ? ` tone-${tone}` : ''}${iconOnly ? ' btn-icon-only' : ''}${size === 'sm' ? ' btn-sm' : ''}${className ? ` ${className}` : ''}`}
       {...rest}
     >
-      {icon && <Icon name={icon} size={18} />}
+      {icon && <Icon name={icon} size={iconPx} />}
       {hasLabel ? children : null}
     </button>
   );

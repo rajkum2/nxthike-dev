@@ -497,6 +497,7 @@ export function CandidatesScreen() {
     setStarredOnly(false); setHasNotes(false);
     setHasPhone(false); setHasEmail(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
     setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
+    setShowMoreFilters(false);
   };
 
   const GRAD_YEARS = React.useMemo(() => {
@@ -955,34 +956,54 @@ export function CandidatesScreen() {
                 aria-pressed={on}
                 onClick={() => set(!on)}
                 title={label}
+                aria-label={label}
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  height: 26, padding: '0 8px', borderRadius: 6,
-                  fontSize: 11, fontWeight: 650,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 28,
+                  height: 28,
+                  padding: 0,
+                  borderRadius: 7,
                   background: on ? T.indigoTint : T.surface,
                   color: on ? T.indigoInk : T.inkBody,
                   border: `1px solid ${on ? T.indigo : T.border}`,
                   cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  lineHeight: 0,
                 }}
               >
-                <Icon name={on ? 'check' : icon} size={13} color={on ? T.indigo : T.inkFaint} />
-                {label}
+                <Icon name={icon} size={15} color={on ? T.indigo : T.inkFaint} />
               </button>
             ))}
 
-            <div style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+            <div style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
               <div style={{ position: 'relative' }}>
                 <Button
                   variant="ghost"
+                  size="sm"
                   icon="bookmark"
-                  title="Saved searches"
+                  title={
+                    (savedLoad.data?.length || 0) > 0
+                      ? `Saved searches (${savedLoad.data!.length})`
+                      : 'Saved searches'
+                  }
                   aria-label="Saved searches"
                   onClick={() => setSavedMenuOpen((v) => !v)}
-                  style={{ height: 28, padding: '0 8px', fontSize: 11 }}
-                >
-                  Saved
-                  {(savedLoad.data?.length || 0) > 0 ? ` · ${savedLoad.data!.length}` : ''}
-                </Button>
+                />
+                {(savedLoad.data?.length || 0) > 0 && (
+                  <span
+                    aria-hidden
+                    style={{
+                      position: 'absolute', top: -3, right: -3,
+                      minWidth: 14, height: 14, padding: '0 3px', borderRadius: 99,
+                      background: T.indigo, color: '#fff', fontSize: 9, fontWeight: 700,
+                      lineHeight: '14px', textAlign: 'center', pointerEvents: 'none',
+                    }}
+                  >
+                    {(savedLoad.data!.length > 9) ? '9+' : savedLoad.data!.length}
+                  </span>
+                )}
                 {savedMenuOpen && (
                   <>
                     <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setSavedMenuOpen(false)} />
@@ -1048,25 +1069,22 @@ export function CandidatesScreen() {
               </div>
               <Button
                 variant="soft"
+                size="sm"
                 icon="bookmark_add"
-                title="Save current filters"
+                title={activeFilterCount === 0 ? 'Set filters before saving' : 'Save current filters'}
+                aria-label="Save current filters"
                 disabled={saveBusy || activeFilterCount === 0}
                 onClick={saveCurrentSearch}
-                style={{ height: 28, padding: '0 10px', fontSize: 11 }}
-              >
-                {saveBusy ? '…' : 'Save'}
-              </Button>
+              />
               {activeFilterCount > 0 && (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon="restart_alt"
+                  title="Reset filters"
+                  aria-label="Reset filters"
                   onClick={clearFilters}
-                  style={{
-                    height: 26, padding: '0 8px', borderRadius: 6, fontSize: 11, fontWeight: 650,
-                    background: T.surface, color: T.inkMuted, border: `1px solid ${T.border}`, cursor: 'pointer',
-                  }}
-                >
-                  Reset
-                </button>
+                />
               )}
             </div>
           </div>
@@ -1076,9 +1094,9 @@ export function CandidatesScreen() {
       {/* Stage chips — compact, single row scroll */}
       <div
         style={{
-          marginTop: 8,
+          marginTop: 6,
           display: 'flex',
-          gap: 5,
+          gap: 4,
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
           paddingBottom: 1,
@@ -1091,10 +1109,10 @@ export function CandidatesScreen() {
             aria-pressed={status === x.key}
             onClick={() => setStatus(x.key)}
             style={{
-              height: 26,
-              padding: '0 10px',
-              borderRadius: 7,
-              fontSize: 11.5,
+              height: 24,
+              padding: '0 9px',
+              borderRadius: 6,
+              fontSize: 11,
               fontWeight: 650,
               whiteSpace: 'nowrap',
               flexShrink: 0,
@@ -1930,36 +1948,74 @@ function CandidateProfile({
     onReload();
   };
 
+  const phoneShown = cand.piiMasked
+    ? (cand.phone || '')
+    : masked
+      ? maskPhone(cand.phone)
+      : (cand.phone || '');
+  const emailShown = cand.piiMasked
+    ? (cand.email || '')
+    : masked
+      ? maskEmail(cand.email)
+      : (cand.email || '');
+  const metaBits = [
+    cand.roleName,
+    cand.city,
+    phoneShown || null,
+    emailShown || null,
+  ].filter(Boolean);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <Card>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <Card pad={12}>
+        {/* Header: back · avatar · identity · privacy */}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap' }}>
           {onBack && (
             <Button
               variant="ghost"
+              size="sm"
               icon="arrow_back"
               title="Back to list"
               aria-label="Back to list"
               onClick={onBack}
-              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
             />
           )}
-          <Avatar name={cand.name} id={cand.id} size={52} />
-          <div style={{ flex: 1, minWidth: 160 }}>
-            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>{cand.name || 'Unnamed'}</div>
-            <div style={{ marginTop: 3, fontSize: 12.5, color: T.inkMuted }}>
-              {[cand.latestRole, cand.latestCompany].filter(Boolean).join(' · ') || cand.roleName}
+          <Avatar name={cand.name} id={cand.id} size={36} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: '-.02em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {cand.name || 'Unnamed'}
             </div>
-            <div style={{ marginTop: 9, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div
+              style={{
+                marginTop: 2,
+                fontSize: 11,
+                color: T.inkMuted,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+              title={metaBits.join(' · ')}
+            >
+              {metaBits.join(' · ') || '—'}
+            </div>
+            <div style={{ marginTop: 5, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               <Badge label={st.label} bg={st.tint} fg={st.color} />
               <Badge
-                label={cand.consentAt ? 'Consent on file' : 'No consent'}
+                label={cand.consentAt ? 'Consent' : 'No consent'}
                 bg={cand.consentAt ? T.greenTint : T.amberTint}
                 fg={cand.consentAt ? T.green : T.amberInk}
                 icon={cand.consentAt ? 'verified_user' : 'gpp_maybe'}
               />
-              {cand.dnc && <Badge label="DND · do not call" bg={T.maroonTint} fg={T.maroon} icon="block" />}
-              {cand.source && <Badge label={cand.source} bg={T.fill} fg={T.inkMuted} />}
+              {cand.dnc && <Badge label="DND" bg={T.maroonTint} fg={T.maroon} icon="block" />}
             </div>
           </div>
           <button
@@ -1973,33 +2029,45 @@ function CandidateProfile({
             aria-label={lockedByRole ? 'PII locked by role' : masked ? 'Show full PII' : 'Mask PII'}
             disabled={lockedByRole}
             style={{
-              display: 'grid',
-              placeItems: 'center',
-              width: 36,
-              height: 36,
-              borderRadius: 9,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 28,
+              height: 28,
+              borderRadius: 8,
               padding: 0,
               background: masked ? T.amberTint : T.fill,
               cursor: lockedByRole ? 'not-allowed' : 'pointer',
               border: 'none',
               flexShrink: 0,
+              lineHeight: 0,
+              boxSizing: 'border-box',
             }}
           >
-            <Icon name={masked ? 'visibility_off' : 'visibility'} size={18} color={masked ? T.amberInk : T.inkMuted} />
+            <Icon name={masked ? 'visibility_off' : 'visibility'} size={15} color={masked ? T.amberInk : T.inkMuted} />
           </button>
         </div>
 
-        <div style={{ marginTop: 14, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Actions: Reach | Pipeline | Manage */}
+        <div
+          style={{
+            marginTop: 10,
+            display: 'flex',
+            gap: 4,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}
+        >
           {c.dial && (
             <Button
               variant="ghost"
+              size="sm"
               tone="brand"
               icon="call"
               title={cand.dnc ? 'Blocked · DND' : hasCallablePhone(cand.phone) ? 'Call' : 'No phone'}
               aria-label={cand.dnc ? 'Blocked · DND' : 'Call'}
               onClick={() => go('queue', { candidateId: cand.id })}
               disabled={!!cand.dnc || !hasCallablePhone(cand.phone)}
-              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
             />
           )}
           {(() => {
@@ -2008,86 +2076,107 @@ function CandidateProfile({
             return (
               <Button
                 variant="ghost"
+                size="sm"
                 tone={m.tone}
                 icon={m.icon}
                 title={m.title}
                 aria-label={m.title}
                 onClick={() => runMessagingChannel(ch, cand)}
                 disabled={!m.enabled}
-                style={{
-                  height: 36,
-                  width: 36,
-                  padding: 0,
-                  minWidth: 36,
-                  ...(m.color ? { color: m.color } : null),
-                }}
+                style={m.color && !m.tone ? { color: m.color } : undefined}
               />
             );
           })()}
           <Button
             variant="ghost"
+            size="sm"
             icon="edit_note"
             title="Compose message"
             aria-label="Compose message"
             onClick={() => go('composer', { candidateId: cand.id })}
-            style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
           />
+
+          <span
+            aria-hidden
+            style={{ width: 1, height: 18, background: T.divider, margin: '0 2px', flexShrink: 0 }}
+          />
+
           {c.stage && (
             <Select
               value={cand.status}
               onChange={(e) => setStage(e.target.value)}
               title="Pipeline stage"
               aria-label="Pipeline stage"
-              style={{ width: 'auto', minWidth: 110, maxWidth: 140, height: 36 }}
+              style={{
+                width: 'auto',
+                minWidth: 96,
+                maxWidth: 120,
+                height: 28,
+                fontSize: 11.5,
+                padding: '0 8px',
+                borderRadius: 8,
+              }}
             >
               {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               <option value="on_hold">On hold</option>
             </Select>
           )}
+
+          <span
+            aria-hidden
+            style={{ width: 1, height: 18, background: T.divider, margin: '0 2px', flexShrink: 0 }}
+          />
+
           {canEdit && (
             <Button
               variant="ghost"
+              size="sm"
               tone="brand"
               icon="edit"
               title={isAdmin ? 'Edit all details' : 'Edit'}
               aria-label={isAdmin ? 'Edit all details' : 'Edit'}
               onClick={onEdit}
-              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
             />
           )}
           <Button
             variant="ghost"
+            size="sm"
             icon="content_copy"
             title="Find duplicates"
             aria-label="Find duplicates"
             onClick={() => go('merge', { candidateId: cand.id })}
-            style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
           />
           {onDelete && (
             <Button
               variant="ghost"
+              size="sm"
               tone="danger"
               icon="delete"
               title="Delete"
               aria-label="Delete"
               onClick={onDelete}
-              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
             />
           )}
         </div>
       </Card>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 2, borderBottom: `1px solid ${T.divider}`, overflowX: 'auto' }}>
+      {/* Tabs — denser */}
+      <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${T.divider}`, overflowX: 'auto' }}>
         {TABS.map((t) => (
           <button
             key={t}
+            type="button"
             onClick={() => setTab(t)}
             style={{
-              padding: '10px 12px', fontSize: 12.5, whiteSpace: 'nowrap',
+              padding: '7px 10px',
+              fontSize: 11.5,
+              whiteSpace: 'nowrap',
               fontWeight: tab === t ? 700 : 500,
               color: tab === t ? T.indigo : T.inkMuted,
-              borderBottom: `2.5px solid ${tab === t ? T.indigo : 'transparent'}`,
+              borderBottom: `2px solid ${tab === t ? T.indigo : 'transparent'}`,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
             }}
           >
             {t}
