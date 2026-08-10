@@ -436,17 +436,118 @@ async def hiring_dashboard(
 # ---------- Candidates CRUD ----------
 
 
+def _split_csv(values: list[str] | None) -> list[str]:
+    """Normalize multi-select query params: ?city=A&city=B or ?city=A,B."""
+    if not values:
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for raw in values:
+        for part in str(raw).split(","):
+            p = part.strip()
+            if not p or p.lower() == "all":
+                continue
+            key = p.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(p)
+    return out
+
+
+def _exp_bucket_clause(bucket: str):
+    """Map an experience-year bucket to a SQLAlchemy OR clause."""
+    b = bucket.strip().lower()
+    if b in ("0", "fresher", "0-1"):
+        return or_(
+            func.lower(Candidate.has_work_experience) != "yes",
+            Candidate.has_work_experience.is_(None),
+            Candidate.experience_duration.ilike("%fresher%"),
+            Candidate.experience_duration.ilike("0%"),
+            Candidate.experience_duration.ilike("%<1%"),
+            Candidate.experience_duration.ilike("%0-1%"),
+        )
+    if b == "1-3":
+        return or_(
+            Candidate.experience_duration.ilike("%1%"),
+            Candidate.experience_duration.ilike("%2%"),
+            Candidate.experience_duration.ilike("%3 year%"),
+        )
+    if b == "3-5":
+        return or_(
+            Candidate.experience_duration.ilike("%3%"),
+            Candidate.experience_duration.ilike("%4%"),
+            Candidate.experience_duration.ilike("%5 year%"),
+        )
+    if b in ("5+", "5-plus", "5plus"):
+        return or_(
+            Candidate.experience_duration.ilike("%5%"),
+            Candidate.experience_duration.ilike("%6%"),
+            Candidate.experience_duration.ilike("%7%"),
+            Candidate.experience_duration.ilike("%8%"),
+            Candidate.experience_duration.ilike("%9%"),
+            Candidate.experience_duration.ilike("%10%"),
+            Candidate.experience_duration.ilike("%+ year%"),
+        )
+    return None
+
+
+@router.get("/candidates/facets")
+async def candidate_facets(
+    q: str | None = None,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Distinct cities (and top graduation years) for multi-select filter UIs.
+    Optional `q` narrows cities by substring.
+    """
+    city_filters = [
+        Candidate.city.is_not(None),
+        Candidate.city != "",
+    ]
+    if q and q.strip():
+        city_filters.append(Candidate.city.ilike(f"%{q.strip()}%"))
+    city_rows = (
+        await db.execute(
+            select(Candidate.city, func.count().label("n"))
+            .where(and_(*city_filters))
+            .group_by(Candidate.city)
+            .order_by(func.count().desc())
+            .limit(250)
+        )
+    ).all()
+    year_rows = (
+        await db.execute(
+            select(Candidate.graduation_year, func.count().label("n"))
+            .where(
+                and_(
+                    Candidate.graduation_year.is_not(None),
+                    Candidate.graduation_year != "",
+                )
+            )
+            .group_by(Candidate.graduation_year)
+            .order_by(func.count().desc())
+            .limit(40)
+        )
+    ).all()
+    return {
+        "cities": [{"value": c, "count": int(n)} for c, n in city_rows if c],
+        "graduationYears": [{"value": y, "count": int(n)} for y, n in year_rows if y],
+    }
+
+
 @router.get("/candidates", response_model=PaginatedCandidateResponse)
 async def list_candidates(
     search: str | None = None,
     role_id: str | None = Query(None, alias="roleId"),
     status: str | None = None,
-    city: str | None = None,
+    city: list[str] | None = Query(None),
     source: str | None = None,
     gender: str | None = None,
     experience: str | None = None,
-    graduation_year: str | None = Query(None, alias="graduationYear"),
-    exp_years: str | None = Query(None, alias="expYears"),
+    graduation_year: list[str] | None = Query(None, alias="graduationYear"),
+    exp_years: list[str] | None = Query(None, alias="expYears"),
     ai_match: str | None = Query(None, alias="aiMatch"),
     starred_only: bool = Query(False, alias="starredOnly"),
     has_notes: bool = Query(False, alias="hasNotes"),
@@ -469,58 +570,21 @@ async def list_candidates(
         filters.append(Candidate.role_id == role_id)
     if status and status != "all":
         filters.append(Candidate.status == status)
-    if city:
-        filters.append(Candidate.city.ilike(f"%{city.strip()}%"))
+    cities = _split_csv(city)
+    if cities:
+        filters.append(or_(*[Candidate.city.ilike(f"%{c}%") for c in cities]))
     if source:
         filters.append(Candidate.source.ilike(f"%{source.strip()}%"))
     if gender and gender != "all":
         filters.append(func.lower(Candidate.gender) == gender.lower())
-    if graduation_year and graduation_year != "all":
-        # Accept full year or partial (e.g. "2024", "24")
-        filters.append(Candidate.graduation_year.ilike(f"%{graduation_year.strip()}%"))
-    if exp_years and exp_years != "all":
-        # Free-text experience_duration often holds "2 years", "3+", etc.
-        # Bucket filters use loose ILIKE patterns on that field + has_work_experience.
-        bucket = exp_years.strip().lower()
-        if bucket in ("0", "fresher", "0-1"):
-            filters.append(
-                or_(
-                    func.lower(Candidate.has_work_experience) != "yes",
-                    Candidate.has_work_experience.is_(None),
-                    Candidate.experience_duration.ilike("%fresher%"),
-                    Candidate.experience_duration.ilike("0%"),
-                    Candidate.experience_duration.ilike("%<1%"),
-                    Candidate.experience_duration.ilike("%0-1%"),
-                )
-            )
-        elif bucket == "1-3":
-            filters.append(
-                or_(
-                    Candidate.experience_duration.ilike("%1%"),
-                    Candidate.experience_duration.ilike("%2%"),
-                    Candidate.experience_duration.ilike("%3 year%"),
-                )
-            )
-        elif bucket == "3-5":
-            filters.append(
-                or_(
-                    Candidate.experience_duration.ilike("%3%"),
-                    Candidate.experience_duration.ilike("%4%"),
-                    Candidate.experience_duration.ilike("%5 year%"),
-                )
-            )
-        elif bucket in ("5+", "5-plus", "5plus"):
-            filters.append(
-                or_(
-                    Candidate.experience_duration.ilike("%5%"),
-                    Candidate.experience_duration.ilike("%6%"),
-                    Candidate.experience_duration.ilike("%7%"),
-                    Candidate.experience_duration.ilike("%8%"),
-                    Candidate.experience_duration.ilike("%9%"),
-                    Candidate.experience_duration.ilike("%10%"),
-                    Candidate.experience_duration.ilike("%+ year%"),
-                )
-            )
+    years = _split_csv(graduation_year)
+    if years:
+        filters.append(or_(*[Candidate.graduation_year.ilike(f"%{y}%") for y in years]))
+    buckets = _split_csv(exp_years)
+    if buckets:
+        clauses = [c for b in buckets if (c := _exp_bucket_clause(b)) is not None]
+        if clauses:
+            filters.append(or_(*clauses))
     if experience == "yes":
         filters.append(func.lower(Candidate.has_work_experience) == "yes")
     elif experience == "no":

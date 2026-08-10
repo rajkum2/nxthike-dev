@@ -254,6 +254,185 @@ const compactCtrl: React.CSSProperties = {
   borderRadius: 8,
 };
 
+const EXP_YEAR_OPTS = [
+  { value: '0-1', label: '0–1 yr' },
+  { value: '1-3', label: '1–3 yrs' },
+  { value: '3-5', label: '3–5 yrs' },
+  { value: '5+', label: '5+ yrs' },
+];
+
+type MultiOpt = { value: string; label: string; count?: number };
+
+/** Compact multi-select dropdown with optional search (for city / years). */
+function MultiSelectFilter({
+  label,
+  values,
+  options,
+  onChange,
+  searchable,
+  onSearch,
+  width = 130,
+}: {
+  label: string;
+  values: string[];
+  options: MultiOpt[];
+  onChange: (next: string[]) => void;
+  searchable?: boolean;
+  onSearch?: (q: string) => void;
+  width?: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const selected = new Set(values);
+
+  const filtered = React.useMemo(() => {
+    if (searchable && onSearch) return options; // server-filtered
+    const t = q.trim().toLowerCase();
+    if (!t) return options;
+    return options.filter((o) => o.label.toLowerCase().includes(t) || o.value.toLowerCase().includes(t));
+  }, [options, q, searchable, onSearch]);
+
+  const toggle = (v: string) => {
+    if (selected.has(v)) onChange(values.filter((x) => x !== v));
+    else onChange([...values, v]);
+  };
+
+  const summary = values.length === 0
+    ? label
+    : values.length === 1
+      ? (options.find((o) => o.value === values[0])?.label || values[0])
+      : `${label} · ${values.length}`;
+
+  return (
+    <div style={{ position: 'relative', flex: `0 1 ${width}px`, minWidth: Math.min(width, 100) }}>
+      <button
+        type="button"
+        title={values.length ? values.join(', ') : label}
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          ...compactCtrl,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          background: values.length ? T.indigoTint : T.surface,
+          border: `1px solid ${values.length ? T.indigo : T.border}`,
+          color: values.length ? T.indigoInk : T.inkBody,
+          fontWeight: values.length ? 650 : 500,
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
+      >
+        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>
+          {summary}
+        </span>
+        {values.length > 0 && (
+          <span
+            role="button"
+            tabIndex={0}
+            title="Clear"
+            onClick={(e) => { e.stopPropagation(); onChange([]); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onChange([]); }
+            }}
+            style={{ display: 'grid', placeItems: 'center', flexShrink: 0 }}
+          >
+            <Icon name="close" size={13} color={T.indigo} />
+          </span>
+        )}
+        <Icon name="expand_more" size={16} color={values.length ? T.indigo : T.inkFaint} />
+      </button>
+      {open && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setOpen(false)} />
+          <div
+            style={{
+              position: 'absolute', left: 0, top: 34, zIndex: 50, width: Math.max(width, 200),
+              maxHeight: 280, display: 'flex', flexDirection: 'column',
+              background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
+              boxShadow: '0 8px 28px rgba(20,18,40,.14)', overflow: 'hidden',
+            }}
+          >
+            {(searchable || options.length > 8) && (
+              <div style={{ padding: 8, borderBottom: `1px solid ${T.divider}`, flexShrink: 0 }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6, height: 30,
+                  padding: '0 8px', borderRadius: 7, background: T.fill, border: `1px solid ${T.border}`,
+                }}
+                >
+                  <Icon name="search" size={14} color={T.inkFaint} />
+                  <input
+                    autoFocus
+                    value={q}
+                    onChange={(e) => {
+                      setQ(e.target.value);
+                      onSearch?.(e.target.value);
+                    }}
+                    placeholder={`Search ${label.toLowerCase()}…`}
+                    style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: 12, minWidth: 0 }}
+                  />
+                </div>
+              </div>
+            )}
+            <div style={{ overflowY: 'auto', flex: 1, padding: 4 }}>
+              {filtered.length === 0 && (
+                <div style={{ padding: 12, fontSize: 12, color: T.inkFaint }}>No matches</div>
+              )}
+              {filtered.map((o) => {
+                const on = selected.has(o.value);
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => toggle(o.value)}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '7px 8px', borderRadius: 7, textAlign: 'left',
+                      background: on ? T.indigoTint : 'transparent',
+                      fontSize: 12.5, fontWeight: on ? 650 : 500,
+                      color: on ? T.indigoInk : T.inkBody, cursor: 'pointer',
+                    }}
+                  >
+                    <Icon
+                      name={on ? 'check_box' : 'check_box_outline_blank'}
+                      size={16}
+                      color={on ? T.indigo : T.borderInput}
+                    />
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {o.label}
+                    </span>
+                    {o.count != null && (
+                      <span className="mono" style={{ fontSize: 10, color: T.inkFaint }}>{o.count}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {values.length > 0 && (
+              <div style={{ padding: 6, borderTop: `1px solid ${T.divider}`, display: 'flex', gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => onChange([])}
+                  style={{ flex: 1, fontSize: 11, fontWeight: 650, color: T.inkMuted, padding: 6 }}
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  style={{ flex: 1, fontSize: 11, fontWeight: 650, color: T.indigo, padding: 6 }}
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ *
  *  Candidates                                                        *
  * ------------------------------------------------------------------ */
@@ -277,13 +456,14 @@ export function CandidatesScreen() {
   // Seed from rail submenu (null → all roles).
   const [roleId, setRoleId] = useState(candidateRoleId || 'all');
   const [experience, setExperience] = useState('all');
-  const [city, setCity] = useState('');
-  const [debouncedCity, setDebouncedCity] = useState('');
+  const [cities, setCities] = useState<string[]>([]);
+  const [citySearch, setCitySearch] = useState('');
+  const [debouncedCitySearch, setDebouncedCitySearch] = useState('');
   const [source, setSource] = useState('');
   const [debouncedSource, setDebouncedSource] = useState('');
   const [gender, setGender] = useState('all');
-  const [graduationYear, setGraduationYear] = useState('all');
-  const [expYears, setExpYears] = useState('all');
+  const [graduationYears, setGraduationYears] = useState<string[]>([]);
+  const [expYearsList, setExpYearsList] = useState<string[]>([]);
   const [starredOnly, setStarredOnly] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
   const [hasPhone, setHasPhone] = useState(false);
@@ -328,17 +508,21 @@ export function CandidatesScreen() {
     return () => window.clearTimeout(t);
   }, [query]);
   React.useEffect(() => {
-    const t = window.setTimeout(() => setDebouncedCity(city.trim()), 320);
+    const t = window.setTimeout(() => setDebouncedCitySearch(citySearch.trim()), 280);
     return () => window.clearTimeout(t);
-  }, [city]);
+  }, [citySearch]);
   React.useEffect(() => {
     const t = window.setTimeout(() => setDebouncedSource(source.trim()), 320);
     return () => window.clearTimeout(t);
   }, [source]);
 
+  const citiesKey = cities.slice().sort().join('|');
+  const yearsKey = graduationYears.slice().sort().join('|');
+  const expKey = expYearsList.slice().sort().join('|');
+
   const filterDeps = [
-    debouncedQ, status, roleId, experience, debouncedCity, debouncedSource, gender,
-    graduationYear, expYears,
+    debouncedQ, status, roleId, experience, citiesKey, debouncedSource, gender,
+    yearsKey, expKey,
     starredOnly, hasNotes, hasPhone, hasEmail, hasResume, dncOnly, noConsent, sortKey, sortDir,
     candidatesRev,
   ];
@@ -353,17 +537,27 @@ export function CandidatesScreen() {
 
   const rolesLoad = useLoad(() => deskApi.hiringDashboard().then((d) => d.roles || []), []);
   const savedLoad = useLoad(() => deskApi.savedSearches().catch(() => []), []);
+  const facetsLoad = useLoad(
+    () => deskApi.candidateFacets({ q: debouncedCitySearch || undefined }).catch(() => ({ cities: [], graduationYears: [] })),
+    [debouncedCitySearch],
+  );
+
+  const asStrList = (v: unknown): string[] => {
+    if (Array.isArray(v)) return v.map(String).filter(Boolean);
+    if (typeof v === 'string' && v && v !== 'all') return v.split(',').map((x) => x.trim()).filter(Boolean);
+    return [];
+  };
 
   const snapshotFilters = (): Record<string, unknown> => ({
     query: debouncedQ || query,
     status,
     roleId,
     experience,
-    city: debouncedCity || city,
+    cities,
     source: debouncedSource || source,
     gender,
-    graduationYear,
-    expYears,
+    graduationYears,
+    expYearsList,
     starredOnly,
     hasNotes,
     hasPhone,
@@ -384,11 +578,12 @@ export function CandidatesScreen() {
     setRoleId(nextRole);
     setCandidateRoleId(nextRole === 'all' ? null : nextRole);
     setExperience(s('experience', 'all') || 'all');
-    setCity(s('city')); setDebouncedCity(s('city'));
+    // Prefer new multi keys; fall back to legacy single-string city / year fields.
+    setCities(asStrList(f.cities?.length ? f.cities : f.city));
     setSource(s('source')); setDebouncedSource(s('source'));
     setGender(s('gender', 'all') || 'all');
-    setGraduationYear(s('graduationYear', 'all') || 'all');
-    setExpYears(s('expYears', 'all') || 'all');
+    setGraduationYears(asStrList(f.graduationYears?.length ? f.graduationYears : f.graduationYear));
+    setExpYearsList(asStrList(f.expYearsList?.length ? f.expYearsList : f.expYears));
     setStarredOnly(b('starredOnly'));
     setHasNotes(b('hasNotes'));
     setHasPhone(b('hasPhone'));
@@ -436,11 +631,11 @@ export function CandidatesScreen() {
       status: status !== 'all' ? status : undefined,
       roleId: roleId !== 'all' ? roleId : undefined,
       experience: experience !== 'all' ? experience : undefined,
-      city: debouncedCity || undefined,
+      city: cities.length ? cities : undefined,
       source: debouncedSource || undefined,
       gender: gender !== 'all' ? gender : undefined,
-      graduationYear: graduationYear !== 'all' ? graduationYear : undefined,
-      expYears: expYears !== 'all' ? expYears : undefined,
+      graduationYear: graduationYears.length ? graduationYears : undefined,
+      expYears: expYearsList.length ? expYearsList : undefined,
       starredOnly: starredOnly || undefined,
       hasNotes: hasNotes || undefined,
       hasPhone: hasPhone || undefined,
@@ -533,25 +728,42 @@ export function CandidatesScreen() {
 
   const activeFilterCount = [
     status !== 'all', roleId !== 'all', experience !== 'all', starredOnly, hasNotes,
-    hasPhone, hasEmail, hasResume, dncOnly, noConsent, !!debouncedQ, !!debouncedCity,
-    !!debouncedSource, gender !== 'all', graduationYear !== 'all', expYears !== 'all',
+    hasPhone, hasEmail, hasResume, dncOnly, noConsent, !!debouncedQ, cities.length > 0,
+    !!debouncedSource, gender !== 'all', graduationYears.length > 0, expYearsList.length > 0,
   ].filter(Boolean).length;
 
   const clearFilters = () => {
     setQuery(''); setDebouncedQ(''); setStatus('all'); setRoleId('all');
     setCandidateRoleId(null);
-    setExperience('all'); setCity(''); setDebouncedCity(''); setSource(''); setDebouncedSource('');
-    setGender('all'); setGraduationYear('all'); setExpYears('all');
+    setExperience('all'); setCities([]); setCitySearch(''); setDebouncedCitySearch('');
+    setSource(''); setDebouncedSource('');
+    setGender('all'); setGraduationYears([]); setExpYearsList([]);
     setStarredOnly(false); setHasNotes(false);
     setHasPhone(false); setHasEmail(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
     setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
     setShowMoreFilters(false);
   };
 
-  const GRAD_YEARS = React.useMemo(() => {
+  const GRAD_YEAR_OPTS: MultiOpt[] = React.useMemo(() => {
+    const fromDb = (facetsLoad.data?.graduationYears || []).map((y) => ({
+      value: y.value, label: y.value, count: y.count,
+    }));
+    if (fromDb.length) return fromDb;
     const y = new Date().getFullYear() + 1;
-    return Array.from({ length: 20 }, (_, i) => String(y - i));
-  }, []);
+    return Array.from({ length: 20 }, (_, i) => ({ value: String(y - i), label: String(y - i) }));
+  }, [facetsLoad.data]);
+
+  const CITY_OPTS: MultiOpt[] = React.useMemo(() => {
+    const opts = (facetsLoad.data?.cities || []).map((c) => ({
+      value: c.value, label: c.value, count: c.count,
+    }));
+    cities.forEach((c) => {
+      if (!opts.some((o) => o.value.toLowerCase() === c.toLowerCase())) {
+        opts.unshift({ value: c, label: c });
+      }
+    });
+    return opts;
+  }, [facetsLoad.data, cities]);
 
   const toggleOpts = [
     [starredOnly, setStarredOnly, 'Starred', 'star'] as const,
@@ -952,13 +1164,14 @@ export function CandidatesScreen() {
           }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            <input
-              className="field"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="City"
-              title="City"
-              style={{ ...compactCtrl, width: 110, flex: '0 1 110px' }}
+            <MultiSelectFilter
+              label="City"
+              values={cities}
+              options={CITY_OPTS}
+              onChange={setCities}
+              searchable
+              onSearch={setCitySearch}
+              width={140}
             />
             <input
               className="field"
@@ -974,29 +1187,21 @@ export function CandidatesScreen() {
               <option value="female">Female</option>
               <option value="other">Other</option>
             </Select>
-            <Select
-              value={graduationYear}
-              onChange={(e) => setGraduationYear(e.target.value)}
-              title="Graduation year"
-              style={{ ...compactCtrl, width: 100, flex: '0 0 100px' }}
-            >
-              <option value="all">Grad year</option>
-              {GRAD_YEARS.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </Select>
-            <Select
-              value={expYears}
-              onChange={(e) => setExpYears(e.target.value)}
-              title="Years of experience"
-              style={{ ...compactCtrl, width: 110, flex: '0 0 110px' }}
-            >
-              <option value="all">Exp years</option>
-              <option value="0-1">0–1 yr</option>
-              <option value="1-3">1–3 yrs</option>
-              <option value="3-5">3–5 yrs</option>
-              <option value="5+">5+ yrs</option>
-            </Select>
+            <MultiSelectFilter
+              label="Grad year"
+              values={graduationYears}
+              options={GRAD_YEAR_OPTS}
+              onChange={setGraduationYears}
+              searchable
+              width={120}
+            />
+            <MultiSelectFilter
+              label="Exp years"
+              values={expYearsList}
+              options={EXP_YEAR_OPTS}
+              onChange={setExpYearsList}
+              width={120}
+            />
             <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} title="Sort by" style={{ ...compactCtrl, width: 108, flex: '0 0 108px' }}>
               <option value="updatedAt">Updated</option>
               <option value="createdAt">Added</option>

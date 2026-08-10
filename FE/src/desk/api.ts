@@ -15,7 +15,14 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 const qs = (params: Record<string, unknown>) => {
   const sp = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== '') sp.set(k, String(v));
+    if (v === undefined || v === null || v === '') return;
+    if (Array.isArray(v)) {
+      v.forEach((item) => {
+        if (item !== undefined && item !== null && item !== '') sp.append(k, String(item));
+      });
+      return;
+    }
+    sp.set(k, String(v));
   });
   const s = sp.toString();
   return s ? `?${s}` : '';
@@ -531,6 +538,10 @@ export const deskApi = {
   // Existing routes, reused unchanged
   candidates: (p: Record<string, unknown> = {}) =>
     req<Paginated<DeskCandidate>>(`/api/hiring/candidates${qs(p)}`),
+  candidateFacets: (p: { q?: string } = {}) =>
+    req<{ cities: { value: string; count: number }[]; graduationYears: { value: string; count: number }[] }>(
+      `/api/hiring/candidates/facets${qs(p)}`,
+    ),
   candidate: (id: string) => req<DeskCandidate>(`/api/hiring/candidates/${id}`),
   patchCandidate: (id: string, body: Record<string, unknown>) =>
     req<DeskCandidate>(`/api/hiring/candidates/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
