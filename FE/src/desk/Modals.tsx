@@ -13,6 +13,7 @@ import {
   Avatar, Badge, Banner, Button, Card, Chip, Icon, Input, Modal, Select,
   Textarea, useLoad, whenLabel,
 } from './ui';
+import { ComposerPanel } from './screens/Process';
 
 /* ------------------------------------------------------------------ *
  *  Persona switcher                                                  *

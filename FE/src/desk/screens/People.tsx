@@ -261,7 +261,7 @@ const compactCtrl: React.CSSProperties = {
 export function CandidatesScreen() {
   const {
     candidateId, candidateRoleId, go, caps, selection, toggleSelect, clearSelection,
-    setCandidateRoleId, openModal, candidatesRev,
+    setCandidateRoleId, openModal, openComposer, candidatesRev,
   } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
@@ -1580,7 +1580,7 @@ export function CandidatesScreen() {
                           type="button"
                           title="Compose message"
                           aria-label="Compose message"
-                          onClick={() => go('composer', { candidateId: r.id })}
+                          onClick={() => openComposer(r.id)}
                           style={ROW_ACTION_BTN}
                         >
                           <Icon name="edit_note" size={16} color={T.inkMuted} />
@@ -2096,7 +2096,7 @@ function CandidateProfile({
   onClose?: () => void; showClose?: boolean;
   onToggleStar?: (next: boolean) => void;
 }) {
-  const { go, caps, openModal } = useDesk();
+  const { go, caps, openModal, openComposer } = useDesk();
   const c = caps();
   const [tab, setTab] = useState<(typeof TABS)[number]>('Overview');
   const [noteDraft, setNoteDraft] = useState('');
@@ -2318,7 +2318,7 @@ function CandidateProfile({
             icon="edit_note"
             title="Compose message"
             aria-label="Compose message"
-            onClick={() => go('composer', { candidateId: cand.id })}
+            onClick={() => openComposer(cand.id)}
           />
 
           <span

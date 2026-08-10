@@ -22,7 +22,7 @@ import {
  * ------------------------------------------------------------------ */
 
 export function QueueScreen() {
-  const { session, caps, go } = useDesk();
+  const { session, caps, go, openComposer } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
   const cw = session?.settings.callingWindow;
@@ -246,7 +246,7 @@ export function QueueScreen() {
               <Eyebrow>stopwatch</Eyebrow>
             </>
           )}
-          <Button size="sm" variant="ghost" icon="chat" onClick={() => go('composer', { candidateId: current.candidateId })}>
+          <Button size="sm" variant="ghost" icon="chat" onClick={() => openComposer(current.candidateId)}>
             Message
           </Button>
           <Button
