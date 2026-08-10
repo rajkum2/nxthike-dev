@@ -219,7 +219,7 @@ export function ToggleRow({
  * ------------------------------------------------------------------ */
 
 export function Card({
-  children, pad = 16, className = '', onClick, style,
+  children, pad = 12, className = '', onClick, style,
 }: {
   children: React.ReactNode; pad?: number; className?: string;
   onClick?: () => void; style?: React.CSSProperties;
@@ -330,11 +330,11 @@ export function FactGrid({
   facts, columns = 2,
 }: { facts: [string, React.ReactNode][]; columns?: number }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))`, gap: 14 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))`, gap: '8px 12px' }}>
       {facts.map(([k, v]) => (
         <div key={k}>
-          <div style={{ fontSize: 10.5, color: T.inkFaint, fontWeight: 600 }}>{k}</div>
-          <div style={{ marginTop: 3, fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>
+          <div style={{ fontSize: 10, color: T.inkFaint, fontWeight: 600 }}>{k}</div>
+          <div style={{ marginTop: 2, fontSize: 12.5, fontWeight: 600, wordBreak: 'break-word' }}>
             {v === '' || v === null || v === undefined ? <span style={{ color: T.inkGhost }}>—</span> : v}
           </div>
         </div>

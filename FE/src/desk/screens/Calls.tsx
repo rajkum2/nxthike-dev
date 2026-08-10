@@ -128,14 +128,14 @@ export function QueueScreen() {
     <div className="card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       <div className="card-head">
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700 }}>Queue</div>
-          <div style={{ marginTop: 2, fontSize: 11.5, color: T.inkFaint }}>
-            {num(queue.data?.total || 0)} waiting · {logged.length} logged this sitting
+          <div style={{ fontSize: 13, fontWeight: 700 }}>Queue</div>
+          <div style={{ marginTop: 1, fontSize: 11, color: T.inkFaint }}>
+            {num(queue.data?.total || 0)} waiting · {logged.length} logged
           </div>
         </div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-        {queue.loading && <div style={{ padding: 12 }}><SkeletonRows rows={6} /></div>}
+        {queue.loading && <div style={{ padding: 8 }}><SkeletonRows rows={6} /></div>}
         {queue.error && <ErrorState message={queue.error} onRetry={queue.reload} />}
         {queue.data && !rows.length && (
           <EmptyState icon="phone_disabled" title="No calls queued"
@@ -149,19 +149,20 @@ export function QueueScreen() {
           return (
             <button
               key={r.candidateId}
+              type="button"
               onClick={() => { setCursor(i); setShowList(false); setDispId(null); setLive(false); setElapsed(0); }}
               style={{
-                width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 11,
-                padding: '11px 14px', borderBottom: `1px solid ${T.dividerFaint}`,
+                width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8,
+                padding: '7px 10px', borderBottom: `1px solid ${T.dividerFaint}`,
                 background: active ? T.indigoTint : 'transparent', opacity: blocked ? 0.6 : 1,
               }}
             >
-              <Avatar name={r.name} id={r.candidateId} />
+              <Avatar name={r.name} id={r.candidateId} size={30} />
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {r.name || 'Unnamed'}
                 </span>
-                <span style={{ display: 'block', marginTop: 2, fontSize: 11, color: T.inkMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ display: 'block', marginTop: 1, fontSize: 10.5, color: T.inkMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {r.roleName}
                 </span>
               </span>
@@ -174,9 +175,9 @@ export function QueueScreen() {
   );
 
   const callPane = !current ? (
-    <Card><EmptyState icon="call" title="Nothing selected" body="Pick a candidate from the queue." /></Card>
+    <Card pad={12}><EmptyState icon="call" title="Nothing selected" body="Pick a candidate from the queue." /></Card>
   ) : (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
       {!windowOpen && (
         <Banner icon="block" tone="danger">
           Outside the calling window. TCCCPR permits commercial calls {cw?.label} only —
@@ -189,13 +190,13 @@ export function QueueScreen() {
         </Banner>
       )}
 
-      <Card>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <Avatar name={current.name} id={current.candidateId} size={52} />
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>{current.name || 'Unnamed'}</div>
-            <div style={{ marginTop: 3, fontSize: 12.5, color: T.inkMuted }}>{current.roleName}</div>
-            <div style={{ marginTop: 9, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <Card pad={12}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <Avatar name={current.name} id={current.candidateId} size={40} />
+          <div style={{ flex: 1, minWidth: 160 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-.02em' }}>{current.name || 'Unnamed'}</div>
+            <div style={{ marginTop: 2, fontSize: 12, color: T.inkMuted }}>{current.roleName}</div>
+            <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               <Badge label={stage(current.status).label} bg={stage(current.status).tint} fg={stage(current.status).color} />
               <Badge
                 label={detail.data?.consentAt ? 'Consent' : 'No consent'}
@@ -209,17 +210,15 @@ export function QueueScreen() {
                 icon={windowOpen ? 'schedule' : 'block'} />
             </div>
           </div>
-          <div className="mono" style={{ fontSize: 11, color: T.inkFaint }}>
+          <div className="mono" style={{ fontSize: 10.5, color: T.inkFaint }}>
             {cursor + 1} of {rows.length}
           </div>
         </div>
 
-        <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${T.divider}` }}>
+        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${T.divider}` }}>
           <FactGrid
             columns={isMobile ? 2 : 4}
             facts={[
-              // The queue endpoint predates masking, so mask here; the detail
-              // record arrives already masked when the role requires it.
               ['Phone', detail.data?.piiMasked ? (detail.data.phone || '') : maskedRole ? maskPhone(current.phone) : current.phone || ''],
               ['Email', detail.data?.piiMasked ? (detail.data.email || '') : maskedRole ? maskEmail(current.email) : current.email || ''],
               ['Location', current.city || ''],
@@ -228,64 +227,65 @@ export function QueueScreen() {
           />
         </div>
 
-        {/* Dial + stopwatch */}
-        <div style={{ marginTop: 16, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 10, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           {!live ? (
-            <Button icon={canDial ? 'call' : 'block'} onClick={startCall} disabled={!canDial}
-              style={{ height: 44, padding: '0 20px', fontSize: 14 }}
+            <Button
+              size="sm"
+              icon={canDial ? 'call' : 'block'}
+              onClick={startCall}
+              disabled={!canDial}
             >
-              {!windowOpen ? 'Calling window closed' : dnc ? 'Blocked · do not call' : `Call ${(current.name || '').split(' ')[0] || 'candidate'}`}
+              {!windowOpen ? 'Window closed' : dnc ? 'Blocked' : `Call ${(current.name || '').split(' ')[0] || ''}`}
             </Button>
           ) : (
             <>
-              <Button icon="call_end" variant="danger" onClick={endCall}
-                style={{ height: 44, padding: '0 20px', fontSize: 14 }}
-              >
-                End call
+              <Button size="sm" icon="call_end" variant="danger" onClick={endCall}>
+                End
               </Button>
-              <span className="mono" style={{ fontSize: 22, fontWeight: 500 }}>{duration(elapsed)}</span>
-              <Eyebrow>stopwatch · editable</Eyebrow>
+              <span className="mono" style={{ fontSize: 16, fontWeight: 500 }}>{duration(elapsed)}</span>
+              <Eyebrow>stopwatch</Eyebrow>
             </>
           )}
-          <Button variant="ghost" icon="chat" onClick={() => go('composer', { candidateId: current.candidateId })}>
+          <Button size="sm" variant="ghost" icon="chat" onClick={() => go('composer', { candidateId: current.candidateId })}>
             Message
           </Button>
-          <Button variant="ghost" icon="skip_next"
+          <Button
+            size="sm"
+            variant="ghost"
+            icon="skip_next"
             onClick={() => { setCursor(Math.min(cursor + 1, rows.length - 1)); setDispId(null); setLive(false); setElapsed(0); }}
           >
             Skip
           </Button>
         </div>
-        <div style={{ marginTop: 8, fontSize: 10.5, color: T.inkFaint }}>
-          Opens your softphone or desk phone. The browser cannot observe call state, so the duration above is a stopwatch and is saved as an estimate.
+        <div style={{ marginTop: 6, fontSize: 10, color: T.inkFaint, lineHeight: 1.35 }}>
+          Opens softphone / desk phone. Duration is a stopwatch estimate.
         </div>
       </Card>
 
-      {/* Last contact */}
       {lastCall.data && (
-        <Card style={{ background: T.surfaceAlt }}>
+        <Card pad={10} style={{ background: T.surfaceAlt }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 12.5, fontWeight: 700 }}>Last contact</span>
+            <span style={{ fontSize: 12, fontWeight: 700 }}>Last contact</span>
             <span className="mono" style={{ fontSize: 10, color: T.inkFaint }}>{whenLabel(lastCall.data.calledAt)}</span>
           </div>
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 6 }}>
             <Badge label={disposition(lastCall.data.disposition).label}
               bg={disposition(lastCall.data.disposition).tint}
               fg={disposition(lastCall.data.disposition).color}
               icon={disposition(lastCall.data.disposition).icon} />
           </div>
           {lastCall.data.note && (
-            <div style={{ marginTop: 8, fontSize: 12.5, color: T.inkBody, lineHeight: 1.5 }}>{lastCall.data.note}</div>
+            <div style={{ marginTop: 6, fontSize: 12, color: T.inkBody, lineHeight: 1.4 }}>{lastCall.data.note}</div>
           )}
         </Card>
       )}
 
-      {/* Disposition capture — always visible, so the outcome is one click away */}
-      <Card>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 14, fontWeight: 700 }}>Log the outcome</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="timer" size={16} color={T.inkMuted} />
+      <Card pad={12}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 13, fontWeight: 700 }}>Log the outcome</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Icon name="timer" size={14} color={T.inkMuted} />
             <input
               className="mono"
               value={duration(elapsed)}
@@ -294,18 +294,29 @@ export function QueueScreen() {
                 const total = (parseInt(m, 10) || 0) * 60 + (parseInt(s, 10) || 0);
                 if (!Number.isNaN(total)) setElapsed(total);
               }}
-              style={{ width: 66, textAlign: 'center', border: `1px solid ${T.borderInput}`, borderRadius: 8, height: 32, fontSize: 14 }}
+              style={{
+                width: 58, textAlign: 'center', border: `1px solid ${T.borderInput}`,
+                borderRadius: 3, height: 28, fontSize: 12.5, background: T.surface,
+              }}
             />
-            <Eyebrow>estimated</Eyebrow>
+            <Eyebrow>est.</Eyebrow>
           </div>
         </div>
 
-        <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: `repeat(auto-fit,minmax(${isMobile ? 150 : 180}px,1fr))`, gap: 7 }}>
+        <div
+          style={{
+            marginTop: 8,
+            display: 'grid',
+            gridTemplateColumns: `repeat(auto-fit,minmax(${isMobile ? 130 : 150}px,1fr))`,
+            gap: 4,
+          }}
+        >
           {DISPOSITIONS.map((d) => {
             const on = dispId === d.id;
             return (
               <button
                 key={d.id}
+                type="button"
                 onClick={() => {
                   setDispId(d.id);
                   setNextAction(d.id === 'connected_callback' ? 'callback'
@@ -313,18 +324,18 @@ export function QueueScreen() {
                       : ['connected_interested', 'screening_passed'].includes(d.id) ? 'stage' : 'none');
                 }}
                 style={{
-                  minHeight: 56, borderRadius: 13, padding: '9px 11px', textAlign: 'left',
+                  minHeight: 42, borderRadius: 3, padding: '6px 8px', textAlign: 'left',
                   background: on ? d.color : d.tint,
-                  border: `1.5px solid ${on ? d.color : 'transparent'}`,
-                  display: 'flex', alignItems: 'center', gap: 9,
+                  border: `1px solid ${on ? d.color : 'transparent'}`,
+                  display: 'flex', alignItems: 'center', gap: 7,
                 }}
               >
-                <Icon name={d.icon} size={20} color={on ? '#fff' : d.color} />
+                <Icon name={d.icon} size={16} color={on ? '#fff' : d.color} />
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: on ? '#fff' : d.color }}>
+                  <span style={{ display: 'block', fontSize: 11.5, fontWeight: 700, color: on ? '#fff' : d.color }}>
                     {d.label}
                   </span>
-                  <span className="mono" style={{ display: 'block', marginTop: 2, fontSize: 9.5, color: on ? 'rgba(255,255,255,.75)' : `${d.color}B0` }}>
+                  <span className="mono" style={{ display: 'block', marginTop: 1, fontSize: 9, color: on ? 'rgba(255,255,255,.75)' : `${d.color}B0` }}>
                     {d.category}
                   </span>
                 </span>
@@ -334,51 +345,57 @@ export function QueueScreen() {
         </div>
 
         {dispId && (
-          <div style={{ marginTop: 12, background: disposition(dispId).tint, borderRadius: 12, padding: 12, display: 'flex', gap: 9 }}>
-            <Icon name="arrow_forward" size={18} color={disposition(dispId).color} />
-            <span style={{ fontSize: 12, lineHeight: 1.5 }}>
-              <strong>Next action · </strong>{disposition(dispId).next}
+          <div
+            style={{
+              marginTop: 8, background: disposition(dispId).tint, borderRadius: 3,
+              padding: '8px 10px', display: 'flex', gap: 8, alignItems: 'flex-start',
+            }}
+          >
+            <Icon name="arrow_forward" size={15} color={disposition(dispId).color} />
+            <span style={{ fontSize: 11.5, lineHeight: 1.4 }}>
+              <strong>Next · </strong>{disposition(dispId).next}
             </span>
           </div>
         )}
 
-        <div style={{ marginTop: 12 }}>
-          <label className="label">Quick note</label>
+        <div style={{ marginTop: 8 }}>
+          <label className="label" style={{ marginBottom: 4 }}>Quick note</label>
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="What did they actually say? Comp, notice, and what they are comparing against."
+            rows={2}
+            placeholder="Comp, notice, what they are comparing against…"
+            style={{ minHeight: 56, borderRadius: 3 }}
           />
         </div>
 
-        <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <Button onClick={() => save(true)} disabled={!dispId || saving}>
+        <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <Button size="sm" onClick={() => save(true)} disabled={!dispId || saving}>
             {saving ? 'Saving…' : 'Save & next'}
           </Button>
-          <Button variant="ghost" onClick={() => save(false)} disabled={!dispId || saving}>Save</Button>
+          <Button size="sm" variant="ghost" onClick={() => save(false)} disabled={!dispId || saving}>Save</Button>
         </div>
       </Card>
     </div>
   );
 
   return (
-    <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      {/* Progress */}
-      <Card pad={14} style={{ marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 220 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7 }}>
-              <span style={{ fontSize: 12.5, fontWeight: 600 }}>Today</span>
-              <span className="mono" style={{ fontSize: 12 }}>
+    <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, gap: 0 }}>
+      <Card pad={10} style={{ marginBottom: 8, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>Today</span>
+              <span className="mono" style={{ fontSize: 11 }}>
                 {num(stats.data?.todayCount || 0)} logged · {pct(reached, stats.data?.totalCount || 0)} connect
               </span>
             </div>
             <Meter value={(stats.data?.todayCount || 0) / Math.max(1, rows.length)} />
           </div>
-          <Button variant="ghost" icon="history" onClick={() => go('callbacks')}>
+          <Button size="sm" variant="ghost" icon="history" onClick={() => go('callbacks')}>
             Callbacks ({stats.data?.callbacksDue || 0})
           </Button>
-          <Button variant="ghost" icon="phone_in_talk" onClick={() => go('history')}>History</Button>
+          <Button size="sm" variant="ghost" icon="phone_in_talk" onClick={() => go('history')}>History</Button>
         </div>
       </Card>
 
@@ -386,17 +403,17 @@ export function QueueScreen() {
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
           {showList ? listPane : (
             <>
-              <Button variant="ghost" icon="arrow_back" onClick={() => setShowList(true)} style={{ marginBottom: 12 }}>
-                Back to queue
+              <Button size="sm" variant="ghost" icon="arrow_back" onClick={() => setShowList(true)} style={{ marginBottom: 6 }}>
+                Queue
               </Button>
               {callPane}
             </>
           )}
         </div>
       ) : (
-        <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: '340px 1fr', gap: 16 }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: '300px 1fr', gap: 8 }}>
           {listPane}
-          <div style={{ overflowY: 'auto', minHeight: 0, paddingRight: 4 }}>{callPane}</div>
+          <div style={{ overflowY: 'auto', minHeight: 0 }}>{callPane}</div>
         </div>
       )}
     </div>

@@ -184,7 +184,7 @@
  * their own root; lists/boards use the whole stage.
  */
 .desk .pad {
-  padding: 20px 24px 32px;
+  padding: 12px 14px 16px;
   width: 100%;
   max-width: none;
   box-sizing: border-box;
@@ -192,10 +192,10 @@
 
 /* ---- Surfaces ---------------------------------------------------- */
 
-.desk .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.desk .card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
 .desk .card-hover:hover { border-color: #C6C1F5; }
-.desk .card-head { padding: 14px 16px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.desk .row { padding: 11px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--divider-faint); }
+.desk .card-head { padding: 8px 12px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.desk .row { padding: 8px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--divider-faint); }
 .desk .row-click { cursor: pointer; }
 .desk .row-click:hover { background: var(--row-hover); }
 
@@ -216,31 +216,32 @@
 /* ---- Controls ---------------------------------------------------- */
 
 .desk .btn {
-  height: 36px; padding: 0 13px; border-radius: 10px; display: inline-flex;
-  align-items: center; justify-content: center; gap: 7px; font-size: 12.5px; font-weight: 600;
+  height: 34px; padding: 0 12px; border-radius: 4px; display: inline-flex;
+  align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; font-weight: 600;
   cursor: pointer; white-space: nowrap; flex-shrink: 0;
   box-sizing: border-box;
 }
 /* Square icon-only buttons — equal padding so glyph sits dead-center */
 .desk .btn.btn-icon-only {
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
   padding: 0;
   gap: 0;
+  border-radius: 4px;
 }
 /* Compact icon buttons (detail panes, dense toolbars) */
 .desk .btn.btn-icon-only.btn-sm {
   width: 28px;
   min-width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 .desk .btn.btn-sm {
   height: 28px;
   padding: 0 10px;
   font-size: 11.5px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 .desk .btn-primary { background: var(--indigo); color: #fff; }
 .desk .btn-primary:hover { background: var(--indigo-hover); }
@@ -266,27 +267,27 @@
 .desk .btn-ghost:disabled { color: var(--ink-ghost); border-color: var(--border); background: var(--surface); cursor: not-allowed; }
 
 .desk .icon-btn {
-  width: 36px; height: 36px; border-radius: 10px; background: var(--fill);
+  width: 34px; height: 34px; border-radius: 4px; background: var(--fill);
   display: grid; place-items: center; cursor: pointer; flex-shrink: 0; position: relative;
   padding: 0; border: none; box-sizing: border-box;
 }
 .desk .icon-btn:hover { background: var(--fill-hover); }
 
 .desk .chip {
-  height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--border-strong);
-  background: var(--surface); display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--border-strong);
+  background: var(--surface); display: inline-flex; align-items: center; gap: 5px;
   font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .desk .chip-on { border-color: var(--indigo); background: var(--indigo-tint); color: var(--indigo-ink); }
 
 .desk .badge {
-  padding: 3px 8px; border-radius: 7px; font-size: 10.5px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700;
   display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
 }
 
 .desk .field {
-  width: 100%; height: 40px; border: 1px solid var(--border-input); border-radius: 10px;
-  padding: 0 12px; font-size: 13px; background: var(--surface);
+  width: 100%; height: 36px; border: 1px solid var(--border-input); border-radius: 4px;
+  padding: 0 10px; font-size: 13px; background: var(--surface);
 }
 /*
  * Native select carets often sit off-center when height is custom (e.g. 32px
