@@ -1627,45 +1627,84 @@ export function CandidatesScreen() {
     return () => window.removeEventListener('keydown', onKey);
   }, [useDetailDrawer, drawerOpen, selectedId]);
 
-  const cand = detail.data;
-  const detailPane = !cand ? (
-    <Card><EmptyState icon="groups" title="No candidate selected" body="Pick someone from the list or table." /></Card>
-  ) : (
-    <>
-      <CandidateProfile
-        cand={cand}
-        masked={masked}
-        lockedByRole={lockedByRole}
-        canEdit={canEdit}
-        isAdmin={isFullAdmin}
-        onToggleMask={() => setUnmask((u) => !u)}
-        onEdit={() => setEditOpen(true)}
-        onToggleStar={canEdit ? async (next) => { await toggleStar(cand.id, next); } : undefined}
-        onDelete={canDelete ? async () => {
-          if (!window.confirm(`Delete ${cand.name || 'this candidate'} permanently?`)) return;
-          try {
-            await deskApi.deleteCandidate(cand.id);
-            closeDetailDrawer();
-            list.reload();
-          } catch (e) {
-            alert((e as Error).message);
-          }
-        } : undefined}
-        onReload={() => { detail.reload(); list.reload(); }}
-        showClose={useDetailDrawer}
-        onClose={closeDetailDrawer}
-      />
-      {editOpen && canEdit && (
-        <EditCandidateModal
+  // Only treat detail as ready when it matches the current selection (avoids stale flash).
+  const cand = detail.data && selectedId && detail.data.id === selectedId ? detail.data : null;
+  const listHint = selectedId ? rows.find((r) => r.id === selectedId) : undefined;
+
+  let detailPane: React.ReactNode;
+  if (!selectedId) {
+    detailPane = (
+      <Card>
+        <EmptyState icon="groups" title="No candidate selected" body="Pick someone from the list or table." />
+      </Card>
+    );
+  } else if (detail.loading && !cand) {
+    detailPane = (
+      <Card style={{ padding: 14 }}>
+        {listHint && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <Avatar name={listHint.name} id={listHint.id} size={40} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{listHint.name || 'Candidate'}</div>
+              <div style={{ fontSize: 11.5, color: T.inkMuted }}>
+                {[listHint.roleName, listHint.phone].filter(Boolean).join(' · ') || 'Loading profile…'}
+              </div>
+            </div>
+          </div>
+        )}
+        <SkeletonRows rows={5} />
+      </Card>
+    );
+  } else if (detail.error && !cand) {
+    detailPane = (
+      <Card>
+        <ErrorState message={detail.error} onRetry={() => detail.reload()} />
+      </Card>
+    );
+  } else if (!cand) {
+    detailPane = (
+      <Card>
+        <EmptyState icon="person_search" title="Profile unavailable" body="Could not load this candidate. Try again or pick someone else." />
+      </Card>
+    );
+  } else {
+    detailPane = (
+      <>
+        <CandidateProfile
           cand={cand}
-          roles={rolesLoad.data || []}
+          masked={masked}
+          lockedByRole={lockedByRole}
+          canEdit={canEdit}
           isAdmin={isFullAdmin}
-          onClose={() => setEditOpen(false)}
-          onSaved={() => { setEditOpen(false); detail.reload(); list.reload(); }}
+          onToggleMask={() => setUnmask((u) => !u)}
+          onEdit={() => setEditOpen(true)}
+          onToggleStar={canEdit ? async (next) => { await toggleStar(cand.id, next); } : undefined}
+          onDelete={canDelete ? async () => {
+            if (!window.confirm(`Delete ${cand.name || 'this candidate'} permanently?`)) return;
+            try {
+              await deskApi.deleteCandidate(cand.id);
+              closeDetailDrawer();
+              list.reload();
+            } catch (e) {
+              alert((e as Error).message);
+            }
+          } : undefined}
+          onReload={() => { detail.reload(); list.reload(); }}
+          showClose={useDetailDrawer}
+          onClose={closeDetailDrawer}
         />
-      )}
-    </>
-  );
+        {editOpen && canEdit && (
+          <EditCandidateModal
+            cand={cand}
+            roles={rolesLoad.data || []}
+            isAdmin={isFullAdmin}
+            onClose={() => setEditOpen(false)}
+            onSaved={() => { setEditOpen(false); detail.reload(); list.reload(); }}
+          />
+        )}
+      </>
+    );
+  }
 
   const detailDrawer = useDetailDrawer && drawerOpen ? (
     <>

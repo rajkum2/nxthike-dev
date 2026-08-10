@@ -36,16 +36,17 @@ export function ComposerPanel({
   const [body, setBody] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const cand = useLoad(async () => deskApi.candidate(candidateId), [candidateId]);
+  const candLoad = useLoad(async () => deskApi.candidate(candidateId), [candidateId]);
   const templates = useLoad(() => deskApi.templates(), []);
+  const candData = candLoad.data && candLoad.data.id === candidateId ? candLoad.data : null;
 
   const vars = useMemo(() => ({
-    name: (cand.data?.name || '').split(' ')[0] || 'there',
-    role: cand.data?.roleName || 'the role',
-    client: cand.data?.latestCompany || cand.data?.roleName || 'our client',
+    name: (candData?.name || '').split(' ')[0] || 'there',
+    role: candData?.roleName || 'the role',
+    client: candData?.latestCompany || candData?.roleName || 'our client',
     recruiter: (session?.name || '').split(' ')[0] || 'the team',
     org: session?.settings.orgName || '',
-  }), [cand.data, session]);
+  }), [candData, session]);
 
   const resolve = (text: string) =>
     Object.entries(vars).reduce((acc, [k, v]) => acc.split(`{{${k}}}`).join(v), text);
@@ -55,7 +56,7 @@ export function ComposerPanel({
   const resolved = touched ? body : resolve(active?.body || '');
 
   const send = () => {
-    const c = cand.data;
+    const c = candData;
     if (!c) return;
     const text = encodeURIComponent(resolved);
     const digits = (c.phone || '').replace(/\D/g, '');
@@ -69,14 +70,26 @@ export function ComposerPanel({
     }
   };
 
+  if (candLoad.loading && !candData) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 10 : 12 }}>
+        <SkeletonRows rows={compact ? 4 : 5} />
+      </div>
+    );
+  }
+
+  if (candLoad.error && !candData) {
+    return <ErrorState message={candLoad.error} onRetry={() => candLoad.reload()} />;
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 10 : 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <Avatar name={cand.data?.name} id={candidateId} size={compact ? 36 : 40} />
+        <Avatar name={candData?.name} id={candidateId} size={compact ? 36 : 40} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700 }}>{cand.data?.name || 'Candidate'}</div>
+          <div style={{ fontSize: 14, fontWeight: 700 }}>{candData?.name || 'Candidate'}</div>
           <div style={{ fontSize: 11.5, color: T.inkMuted }}>
-            {channel === 'email' ? cand.data?.email : cand.data?.phone}
+            {channel === 'email' ? candData?.email : candData?.phone}
           </div>
         </div>
       </div>

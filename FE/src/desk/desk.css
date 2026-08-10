@@ -336,9 +336,10 @@
 
 /* ---- Overlays ---------------------------------------------------- */
 
-.desk .scrim { position: fixed; inset: 0; background: rgba(22,20,36,.44); z-index: 60; animation: desk-fade .16s; }
+/* Above candidate detail drawer (z 80/90) so compose and other modals cover it fully */
+.desk .scrim { position: fixed; inset: 0; background: rgba(22,20,36,.44); z-index: 100; animation: desk-fade .16s; }
 .desk .modal {
-  position: fixed; z-index: 61; background: var(--bg); border-radius: 16px;
+  position: fixed; z-index: 101; background: var(--bg); border-radius: 16px;
   box-shadow: 0 24px 60px rgba(20,18,40,.28); animation: desk-modal-in .2s ease-out;
   max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;
 }
