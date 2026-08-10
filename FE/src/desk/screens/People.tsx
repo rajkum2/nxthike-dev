@@ -130,13 +130,16 @@ function runMessagingChannel(
 
 function messagingMeta(channel: MsgChannel): {
   icon: string;
-  color: string;
+  tone?: 'success';
+  color?: string;
   title: string;
   enabled: boolean;
 } {
   switch (channel) {
+    // `chat` is the outline speech bubble; the tone colours the glyph and
+    // border rather than filling the button.
     case 'whatsapp':
-      return { icon: 'chat', color: '#25D366', title: 'WhatsApp', enabled: true };
+      return { icon: 'chat', tone: 'success', color: '#0F7B43', title: 'WhatsApp', enabled: true };
     case 'sms':
       return { icon: 'sms', color: T.inkMuted, title: 'SMS', enabled: true };
     case 'email':
@@ -1989,6 +1992,8 @@ function CandidateProfile({
         <div style={{ marginTop: 14, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
           {c.dial && (
             <Button
+              variant="ghost"
+              tone="brand"
               icon="call"
               title={cand.dnc ? 'Blocked · DND' : hasCallablePhone(cand.phone) ? 'Call' : 'No phone'}
               aria-label={cand.dnc ? 'Blocked · DND' : 'Call'}
@@ -2003,6 +2008,7 @@ function CandidateProfile({
             return (
               <Button
                 variant="ghost"
+                tone={m.tone}
                 icon={m.icon}
                 title={m.title}
                 aria-label={m.title}
@@ -2013,7 +2019,7 @@ function CandidateProfile({
                   width: 36,
                   padding: 0,
                   minWidth: 36,
-                  color: m.color,
+                  ...(m.color ? { color: m.color } : null),
                 }}
               />
             );
@@ -2040,7 +2046,8 @@ function CandidateProfile({
           )}
           {canEdit && (
             <Button
-              variant={isAdmin ? 'primary' : 'soft'}
+              variant="ghost"
+              tone="brand"
               icon="edit"
               title={isAdmin ? 'Edit all details' : 'Edit'}
               aria-label={isAdmin ? 'Edit all details' : 'Edit'}
@@ -2058,7 +2065,8 @@ function CandidateProfile({
           />
           {onDelete && (
             <Button
-              variant="danger"
+              variant="ghost"
+              tone="danger"
               icon="delete"
               title="Delete"
               aria-label="Delete"

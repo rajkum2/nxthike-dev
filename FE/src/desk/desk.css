@@ -101,8 +101,16 @@
   -webkit-font-smoothing: antialiased;
   user-select: none;
   flex-shrink: 0;
-  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  /*
+   * Unfilled, light stroke. `FILL 0` is what makes these outline glyphs rather
+   * than solid shapes, and wght 400 keeps the stroke fine enough to sit beside
+   * body text without reading as a badge.
+   */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+/* Small glyphs need a touch more weight to stay legible. */
+.desk .sym.sym-sm { font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20; }
 
 .desk .mono { font-family: 'Roboto Mono', ui-monospace, monospace; }
 
@@ -229,6 +237,20 @@
 .desk .btn-ghost { border: 1px solid var(--border-strong); background: var(--surface); }
 .desk .btn-ghost:hover { background: var(--fill); }
 .desk .btn-danger { background: #FCE8E6; color: #B3261E; }
+
+/*
+ * Outline actions carry their meaning in the glyph and the border, not in a
+ * solid fill. A row of icon buttons then reads as one family — a filled indigo
+ * square next to a filled red one competes for attention and makes an ordinary
+ * action look like a warning.
+ */
+.desk .btn-ghost.tone-brand   { color: var(--indigo); border-color: #C6C1F5; }
+.desk .btn-ghost.tone-brand:hover   { background: var(--indigo-tint); }
+.desk .btn-ghost.tone-danger  { color: #B3261E; border-color: #F0C7C2; }
+.desk .btn-ghost.tone-danger:hover  { background: #FDF2F1; }
+.desk .btn-ghost.tone-success { color: #0F7B43; border-color: #BFE3CD; }
+.desk .btn-ghost.tone-success:hover { background: #EFF9F3; }
+.desk .btn-ghost:disabled { color: var(--ink-ghost); border-color: var(--border); background: var(--surface); cursor: not-allowed; }
 
 .desk .icon-btn {
   width: 36px; height: 36px; border-radius: 10px; background: var(--fill);

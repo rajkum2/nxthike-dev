@@ -17,7 +17,9 @@ export function Icon({
 }: { name: string; size?: number; color?: string; className?: string; title?: string }) {
   return (
     <span
-      className={`sym ${className}`}
+      // Below ~15px the light stroke starts to disappear, so small glyphs take
+      // a slightly heavier weight to stay readable.
+      className={`sym${size <= 15 ? ' sym-sm' : ''} ${className}`}
       style={{
         fontSize: size,
         color,
@@ -102,9 +104,17 @@ export function Chip({
 type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: string;
   variant?: 'primary' | 'soft' | 'ghost' | 'danger';
+  /**
+   * Semantic colour for an outline button, applied to the glyph and border
+   * rather than as a fill. Lets a destructive or brand action stay legible in
+   * a row of icon buttons without shouting over its neighbours.
+   */
+  tone?: 'brand' | 'danger' | 'success';
 };
 
-export function Button({ icon, variant = 'primary', children, className = '', ...rest }: BtnProps) {
+export function Button({
+  icon, variant = 'primary', tone, children, className = '', ...rest
+}: BtnProps) {
   // Treat as icon-only when there is no visible label (undefined / null / empty).
   const hasLabel = (() => {
     if (children == null || children === false || children === true) return false;
@@ -115,7 +125,7 @@ export function Button({ icon, variant = 'primary', children, className = '', ..
   const iconOnly = Boolean(icon) && !hasLabel;
   return (
     <button
-      className={`btn btn-${variant}${iconOnly ? ' btn-icon-only' : ''}${className ? ` ${className}` : ''}`}
+      className={`btn btn-${variant}${tone ? ` tone-${tone}` : ''}${iconOnly ? ' btn-icon-only' : ''}${className ? ` ${className}` : ''}`}
       {...rest}
     >
       {icon && <Icon name={icon} size={18} />}
