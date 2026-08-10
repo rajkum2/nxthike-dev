@@ -6,7 +6,7 @@
  * unmask, and says which case it is.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { deskApi, type DeskCandidate } from '../api';
 import { STAGES, T, disposition, stage } from '../tokens';
 import { useDesk } from '../store';
@@ -136,10 +136,8 @@ function messagingMeta(channel: MsgChannel): {
   enabled: boolean;
 } {
   switch (channel) {
-    // `chat` is the outline speech bubble; the tone colours the glyph and
-    // border rather than filling the button.
     case 'whatsapp':
-      return { icon: 'chat', tone: 'success', color: '#0F7B43', title: 'WhatsApp', enabled: true };
+      return { icon: 'chat', tone: 'success', color: '#25D366', title: 'WhatsApp', enabled: true };
     case 'sms':
       return { icon: 'sms', color: T.inkMuted, title: 'SMS', enabled: true };
     case 'email':
@@ -149,6 +147,32 @@ function messagingMeta(channel: MsgChannel): {
     default:
       return { icon: 'chat', color: T.inkFaint, title: 'No phone or email', enabled: false };
   }
+}
+
+/** Official-style WhatsApp mark (Material Symbols has no brand logo). */
+function WhatsAppIcon({ size = 15, color = '#25D366' }: { size?: number; color?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={color}
+      aria-hidden
+      style={{ display: 'block', flexShrink: 0 }}
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
+
+function ChannelGlyph({
+  channel, size = 15,
+}: { channel: MsgChannel; size?: number }) {
+  const m = messagingMeta(channel);
+  if (channel === 'whatsapp' && m.enabled) {
+    return <WhatsAppIcon size={size} color={m.color || '#25D366'} />;
+  }
+  return <Icon name={m.icon} size={size} color={m.color} />;
 }
 
 const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number }[] = [
@@ -540,6 +564,16 @@ export function CandidatesScreen() {
       setTableDetailOpen(true);
     } else {
       setShowList(false);
+    }
+  };
+
+  const toggleStar = async (id: string, next: boolean) => {
+    try {
+      await deskApi.patchCandidate(id, { starred: next });
+      list.reload();
+      detail.reload();
+    } catch (e) {
+      alert((e as Error).message || 'Could not update favorite');
     }
   };
 
@@ -1219,6 +1253,18 @@ export function CandidatesScreen() {
                 style={{ display: 'inline-flex', gap: 1, flexShrink: 0 }}
                 onClick={(e) => e.stopPropagation()}
               >
+                {canEdit && (
+                  <button
+                    type="button"
+                    title={r.starred ? 'Unfavorite' : 'Favorite'}
+                    aria-label={r.starred ? 'Unfavorite' : 'Favorite'}
+                    aria-pressed={!!r.starred}
+                    onClick={() => toggleStar(r.id, !r.starred)}
+                    style={ROW_ACTION_BTN}
+                  >
+                    <Icon name={r.starred ? 'star' : 'star_border'} size={15} color={r.starred ? '#E6A817' : T.inkFaint} />
+                  </button>
+                )}
                 {c.dial && (
                   <button
                     type="button"
@@ -1251,7 +1297,7 @@ export function CandidatesScreen() {
                         cursor: m.enabled ? 'pointer' : 'not-allowed',
                       }}
                     >
-                      <Icon name={m.icon} size={15} color={m.color} />
+                      <ChannelGlyph channel={ch} size={15} />
                     </button>
                   );
                 })()}
@@ -1333,7 +1379,7 @@ export function CandidatesScreen() {
                   style={{
                     position: 'sticky', top: 0, right: 0, zIndex: 3,
                     background: T.surface,
-                    width: 132,
+                    width: canEdit ? 156 : 132,
                     padding: '8px 8px',
                     textAlign: 'right',
                     borderBottom: `1px solid ${T.divider}`,
@@ -1412,6 +1458,22 @@ export function CandidatesScreen() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div style={{ display: 'inline-flex', gap: 1, alignItems: 'center' }}>
+                        {canEdit && (
+                          <button
+                            type="button"
+                            title={r.starred ? 'Unfavorite' : 'Favorite'}
+                            aria-label={r.starred ? 'Unfavorite' : 'Favorite'}
+                            aria-pressed={!!r.starred}
+                            onClick={() => toggleStar(r.id, !r.starred)}
+                            style={ROW_ACTION_BTN}
+                          >
+                            <Icon
+                              name={r.starred ? 'star' : 'star_border'}
+                              size={16}
+                              color={r.starred ? '#E6A817' : T.inkFaint}
+                            />
+                          </button>
+                        )}
                         {c.dial && (
                           <button
                             type="button"
@@ -1440,7 +1502,7 @@ export function CandidatesScreen() {
                             cursor: msg.enabled ? 'pointer' : 'not-allowed',
                           }}
                         >
-                          <Icon name={msg.icon} size={16} color={msg.color} />
+                          <ChannelGlyph channel={msgCh} size={16} />
                         </button>
                         <button
                           type="button"
@@ -1472,6 +1534,27 @@ export function CandidatesScreen() {
     </div>
   );
 
+  const closeDetailDrawer = () => {
+    setTableDetailOpen(false);
+    setShowList(true);
+    go('cands', { candidateId: null });
+  };
+
+  // Table + mobile: overlay drawer. Desktop split: inline side panel.
+  const useDetailDrawer = viewMode === 'table' || isMobile;
+  const drawerOpen = Boolean(
+    selectedId && (viewMode === 'table' ? tableDetailOpen : isMobile ? !showList : false),
+  );
+
+  useEffect(() => {
+    if (!useDetailDrawer || !drawerOpen) return undefined;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeDetailDrawer();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [useDetailDrawer, drawerOpen, selectedId]);
+
   const cand = detail.data;
   const detailPane = !cand ? (
     <Card><EmptyState icon="groups" title="No candidate selected" body="Pick someone from the list or table." /></Card>
@@ -1485,26 +1568,20 @@ export function CandidatesScreen() {
         isAdmin={isFullAdmin}
         onToggleMask={() => setUnmask((u) => !u)}
         onEdit={() => setEditOpen(true)}
+        onToggleStar={canEdit ? async (next) => { await toggleStar(cand.id, next); } : undefined}
         onDelete={canDelete ? async () => {
           if (!window.confirm(`Delete ${cand.name || 'this candidate'} permanently?`)) return;
           try {
             await deskApi.deleteCandidate(cand.id);
-            go('cands', { candidateId: null });
-            setTableDetailOpen(false);
+            closeDetailDrawer();
             list.reload();
           } catch (e) {
             alert((e as Error).message);
           }
         } : undefined}
         onReload={() => { detail.reload(); list.reload(); }}
-        onBack={
-          isMobile || viewMode === 'table'
-            ? () => {
-              if (viewMode === 'table') setTableDetailOpen(false);
-              else setShowList(true);
-            }
-            : undefined
-        }
+        showClose={useDetailDrawer}
+        onClose={closeDetailDrawer}
       />
       {editOpen && canEdit && (
         <EditCandidateModal
@@ -1518,11 +1595,46 @@ export function CandidatesScreen() {
     </>
   );
 
-  const showFilters = isMobile ? (viewMode === 'table' ? !tableDetailOpen : showList) : true;
+  const detailDrawer = useDetailDrawer && drawerOpen ? (
+    <>
+      <div
+        role="presentation"
+        onClick={closeDetailDrawer}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 80,
+          background: 'rgba(20, 18, 40, 0.32)',
+        }}
+      />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Candidate details"
+        style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: 'min(420px, 100vw)',
+          zIndex: 90,
+          background: T.surface,
+          boxShadow: '-16px 0 48px rgba(20, 18, 40, 0.2)',
+          display: 'flex',
+          flexDirection: 'column',
+          animation: 'nxthikeDrawerIn .18s ease-out',
+        }}
+      >
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: 12 }}>
+          {detailPane}
+        </div>
+      </aside>
+    </>
+  ) : null;
 
   return (
     <div className="pad" style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, boxSizing: 'border-box' }}>
-      {showFilters && filterBar}
+      {filterBar}
       {bulkMsg && (
         <div
           style={{
@@ -1573,28 +1685,13 @@ export function CandidatesScreen() {
         />
       )}
 
-      {isMobile ? (
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-          {viewMode === 'table'
-            ? (tableDetailOpen && selectedId ? detailPane : tablePane)
-            : (showList ? listPane : detailPane)}
-        </div>
-      ) : viewMode === 'table' ? (
-        <div
-          style={{
-            flex: 1,
-            minHeight: 0,
-            display: 'grid',
-            gridTemplateColumns: tableDetailOpen && selectedId
-              ? 'minmax(0, 1fr) minmax(340px, 420px)'
-              : '1fr',
-            gap: 12,
-          }}
-        >
+      {viewMode === 'table' ? (
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {tablePane}
-          {tableDetailOpen && selectedId && (
-            <div style={{ overflowY: 'auto', minHeight: 0, minWidth: 0 }}>{detailPane}</div>
-          )}
+        </div>
+      ) : isMobile ? (
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          {listPane}
         </div>
       ) : (
         <div
@@ -1610,6 +1707,8 @@ export function CandidatesScreen() {
           <div style={{ overflowY: 'auto', minHeight: 0, paddingRight: 4, minWidth: 0 }}>{detailPane}</div>
         </div>
       )}
+
+      {detailDrawer}
     </div>
   );
 }
@@ -1917,17 +2016,20 @@ function BulkActionModal({
 const TABS = ['Overview', 'Timeline', 'Documents', 'Notes', 'Submissions', 'Calls'] as const;
 
 function CandidateProfile({
-  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onDelete, onReload, onBack,
+  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onDelete, onReload, onClose, showClose, onToggleStar,
 }: {
   cand: DeskCandidate; masked: boolean; lockedByRole: boolean;
   canEdit: boolean; isAdmin: boolean;
-  onToggleMask: () => void; onEdit: () => void; onDelete?: () => void; onReload: () => void; onBack?: () => void;
+  onToggleMask: () => void; onEdit: () => void; onDelete?: () => void; onReload: () => void;
+  onClose?: () => void; showClose?: boolean;
+  onToggleStar?: (next: boolean) => void;
 }) {
   const { go, caps, openModal } = useDesk();
   const c = caps();
   const [tab, setTab] = useState<(typeof TABS)[number]>('Overview');
   const [noteDraft, setNoteDraft] = useState('');
   const [shared, setShared] = useState(true);
+  const [starBusy, setStarBusy] = useState(false);
 
   const notes = useLoad(() => deskApi.notes(cand.id), [cand.id, tab === 'Notes']);
   const calls = useLoad(async () => (await deskApi.callLogs({ candidateId: cand.id })).items, [cand.id]);
@@ -1946,6 +2048,16 @@ function CandidateProfile({
   const setStage = async (statusId: string) => {
     await deskApi.patchCandidate(cand.id, { status: statusId });
     onReload();
+  };
+
+  const toggleStarLocal = async () => {
+    if (!onToggleStar || starBusy) return;
+    setStarBusy(true);
+    try {
+      await onToggleStar(!cand.starred);
+    } finally {
+      setStarBusy(false);
+    }
   };
 
   const phoneShown = cand.piiMasked
@@ -1968,31 +2080,49 @@ function CandidateProfile({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <Card pad={12}>
-        {/* Header: back · avatar · identity · privacy */}
+        {/* Header: avatar · identity · privacy · close */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap' }}>
-          {onBack && (
-            <Button
-              variant="ghost"
-              size="sm"
-              icon="arrow_back"
-              title="Back to list"
-              aria-label="Back to list"
-              onClick={onBack}
-            />
-          )}
           <Avatar name={cand.name} id={cand.id} size={36} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 15,
-                fontWeight: 700,
-                letterSpacing: '-.02em',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {cand.name || 'Unnamed'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  letterSpacing: '-.02em',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  minWidth: 0,
+                }}
+              >
+                {cand.name || 'Unnamed'}
+              </div>
+              {canEdit && onToggleStar && (
+                <button
+                  type="button"
+                  title={cand.starred ? 'Unfavorite' : 'Favorite'}
+                  aria-label={cand.starred ? 'Unfavorite' : 'Favorite'}
+                  aria-pressed={!!cand.starred}
+                  disabled={starBusy}
+                  onClick={toggleStarLocal}
+                  style={{
+                    ...ROW_ACTION_BTN,
+                    width: 26,
+                    height: 26,
+                    opacity: starBusy ? 0.5 : 1,
+                  }}
+                >
+                  <Icon
+                    name={cand.starred ? 'star' : 'star_border'}
+                    size={16}
+                    color={cand.starred ? '#E6A817' : T.inkFaint}
+                  />
+                </button>
+              )}
+              {!canEdit && cand.starred && (
+                <Icon name="star" size={15} color="#E6A817" title="Favorite" />
+              )}
             </div>
             <div
               style={{
@@ -2046,6 +2176,16 @@ function CandidateProfile({
           >
             <Icon name={masked ? 'visibility_off' : 'visibility'} size={15} color={masked ? T.amberInk : T.inkMuted} />
           </button>
+          {showClose && onClose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              icon="close"
+              title="Close"
+              aria-label="Close details"
+              onClick={onClose}
+            />
+          )}
         </div>
 
         {/* Actions: Reach | Pipeline | Manage */}
@@ -2073,6 +2213,19 @@ function CandidateProfile({
           {(() => {
             const ch = messagingChannel({ phone: cand.phone, email: cand.email, dnc: cand.dnc });
             const m = messagingMeta(ch);
+            if (ch === 'whatsapp' && m.enabled) {
+              return (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-icon-only btn-sm tone-success"
+                  title={m.title}
+                  aria-label={m.title}
+                  onClick={() => runMessagingChannel(ch, cand)}
+                >
+                  <WhatsAppIcon size={15} color={m.color} />
+                </button>
+              );
+            }
             return (
               <Button
                 variant="ghost"

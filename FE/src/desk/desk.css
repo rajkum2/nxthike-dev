@@ -288,11 +288,37 @@
   width: 100%; height: 40px; border: 1px solid var(--border-input); border-radius: 10px;
   padding: 0 12px; font-size: 13px; background: var(--surface);
 }
+/*
+ * Native select carets often sit off-center when height is custom (e.g. 32px
+ * compact toolbar). Hide the OS arrow and paint a centered chevron instead.
+ */
+.desk select.field {
+  -webkit-appearance: none;
+  appearance: none;
+  /* Override inline padding from compact toolbars so the caret stays centered */
+  padding-right: 28px !important;
+  background-color: var(--surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B8996' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px 14px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.desk select.field:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
 .desk textarea.field { height: auto; min-height: 78px; padding: 10px 12px; line-height: 1.55; resize: vertical; }
 .desk .label { font-size: 11.5px; font-weight: 600; color: var(--ink-muted); margin-bottom: 6px; display: block; }
 
 .desk .switch { width: 44px; height: 26px; border-radius: 99px; padding: 3px; cursor: pointer; display: flex; transition: background .18s; }
 .desk .switch-knob { width: 20px; height: 20px; border-radius: 99px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+
+@keyframes nxthikeDrawerIn {
+  from { transform: translateX(12px); opacity: 0.85; }
+  to { transform: translateX(0); opacity: 1; }
+}
 
 /* ---- Tables ------------------------------------------------------ */
 
