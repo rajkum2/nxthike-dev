@@ -481,11 +481,7 @@ export function CandidatesScreen() {
           ))}
         </Select>
 
-        <Select value={status} onChange={(e) => setStatus(e.target.value)} style={{ ...compactCtrl, flex: '0 1 120px', maxWidth: 140 }}>
-          {STATUS_CHIPS.map((x) => (
-            <option key={x.key} value={x.key}>{x.key === 'all' ? 'All stages' : x.label}</option>
-          ))}
-        </Select>
+        {/* No stage dropdown here — the chip row below owns `status`. */}
 
         <Select value={experience} onChange={(e) => setExperience(e.target.value)} style={{ ...compactCtrl, flex: '0 1 110px', maxWidth: 130 }}>
           <option value="all">Any exp</option>
@@ -697,6 +693,154 @@ export function CandidatesScreen() {
         </div>
       </div>
 
+      {/* Advanced filters sit above the chips: the chip row stays welded to the
+          list it filters, so opening this panel never shifts the stage you are on. */}
+      {showMoreFilters && (
+        <div
+          style={{
+            marginTop: 8,
+            padding: isMobile ? 10 : 12,
+            background: T.surfaceAlt,
+            border: `1px solid ${T.border}`,
+            borderRadius: 10,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <Eyebrow>Filters</Eyebrow>
+            <div style={{ flex: 1, height: 1, background: T.divider }} />
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                style={{
+                  height: 24,
+                  padding: '0 9px',
+                  borderRadius: 6,
+                  fontSize: 11,
+                  fontWeight: 650,
+                  flexShrink: 0,
+                  background: T.surface,
+                  color: T.inkMuted,
+                  border: `1px solid ${T.border}`,
+                  cursor: 'pointer',
+                }}
+              >
+                Reset all
+              </button>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile
+                ? '1fr 1fr'
+                : 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: 8,
+            }}
+          >
+            <div>
+              <label className="label">City</label>
+              <input
+                className="field"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Contains…"
+                style={compactCtrl}
+              />
+            </div>
+            <div>
+              <label className="label">Source</label>
+              <input
+                className="field"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                placeholder="Contains…"
+                style={compactCtrl}
+              />
+            </div>
+            <div>
+              <label className="label">Gender</label>
+              <Select value={gender} onChange={(e) => setGender(e.target.value)} style={compactCtrl}>
+                <option value="all">Any gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </Select>
+            </div>
+            <div>
+              <label className="label">Sort by</label>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <Select
+                  value={sortKey}
+                  onChange={(e) => setSortKey(e.target.value)}
+                  style={{ ...compactCtrl, flex: 1 }}
+                >
+                  <option value="updatedAt">Updated</option>
+                  <option value="createdAt">Added</option>
+                  <option value="name">Name</option>
+                  <option value="status">Stage</option>
+                  <option value="city">City</option>
+                  <option value="latestRole">Latest role</option>
+                </Select>
+                <button
+                  type="button"
+                  onClick={() => setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))}
+                  title={sortDir === 'desc' ? 'Newest / Z–A first — click to flip' : 'Oldest / A–Z first — click to flip'}
+                  aria-label={sortDir === 'desc' ? 'Sorted descending' : 'Sorted ascending'}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    flexShrink: 0,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 8,
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Icon
+                    name={sortDir === 'desc' ? 'arrow_downward' : 'arrow_upward'}
+                    size={15}
+                    color={T.inkMuted}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            {toggleOpts.map(([on, set, label, icon]) => (
+              <button
+                key={label}
+                type="button"
+                aria-pressed={on}
+                onClick={() => set(!on)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  height: 28,
+                  padding: '0 10px',
+                  borderRadius: 7,
+                  fontSize: 11.5,
+                  fontWeight: 650,
+                  background: on ? T.indigoTint : T.surface,
+                  color: on ? T.indigoInk : T.inkBody,
+                  border: `1px solid ${on ? T.indigo : T.border}`,
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name={on ? 'check' : icon} size={14} color={on ? T.indigo : T.inkFaint} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stage chips — compact, single row scroll */}
       <div
         style={{
@@ -712,6 +856,7 @@ export function CandidatesScreen() {
           <button
             key={x.key}
             type="button"
+            aria-pressed={status === x.key}
             onClick={() => setStatus(x.key)}
             style={{
               height: 26,
@@ -731,79 +876,6 @@ export function CandidatesScreen() {
           </button>
         ))}
       </div>
-
-      {showMoreFilters && (
-        <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${T.divider}` }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile
-                ? '1fr 1fr'
-                : 'repeat(auto-fill, minmax(140px, 1fr))',
-              gap: 8,
-            }}
-          >
-            <input
-              className="field"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="City contains…"
-              style={compactCtrl}
-            />
-            <input
-              className="field"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              placeholder="Source contains…"
-              style={compactCtrl}
-            />
-            <Select value={gender} onChange={(e) => setGender(e.target.value)} style={compactCtrl}>
-              <option value="all">Any gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </Select>
-            <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} style={compactCtrl}>
-              <option value="updatedAt">Sort: Updated</option>
-              <option value="createdAt">Sort: Added</option>
-              <option value="name">Sort: Name</option>
-              <option value="status">Sort: Stage</option>
-              <option value="city">Sort: City</option>
-              <option value="latestRole">Sort: Latest role</option>
-            </Select>
-            <Select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} style={compactCtrl}>
-              <option value="desc">Desc</option>
-              <option value="asc">Asc</option>
-            </Select>
-          </div>
-          <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            {toggleOpts.map(([on, set, label, icon]) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => set(!on)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  height: 28,
-                  padding: '0 10px',
-                  borderRadius: 7,
-                  fontSize: 11.5,
-                  fontWeight: 650,
-                  background: on ? T.indigoTint : T.fill,
-                  color: on ? T.indigoInk : T.inkBody,
-                  border: `1px solid ${on ? T.indigo : T.border}`,
-                  cursor: 'pointer',
-                }}
-              >
-                <Icon name={on ? 'check' : icon} size={14} color={on ? T.indigo : T.inkFaint} />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 
