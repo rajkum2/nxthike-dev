@@ -144,7 +144,7 @@ export function HomeScreen() {
 
   const cta: Record<string, { label: string; icon: string; go: () => void }> = {
     dialer: { label: 'Start calling', icon: 'play_arrow', go: () => go('queue') },
-    sourcer: { label: 'Add candidate', icon: 'person_add', go: () => go('addcand') },
+    sourcer: { label: 'Add candidate', icon: 'person_add', go: () => openModal('addcand') },
     ta: { label: 'Open pipeline', icon: 'view_kanban', go: () => go('kanban') },
     lead: { label: 'Team dashboard', icon: 'leaderboard', go: () => go('team') },
     am: { label: 'Open clients', icon: 'apartment', go: () => go('clients') },

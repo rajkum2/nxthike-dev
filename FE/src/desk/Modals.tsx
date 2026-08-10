@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { deskApi } from '../desk/api';
+import { deskApi, type DeskCandidate } from '../desk/api';
 import { DISPOSITIONS, DROP_REASONS, STAGES, T } from './tokens';
 import { useDesk } from './store';
 import {
@@ -656,6 +656,152 @@ function FiltersModal({ onClose }: { onClose: () => void }) {
 }
 
 /* ------------------------------------------------------------------ *
+ *  Add candidate                                                     *
+ * ------------------------------------------------------------------ */
+
+/**
+ * Opens over whatever screen you were on — Candidates or Today — so sourcing a
+ * name never costs you your place in the list. Dedupe still runs on the phone
+ * number as you type, which is the whole point of the screen this replaced.
+ */
+function AddCandidateModal({ onClose }: { onClose: () => void }) {
+  const { go, bumpCandidates } = useDesk();
+  const roles = useLoad(() => deskApi.hiringDashboard(), []);
+  const [form, setForm] = useState({
+    name: '', phone: '', email: '', city: '', latestRole: '', latestCompany: '',
+    roleId: '', source: 'Naukri',
+  });
+  const [dupe, setDupe] = useState<DeskCandidate | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  // Dedupe as you type, on the last ten digits.
+  const checkDupe = async (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 6) { setDupe(null); return; }
+    try {
+      const res = await deskApi.candidates({ search: digits.slice(-10), pageSize: 5 });
+      setDupe(res.items.find((c) => (c.phone || '').replace(/\D/g, '').slice(-10) === digits.slice(-10)) || null);
+    } catch { setDupe(null); }
+  };
+
+  const valid = Boolean(form.name.trim() && form.phone.trim() && form.roleId);
+
+  const save = async () => {
+    if (!valid) return;
+    setSaving(true); setError(null);
+    try {
+      const created = await deskApi.createCandidate({
+        roleId: form.roleId,
+        roleName: roles.data?.roles.find((r) => r.id === form.roleId)?.name || '',
+        name: form.name, phone: form.phone, email: form.email || null, city: form.city || null,
+        latestRole: form.latestRole || null, latestCompany: form.latestCompany || null,
+        status: 'new', tags: [form.source],
+      });
+      bumpCandidates();
+      onClose();
+      go('cands', { candidateId: created.id });
+    } catch (e) {
+      setError((e as Error).message);
+      setSaving(false);
+    }
+  };
+
+  const openExisting = (id: string) => { onClose(); go('cands', { candidateId: id }); };
+
+  return (
+    <Modal
+      title="Add candidate"
+      subtitle="Dedupe runs on the number as you type."
+      onClose={onClose}
+      width={680}
+      footer={(
+        <>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button onClick={() => void save()} disabled={!valid || saving}>
+            {saving ? 'Saving…' : 'Save candidate'}
+          </Button>
+          {!valid && (
+            <span style={{ fontSize: 11, color: T.inkFaint, alignSelf: 'center' }}>
+              Name, number and requisition required
+            </span>
+          )}
+        </>
+      )}
+    >
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
+        <div>
+          <label className="label">Full name *</label>
+          <Input
+            autoFocus
+            value={form.name}
+            onChange={(e) => set('name', e.target.value)}
+            placeholder="e.g. Ritu Malhotra"
+          />
+        </div>
+        <div>
+          <label className="label">Mobile number *</label>
+          <Input
+            value={form.phone}
+            placeholder="98200 41562"
+            onChange={(e) => { set('phone', e.target.value); void checkDupe(e.target.value); }}
+            style={dupe ? { borderColor: '#E0A83A' } : undefined}
+          />
+        </div>
+        <div>
+          <label className="label">Email</label>
+          <Input value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="name@company.com" />
+        </div>
+        <div>
+          <label className="label">City</label>
+          <Input value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="e.g. Pune" />
+        </div>
+        <div>
+          <label className="label">Current role</label>
+          <Input value={form.latestRole} onChange={(e) => set('latestRole', e.target.value)} placeholder="e.g. Senior Java Developer" />
+        </div>
+        <div>
+          <label className="label">Current company</label>
+          <Input value={form.latestCompany} onChange={(e) => set('latestCompany', e.target.value)} placeholder="e.g. Infosys" />
+        </div>
+        <div>
+          <label className="label">Requisition *</label>
+          <Select value={form.roleId} onChange={(e) => set('roleId', e.target.value)}>
+            <option value="">Choose…</option>
+            {(roles.data?.roles || []).map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+          </Select>
+        </div>
+        <div>
+          <label className="label">Source</label>
+          <Select value={form.source} onChange={(e) => set('source', e.target.value)}>
+            {['Naukri', 'LinkedIn', 'Referral', 'Internshala', 'Apna', 'Walk-in'].map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      {dupe && (
+        <div style={{ marginTop: 14 }}>
+          <Banner
+            icon="content_copy"
+            tone="warn"
+            action={<Button variant="soft" onClick={() => openExisting(dupe.id)}>Open existing</Button>}
+          >
+            <strong>Possible duplicate.</strong> {dupe.name} already has this number
+            {dupe.roleName ? ` on ${dupe.roleName}` : ''}.
+          </Banner>
+        </div>
+      )}
+
+      {error && <div style={{ marginTop: 14 }}><Banner icon="error" tone="danger">{error}</Banner></div>}
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  *  Router                                                            *
  * ------------------------------------------------------------------ */
 
@@ -675,6 +821,7 @@ export function Modals() {
     case 'invite': return <InviteModal onClose={closeModal} />;
     case 'newtask': return <NewTaskModal onClose={closeModal} />;
     case 'filters': return <FiltersModal onClose={closeModal} />;
+    case 'addcand': return <AddCandidateModal onClose={closeModal} />;
     default: return null;
   }
 }

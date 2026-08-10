@@ -57,13 +57,95 @@ function phoneDigits(phone?: string | null) {
   return (phone || '').replace(/\D/g, '');
 }
 
-/** Open WhatsApp for an Indian 10-digit mobile, or raw international digits. */
+/** Normalize to a dialable digit string (strip leading 0). */
+function normalizePhoneDigits(phone?: string | null) {
+  let d = phoneDigits(phone);
+  if (d.startsWith('0') && d.length >= 11) d = d.replace(/^0+/, '');
+  return d;
+}
+
+/**
+ * Heuristic: Indian mobiles (6–9 + 9 digits) are WhatsApp-eligible in our market.
+ * We cannot query Meta for registration; this avoids landlines / junk numbers.
+ */
+function isLikelyWhatsAppMobile(phone?: string | null): boolean {
+  const d = normalizePhoneDigits(phone);
+  if (/^[6-9]\d{9}$/.test(d)) return true;
+  if (/^91[6-9]\d{9}$/.test(d)) return true;
+  return false;
+}
+
+type MsgChannel = 'whatsapp' | 'sms' | 'email' | 'none' | 'blocked';
+
+function messagingChannel(opts: {
+  phone?: string | null;
+  email?: string | null;
+  dnc?: boolean | null;
+}): MsgChannel {
+  if (opts.dnc) return 'blocked';
+  if (isLikelyWhatsAppMobile(opts.phone)) return 'whatsapp';
+  const d = normalizePhoneDigits(opts.phone);
+  if (d.length >= 10) return 'sms';
+  const em = (opts.email || '').trim();
+  if (em.includes('@')) return 'email';
+  return 'none';
+}
+
+function hasCallablePhone(phone?: string | null) {
+  return normalizePhoneDigits(phone).length >= 10;
+}
+
+/** Open WhatsApp (Indian 10-digit → 91 prefix). */
 function openWhatsApp(phone?: string | null, name?: string | null) {
-  const digits = phoneDigits(phone);
-  if (digits.length < 10) return;
-  const e164 = digits.length === 10 ? `91${digits}` : digits.replace(/^0+/, '');
+  if (!isLikelyWhatsAppMobile(phone)) return;
+  let d = normalizePhoneDigits(phone);
+  if (/^[6-9]\d{9}$/.test(d)) d = `91${d}`;
   const text = encodeURIComponent(name ? `Hi ${name}` : 'Hi');
-  window.open(`https://wa.me/${e164}?text=${text}`, '_blank', 'noopener');
+  window.open(`https://wa.me/${d}?text=${text}`, '_blank', 'noopener');
+}
+
+function openSms(phone?: string | null, name?: string | null) {
+  const d = normalizePhoneDigits(phone);
+  if (d.length < 10) return;
+  const body = encodeURIComponent(name ? `Hi ${name}` : 'Hi');
+  window.open(`sms:${d}?body=${body}`, '_self');
+}
+
+function openEmail(email?: string | null, name?: string | null) {
+  const em = (email || '').trim();
+  if (!em.includes('@')) return;
+  const subject = encodeURIComponent('Hello');
+  const body = encodeURIComponent(name ? `Hi ${name},` : 'Hi,');
+  window.open(`mailto:${em}?subject=${subject}&body=${body}`, '_self');
+}
+
+function runMessagingChannel(
+  channel: MsgChannel,
+  contact: { phone?: string | null; email?: string | null; name?: string | null },
+) {
+  if (channel === 'whatsapp') openWhatsApp(contact.phone, contact.name);
+  else if (channel === 'sms') openSms(contact.phone, contact.name);
+  else if (channel === 'email') openEmail(contact.email, contact.name);
+}
+
+function messagingMeta(channel: MsgChannel): {
+  icon: string;
+  color: string;
+  title: string;
+  enabled: boolean;
+} {
+  switch (channel) {
+    case 'whatsapp':
+      return { icon: 'chat', color: '#25D366', title: 'WhatsApp', enabled: true };
+    case 'sms':
+      return { icon: 'sms', color: T.inkMuted, title: 'SMS', enabled: true };
+    case 'email':
+      return { icon: 'mail', color: T.inkMuted, title: 'Email', enabled: true };
+    case 'blocked':
+      return { icon: 'chat', color: T.inkFaint, title: 'Blocked · DND', enabled: false };
+    default:
+      return { icon: 'chat', color: T.inkFaint, title: 'No phone or email', enabled: false };
+  }
 }
 
 const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number }[] = [
@@ -128,7 +210,7 @@ const compactCtrl: React.CSSProperties = {
 export function CandidatesScreen() {
   const {
     candidateId, candidateRoleId, go, caps, selection, toggleSelect, clearSelection,
-    setCandidateRoleId,
+    setCandidateRoleId, openModal, candidatesRev,
   } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
@@ -202,6 +284,7 @@ export function CandidatesScreen() {
   const filterDeps = [
     debouncedQ, status, roleId, experience, debouncedCity, debouncedSource, gender,
     starredOnly, hasNotes, hasPhone, hasEmail, hasResume, dncOnly, noConsent, sortKey, sortDir,
+    candidatesRev,
   ];
   React.useEffect(() => { setPage(1); }, filterDeps); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -540,7 +623,7 @@ export function CandidatesScreen() {
               icon="person_add"
               title="Add candidate"
               aria-label="Add candidate"
-              onClick={() => go('addcand')}
+              onClick={() => openModal('addcand')}
               style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
             />
           )}
@@ -927,7 +1010,7 @@ export function CandidatesScreen() {
             title="No candidates match"
             body="Widen or clear filters, or add this person."
             actionLabel={c.create ? 'Add candidate' : undefined}
-            onAction={() => go('addcand')}
+            onAction={() => openModal('addcand')}
           />
         )}
         {rows.map((r) => {
@@ -972,33 +1055,39 @@ export function CandidatesScreen() {
                 {c.dial && (
                   <button
                     type="button"
-                    title={r.dnc ? 'Blocked · DND' : phoneDigits(r.phone).length >= 10 ? 'Call' : 'No phone'}
+                    title={r.dnc ? 'Blocked · DND' : hasCallablePhone(r.phone) ? 'Call' : 'No phone'}
                     aria-label="Call"
-                    disabled={!!r.dnc || phoneDigits(r.phone).length < 10}
+                    disabled={!!r.dnc || !hasCallablePhone(r.phone)}
                     onClick={() => go('queue', { candidateId: r.id })}
                     style={{
                       ...ROW_ACTION_BTN,
-                      opacity: !!r.dnc || phoneDigits(r.phone).length < 10 ? 0.35 : 1,
-                      cursor: !!r.dnc || phoneDigits(r.phone).length < 10 ? 'not-allowed' : 'pointer',
+                      opacity: !!r.dnc || !hasCallablePhone(r.phone) ? 0.35 : 1,
+                      cursor: !!r.dnc || !hasCallablePhone(r.phone) ? 'not-allowed' : 'pointer',
                     }}
                   >
                     <Icon name="call" size={15} color={T.indigo} />
                   </button>
                 )}
-                <button
-                  type="button"
-                  title={r.dnc ? 'Blocked · DND' : phoneDigits(r.phone).length >= 10 ? 'WhatsApp' : 'No phone'}
-                  aria-label="WhatsApp"
-                  disabled={!!r.dnc || phoneDigits(r.phone).length < 10}
-                  onClick={() => openWhatsApp(r.phone, r.name)}
-                  style={{
-                    ...ROW_ACTION_BTN,
-                    opacity: !!r.dnc || phoneDigits(r.phone).length < 10 ? 0.35 : 1,
-                    cursor: !!r.dnc || phoneDigits(r.phone).length < 10 ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <Icon name="chat" size={15} color="#25D366" />
-                </button>
+                {(() => {
+                  const ch = messagingChannel({ phone: r.phone, email: r.email, dnc: r.dnc });
+                  const m = messagingMeta(ch);
+                  return (
+                    <button
+                      type="button"
+                      title={m.title}
+                      aria-label={m.title}
+                      disabled={!m.enabled}
+                      onClick={() => runMessagingChannel(ch, r)}
+                      style={{
+                        ...ROW_ACTION_BTN,
+                        opacity: m.enabled ? 1 : 0.35,
+                        cursor: m.enabled ? 'pointer' : 'not-allowed',
+                      }}
+                    >
+                      <Icon name={m.icon} size={15} color={m.color} />
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           );
@@ -1095,8 +1184,9 @@ export function CandidatesScreen() {
             <tbody>
               {rows.map((r) => {
                 const on = r.id === selectedId && tableDetailOpen;
-                const hasPhone = phoneDigits(r.phone).length >= 10;
-                const callBlocked = !!r.dnc || !hasPhone;
+                const canCall = hasCallablePhone(r.phone) && !r.dnc;
+                const msgCh = messagingChannel({ phone: r.phone, email: r.email, dnc: r.dnc });
+                const msg = messagingMeta(msgCh);
                 const rowBg = on ? T.indigoTint : selection[r.id] ? `${T.indigo}08` : T.surface;
                 return (
                   <tr
@@ -1158,14 +1248,14 @@ export function CandidatesScreen() {
                         {c.dial && (
                           <button
                             type="button"
-                            title={r.dnc ? 'Blocked · DND' : hasPhone ? 'Call' : 'No phone'}
+                            title={r.dnc ? 'Blocked · DND' : canCall ? 'Call' : 'No phone'}
                             aria-label="Call"
-                            disabled={callBlocked}
+                            disabled={!canCall}
                             onClick={() => go('queue', { candidateId: r.id })}
                             style={{
                               ...ROW_ACTION_BTN,
-                              opacity: callBlocked ? 0.35 : 1,
-                              cursor: callBlocked ? 'not-allowed' : 'pointer',
+                              opacity: canCall ? 1 : 0.35,
+                              cursor: canCall ? 'pointer' : 'not-allowed',
                             }}
                           >
                             <Icon name="call" size={16} color={T.indigo} />
@@ -1173,26 +1263,26 @@ export function CandidatesScreen() {
                         )}
                         <button
                           type="button"
-                          title={r.dnc ? 'Blocked · DND' : hasPhone ? 'WhatsApp' : 'No phone'}
-                          aria-label="WhatsApp"
-                          disabled={callBlocked}
-                          onClick={() => openWhatsApp(r.phone, r.name)}
+                          title={msg.title}
+                          aria-label={msg.title}
+                          disabled={!msg.enabled}
+                          onClick={() => runMessagingChannel(msgCh, r)}
                           style={{
                             ...ROW_ACTION_BTN,
-                            opacity: callBlocked ? 0.35 : 1,
-                            cursor: callBlocked ? 'not-allowed' : 'pointer',
+                            opacity: msg.enabled ? 1 : 0.35,
+                            cursor: msg.enabled ? 'pointer' : 'not-allowed',
                           }}
                         >
-                          <Icon name="chat" size={16} color="#25D366" />
+                          <Icon name={msg.icon} size={16} color={msg.color} />
                         </button>
                         <button
                           type="button"
-                          title="Message"
-                          aria-label="Message"
+                          title="Compose message"
+                          aria-label="Compose message"
                           onClick={() => go('composer', { candidateId: r.id })}
                           style={ROW_ACTION_BTN}
                         >
-                          <Icon name="sms" size={16} color={T.inkMuted} />
+                          <Icon name="edit_note" size={16} color={T.inkMuted} />
                         </button>
                         <button
                           type="button"
@@ -1754,27 +1844,39 @@ function CandidateProfile({
           {c.dial && (
             <Button
               icon="call"
-              title={cand.dnc ? 'Blocked · DND' : phoneDigits(cand.phone).length >= 10 ? 'Call' : 'No phone'}
+              title={cand.dnc ? 'Blocked · DND' : hasCallablePhone(cand.phone) ? 'Call' : 'No phone'}
               aria-label={cand.dnc ? 'Blocked · DND' : 'Call'}
               onClick={() => go('queue', { candidateId: cand.id })}
-              disabled={!!cand.dnc || phoneDigits(cand.phone).length < 10}
+              disabled={!!cand.dnc || !hasCallablePhone(cand.phone)}
               style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
             />
           )}
+          {(() => {
+            const ch = messagingChannel({ phone: cand.phone, email: cand.email, dnc: cand.dnc });
+            const m = messagingMeta(ch);
+            return (
+              <Button
+                variant="ghost"
+                icon={m.icon}
+                title={m.title}
+                aria-label={m.title}
+                onClick={() => runMessagingChannel(ch, cand)}
+                disabled={!m.enabled}
+                style={{
+                  height: 36,
+                  width: 36,
+                  padding: 0,
+                  minWidth: 36,
+                  color: m.color,
+                }}
+              />
+            );
+          })()}
           <Button
             variant="ghost"
-            icon="chat"
-            title={cand.dnc ? 'Blocked · DND' : phoneDigits(cand.phone).length >= 10 ? 'WhatsApp' : 'No phone'}
-            aria-label="WhatsApp"
-            onClick={() => openWhatsApp(cand.phone, cand.name)}
-            disabled={!!cand.dnc || phoneDigits(cand.phone).length < 10}
-            style={{ height: 36, width: 36, padding: 0, minWidth: 36, color: '#25D366' }}
-          />
-          <Button
-            variant="ghost"
-            icon="sms"
-            title="Message"
-            aria-label="Message"
+            icon="edit_note"
+            title="Compose message"
+            aria-label="Compose message"
             onClick={() => go('composer', { candidateId: cand.id })}
             style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
           />
@@ -2347,119 +2449,19 @@ function EditCandidateModal({
  *  Add candidate                                                     *
  * ------------------------------------------------------------------ */
 
+/**
+ * Kept so the SCR-W-CAND-02 route still resolves. The form itself now lives in
+ * `AddCandidateModal` (see `Modals.tsx`) — this bounces to the list and opens it
+ * there, so there is only ever one add-candidate form to maintain.
+ */
 export function AddCandidateScreen() {
-  const { go } = useDesk();
-  const roles = useLoad(() => deskApi.hiringDashboard(), []);
-  const [form, setForm] = useState({
-    name: '', phone: '', email: '', city: '', latestRole: '', latestCompany: '',
-    roleId: '', source: 'Naukri', currentCtc: '', expectedCtc: '', noticeDays: '60',
-  });
-  const [dupe, setDupe] = useState<DeskCandidate | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
-
-  // Dedupe as you type, on the last ten digits.
-  const checkDupe = async (phone: string) => {
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length < 6) { setDupe(null); return; }
-    try {
-      const res = await deskApi.candidates({ search: digits.slice(-10), pageSize: 5 });
-      setDupe(res.items.find((c) => (c.phone || '').replace(/\D/g, '').slice(-10) === digits.slice(-10)) || null);
-    } catch { setDupe(null); }
-  };
-
-  const valid = form.name.trim() && form.phone.trim() && form.roleId;
-
-  const save = async () => {
-    if (!valid) return;
-    setSaving(true); setError(null);
-    try {
-      const created = await deskApi.createCandidate({
-        roleId: form.roleId,
-        roleName: roles.data?.roles.find((r) => r.id === form.roleId)?.name || '',
-        name: form.name, phone: form.phone, email: form.email || null, city: form.city || null,
-        latestRole: form.latestRole || null, latestCompany: form.latestCompany || null,
-        status: 'new', tags: [form.source],
-      });
-      go('cands', { candidateId: created.id });
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className="pad">
-      <Card>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
-          <div>
-            <label className="label">Full name *</label>
-            <Input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="e.g. Ritu Malhotra" />
-          </div>
-          <div>
-            <label className="label">Mobile number *</label>
-            <Input value={form.phone} placeholder="98200 41562"
-              onChange={(e) => { set('phone', e.target.value); checkDupe(e.target.value); }}
-              style={dupe ? { borderColor: '#E0A83A' } : undefined} />
-          </div>
-          <div>
-            <label className="label">Email</label>
-            <Input value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="name@company.com" />
-          </div>
-          <div>
-            <label className="label">City</label>
-            <Input value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="e.g. Pune" />
-          </div>
-          <div>
-            <label className="label">Current role</label>
-            <Input value={form.latestRole} onChange={(e) => set('latestRole', e.target.value)} placeholder="e.g. Senior Java Developer" />
-          </div>
-          <div>
-            <label className="label">Current company</label>
-            <Input value={form.latestCompany} onChange={(e) => set('latestCompany', e.target.value)} placeholder="e.g. Infosys" />
-          </div>
-          <div>
-            <label className="label">Requisition *</label>
-            <Select value={form.roleId} onChange={(e) => set('roleId', e.target.value)}>
-              <option value="">Choose…</option>
-              {(roles.data?.roles || []).map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </Select>
-          </div>
-          <div>
-            <label className="label">Source</label>
-            <Select value={form.source} onChange={(e) => set('source', e.target.value)}>
-              {['Naukri', 'LinkedIn', 'Referral', 'Internshala', 'Apna', 'Walk-in'].map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </Select>
-          </div>
-        </div>
-
-        {dupe && (
-          <div style={{ marginTop: 14 }}>
-            <Banner icon="content_copy" tone="warn"
-              action={<Button variant="soft" onClick={() => go('cands', { candidateId: dupe.id })}>Open existing</Button>}
-            >
-              <strong>Possible duplicate.</strong> {dupe.name} already has this number
-              {dupe.roleName ? ` on ${dupe.roleName}` : ''}.
-            </Banner>
-          </div>
-        )}
-
-        {error && <div style={{ marginTop: 14 }}><Banner icon="error" tone="danger">{error}</Banner></div>}
-
-        <div style={{ marginTop: 18, display: 'flex', gap: 8 }}>
-          <Button onClick={save} disabled={!valid || saving}>
-            {saving ? 'Saving…' : valid ? 'Save candidate' : 'Name, number and requisition required'}
-          </Button>
-          <Button variant="ghost" onClick={() => go('cands')}>Cancel</Button>
-        </div>
-      </Card>
-    </div>
-  );
+  const { go, openModal } = useDesk();
+  React.useEffect(() => {
+    // `go` clears any open modal, so it has to run first.
+    go('cands');
+    openModal('addcand');
+  }, [go, openModal]);
+  return null;
 }
 
 /* ------------------------------------------------------------------ *

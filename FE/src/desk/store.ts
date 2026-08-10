@@ -24,7 +24,8 @@ export type ScreenKey =
 
 export type ModalKey =
   | 'disposition' | 'callback' | 'dnc' | 'consent' | 'erasure'
-  | 'stage' | 'dropreason' | 'filters' | 'personas' | 'invite' | 'newtask' | null;
+  | 'stage' | 'dropreason' | 'filters' | 'personas' | 'invite' | 'newtask'
+  | 'addcand' | null;
 
 export interface ScreenMeta { id: string; name: string; purpose: string }
 
@@ -156,6 +157,12 @@ interface DeskState {
   offerId: string | null;
   interviewId: string | null;
   selection: Record<string, true>;
+  /**
+   * Bumped whenever a candidate is written from outside the Candidates screen
+   * (the add-candidate modal opens over Today as well), so the list refetches
+   * instead of showing a stale page behind the modal that just closed.
+   */
+  candidatesRev: number;
 
   boot: () => Promise<void>;
   go: (screen: ScreenKey, ctx?: Partial<Pick<DeskState,
@@ -168,6 +175,7 @@ interface DeskState {
   toggleRail: () => void;
   toggleSelect: (id: string) => void;
   clearSelection: () => void;
+  bumpCandidates: () => void;
 
   caps: () => Caps;
   allowed: (key: ScreenKey) => boolean;
@@ -193,6 +201,7 @@ export const useDesk = create<DeskState>((set, get) => ({
   offerId: null,
   interviewId: null,
   selection: {},
+  candidatesRev: 0,
 
   boot: async () => {
     set({ loading: true, error: null });
@@ -239,6 +248,7 @@ export const useDesk = create<DeskState>((set, get) => ({
 
   openModal: (modal) => set({ modal }),
   closeModal: () => set({ modal: null }),
+  bumpCandidates: () => set((s) => ({ candidatesRev: s.candidatesRev + 1 })),
   setPalette: (palette) => set({ palette }),
   setDrawer: (drawer) => set({ drawer }),
   toggleRail: () => set((s) => ({ railOpen: !s.railOpen })),
