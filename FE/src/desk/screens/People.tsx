@@ -36,6 +36,32 @@ type ColId =
   | 'experience' | 'source' | 'currentCtc' | 'expectedCtc' | 'notice' | 'institute'
   | 'degree' | 'skills' | 'updatedAt' | 'starred' | 'dnc' | 'gender';
 
+const ROW_ACTION_BTN: React.CSSProperties = {
+  width: 28,
+  height: 28,
+  borderRadius: 7,
+  border: 'none',
+  display: 'grid',
+  placeItems: 'center',
+  background: 'transparent',
+  cursor: 'pointer',
+  padding: 0,
+  flexShrink: 0,
+};
+
+function phoneDigits(phone?: string | null) {
+  return (phone || '').replace(/\D/g, '');
+}
+
+/** Open WhatsApp for an Indian 10-digit mobile, or raw international digits. */
+function openWhatsApp(phone?: string | null, name?: string | null) {
+  const digits = phoneDigits(phone);
+  if (digits.length < 10) return;
+  const e164 = digits.length === 10 ? `91${digits}` : digits.replace(/^0+/, '');
+  const text = encodeURIComponent(name ? `Hi ${name}` : 'Hi');
+  window.open(`https://wa.me/${e164}?text=${text}`, '_blank', 'noopener');
+}
+
 const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number }[] = [
   { id: 'name', label: 'Name', defaultOn: true, minW: 160 },
   { id: 'status', label: 'Stage', defaultOn: true, minW: 100 },
@@ -463,31 +489,62 @@ export function CandidatesScreen() {
           <option value="no">Fresher</option>
         </Select>
 
-        <Button
-          variant={showMoreFilters || activeFilterCount > 0 ? 'soft' : 'ghost'}
-          icon="tune"
-          onClick={() => setShowMoreFilters((v) => !v)}
-          style={{ height: 32, padding: '0 10px', fontSize: 12 }}
-        >
-          Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
-        </Button>
+        <div style={{ position: 'relative' }}>
+          <Button
+            variant={showMoreFilters || activeFilterCount > 0 ? 'soft' : 'ghost'}
+            icon="tune"
+            title={activeFilterCount > 0 ? `Filters (${activeFilterCount} active)` : 'Filters'}
+            aria-label={activeFilterCount > 0 ? `Filters (${activeFilterCount} active)` : 'Filters'}
+            onClick={() => setShowMoreFilters((v) => !v)}
+            style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
+          />
+          {activeFilterCount > 0 && (
+            <span
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: -4,
+                right: -4,
+                minWidth: 16,
+                height: 16,
+                padding: '0 4px',
+                borderRadius: 99,
+                background: T.indigo,
+                color: '#fff',
+                fontSize: 10,
+                fontWeight: 700,
+                lineHeight: '16px',
+                textAlign: 'center',
+                pointerEvents: 'none',
+                boxShadow: `0 0 0 1.5px ${T.surface}`,
+              }}
+            >
+              {activeFilterCount > 9 ? '9+' : activeFilterCount}
+            </span>
+          )}
+        </div>
         {activeFilterCount > 0 && (
-          <Button variant="ghost" icon="filter_alt_off" onClick={clearFilters} style={{ height: 32, padding: '0 8px', fontSize: 12 }}>
-            Clear
-          </Button>
+          <Button
+            variant="ghost"
+            icon="filter_alt_off"
+            title="Clear filters"
+            aria-label="Clear filters"
+            onClick={clearFilters}
+            style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
+          />
         )}
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           {canEdit && (
             <Button
               icon="person_add"
+              title="Add candidate"
+              aria-label="Add candidate"
               onClick={() => go('addcand')}
-              style={{ height: 32, padding: '0 12px', fontSize: 12 }}
-            >
-              Add candidate
-            </Button>
+              style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
+            />
           )}
-          {/* View toggle */}
+          {/* View toggle — icon only */}
           <div
             style={{
               display: 'inline-flex',
@@ -498,22 +555,23 @@ export function CandidatesScreen() {
             }}
           >
             {([
-              ['table', 'table_rows', 'Table'],
-              ['split', 'view_sidebar', 'Split'],
+              ['table', 'table_rows', 'Table view'],
+              ['split', 'view_sidebar', 'Split view'],
             ] as const).map(([mode, icon, label]) => (
               <button
                 key={mode}
                 type="button"
                 title={label}
+                aria-label={label}
+                aria-pressed={viewMode === mode}
                 onClick={() => setViewMode(mode)}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 4,
-                  padding: '0 10px',
+                  justifyContent: 'center',
+                  width: 32,
                   height: 30,
-                  fontSize: 11.5,
-                  fontWeight: 650,
+                  padding: 0,
                   background: viewMode === mode ? T.indigoTint : 'transparent',
                   color: viewMode === mode ? T.indigoInk : T.inkMuted,
                   border: 'none',
@@ -521,7 +579,6 @@ export function CandidatesScreen() {
                 }}
               >
                 <Icon name={icon} size={15} color={viewMode === mode ? T.indigo : T.inkFaint} />
-                {!isMobile && label}
               </button>
             ))}
           </div>
@@ -531,11 +588,11 @@ export function CandidatesScreen() {
               <Button
                 variant="ghost"
                 icon="view_column"
+                title="Show columns"
+                aria-label="Show columns"
                 onClick={() => setShowColsMenu((v) => !v)}
-                style={{ height: 32, padding: '0 10px', fontSize: 12 }}
-              >
-                Columns
-              </Button>
+                style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
+              />
               {showColsMenu && (
                 <>
                   <div
@@ -829,6 +886,41 @@ export function CandidatesScreen() {
                 </div>
               </div>
               <Badge label={st.label} bg={st.tint} fg={st.color} />
+              <div
+                style={{ display: 'inline-flex', gap: 1, flexShrink: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {c.dial && (
+                  <button
+                    type="button"
+                    title={r.dnc ? 'Blocked · DND' : phoneDigits(r.phone).length >= 10 ? 'Call' : 'No phone'}
+                    aria-label="Call"
+                    disabled={!!r.dnc || phoneDigits(r.phone).length < 10}
+                    onClick={() => go('queue', { candidateId: r.id })}
+                    style={{
+                      ...ROW_ACTION_BTN,
+                      opacity: !!r.dnc || phoneDigits(r.phone).length < 10 ? 0.35 : 1,
+                      cursor: !!r.dnc || phoneDigits(r.phone).length < 10 ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <Icon name="call" size={15} color={T.indigo} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  title={r.dnc ? 'Blocked · DND' : phoneDigits(r.phone).length >= 10 ? 'WhatsApp' : 'No phone'}
+                  aria-label="WhatsApp"
+                  disabled={!!r.dnc || phoneDigits(r.phone).length < 10}
+                  onClick={() => openWhatsApp(r.phone, r.name)}
+                  style={{
+                    ...ROW_ACTION_BTN,
+                    opacity: !!r.dnc || phoneDigits(r.phone).length < 10 ? 0.35 : 1,
+                    cursor: !!r.dnc || phoneDigits(r.phone).length < 10 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <Icon name="chat" size={15} color="#25D366" />
+                </button>
+              </div>
             </div>
           );
         })}
@@ -902,11 +994,31 @@ export function CandidatesScreen() {
                     {col.label}
                   </th>
                 ))}
+                <th
+                  style={{
+                    position: 'sticky', top: 0, right: 0, zIndex: 3,
+                    background: T.surface,
+                    width: 132,
+                    padding: '8px 8px',
+                    textAlign: 'right',
+                    borderBottom: `1px solid ${T.divider}`,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: T.inkMuted,
+                    letterSpacing: '0.02em',
+                    boxShadow: '-6px 0 10px -8px rgba(20,18,40,.18)',
+                  }}
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => {
                 const on = r.id === selectedId && tableDetailOpen;
+                const hasPhone = phoneDigits(r.phone).length >= 10;
+                const callBlocked = !!r.dnc || !hasPhone;
+                const rowBg = on ? T.indigoTint : selection[r.id] ? `${T.indigo}08` : T.surface;
                 return (
                   <tr
                     key={r.id}
@@ -948,6 +1060,72 @@ export function CandidatesScreen() {
                         {cellValue(r, col.id)}
                       </td>
                     ))}
+                    <td
+                      style={{
+                        position: 'sticky',
+                        right: 0,
+                        zIndex: 1,
+                        background: rowBg,
+                        padding: '4px 6px',
+                        borderBottom: `1px solid ${T.dividerFaint}`,
+                        whiteSpace: 'nowrap',
+                        textAlign: 'right',
+                        verticalAlign: 'middle',
+                        boxShadow: '-6px 0 10px -8px rgba(20,18,40,.14)',
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div style={{ display: 'inline-flex', gap: 1, alignItems: 'center' }}>
+                        {c.dial && (
+                          <button
+                            type="button"
+                            title={r.dnc ? 'Blocked · DND' : hasPhone ? 'Call' : 'No phone'}
+                            aria-label="Call"
+                            disabled={callBlocked}
+                            onClick={() => go('queue', { candidateId: r.id })}
+                            style={{
+                              ...ROW_ACTION_BTN,
+                              opacity: callBlocked ? 0.35 : 1,
+                              cursor: callBlocked ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            <Icon name="call" size={16} color={T.indigo} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          title={r.dnc ? 'Blocked · DND' : hasPhone ? 'WhatsApp' : 'No phone'}
+                          aria-label="WhatsApp"
+                          disabled={callBlocked}
+                          onClick={() => openWhatsApp(r.phone, r.name)}
+                          style={{
+                            ...ROW_ACTION_BTN,
+                            opacity: callBlocked ? 0.35 : 1,
+                            cursor: callBlocked ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          <Icon name="chat" size={16} color="#25D366" />
+                        </button>
+                        <button
+                          type="button"
+                          title="Message"
+                          aria-label="Message"
+                          onClick={() => go('composer', { candidateId: r.id })}
+                          style={ROW_ACTION_BTN}
+                        >
+                          <Icon name="sms" size={16} color={T.inkMuted} />
+                        </button>
+                        <button
+                          type="button"
+                          title="Open profile"
+                          aria-label="Open profile"
+                          onClick={() => openRow(r.id)}
+                          style={ROW_ACTION_BTN}
+                        >
+                          <Icon name="open_in_new" size={16} color={T.inkMuted} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -1437,14 +1615,19 @@ function CandidateProfile({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <Card>
-        {onBack && (
-          <Button variant="ghost" icon="arrow_back" onClick={onBack} style={{ marginBottom: 12 }}>
-            Back to list
-          </Button>
-        )}
-        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          {onBack && (
+            <Button
+              variant="ghost"
+              icon="arrow_back"
+              title="Back to list"
+              aria-label="Back to list"
+              onClick={onBack}
+              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
+            />
+          )}
           <Avatar name={cand.name} id={cand.id} size={52} />
-          <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ flex: 1, minWidth: 160 }}>
             <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em' }}>{cand.name || 'Unnamed'}</div>
             <div style={{ marginTop: 3, fontSize: 12.5, color: T.inkMuted }}>
               {[cand.latestRole, cand.latestCompany].filter(Boolean).join(' · ') || cand.roleName}
@@ -1462,47 +1645,99 @@ function CandidateProfile({
             </div>
           </div>
           <button
+            type="button"
             onClick={onToggleMask}
             title={lockedByRole
-              ? 'The API masked these before sending them — the full value is not in this browser.'
-              : 'Toggle PII masking'}
+              ? 'PII locked by role — full values are not available in this browser'
+              : masked
+                ? 'PII masked — click to show full view'
+                : 'Full view — click to mask PII'}
+            aria-label={lockedByRole ? 'PII locked by role' : masked ? 'Show full PII' : 'Mask PII'}
+            disabled={lockedByRole}
             style={{
-              display: 'flex', alignItems: 'center', gap: 6, borderRadius: 9, padding: '6px 10px',
-              background: masked ? T.amberTint : T.fill, cursor: lockedByRole ? 'not-allowed' : 'pointer',
+              display: 'grid',
+              placeItems: 'center',
+              width: 36,
+              height: 36,
+              borderRadius: 9,
+              padding: 0,
+              background: masked ? T.amberTint : T.fill,
+              cursor: lockedByRole ? 'not-allowed' : 'pointer',
+              border: 'none',
+              flexShrink: 0,
             }}
           >
-            <Icon name={masked ? 'visibility_off' : 'visibility'} size={16} color={masked ? T.amberInk : T.inkMuted} />
-            <span className="mono" style={{ fontSize: 9, color: masked ? T.amberInk : T.inkMuted }}>
-              {lockedByRole ? 'PII LOCKED BY ROLE' : masked ? 'PII MASKED' : 'FULL VIEW'}
-            </span>
+            <Icon name={masked ? 'visibility_off' : 'visibility'} size={18} color={masked ? T.amberInk : T.inkMuted} />
           </button>
         </div>
 
-        <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 14, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
           {c.dial && (
-            <Button icon="call" onClick={() => go('queue', { candidateId: cand.id })} disabled={!!cand.dnc}>
-              {cand.dnc ? 'Blocked · DND' : 'Call'}
-            </Button>
+            <Button
+              icon="call"
+              title={cand.dnc ? 'Blocked · DND' : phoneDigits(cand.phone).length >= 10 ? 'Call' : 'No phone'}
+              aria-label={cand.dnc ? 'Blocked · DND' : 'Call'}
+              onClick={() => go('queue', { candidateId: cand.id })}
+              disabled={!!cand.dnc || phoneDigits(cand.phone).length < 10}
+              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
+            />
           )}
-          <Button variant="ghost" icon="chat" onClick={() => go('composer', { candidateId: cand.id })}>Message</Button>
+          <Button
+            variant="ghost"
+            icon="chat"
+            title={cand.dnc ? 'Blocked · DND' : phoneDigits(cand.phone).length >= 10 ? 'WhatsApp' : 'No phone'}
+            aria-label="WhatsApp"
+            onClick={() => openWhatsApp(cand.phone, cand.name)}
+            disabled={!!cand.dnc || phoneDigits(cand.phone).length < 10}
+            style={{ height: 36, width: 36, padding: 0, minWidth: 36, color: '#25D366' }}
+          />
+          <Button
+            variant="ghost"
+            icon="sms"
+            title="Message"
+            aria-label="Message"
+            onClick={() => go('composer', { candidateId: cand.id })}
+            style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
+          />
           {c.stage && (
-            <Select value={cand.status} onChange={(e) => setStage(e.target.value)} style={{ width: 'auto', height: 36 }}>
+            <Select
+              value={cand.status}
+              onChange={(e) => setStage(e.target.value)}
+              title="Pipeline stage"
+              aria-label="Pipeline stage"
+              style={{ width: 'auto', minWidth: 110, maxWidth: 140, height: 36 }}
+            >
               {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               <option value="on_hold">On hold</option>
             </Select>
           )}
           {canEdit && (
-            <Button variant={isAdmin ? 'primary' : 'soft'} icon="edit" onClick={onEdit}>
-              {isAdmin ? 'Edit all details' : 'Edit'}
-            </Button>
+            <Button
+              variant={isAdmin ? 'primary' : 'soft'}
+              icon="edit"
+              title={isAdmin ? 'Edit all details' : 'Edit'}
+              aria-label={isAdmin ? 'Edit all details' : 'Edit'}
+              onClick={onEdit}
+              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
+            />
           )}
-          <Button variant="ghost" icon="content_copy" onClick={() => go('merge', { candidateId: cand.id })}>
-            Find duplicates
-          </Button>
+          <Button
+            variant="ghost"
+            icon="content_copy"
+            title="Find duplicates"
+            aria-label="Find duplicates"
+            onClick={() => go('merge', { candidateId: cand.id })}
+            style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
+          />
           {onDelete && (
-            <Button variant="danger" icon="delete" onClick={onDelete}>
-              Delete
-            </Button>
+            <Button
+              variant="danger"
+              icon="delete"
+              title="Delete"
+              aria-label="Delete"
+              onClick={onDelete}
+              style={{ height: 36, width: 36, padding: 0, minWidth: 36 }}
+            />
           )}
         </div>
       </Card>
