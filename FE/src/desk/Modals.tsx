@@ -802,6 +802,38 @@ function AddCandidateModal({ onClose }: { onClose: () => void }) {
 }
 
 /* ------------------------------------------------------------------ *
+ *  Message composer (modal)                                          *
+ * ------------------------------------------------------------------ */
+
+function ComposerModal({ onClose }: { onClose: () => void }) {
+  const { candidateId, go } = useDesk();
+
+  if (!candidateId) {
+    return (
+      <Modal title="Compose message" onClose={onClose} width={640}>
+        <Banner icon="chat" tone="info">
+          No candidate selected. Open a profile first, then use Message.
+        </Banner>
+        <div style={{ marginTop: 12 }}>
+          <Button onClick={() => { onClose(); go('cands'); }}>Browse candidates</Button>
+        </div>
+      </Modal>
+    );
+  }
+
+  return (
+    <Modal
+      title="Compose message"
+      subtitle="WhatsApp, SMS or email — templates with live variables."
+      onClose={onClose}
+      width={640}
+    >
+      <ComposerPanel candidateId={candidateId} compact />
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  *  Router                                                            *
  * ------------------------------------------------------------------ */
 
@@ -817,6 +849,7 @@ export function Modals() {
     case 'dropreason': return <DropReasonModal onClose={closeModal} />;
     case 'disposition': return <DispositionModal onClose={closeModal} />;
     case 'callback': return <CallbackModal onClose={closeModal} />;
+    case 'composer': return <ComposerModal onClose={closeModal} />;
     case 'dnc': return <DncModal onClose={closeModal} />;
     case 'invite': return <InviteModal onClose={closeModal} />;
     case 'newtask': return <NewTaskModal onClose={closeModal} />;

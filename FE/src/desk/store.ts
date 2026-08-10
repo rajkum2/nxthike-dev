@@ -25,7 +25,7 @@ export type ScreenKey =
 export type ModalKey =
   | 'disposition' | 'callback' | 'dnc' | 'consent' | 'erasure'
   | 'stage' | 'dropreason' | 'filters' | 'personas' | 'invite' | 'newtask'
-  | 'addcand' | null;
+  | 'addcand' | 'composer' | null;
 
 export interface ScreenMeta { id: string; name: string; purpose: string }
 
@@ -169,6 +169,8 @@ interface DeskState {
     'candidateId' | 'candidateRoleId' | 'requisitionId' | 'clientId' | 'offerId' | 'interviewId'>>) => void;
   setCandidateRoleId: (roleId: string | null) => void;
   openModal: (m: ModalKey) => void;
+  /** Open message composer over the current screen for a candidate. */
+  openComposer: (candidateId: string) => void;
   closeModal: () => void;
   setPalette: (v: boolean) => void;
   setDrawer: (v: boolean) => void;
@@ -247,6 +249,7 @@ export const useDesk = create<DeskState>((set, get) => ({
   setCandidateRoleId: (roleId) => set({ candidateRoleId: roleId }),
 
   openModal: (modal) => set({ modal }),
+  openComposer: (candidateId) => set({ candidateId, modal: 'composer' }),
   closeModal: () => set({ modal: null }),
   bumpCandidates: () => set((s) => ({ candidatesRev: s.candidatesRev + 1 })),
   setPalette: (palette) => set({ palette }),

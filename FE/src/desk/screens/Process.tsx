@@ -22,14 +22,21 @@ const CHANNELS = [
  *  Composer                                                          *
  * ------------------------------------------------------------------ */
 
-export function ComposerScreen() {
-  const { candidateId, session, go } = useDesk();
+/** Shared body used by full-page Composer and the modal overlay. */
+export function ComposerPanel({
+  candidateId,
+  compact = false,
+}: {
+  candidateId: string;
+  compact?: boolean;
+}) {
+  const { session } = useDesk();
   const [channel, setChannel] = useState('whatsapp');
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [body, setBody] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const cand = useLoad(async () => (candidateId ? deskApi.candidate(candidateId) : null), [candidateId]);
+  const cand = useLoad(async () => deskApi.candidate(candidateId), [candidateId]);
   const templates = useLoad(() => deskApi.templates(), []);
 
   const vars = useMemo(() => ({
@@ -62,109 +69,139 @@ export function ComposerScreen() {
     }
   };
 
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 10 : 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Avatar name={cand.data?.name} id={candidateId} size={compact ? 36 : 40} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 700 }}>{cand.data?.name || 'Candidate'}</div>
+          <div style={{ fontSize: 11.5, color: T.inkMuted }}>
+            {channel === 'email' ? cand.data?.email : cand.data?.phone}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 6 }}>
+        {CHANNELS.map((ch) => {
+          const on = channel === ch.key;
+          return (
+            <button
+              key={ch.key}
+              type="button"
+              onClick={() => { setChannel(ch.key); setTemplateId(null); setTouched(false); }}
+              style={{
+                flex: 1,
+                height: compact ? 36 : 40,
+                borderRadius: 4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 700,
+                background: on ? ch.tint : T.surface,
+                border: `1px solid ${on ? ch.color : T.borderStrong}`,
+                color: on ? ch.color : T.inkBody,
+              }}
+            >
+              <Icon name={ch.icon} size={16} />
+              {ch.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div>
+        <label className="label">Template</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, maxHeight: compact ? 160 : undefined, overflowY: compact ? 'auto' : undefined }}>
+          {forChannel.map((t) => {
+            const on = active?.id === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => { setTemplateId(t.id); setTouched(false); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 10px',
+                  borderRadius: 4,
+                  border: `1px solid ${on ? T.indigo : T.border}`,
+                  background: on ? T.indigoTintSoft : T.surface,
+                  textAlign: 'left',
+                }}
+              >
+                <span style={{ flex: 1, fontSize: 12.5, fontWeight: 700 }}>{t.name}</span>
+                {t.stage && <Badge label={t.stage} bg={T.fill} fg={T.inkMuted} />}
+              </button>
+            );
+          })}
+          {!forChannel.length && (
+            <div style={{ fontSize: 12, color: T.inkFaint }}>
+              No templates for this channel yet. Add one on the Templates screen.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <label className="label">Message · variables resolved</label>
+        <Textarea
+          value={resolved}
+          onChange={(e) => { setTouched(true); setBody(e.target.value); }}
+          style={{ minHeight: compact ? 100 : 120 }}
+        />
+      </div>
+
+      <div style={{ background: T.surfaceAlt, border: `1px solid ${T.border}`, borderRadius: 4, padding: 10 }}>
+        <Eyebrow>Variables</Eyebrow>
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {Object.entries(vars).map(([k, v]) => (
+            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="mono" style={{ fontSize: 10.5, background: T.fill, color: T.indigo, padding: '2px 6px', borderRadius: 3 }}>
+                {`{{${k}}}`}
+              </span>
+              <Icon name="arrow_forward" size={13} color={T.inkGhost} />
+              <span style={{ fontSize: 11.5, color: T.inkBody }}>{v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Button icon="open_in_new" onClick={send} disabled={!resolved.trim()}>
+          {channel === 'whatsapp' ? 'Open in WhatsApp' : channel === 'sms' ? 'Open SMS app' : 'Open email app'}
+        </Button>
+        <span style={{ fontSize: 10.5, color: T.inkFaint }}>
+          Hands off to the app on this machine — nothing is sent from the browser.
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export function ComposerScreen() {
+  const { candidateId, go } = useDesk();
+
   if (!candidateId) {
     return (
       <div className="pad">
-        <EmptyState icon="chat" title="No candidate selected"
+        <EmptyState
+          icon="chat"
+          title="No candidate selected"
           body="Open a candidate first, then compose from their profile."
-          actionLabel="Browse candidates" onAction={() => go('cands')} />
+          actionLabel="Browse candidates"
+          onAction={() => go('cands')}
+        />
       </div>
     );
   }
 
   return (
     <div className="pad">
-      <Button variant="ghost" icon="arrow_back" onClick={() => go('cands', { candidateId })}>Back to profile</Button>
-
-      <Card style={{ marginTop: 14, maxWidth: 820 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Avatar name={cand.data?.name} id={candidateId} size={40} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>{cand.data?.name || 'Candidate'}</div>
-            <div style={{ fontSize: 11.5, color: T.inkMuted }}>
-              {channel === 'email' ? cand.data?.email : cand.data?.phone}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 14, display: 'flex', gap: 7 }}>
-          {CHANNELS.map((ch) => {
-            const on = channel === ch.key;
-            return (
-              <button
-                key={ch.key}
-                onClick={() => { setChannel(ch.key); setTemplateId(null); setTouched(false); }}
-                style={{
-                  flex: 1, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', gap: 7, fontSize: 12.5, fontWeight: 700,
-                  background: on ? ch.tint : T.surface,
-                  border: `1.5px solid ${on ? ch.color : T.borderStrong}`,
-                  color: on ? ch.color : T.inkBody,
-                }}
-              >
-                <Icon name={ch.icon} size={18} />
-                {ch.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ marginTop: 14 }}>
-          <label className="label">Template</label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {forChannel.map((t) => {
-              const on = active?.id === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => { setTemplateId(t.id); setTouched(false); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '11px 12px', borderRadius: 10,
-                    border: `1.5px solid ${on ? T.indigo : T.border}`,
-                    background: on ? T.indigoTintSoft : T.surface, textAlign: 'left',
-                  }}
-                >
-                  <span style={{ flex: 1, fontSize: 12.5, fontWeight: 700 }}>{t.name}</span>
-                  {t.stage && <Badge label={t.stage} bg={T.fill} fg={T.inkMuted} />}
-                </button>
-              );
-            })}
-            {!forChannel.length && (
-              <div style={{ fontSize: 12, color: T.inkFaint }}>
-                No templates for this channel yet. Add one on the Templates screen.
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div style={{ marginTop: 14 }}>
-          <label className="label">Message · variables resolved</label>
-          <Textarea value={resolved} onChange={(e) => { setTouched(true); setBody(e.target.value); }} style={{ minHeight: 130 }} />
-        </div>
-
-        <Card pad={12} style={{ marginTop: 12, background: T.surfaceAlt }}>
-          <Eyebrow>Variables</Eyebrow>
-          <div style={{ marginTop: 9, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {Object.entries(vars).map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="mono" style={{ fontSize: 10.5, background: T.fill, color: T.indigo, padding: '3px 6px', borderRadius: 5 }}>
-                  {`{{${k}}}`}
-                </span>
-                <Icon name="arrow_forward" size={14} color={T.inkGhost} />
-                <span style={{ fontSize: 11.5, color: T.inkBody }}>{v}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <div style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Button icon="open_in_new" onClick={send} disabled={!resolved.trim()}>
-            {channel === 'whatsapp' ? 'Open in WhatsApp' : channel === 'sms' ? 'Open SMS app' : 'Open email app'}
-          </Button>
-          <span style={{ fontSize: 10.5, color: T.inkFaint }}>
-            Hands off to the app on this machine — nothing is sent from the browser.
-          </span>
-        </div>
+      <Card style={{ maxWidth: 820 }}>
+        <ComposerPanel candidateId={candidateId} />
       </Card>
     </div>
   );

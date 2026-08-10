@@ -201,6 +201,30 @@ const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number
 const COLS_STORAGE_KEY = 'nxthike.candidates.visibleCols';
 const VIEW_STORAGE_KEY = 'nxthike.candidates.viewMode';
 
+/** Column id → API sortKey (must match BE sort_map). */
+const COL_SORT_KEY: Partial<Record<ColId, string>> = {
+  name: 'name',
+  status: 'status',
+  role: 'role',
+  phone: 'phone',
+  email: 'email',
+  city: 'city',
+  latestRole: 'latestRole',
+  company: 'company',
+  experience: 'experience',
+  source: 'source',
+  currentCtc: 'currentCtc',
+  expectedCtc: 'expectedCtc',
+  notice: 'notice',
+  institute: 'institute',
+  degree: 'degree',
+  skills: 'skills',
+  gender: 'gender',
+  updatedAt: 'updatedAt',
+  starred: 'starred',
+  dnc: 'dnc',
+};
+
 function loadVisibleCols(): Record<ColId, boolean> {
   const base = Object.fromEntries(COLUMN_DEFS.map((c) => [c.id, c.defaultOn])) as Record<ColId, boolean>;
   try {
@@ -575,6 +599,19 @@ export function CandidatesScreen() {
     } catch (e) {
       alert((e as Error).message || 'Could not update favorite');
     }
+  };
+
+  const cycleColumnSort = (colId: ColId) => {
+    const key = COL_SORT_KEY[colId];
+    if (!key) return;
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      // Names/roles feel natural ascending first; dates descending.
+      setSortDir(key === 'updatedAt' || key === 'createdAt' ? 'desc' : 'asc');
+    }
+    setPage(1);
   };
 
   const cellValue = (r: DeskCandidate, col: ColId): React.ReactNode => {
@@ -1361,20 +1398,55 @@ export function CandidatesScreen() {
                     </button>
                   </th>
                 )}
-                {activeCols.map((col) => (
-                  <th
-                    key={col.id}
-                    style={{
-                      position: 'sticky', top: 0, zIndex: 2, background: T.surface,
-                      padding: '8px 10px', textAlign: 'left', whiteSpace: 'nowrap',
-                      borderBottom: `1px solid ${T.divider}`, fontSize: 11, fontWeight: 700,
-                      color: T.inkMuted, minWidth: col.minW,
-                      letterSpacing: '0.02em',
-                    }}
-                  >
-                    {col.label}
-                  </th>
-                ))}
+                {activeCols.map((col) => {
+                  const sortApiKey = COL_SORT_KEY[col.id];
+                  const sortable = Boolean(sortApiKey);
+                  const active = sortable && sortKey === sortApiKey;
+                  return (
+                    <th
+                      key={col.id}
+                      style={{
+                        position: 'sticky', top: 0, zIndex: 2, background: T.surface,
+                        padding: '8px 10px', textAlign: 'left', whiteSpace: 'nowrap',
+                        borderBottom: `1px solid ${T.divider}`, fontSize: 11, fontWeight: 700,
+                        color: active ? T.indigoInk : T.inkMuted, minWidth: col.minW,
+                        letterSpacing: '0.02em',
+                        cursor: sortable ? 'pointer' : 'default',
+                        userSelect: 'none',
+                      }}
+                      onClick={sortable ? () => cycleColumnSort(col.id) : undefined}
+                      title={sortable ? `Sort by ${col.label}` : undefined}
+                      aria-sort={
+                        active
+                          ? (sortDir === 'asc' ? 'ascending' : 'descending')
+                          : sortable
+                            ? 'none'
+                            : undefined
+                      }
+                    >
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        {col.label}
+                        {sortable && (
+                          <Icon
+                            name={
+                              active
+                                ? (sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward')
+                                : 'unfold_more'
+                            }
+                            size={13}
+                            color={active ? T.indigo : T.inkFaint}
+                          />
+                        )}
+                      </span>
+                    </th>
+                  );
+                })}
                 <th
                   style={{
                     position: 'sticky', top: 0, right: 0, zIndex: 3,
