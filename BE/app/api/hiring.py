@@ -445,6 +445,8 @@ async def list_candidates(
     source: str | None = None,
     gender: str | None = None,
     experience: str | None = None,
+    graduation_year: str | None = Query(None, alias="graduationYear"),
+    exp_years: str | None = Query(None, alias="expYears"),
     ai_match: str | None = Query(None, alias="aiMatch"),
     starred_only: bool = Query(False, alias="starredOnly"),
     has_notes: bool = Query(False, alias="hasNotes"),
@@ -473,6 +475,52 @@ async def list_candidates(
         filters.append(Candidate.source.ilike(f"%{source.strip()}%"))
     if gender and gender != "all":
         filters.append(func.lower(Candidate.gender) == gender.lower())
+    if graduation_year and graduation_year != "all":
+        # Accept full year or partial (e.g. "2024", "24")
+        filters.append(Candidate.graduation_year.ilike(f"%{graduation_year.strip()}%"))
+    if exp_years and exp_years != "all":
+        # Free-text experience_duration often holds "2 years", "3+", etc.
+        # Bucket filters use loose ILIKE patterns on that field + has_work_experience.
+        bucket = exp_years.strip().lower()
+        if bucket in ("0", "fresher", "0-1"):
+            filters.append(
+                or_(
+                    func.lower(Candidate.has_work_experience) != "yes",
+                    Candidate.has_work_experience.is_(None),
+                    Candidate.experience_duration.ilike("%fresher%"),
+                    Candidate.experience_duration.ilike("0%"),
+                    Candidate.experience_duration.ilike("%<1%"),
+                    Candidate.experience_duration.ilike("%0-1%"),
+                )
+            )
+        elif bucket == "1-3":
+            filters.append(
+                or_(
+                    Candidate.experience_duration.ilike("%1%"),
+                    Candidate.experience_duration.ilike("%2%"),
+                    Candidate.experience_duration.ilike("%3 year%"),
+                )
+            )
+        elif bucket == "3-5":
+            filters.append(
+                or_(
+                    Candidate.experience_duration.ilike("%3%"),
+                    Candidate.experience_duration.ilike("%4%"),
+                    Candidate.experience_duration.ilike("%5 year%"),
+                )
+            )
+        elif bucket in ("5+", "5-plus", "5plus"):
+            filters.append(
+                or_(
+                    Candidate.experience_duration.ilike("%5%"),
+                    Candidate.experience_duration.ilike("%6%"),
+                    Candidate.experience_duration.ilike("%7%"),
+                    Candidate.experience_duration.ilike("%8%"),
+                    Candidate.experience_duration.ilike("%9%"),
+                    Candidate.experience_duration.ilike("%10%"),
+                    Candidate.experience_duration.ilike("%+ year%"),
+                )
+            )
     if experience == "yes":
         filters.append(func.lower(Candidate.has_work_experience) == "yes")
     elif experience == "no":

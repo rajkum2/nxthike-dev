@@ -494,6 +494,8 @@ export const deskApi = {
   savedSearches: () => req<SavedSearch[]>(`${W}/saved-searches`),
   saveSearch: (body: Record<string, unknown>) =>
     req<SavedSearch>(`${W}/saved-searches`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteSavedSearch: (id: string) =>
+    req<void>(`${W}/saved-searches/${id}`, { method: 'DELETE' }),
 
   templates: () => req<Template[]>(`${W}/templates`),
   createTemplate: (body: Record<string, unknown>) =>

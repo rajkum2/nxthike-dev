@@ -231,6 +231,8 @@ export function CandidatesScreen() {
   const [source, setSource] = useState('');
   const [debouncedSource, setDebouncedSource] = useState('');
   const [gender, setGender] = useState('all');
+  const [graduationYear, setGraduationYear] = useState('all');
+  const [expYears, setExpYears] = useState('all');
   const [starredOnly, setStarredOnly] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
   const [hasPhone, setHasPhone] = useState(false);
@@ -242,6 +244,8 @@ export function CandidatesScreen() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [savedMenuOpen, setSavedMenuOpen] = useState(false);
+  const [saveBusy, setSaveBusy] = useState(false);
   const [showColsMenu, setShowColsMenu] = useState(false);
   const [showList, setShowList] = useState(!candidateId);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -283,6 +287,7 @@ export function CandidatesScreen() {
 
   const filterDeps = [
     debouncedQ, status, roleId, experience, debouncedCity, debouncedSource, gender,
+    graduationYear, expYears,
     starredOnly, hasNotes, hasPhone, hasEmail, hasResume, dncOnly, noConsent, sortKey, sortDir,
     candidatesRev,
   ];
@@ -296,6 +301,82 @@ export function CandidatesScreen() {
   }, [visibleCols]);
 
   const rolesLoad = useLoad(() => deskApi.hiringDashboard().then((d) => d.roles || []), []);
+  const savedLoad = useLoad(() => deskApi.savedSearches().catch(() => []), []);
+
+  const snapshotFilters = (): Record<string, unknown> => ({
+    query: debouncedQ || query,
+    status,
+    roleId,
+    experience,
+    city: debouncedCity || city,
+    source: debouncedSource || source,
+    gender,
+    graduationYear,
+    expYears,
+    starredOnly,
+    hasNotes,
+    hasPhone,
+    hasEmail,
+    hasResume,
+    dncOnly,
+    noConsent,
+    sortKey,
+    sortDir,
+  });
+
+  const applyFilterSnapshot = (f: Record<string, unknown>) => {
+    const s = (k: string, fallback = '') => (typeof f[k] === 'string' ? (f[k] as string) : fallback);
+    const b = (k: string) => !!f[k];
+    setQuery(s('query')); setDebouncedQ(s('query'));
+    setStatus(s('status', 'all') || 'all');
+    const nextRole = s('roleId', 'all') || 'all';
+    setRoleId(nextRole);
+    setCandidateRoleId(nextRole === 'all' ? null : nextRole);
+    setExperience(s('experience', 'all') || 'all');
+    setCity(s('city')); setDebouncedCity(s('city'));
+    setSource(s('source')); setDebouncedSource(s('source'));
+    setGender(s('gender', 'all') || 'all');
+    setGraduationYear(s('graduationYear', 'all') || 'all');
+    setExpYears(s('expYears', 'all') || 'all');
+    setStarredOnly(b('starredOnly'));
+    setHasNotes(b('hasNotes'));
+    setHasPhone(b('hasPhone'));
+    setHasEmail(b('hasEmail'));
+    setHasResume(b('hasResume'));
+    setDncOnly(b('dncOnly'));
+    setNoConsent(b('noConsent'));
+    setSortKey(s('sortKey', 'updatedAt') || 'updatedAt');
+    setSortDir((s('sortDir', 'desc') as 'asc' | 'desc') || 'desc');
+    setPage(1);
+    setShowMoreFilters(true);
+  };
+
+  // Restore filters handed off from Tags / saved-search deep link
+  React.useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('nxthike.pendingCandFilters');
+      if (!raw) return;
+      sessionStorage.removeItem('nxthike.pendingCandFilters');
+      applyFilterSnapshot(JSON.parse(raw) as Record<string, unknown>);
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const saveCurrentSearch = async () => {
+    const name = window.prompt('Name this saved search');
+    if (!name?.trim()) return;
+    setSaveBusy(true);
+    try {
+      await deskApi.saveSearch({ name: name.trim(), filters: snapshotFilters(), shared: false });
+      await savedLoad.reload();
+      setBulkMsg(`Saved “${name.trim()}”`);
+      window.setTimeout(() => setBulkMsg(null), 2500);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setSaveBusy(false);
+    }
+  };
 
   const pageSize = viewMode === 'table' ? 100 : 60;
   const list = useLoad(
@@ -307,6 +388,8 @@ export function CandidatesScreen() {
       city: debouncedCity || undefined,
       source: debouncedSource || undefined,
       gender: gender !== 'all' ? gender : undefined,
+      graduationYear: graduationYear !== 'all' ? graduationYear : undefined,
+      expYears: expYears !== 'all' ? expYears : undefined,
       starredOnly: starredOnly || undefined,
       hasNotes: hasNotes || undefined,
       hasPhone: hasPhone || undefined,
@@ -400,17 +483,23 @@ export function CandidatesScreen() {
   const activeFilterCount = [
     status !== 'all', roleId !== 'all', experience !== 'all', starredOnly, hasNotes,
     hasPhone, hasEmail, hasResume, dncOnly, noConsent, !!debouncedQ, !!debouncedCity,
-    !!debouncedSource, gender !== 'all',
+    !!debouncedSource, gender !== 'all', graduationYear !== 'all', expYears !== 'all',
   ].filter(Boolean).length;
 
   const clearFilters = () => {
     setQuery(''); setDebouncedQ(''); setStatus('all'); setRoleId('all');
     setCandidateRoleId(null);
     setExperience('all'); setCity(''); setDebouncedCity(''); setSource(''); setDebouncedSource('');
-    setGender('all'); setStarredOnly(false); setHasNotes(false);
+    setGender('all'); setGraduationYear('all'); setExpYears('all');
+    setStarredOnly(false); setHasNotes(false);
     setHasPhone(false); setHasEmail(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
     setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
   };
+
+  const GRAD_YEARS = React.useMemo(() => {
+    const y = new Date().getFullYear() + 1;
+    return Array.from({ length: 20 }, (_, i) => String(y - i));
+  }, []);
 
   const toggleOpts = [
     [starredOnly, setStarredOnly, 'Starred', 'star'] as const,
@@ -776,150 +865,207 @@ export function CandidatesScreen() {
         </div>
       </div>
 
-      {/* Advanced filters sit above the chips: the chip row stays welded to the
-          list it filters, so opening this panel never shifts the stage you are on. */}
+      {/* Dense advanced filters — one compact strip, no tall label stack */}
       {showMoreFilters && (
         <div
           style={{
-            marginTop: 8,
-            padding: isMobile ? 10 : 12,
+            marginTop: 6,
+            padding: '8px 10px',
             background: T.surfaceAlt,
             border: `1px solid ${T.border}`,
             borderRadius: 10,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <Eyebrow>Filters</Eyebrow>
-            <div style={{ flex: 1, height: 1, background: T.divider }} />
-            {activeFilterCount > 0 && (
-              <button
-                type="button"
-                onClick={clearFilters}
-                style={{
-                  height: 24,
-                  padding: '0 9px',
-                  borderRadius: 6,
-                  fontSize: 11,
-                  fontWeight: 650,
-                  flexShrink: 0,
-                  background: T.surface,
-                  color: T.inkMuted,
-                  border: `1px solid ${T.border}`,
-                  cursor: 'pointer',
-                }}
-              >
-                Reset all
-              </button>
-            )}
-          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            <input
+              className="field"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="City"
+              title="City"
+              style={{ ...compactCtrl, width: 110, flex: '0 1 110px' }}
+            />
+            <input
+              className="field"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              placeholder="Source"
+              title="Source"
+              style={{ ...compactCtrl, width: 110, flex: '0 1 110px' }}
+            />
+            <Select value={gender} onChange={(e) => setGender(e.target.value)} title="Gender" style={{ ...compactCtrl, width: 100, flex: '0 0 100px' }}>
+              <option value="all">Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </Select>
+            <Select
+              value={graduationYear}
+              onChange={(e) => setGraduationYear(e.target.value)}
+              title="Graduation year"
+              style={{ ...compactCtrl, width: 100, flex: '0 0 100px' }}
+            >
+              <option value="all">Grad year</option>
+              {GRAD_YEARS.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </Select>
+            <Select
+              value={expYears}
+              onChange={(e) => setExpYears(e.target.value)}
+              title="Years of experience"
+              style={{ ...compactCtrl, width: 110, flex: '0 0 110px' }}
+            >
+              <option value="all">Exp years</option>
+              <option value="0-1">0–1 yr</option>
+              <option value="1-3">1–3 yrs</option>
+              <option value="3-5">3–5 yrs</option>
+              <option value="5+">5+ yrs</option>
+            </Select>
+            <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} title="Sort by" style={{ ...compactCtrl, width: 108, flex: '0 0 108px' }}>
+              <option value="updatedAt">Updated</option>
+              <option value="createdAt">Added</option>
+              <option value="name">Name</option>
+              <option value="status">Stage</option>
+              <option value="city">City</option>
+              <option value="latestRole">Latest role</option>
+            </Select>
+            <button
+              type="button"
+              onClick={() => setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))}
+              title={sortDir === 'desc' ? 'Descending' : 'Ascending'}
+              style={{
+                width: 28, height: 28, flexShrink: 0, display: 'inline-flex',
+                alignItems: 'center', justifyContent: 'center', borderRadius: 7,
+                background: T.surface, border: `1px solid ${T.border}`, cursor: 'pointer',
+              }}
+            >
+              <Icon name={sortDir === 'desc' ? 'arrow_downward' : 'arrow_upward'} size={14} color={T.inkMuted} />
+            </button>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile
-                ? '1fr 1fr'
-                : 'repeat(auto-fill, minmax(160px, 1fr))',
-              gap: 8,
-            }}
-          >
-            <div>
-              <label className="label">City</label>
-              <input
-                className="field"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Contains…"
-                style={compactCtrl}
-              />
-            </div>
-            <div>
-              <label className="label">Source</label>
-              <input
-                className="field"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                placeholder="Contains…"
-                style={compactCtrl}
-              />
-            </div>
-            <div>
-              <label className="label">Gender</label>
-              <Select value={gender} onChange={(e) => setGender(e.target.value)} style={compactCtrl}>
-                <option value="all">Any gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </Select>
-            </div>
-            <div>
-              <label className="label">Sort by</label>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <Select
-                  value={sortKey}
-                  onChange={(e) => setSortKey(e.target.value)}
-                  style={{ ...compactCtrl, flex: 1 }}
-                >
-                  <option value="updatedAt">Updated</option>
-                  <option value="createdAt">Added</option>
-                  <option value="name">Name</option>
-                  <option value="status">Stage</option>
-                  <option value="city">City</option>
-                  <option value="latestRole">Latest role</option>
-                </Select>
-                <button
-                  type="button"
-                  onClick={() => setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'))}
-                  title={sortDir === 'desc' ? 'Newest / Z–A first — click to flip' : 'Oldest / A–Z first — click to flip'}
-                  aria-label={sortDir === 'desc' ? 'Sorted descending' : 'Sorted ascending'}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    flexShrink: 0,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 8,
-                    background: T.surface,
-                    border: `1px solid ${T.border}`,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Icon
-                    name={sortDir === 'desc' ? 'arrow_downward' : 'arrow_upward'}
-                    size={15}
-                    color={T.inkMuted}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
+            <div style={{ width: 1, height: 22, background: T.divider, margin: '0 2px' }} />
 
-          <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {toggleOpts.map(([on, set, label, icon]) => (
               <button
                 key={label}
                 type="button"
                 aria-pressed={on}
                 onClick={() => set(!on)}
+                title={label}
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  height: 28,
-                  padding: '0 10px',
-                  borderRadius: 7,
-                  fontSize: 11.5,
-                  fontWeight: 650,
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  height: 26, padding: '0 8px', borderRadius: 6,
+                  fontSize: 11, fontWeight: 650,
                   background: on ? T.indigoTint : T.surface,
                   color: on ? T.indigoInk : T.inkBody,
                   border: `1px solid ${on ? T.indigo : T.border}`,
                   cursor: 'pointer',
                 }}
               >
-                <Icon name={on ? 'check' : icon} size={14} color={on ? T.indigo : T.inkFaint} />
+                <Icon name={on ? 'check' : icon} size={13} color={on ? T.indigo : T.inkFaint} />
                 {label}
               </button>
             ))}
+
+            <div style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative' }}>
+                <Button
+                  variant="ghost"
+                  icon="bookmark"
+                  title="Saved searches"
+                  aria-label="Saved searches"
+                  onClick={() => setSavedMenuOpen((v) => !v)}
+                  style={{ height: 28, padding: '0 8px', fontSize: 11 }}
+                >
+                  Saved
+                  {(savedLoad.data?.length || 0) > 0 ? ` · ${savedLoad.data!.length}` : ''}
+                </Button>
+                {savedMenuOpen && (
+                  <>
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setSavedMenuOpen(false)} />
+                    <div
+                      style={{
+                        position: 'absolute', right: 0, top: 32, zIndex: 50, width: 260,
+                        maxHeight: 280, overflowY: 'auto', background: T.surface,
+                        border: `1px solid ${T.border}`, borderRadius: 10,
+                        boxShadow: '0 8px 28px rgba(20,18,40,.14)', padding: 6,
+                      }}
+                    >
+                      {(savedLoad.data || []).length === 0 && (
+                        <div style={{ padding: 10, fontSize: 12, color: T.inkFaint }}>
+                          No saved searches yet. Set filters, then Save.
+                        </div>
+                      )}
+                      {(savedLoad.data || []).map((s) => (
+                        <div
+                          key={s.id}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 4,
+                            borderRadius: 7, padding: '2px 2px 2px 8px',
+                          }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              applyFilterSnapshot(s.filters || {});
+                              setSavedMenuOpen(false);
+                            }}
+                            style={{
+                              flex: 1, textAlign: 'left', minWidth: 0,
+                              padding: '6px 4px', fontSize: 12.5, fontWeight: 600,
+                            }}
+                          >
+                            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</div>
+                            <div style={{ fontSize: 10, color: T.inkFaint, fontWeight: 500 }}>
+                              {s.shared ? 'Shared' : 'Private'}
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (!window.confirm(`Delete “${s.name}”?`)) return;
+                              try {
+                                await deskApi.deleteSavedSearch(s.id);
+                                savedLoad.reload();
+                              } catch (err) {
+                                alert((err as Error).message);
+                              }
+                            }}
+                            style={{ padding: 6, borderRadius: 6 }}
+                          >
+                            <Icon name="close" size={14} color={T.inkFaint} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+              <Button
+                variant="soft"
+                icon="bookmark_add"
+                title="Save current filters"
+                disabled={saveBusy || activeFilterCount === 0}
+                onClick={saveCurrentSearch}
+                style={{ height: 28, padding: '0 10px', fontSize: 11 }}
+              >
+                {saveBusy ? '…' : 'Save'}
+              </Button>
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  style={{
+                    height: 26, padding: '0 8px', borderRadius: 6, fontSize: 11, fontWeight: 650,
+                    background: T.surface, color: T.inkMuted, border: `1px solid ${T.border}`, cursor: 'pointer',
+                  }}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -2611,10 +2757,19 @@ export function TagsScreen() {
         <Panel title="Saved searches" subtitle="Long-lists you can hand off">
           {searches.data && !searches.data.length && (
             <EmptyState icon="bookmark" title="No saved searches"
-              body="Filter the candidate list, then save it as a long-list to hand to a recruiter." />
+              body="On Candidates, open Filters, set criteria, then Save." />
           )}
           {(searches.data || []).map((s) => (
-            <div key={s.id} className="row row-click" onClick={() => go('cands')}>
+            <div
+              key={s.id}
+              className="row row-click"
+              onClick={() => {
+                try {
+                  sessionStorage.setItem('nxthike.pendingCandFilters', JSON.stringify(s.filters || {}));
+                } catch { /* ignore */ }
+                go('cands');
+              }}
+            >
               <Icon name="bookmark" size={18} color={T.indigo} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12.5, fontWeight: 700 }}>{s.name}</div>

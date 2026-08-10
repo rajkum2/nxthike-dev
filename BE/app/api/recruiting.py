@@ -1240,6 +1240,21 @@ async def create_saved_search(
                           shared=bool(s.shared), ownerName=s.owner_name)
 
 
+@router.delete("/saved-searches/{search_id}", status_code=204)
+async def delete_saved_search(
+    search_id: str,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
+    s = await db.get(SavedSearch, search_id)
+    if not s:
+        raise HTTPException(status_code=404, detail="Saved search not found")
+    if s.owner_id != me.user.id and not me.can("admin"):
+        raise HTTPException(status_code=403, detail="You can only delete your own saved searches.")
+    await db.delete(s)
+    await db.commit()
+
+
 class TemplateOut(BaseModel):
     id: str
     name: str
