@@ -41,12 +41,16 @@ const ROW_ACTION_BTN: React.CSSProperties = {
   height: 28,
   borderRadius: 7,
   border: 'none',
-  display: 'grid',
-  placeItems: 'center',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   background: 'transparent',
   cursor: 'pointer',
   padding: 0,
+  margin: 0,
   flexShrink: 0,
+  boxSizing: 'border-box',
+  lineHeight: 0,
 };
 
 function phoneDigits(phone?: string | null) {
@@ -570,15 +574,18 @@ export function CandidatesScreen() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: 32,
-                  height: 30,
+                  height: 32,
                   padding: 0,
+                  margin: 0,
+                  lineHeight: 0,
+                  boxSizing: 'border-box',
                   background: viewMode === mode ? T.indigoTint : 'transparent',
                   color: viewMode === mode ? T.indigoInk : T.inkMuted,
                   border: 'none',
                   cursor: 'pointer',
                 }}
               >
-                <Icon name={icon} size={15} color={viewMode === mode ? T.indigo : T.inkFaint} />
+                <Icon name={icon} size={16} color={viewMode === mode ? T.indigo : T.inkFaint} />
               </button>
             ))}
           </div>
@@ -2053,8 +2060,12 @@ function EditCandidateModal({
     }
   };
 
-  const field = (label: string, key: keyof typeof form, opts?: { multiline?: boolean; type?: string }) => (
-    <div key={String(key)}>
+  const field = (
+    label: string,
+    key: keyof typeof form,
+    opts?: { multiline?: boolean; type?: string; full?: boolean },
+  ) => (
+    <div key={String(key)} style={opts?.full ? { gridColumn: '1 / -1' } : undefined}>
       <label className="label">{label}</label>
       {opts?.multiline ? (
         <Textarea
@@ -2072,12 +2083,26 @@ function EditCandidateModal({
     </div>
   );
 
+  // Free-text fields run long (skills, histories, notes), so they get the full row
+  // rather than a 210px cell with its own scrollbar.
+  const section = (title: string, children: React.ReactNode) => (
+    <section>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 11 }}>
+        <Eyebrow>{title}</Eyebrow>
+        <div style={{ flex: 1, height: 1, background: T.divider }} />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 12 }}>
+        {children}
+      </div>
+    </section>
+  );
+
   return (
     <div className="scrim" onClick={onClose}>
       <div
         className="modal"
         style={{
-          width: 'min(720px, calc(100vw - 24px))',
+          width: 'min(900px, calc(100vw - 24px))',
           maxHeight: '92vh',
           left: '50%',
           top: '50%',
@@ -2100,91 +2125,138 @@ function EditCandidateModal({
               <Banner icon="error" tone="danger">{error}</Banner>
             </div>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-            {field('Full name', 'name')}
-            {field('Phone', 'phone')}
-            {field('Email', 'email')}
-            {field('City', 'city')}
-            {field('Gender', 'gender')}
-            <div>
-              <label className="label">Stage / status</label>
-              <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
-                {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-                <option value="on_hold">On hold</option>
-                <option value="rejected">Rejected</option>
-                <option value="hired">Hired</option>
-              </Select>
-            </div>
-            <div>
-              <label className="label">Hiring role</label>
-              <Select
-                value={form.roleId}
-                onChange={(e) => {
-                  const id = e.target.value;
-                  const r = roles.find((x) => x.id === id);
-                  setForm((f) => ({ ...f, roleId: id, roleName: r?.name || f.roleName }));
-                }}
-              >
-                {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                {!roles.find((r) => r.id === form.roleId) && form.roleId && (
-                  <option value={form.roleId}>{form.roleName || form.roleId}</option>
-                )}
-              </Select>
-            </div>
-            {field('Source', 'source')}
-            {field('Latest role', 'latestRole')}
-            {field('Latest company', 'latestCompany')}
-            {field('Experience', 'experienceDuration')}
-            <div>
-              <label className="label">Has work experience</label>
-              <Select value={form.hasWorkExperience} onChange={(e) => set('hasWorkExperience', e.target.value)}>
-                <option value="">—</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </Select>
-            </div>
-            {field('Institute', 'institute')}
-            {field('Degree', 'degree')}
-            {field('Stream', 'stream')}
-            {field('Graduation year', 'graduationYear')}
-            {field('Current CTC (LPA)', 'currentCtc', { type: 'number' })}
-            {field('Expected CTC (LPA)', 'expectedCtc', { type: 'number' })}
-            {field('Notice days', 'noticeDays', { type: 'number' })}
-            {field('Availability', 'availability')}
-            {field('Skills (other)', 'otherSkills', { multiline: true })}
-            {field('Relevant skills', 'relevantSkills', { multiline: true })}
-            {field('Resume URL', 'resumeLink')}
-            {field('Download URL', 'downloadLink')}
-            {field('Application link', 'applicationLink')}
-            {field('Languages', 'languages')}
-            {field('Certifications', 'certifications', { multiline: true })}
-            {field('Projects', 'projects', { multiline: true })}
-            {field('Companies history', 'companies', { multiline: true })}
-            {field('Job titles history', 'jobTitles', { multiline: true })}
-            {field('Career objective', 'careerObjective', { multiline: true })}
-            {field('Notes', 'notes', { multiline: true })}
-          </div>
-          <div style={{ marginTop: 14, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {([
-              ['starred', 'Starred'],
-              ['buyout', 'Buyout available'],
-              ['dnc', 'Do not call (DND)'],
-            ] as const).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => set(key, !form[key])}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
-                  padding: '8px 12px', borderRadius: 9,
-                  background: form[key] ? T.indigoTint : T.fill,
-                  color: form[key] ? T.indigoInk : T.inkMuted,
-                  border: `1px solid ${form[key] ? T.indigo : T.border}`,
-                }}
-              >
-                <Icon name={form[key] ? 'check_box' : 'check_box_outline_blank'} size={16} color={form[key] ? T.indigo : T.borderInput} />
-                {label}
-              </button>
+          <div style={{ display: 'grid', gap: 22 }}>
+            {section('Contact', (
+              <>
+                {field('Full name', 'name')}
+                {field('Phone', 'phone')}
+                {field('Email', 'email')}
+                {field('City', 'city')}
+                {field('Gender', 'gender')}
+              </>
+            ))}
+
+            {section('Pipeline', (
+              <>
+                <div>
+                  <label className="label">Stage / status</label>
+                  <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
+                    {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                    <option value="on_hold">On hold</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="hired">Hired</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="label">Hiring role</label>
+                  <Select
+                    value={form.roleId}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      const r = roles.find((x) => x.id === id);
+                      setForm((f) => ({ ...f, roleId: id, roleName: r?.name || f.roleName }));
+                    }}
+                  >
+                    {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                    {!roles.find((r) => r.id === form.roleId) && form.roleId && (
+                      <option value={form.roleId}>{form.roleName || form.roleId}</option>
+                    )}
+                  </Select>
+                </div>
+                {field('Source', 'source')}
+              </>
+            ))}
+
+            {section('Current position', (
+              <>
+                {field('Latest role', 'latestRole')}
+                {field('Latest company', 'latestCompany')}
+                {field('Experience', 'experienceDuration')}
+                <div>
+                  <label className="label">Has work experience</label>
+                  <Select value={form.hasWorkExperience} onChange={(e) => set('hasWorkExperience', e.target.value)}>
+                    <option value="">—</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </Select>
+                </div>
+              </>
+            ))}
+
+            {section('Education', (
+              <>
+                {field('Institute', 'institute')}
+                {field('Degree', 'degree')}
+                {field('Stream', 'stream')}
+                {field('Graduation year', 'graduationYear')}
+              </>
+            ))}
+
+            {section('Compensation & availability', (
+              <>
+                {field('Current CTC (LPA)', 'currentCtc', { type: 'number' })}
+                {field('Expected CTC (LPA)', 'expectedCtc', { type: 'number' })}
+                {field('Notice days', 'noticeDays', { type: 'number' })}
+                {field('Availability', 'availability')}
+              </>
+            ))}
+
+            {section('Skills', (
+              <>
+                {field('Relevant skills', 'relevantSkills', { multiline: true, full: true })}
+                {field('Skills (other)', 'otherSkills', { multiline: true, full: true })}
+              </>
+            ))}
+
+            {section('Links', (
+              <>
+                {field('Resume URL', 'resumeLink')}
+                {field('Download URL', 'downloadLink')}
+                {field('Application link', 'applicationLink')}
+              </>
+            ))}
+
+            {section('Background', (
+              <>
+                {field('Languages', 'languages')}
+                {field('Certifications', 'certifications', { multiline: true, full: true })}
+                {field('Projects', 'projects', { multiline: true, full: true })}
+                {field('Companies history', 'companies', { multiline: true, full: true })}
+                {field('Job titles history', 'jobTitles', { multiline: true, full: true })}
+              </>
+            ))}
+
+            {section('Notes', (
+              <>
+                {field('Career objective', 'careerObjective', { multiline: true, full: true })}
+                {field('Notes', 'notes', { multiline: true, full: true })}
+              </>
+            ))}
+
+            {section('Flags', (
+              <div style={{ gridColumn: '1 / -1', display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {([
+                  ['starred', 'Starred'],
+                  ['buyout', 'Buyout available'],
+                  ['dnc', 'Do not call (DND)'],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => set(key, !form[key])}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
+                      padding: '8px 12px', borderRadius: 9,
+                      background: form[key] ? T.indigoTint : T.fill,
+                      color: form[key] ? T.indigoInk : T.inkMuted,
+                      border: `1px solid ${form[key] ? T.indigo : T.border}`,
+                    }}
+                  >
+                    <Icon name={form[key] ? 'check_box' : 'check_box_outline_blank'} size={16} color={form[key] ? T.indigo : T.borderInput} />
+                    {label}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         </div>

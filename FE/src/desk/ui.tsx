@@ -18,7 +18,15 @@ export function Icon({
   return (
     <span
       className={`sym ${className}`}
-      style={{ fontSize: size, color, width: size, height: size }}
+      style={{
+        fontSize: size,
+        color,
+        width: size,
+        height: size,
+        minWidth: size,
+        minHeight: size,
+        lineHeight: 1,
+      }}
       title={title}
       aria-hidden={title ? undefined : true}
       role={title ? 'img' : undefined}
@@ -97,10 +105,21 @@ type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export function Button({ icon, variant = 'primary', children, className = '', ...rest }: BtnProps) {
+  // Treat as icon-only when there is no visible label (undefined / null / empty).
+  const hasLabel = (() => {
+    if (children == null || children === false || children === true) return false;
+    if (typeof children === 'string') return children.trim().length > 0;
+    if (Array.isArray(children)) return children.some((c) => c != null && c !== false && c !== '');
+    return true;
+  })();
+  const iconOnly = Boolean(icon) && !hasLabel;
   return (
-    <button className={`btn btn-${variant} ${className}`} {...rest}>
+    <button
+      className={`btn btn-${variant}${iconOnly ? ' btn-icon-only' : ''}${className ? ` ${className}` : ''}`}
+      {...rest}
+    >
       {icon && <Icon name={icon} size={18} />}
-      {children}
+      {hasLabel ? children : null}
     </button>
   );
 }
