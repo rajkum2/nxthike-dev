@@ -148,7 +148,7 @@ says so, because the server only knows `admin` vs the rest.
 
 | Email | Password | Role | TalentDialer |
 |-------|----------|------|--------------|
-| `admin@nxthike.com` | `admin123` | `admin` | Full access |
+| `admin@nxthike.com` | *(from `ADMIN_PASSWORD` in `BE/.env`)* | `admin` | Full access |
 | `employer@nxthike.com` | `password123` | `employer` | Access-pending screen |
 | `student@nxthike.com` | `password123` | `student` | Access-pending screen |
 

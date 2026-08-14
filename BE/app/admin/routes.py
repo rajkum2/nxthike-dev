@@ -39,10 +39,15 @@ async def login_page(request: Request):
 
 @router.post("/login", response_class=HTMLResponse)
 async def login_submit(request: Request, email: str = Form(...), password: str = Form(...), db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == email))
+    email_n = (email or "").strip().lower()
+    result = await db.execute(select(User).where(User.email == email_n))
     user = result.scalar_one_or_none()
-
-    if not user or not verify_password(password, user.password_hash) or user.role != "admin":
+    # Dummy verify to reduce email-enumeration timing differences
+    _dummy = "$2b$12$qYDMcO.Rg/whEX8g3xSujOuoB2OzbutD1leUYFc/ulutabqklY/Au"
+    ok = bool(user) and user.role == "admin" and verify_password(password, user.password_hash)
+    if not ok:
+        if not user:
+            verify_password(password, _dummy)
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials or not an admin"})
 
     token = create_access_token(user.id)

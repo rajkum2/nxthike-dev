@@ -25,15 +25,25 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
+_COMMON_PASSWORDS = frozenset({
+    "password", "password1", "password123", "admin123", "admin", "12345678",
+    "123456789", "qwerty123", "qwertyuiop", "letmein", "welcome", "iloveyou",
+    "monkey123", "dragon", "master", "login", "abc12345", "passw0rd",
+    "nxthike", "nxthike123", "changeme", "change-me", "secret", "secret123",
+})
+
+
 def validate_password_strength(password: str) -> str | None:
     """Return an error message if the password is too weak, else None."""
-    if not password or len(password) < 8:
-        return "Password must be at least 8 characters"
+    if not password or len(password) < 12:
+        return "Password must be at least 12 characters"
     if len(password) > 128:
         return "Password must be at most 128 characters"
-    if password.lower() in ("password", "password1", "admin123", "12345678", "qwerty123"):
+    if password.lower() in _COMMON_PASSWORDS:
         return "Password is too common"
-    # Require some complexity without being hostile to users
+    if password.isdigit() or password.isalpha():
+        return "Password cannot be only letters or only digits"
+    # Require complexity: at least 3 of 4 character classes
     classes = sum(
         [
             any(c.islower() for c in password),
@@ -42,8 +52,8 @@ def validate_password_strength(password: str) -> str | None:
             any(not c.isalnum() for c in password),
         ]
     )
-    if classes < 2:
-        return "Password needs at least two of: lowercase, uppercase, digit, symbol"
+    if classes < 3:
+        return "Password needs at least three of: lowercase, uppercase, digit, symbol"
     return None
 
 

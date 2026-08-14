@@ -94,7 +94,10 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
-    if not user or not verify_password(req.password, user.password_hash):
+    # Always run a password check (dummy hash if user missing) so response time
+    # does not leak whether the email is registered.
+    _dummy = "$2b$12$qYDMcO.Rg/whEX8g3xSujOuoB2OzbutD1leUYFc/ulutabqklY/Au"
+    if not user or not verify_password(req.password, user.password_hash if user else _dummy):
         # Constant-ish message; do not reveal which field failed
         raise HTTPException(status_code=401, detail="Invalid email or password")
 

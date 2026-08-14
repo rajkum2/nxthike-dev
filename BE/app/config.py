@@ -86,7 +86,14 @@ def _is_pooler(url: str) -> bool:
 
 _WEAK_SECRETS = frozenset({
     "", "change-me", "secret", "changeme", "password", "admin", "nxthike",
-    "dev", "development", "test", "jwt-secret",
+    "dev", "development", "test", "jwt-secret", "jwt_secret",
+    "nxthike-dev-secret-key-change-in-production",
+    "nxthike-dev-secret", "your-secret-key", "supersecret",
+})
+
+_WEAK_ADMIN_PASSWORDS = frozenset({
+    "", "admin123", "admin", "password", "password123", "changeme",
+    "change-me", "12345678", "nxthike", "admin@123", "Admin@123",
 })
 
 
@@ -121,12 +128,14 @@ class Settings:
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "")
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "change-me")
+    # No usable default — must be set via env for real deploys (see secret_is_weak).
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     ALGORITHM: str = "HS256"
     # Shorter sessions reduce blast radius if a token is stolen from localStorage.
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 12)))  # 12h default
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 8)))  # 8h default
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@nxthike.com")
-    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "admin123")
+    # Empty default forces explicit configuration; never ship a known password.
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "")
     CORS_ORIGINS: list[str] = [
         o.strip()
         for o in os.getenv(
@@ -157,7 +166,18 @@ class Settings:
     @property
     def secret_is_weak(self) -> bool:
         sk = (self.SECRET_KEY or "").strip()
-        return sk.lower() in _WEAK_SECRETS or len(sk) < 24
+        return sk.lower() in _WEAK_SECRETS or len(sk) < 32
+
+    @property
+    def admin_password_is_weak(self) -> bool:
+        pw = (self.ADMIN_PASSWORD or "").strip()
+        if not pw:
+            return True
+        if pw in _WEAK_ADMIN_PASSWORDS or pw.lower() in _WEAK_ADMIN_PASSWORDS:
+            return True
+        if len(pw) < 12:
+            return True
+        return False
 
 
 settings = Settings()

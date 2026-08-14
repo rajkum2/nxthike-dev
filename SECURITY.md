@@ -11,8 +11,8 @@ checklist items you must still configure.
 | Anonymous access to CRM / candidates | JWT required; workspace persona required (`get_workspace_user`) | Stolen credentials or assigned persona still sees data they are allowed to |
 | Self-signup → admin / CRM | Register only `student`/`employer`; **no persona** ⇒ no `/api/hiring` | If admin later assigns persona carelessly, access expands |
 | Public registration abuse | `ALLOW_PUBLIC_REGISTER` (off by default in production) + rate limits | Brute-force against open register if left enabled |
-| Password guessing | bcrypt (cost 12), generic login errors, rate limits | Offline cracks if DB dump + weak passwords |
-| JWT theft (XSS / shared PC) | Shorter default TTL (12h), `no-store` on authenticated APIs | Token still in `localStorage` — XSS in FE can steal it |
+| Password guessing | bcrypt (cost 12), min 12-char complexity rules, generic login errors, rate limits, timing-safe login | Offline cracks if DB dump + weak passwords |
+| JWT theft (XSS / shared PC) | Shorter default TTL (8h), `no-store` on authenticated APIs | Token still in `localStorage` — XSS in FE can steal it |
 | Scraping candidate list | Auth + persona; pageSize ≤ 100; rate limits on list/bulk | A **legitimate full-access admin** can still export data they are entitled to |
 | Bulk wipe / mass edit | Cap `MAX_BULK_IDS` (200), import cap, admin for delete | Compromised admin account is full access by design |
 | OpenAPI / Swagger recon | Docs off when `ENABLE_API_DOCS=false` (default prod) | If left on, schema is public |
@@ -39,13 +39,13 @@ Set these on the **API** host (Railway / Fly / VPS / etc.):
 
 ```bash
 ENVIRONMENT=production
-SECRET_KEY=<long random 32+ bytes>
-ADMIN_PASSWORD=<strong unique password>
+SECRET_KEY=<long random 32+ chars, e.g. secrets.token_urlsafe(48)>
+ADMIN_PASSWORD=<strong unique password, 12+ chars, 3 of 4: lower/upper/digit/symbol>
 ALLOW_PUBLIC_REGISTER=false          # or true only if public portal signup is needed
 ENABLE_API_DOCS=false
 CORS_ORIGINS=https://your-frontend.example.com
 TRUST_PROXY=1                        # only if behind nginx/Cloudflare that sets X-Forwarded-For
-ACCESS_TOKEN_EXPIRE_MINUTES=720      # 12h; lower if you want tighter sessions
+ACCESS_TOKEN_EXPIRE_MINUTES=480      # 8h default; lower if you want tighter sessions
 DATABASE_URL=...                     # or SUPABASE_DB_URL
 ```
 

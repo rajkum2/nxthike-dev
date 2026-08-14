@@ -21,11 +21,11 @@ from app.config import settings
 # path prefix -> (max requests, window seconds) for POST/PUT/PATCH/DELETE
 # (and for marked GET scrape-prone paths)
 SENSITIVE_LIMITS: list[tuple[str, int, int, frozenset[str]]] = [
-    # auth
-    ("/api/auth/login", 12, 60, frozenset({"POST"})),
-    ("/api/auth/register", 6, 60, frozenset({"POST"})),
-    ("/api/auth/change-password", 8, 60, frozenset({"POST"})),
-    ("/admin/login", 10, 60, frozenset({"POST"})),
+    # auth — tight limits against credential stuffing
+    ("/api/auth/login", 8, 60, frozenset({"POST"})),
+    ("/api/auth/register", 5, 60, frozenset({"POST"})),
+    ("/api/auth/change-password", 5, 60, frozenset({"POST"})),
+    ("/admin/login", 6, 60, frozenset({"POST"})),
     # bulk / scrape-prone hiring mutations
     ("/api/hiring/candidates/bulk-import", 3, 60, frozenset({"POST"})),
     ("/api/hiring/candidates/bulk-delete", 10, 60, frozenset({"POST"})),

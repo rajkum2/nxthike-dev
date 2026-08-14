@@ -29,12 +29,15 @@ async def lifespan(app: FastAPI):
         await run_migrations(engine)
         print(f"[startup] DB ready (pooler={settings.DB_IS_POOLER}, ssl={settings.DB_NEEDS_SSL})")
         if settings.secret_is_weak:
-            msg = "SECRET_KEY is weak/default — set a long random SECRET_KEY"
+            msg = "SECRET_KEY is weak/default — set a long random SECRET_KEY (32+ chars)"
             if settings.IS_PRODUCTION:
                 raise RuntimeError(f"[startup] FATAL: {msg} (required in production)")
             print(f"[startup] WARNING: {msg}")
-        if settings.IS_PRODUCTION and settings.ADMIN_PASSWORD in ("admin123", "admin", "password"):
-            print("[startup] WARNING: ADMIN_PASSWORD is a default value — change it immediately")
+        if settings.admin_password_is_weak:
+            msg = "ADMIN_PASSWORD is missing or too weak — set a strong unique password (12+ chars)"
+            if settings.IS_PRODUCTION:
+                raise RuntimeError(f"[startup] FATAL: {msg}")
+            print(f"[startup] WARNING: {msg}")
         if not settings.ALLOW_PUBLIC_REGISTER:
             print("[startup] Public registration is DISABLED (ALLOW_PUBLIC_REGISTER=false)")
         if not settings.ENABLE_API_DOCS:

@@ -47,10 +47,20 @@ async def seed():
             print("To re-seed, delete nxthike.db and run again.")
             return
 
-        # Create admin user
+        if not settings.ADMIN_PASSWORD or settings.admin_password_is_weak:
+            raise SystemExit(
+                "Refusing to seed: set a strong ADMIN_PASSWORD in BE/.env "
+                "(12+ chars, mixed case, digit, symbol)."
+            )
+        if settings.secret_is_weak:
+            raise SystemExit(
+                "Refusing to seed: set a strong SECRET_KEY in BE/.env (32+ random chars)."
+            )
+
+        # Create admin user (password from env only — never hard-coded)
         admin = User(
             id="admin-1",
-            email=settings.ADMIN_EMAIL,
+            email=settings.ADMIN_EMAIL.strip().lower(),
             password_hash=hash_password(settings.ADMIN_PASSWORD),
             role="admin",
             first_name="Admin",
@@ -58,29 +68,28 @@ async def seed():
         )
         db.add(admin)
 
-        # Create demo users
-        student = User(
-            id="demo-student-1",
-            email="student@nxthike.com",
-            password_hash=hash_password("password123"),
-            role="student",
-            first_name="John",
-            last_name="Doe",
-            skills=["JavaScript", "React", "Python"],
-        )
-        employer = User(
-            id="demo-employer-1",
-            email="employer@nxthike.com",
-            password_hash=hash_password("password123"),
-            role="employer",
-            first_name="Jane",
-            last_name="Smith",
-            company_name="TechCorp",
-            industry="Technology",
-            location="San Francisco, CA",
-        )
-        db.add(student)
-        db.add(employer)
+        # Demo portal users only when explicitly enabled; random passwords printed once.
+        import secrets
+        seed_demo = os.getenv("SEED_DEMO_USERS", "false").lower() in ("1", "true", "yes")
+        demo_creds: list[tuple[str, str]] = []
+        if seed_demo:
+            for uid, email, role, first, last, extra in (
+                ("demo-student-1", "student@nxthike.com", "student", "John", "Doe",
+                 {"skills": ["JavaScript", "React", "Python"]}),
+                ("demo-employer-1", "employer@nxthike.com", "employer", "Jane", "Smith",
+                 {"company_name": "TechCorp", "industry": "Technology", "location": "San Francisco, CA"}),
+            ):
+                pw = secrets.token_urlsafe(16)
+                demo_creds.append((email, pw))
+                db.add(User(
+                    id=uid,
+                    email=email,
+                    password_hash=hash_password(pw),
+                    role=role,
+                    first_name=first,
+                    last_name=last,
+                    **extra,
+                ))
 
         # Seed Jobs
         for j in data["jobs"]:
@@ -191,9 +200,12 @@ async def seed():
 
         await db.commit()
         print("\nDatabase seeded successfully!")
-        print(f"  Admin login: {settings.ADMIN_EMAIL} / {settings.ADMIN_PASSWORD}")
-        print(f"  Student login: student@nxthike.com / password123")
-        print(f"  Employer login: employer@nxthike.com / password123")
+        print(f"  Admin email: {settings.ADMIN_EMAIL}")
+        print("  Admin password: (from ADMIN_PASSWORD in .env — not printed)")
+        if demo_creds:
+            print("  Demo accounts (shown once):")
+            for email, pw in demo_creds:
+                print(f"    {email} / {pw}")
 
 
 if __name__ == "__main__":
