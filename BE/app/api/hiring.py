@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, func, or_, and_
+from sqlalchemy import select, func, or_, and_, cast, Float, case, literal, literal_column
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -455,40 +455,90 @@ def _split_csv(values: list[str] | None) -> list[str]:
     return out
 
 
+def _pg_substring(col, pattern: str):
+    """PostgreSQL SUBSTRING(col FROM 'regex') — pattern must be a SQL string literal."""
+    # Escape single quotes in pattern for safety (patterns are code constants).
+    safe = pattern.replace("'", "''")
+    return func.substring(col, literal_column(f"'{safe}'"))
+
+
+def _experience_total_years_expr():
+    """
+    Approximate total years from free-text `experience_duration`.
+
+    Handles Naukri-style strings:
+      '2 Year(s) 6 Month(s)', '11 Year(s) 0 Month(s)', '3 months', 'Fresher', '5 yrs'
+
+    Returns NULL when the field cannot be parsed (so numeric buckets do not
+    accidentally match unknowns via a 0 default).
+    """
+    col = Candidate.experience_duration
+    lower = func.lower(func.coalesce(col, ""))
+    is_fresher = or_(
+        lower.like("%fresher%"),
+        lower.like("%no experience%"),
+        lower.like("%not applicable%"),
+        lower.in_(("na", "n/a", "-", "nil", "none")),
+    )
+    # Capture number before Year / Yr (not bare digits inside other tokens)
+    y_raw = _pg_substring(col, r"([0-9]+)\s*[Yy]ear")
+    y2_raw = _pg_substring(col, r"([0-9]+)\s*[Yy]r")
+    m_raw = _pg_substring(col, r"([0-9]+)\s*[Mm]onth")
+
+    y = cast(func.nullif(func.coalesce(y_raw, y2_raw), ""), Float)
+    m = cast(func.nullif(m_raw, ""), Float)
+
+    # When year is missing, months alone still count (e.g. "6 months" → 0.5y).
+    # When year is present, months are additive.
+    parsed = case(
+        (is_fresher, literal(0.0)),
+        (
+            or_(y.is_not(None), m.is_not(None)),
+            func.coalesce(y, 0.0) + func.coalesce(m, 0.0) / 12.0,
+        ),
+        else_=None,
+    )
+    return parsed
+
+
 def _exp_bucket_clause(bucket: str):
-    """Map an experience-year bucket to a SQLAlchemy OR clause."""
-    b = bucket.strip().lower()
+    """
+    Map an experience-year bucket to a SQLAlchemy clause.
+
+    Ranges are half-open so multi-select does not double-count boundaries:
+      0–1   → [0, 1)
+      1–3   → [1, 3)
+      3–5   → [3, 5)
+      5–7   → [5, 7)
+      7–10  → [7, 10)
+      10+   → [10, ∞)
+      5+    → [5, ∞)  (legacy saved searches)
+
+    Previously used ILIKE '%1%' which wrongly matched 11y, 12y, 19y, etc.
+    """
+    b = bucket.strip().lower().replace("–", "-").replace("—", "-")
+    years = _experience_total_years_expr()
+    # Explicit "no experience" flag with empty duration (do NOT treat blank/unknown as 0–1)
+    marked_no_exp = and_(
+        or_(Candidate.experience_duration.is_(None), Candidate.experience_duration == ""),
+        func.lower(Candidate.has_work_experience) == "no",
+    )
+
     if b in ("0", "fresher", "0-1"):
-        return or_(
-            func.lower(Candidate.has_work_experience) != "yes",
-            Candidate.has_work_experience.is_(None),
-            Candidate.experience_duration.ilike("%fresher%"),
-            Candidate.experience_duration.ilike("0%"),
-            Candidate.experience_duration.ilike("%<1%"),
-            Candidate.experience_duration.ilike("%0-1%"),
-        )
+        return or_(marked_no_exp, and_(years.is_not(None), years < 1.0))
     if b == "1-3":
-        return or_(
-            Candidate.experience_duration.ilike("%1%"),
-            Candidate.experience_duration.ilike("%2%"),
-            Candidate.experience_duration.ilike("%3 year%"),
-        )
+        return and_(years.is_not(None), years >= 1.0, years < 3.0)
     if b == "3-5":
-        return or_(
-            Candidate.experience_duration.ilike("%3%"),
-            Candidate.experience_duration.ilike("%4%"),
-            Candidate.experience_duration.ilike("%5 year%"),
-        )
+        return and_(years.is_not(None), years >= 3.0, years < 5.0)
+    if b == "5-7":
+        return and_(years.is_not(None), years >= 5.0, years < 7.0)
+    if b in ("7-10", "7-10yrs", "7to10"):
+        return and_(years.is_not(None), years >= 7.0, years < 10.0)
+    if b in ("10+", "10-plus", "10plus"):
+        return and_(years.is_not(None), years >= 10.0)
+    # Legacy umbrella still works for older saved filters
     if b in ("5+", "5-plus", "5plus"):
-        return or_(
-            Candidate.experience_duration.ilike("%5%"),
-            Candidate.experience_duration.ilike("%6%"),
-            Candidate.experience_duration.ilike("%7%"),
-            Candidate.experience_duration.ilike("%8%"),
-            Candidate.experience_duration.ilike("%9%"),
-            Candidate.experience_duration.ilike("%10%"),
-            Candidate.experience_duration.ilike("%+ year%"),
-        )
+        return and_(years.is_not(None), years >= 5.0)
     return None
 
 

@@ -258,7 +258,9 @@ const EXP_YEAR_OPTS = [
   { value: '0-1', label: '0–1 yr' },
   { value: '1-3', label: '1–3 yrs' },
   { value: '3-5', label: '3–5 yrs' },
-  { value: '5+', label: '5+ yrs' },
+  { value: '5-7', label: '5–7 yrs' },
+  { value: '7-10', label: '7–10 yrs' },
+  { value: '10+', label: '10+ yrs' },
 ];
 
 type MultiOpt = { value: string; label: string; count?: number };
