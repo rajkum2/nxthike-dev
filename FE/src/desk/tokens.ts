@@ -148,10 +148,21 @@ export const STAGES: Stage[] = [
   { id: 'rejected', label: 'Dropped', color: T.red, tint: T.redTint },
 ];
 
+/** Off-board stages (still selectable; not primary kanban columns). */
 export const ON_HOLD: Stage = { id: 'on_hold', label: 'On hold', color: T.neutral, tint: T.neutralTint };
+export const NOT_WORKING: Stage = {
+  id: 'not_working',
+  label: 'Not working',
+  color: T.clay,
+  tint: T.clayTint,
+};
+
+/** Full selectable list: board stages + on hold + not working. */
+export const ALL_STAGES: Stage[] = [...STAGES, ON_HOLD, NOT_WORKING];
 
 export function stage(id?: string | null): Stage {
-  return STAGES.find((s) => s.id === id) || (id === 'on_hold' ? ON_HOLD : STAGES[0]);
+  if (!id) return STAGES[0];
+  return ALL_STAGES.find((s) => s.id === id) || STAGES[0];
 }
 
 export const DROP_REASONS = [

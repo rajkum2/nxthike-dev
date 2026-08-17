@@ -85,7 +85,7 @@ export function ComposerPanel({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 10 : 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <Avatar name={candData?.name} id={candidateId} size={compact ? 36 : 40} />
+        <Avatar name={candData?.name} id={candidateId} size={compact ? 36 : 40} src={candData?.photoUrl} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 700 }}>{candData?.name || 'Candidate'}</div>
           <div style={{ fontSize: 11.5, color: T.inkMuted }}>

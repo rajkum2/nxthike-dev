@@ -12,6 +12,7 @@ PIPELINE_STATUSES = (
     "hired",
     "rejected",
     "on_hold",
+    "not_working",
 )
 
 
@@ -88,6 +89,7 @@ class CandidateBase(BaseModel):
     educationFromPdf: str | None = None
     streamFromPdf: str | None = None
     pdfFile: str | None = None
+    photoUrl: str | None = None
     availability: str | None = None
     aiInterviewScores: dict[str, Any] = Field(default_factory=dict)
     skillFlags: dict[str, Any] = Field(default_factory=dict)
@@ -160,6 +162,7 @@ class CandidateUpdate(BaseModel):
     educationFromPdf: str | None = None
     streamFromPdf: str | None = None
     pdfFile: str | None = None
+    photoUrl: str | None = None
     availability: str | None = None
     aiInterviewScores: dict[str, Any] | None = None
     skillFlags: dict[str, Any] | None = None

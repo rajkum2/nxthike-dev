@@ -3,7 +3,7 @@ package com.nxthike.android.core.util
 object PipelineStatus {
     val ALL = listOf(
         "new", "reviewing", "shortlisted", "interview",
-        "offer", "hired", "rejected", "on_hold",
+        "offer", "hired", "rejected", "on_hold", "not_working",
     )
 
     fun label(status: String): String = status

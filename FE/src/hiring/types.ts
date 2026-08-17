@@ -6,7 +6,8 @@ export type PipelineStatus =
   | 'offer'
   | 'hired'
   | 'rejected'
-  | 'on_hold';
+  | 'on_hold'
+  | 'not_working';
 
 export interface RoleMeta {
   id: string;
@@ -82,6 +83,7 @@ export const STATUS_LABELS: Record<PipelineStatus, string> = {
   hired: 'Hired',
   rejected: 'Rejected',
   on_hold: 'On Hold',
+  not_working: 'Not working',
 };
 
 export const STATUS_COLORS: Record<PipelineStatus, string> = {
@@ -93,6 +95,7 @@ export const STATUS_COLORS: Record<PipelineStatus, string> = {
   hired: '#059669',
   rejected: '#ef4444',
   on_hold: '#a3a3a3',
+  not_working: '#8A5A57',
 };
 
 export type ViewMode = 'dashboard' | 'candidates' | 'pipeline';

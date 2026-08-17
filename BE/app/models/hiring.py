@@ -101,6 +101,8 @@ class Candidate(Base):
     education_from_pdf: Mapped[str | None] = mapped_column(Text, nullable=True)
     stream_from_pdf: Mapped[str | None] = mapped_column(String, nullable=True)
     pdf_file: Mapped[str | None] = mapped_column(String, nullable=True)
+    #: Public URL for candidate headshot / profile photo (R2 or similar).
+    photo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     availability: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     ai_interview_scores: Mapped[dict] = mapped_column(JSON, default=dict)

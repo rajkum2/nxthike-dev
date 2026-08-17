@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { deskApi, type DeskCandidate } from '../api';
-import { STAGES, T, disposition, stage } from '../tokens';
+import { ALL_STAGES, T, disposition, stage } from '../tokens';
 import { useDesk } from '../store';
 import {
   Avatar, Badge, Banner, Button, Card, Chip, EmptyState, ErrorState, Eyebrow,
@@ -25,8 +25,9 @@ const STATUS_CHIPS = [
   { key: 'interview', label: 'Interview' },
   { key: 'offer', label: 'Offer' },
   { key: 'hired', label: 'Hired' },
-  { key: 'rejected', label: 'Rejected' },
+  { key: 'rejected', label: 'Dropped' },
   { key: 'on_hold', label: 'On hold' },
+  { key: 'not_working', label: 'Not working' },
 ];
 
 type ViewMode = 'split' | 'table';
@@ -1480,7 +1481,7 @@ export function CandidatesScreen() {
                   />
                 </button>
               )}
-              <Avatar name={r.name} id={r.id} />
+              <Avatar name={r.name} id={r.id} src={r.photoUrl} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1850,7 +1851,7 @@ export function CandidatesScreen() {
       <Card style={{ padding: 14 }}>
         {listHint && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <Avatar name={listHint.name} id={listHint.id} size={40} />
+            <Avatar name={listHint.name} id={listHint.id} size={40} src={listHint.photoUrl} />
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{listHint.name || 'Candidate'}</div>
               <div style={{ fontSize: 11.5, color: T.inkMuted }}>
@@ -2400,7 +2401,7 @@ function CandidateProfile({
       <Card pad={12}>
         {/* Header: avatar · identity · privacy · close */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap' }}>
-          <Avatar name={cand.name} id={cand.id} size={36} />
+          <Avatar name={cand.name} id={cand.id} size={36} src={cand.photoUrl} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
               <div
@@ -2588,8 +2589,9 @@ function CandidateProfile({
                 borderRadius: 8,
               }}
             >
-              {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-              <option value="on_hold">On hold</option>
+              {ALL_STAGES.map((s) => (
+                <option key={s.id} value={s.id}>{s.label}</option>
+              ))}
             </Select>
           )}
 
@@ -3029,10 +3031,9 @@ function EditCandidateModal({
                 <div>
                   <label className="label">Stage / status</label>
                   <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
-                    {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-                    <option value="on_hold">On hold</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="hired">Hired</option>
+                    {ALL_STAGES.map((s) => (
+                      <option key={s.id} value={s.id}>{s.label}</option>
+                    ))}
                   </Select>
                 </div>
                 <div>

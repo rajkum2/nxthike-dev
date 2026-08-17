@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { deskApi, type DeskCandidate, type Requisition } from '../api';
-import { STAGES, T, stage } from '../tokens';
+import { ALL_STAGES, STAGES, T, stage } from '../tokens';
 import { useDesk } from '../store';
 import {
   Avatar, Badge, Banner, Button, Card, Chip, EmptyState, ErrorState, Eyebrow,
@@ -460,8 +460,9 @@ export function KanbanScreen() {
                               border: `1px solid ${T.border}`, background: T.fill,
                             }}
                           >
-                            {STAGES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
-                            <option value="on_hold">On hold</option>
+                            {ALL_STAGES.map((x) => (
+                              <option key={x.id} value={x.id}>{x.label}</option>
+                            ))}
                           </select>
                         )}
                       </div>

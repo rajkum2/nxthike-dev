@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { deskApi, type DeskCandidate } from '../desk/api';
-import { DISPOSITIONS, DROP_REASONS, STAGES, T } from './tokens';
+import { ALL_STAGES, DISPOSITIONS, DROP_REASONS, T } from './tokens';
 import { useDesk } from './store';
 import {
   Avatar, Badge, Banner, Button, Card, Chip, Icon, Input, Modal, Select,
@@ -234,7 +234,7 @@ function StageModal({ onClose }: { onClose: () => void }) {
   return (
     <Modal title="Move stage" subtitle={cand.data?.name || undefined} onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-        {STAGES.map((s) => {
+        {ALL_STAGES.map((s) => {
           const on = current === s.id;
           return (
             <button

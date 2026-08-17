@@ -44,12 +44,28 @@ export function Icon({
  * ------------------------------------------------------------------ */
 
 export function Avatar({
-  name, id, size = 34, square = false,
-}: { name?: string | null; id: string; size?: number; square?: boolean }) {
+  name, id, size = 34, square = false, src,
+}: { name?: string | null; id: string; size?: number; square?: boolean; src?: string | null }) {
+  const radius = square ? Math.round(size / 3.6) : 999;
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name || 'Photo'}
+        title={name || undefined}
+        width={size}
+        height={size}
+        style={{
+          width: size, height: size, borderRadius: radius, objectFit: 'cover',
+          flexShrink: 0, background: avatarColor(id), display: 'block',
+        }}
+      />
+    );
+  }
   return (
     <div
       style={{
-        width: size, height: size, borderRadius: square ? Math.round(size / 3.6) : 999,
+        width: size, height: size, borderRadius: radius,
         background: avatarColor(id), color: '#fff', display: 'grid', placeItems: 'center',
         fontSize: Math.max(9, Math.round(size * 0.35)), fontWeight: 700, flexShrink: 0,
       }}

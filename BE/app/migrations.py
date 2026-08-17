@@ -122,6 +122,7 @@ ADDITIVE_COLUMNS: dict[str, dict[str, Col]] = {
         "consent_channel": Col("str"),
         "dnc": Col("bool", False),
         "requisition_id": Col("str"),
+        "photo_url": Col("text"),
     },
 }
 

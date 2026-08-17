@@ -150,12 +150,13 @@ object Stages {
     val Hired = Stage("hired", "Hired", T.Green, T.GreenTint)
     val Dropped = Stage("rejected", "Dropped", T.Red, T.RedTint)
     val OnHold = Stage("on_hold", "On hold", T.Neutral, T.NeutralTint)
+    val NotWorking = Stage("not_working", "Not working", T.Clay, T.ClayTint)
 
     /** Board column order, left to right. */
     val BOARD = listOf(Sourced, Screening, Submitted, Interview, Offer, Hired, Dropped)
 
-    /** Every stage the API can return, including the off-board `on_hold`. */
-    val ALL = BOARD + OnHold
+    /** Every stage the API can return, including off-board hold / not-working. */
+    val ALL = BOARD + OnHold + NotWorking
 
     private val byId = ALL.associateBy { it.id }
 

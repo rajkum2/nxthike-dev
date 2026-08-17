@@ -369,6 +369,8 @@ export interface DeskCandidate {
   availability?: string | null;
   resumeLink?: string | null;
   downloadLink?: string | null;
+  /** Profile headshot URL (R2 / CDN). */
+  photoUrl?: string | null;
   notes?: string;
   applicationLink?: string | null;
   companies?: string | null;
