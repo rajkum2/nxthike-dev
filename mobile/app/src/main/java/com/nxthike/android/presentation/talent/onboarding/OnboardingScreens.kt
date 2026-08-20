@@ -58,6 +58,8 @@ import com.nxthike.android.data.local.WorkspaceMode
 import com.nxthike.android.presentation.auth.AuthViewModel
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.session.SessionViewModel
+import com.nxthike.android.BuildConfig
+import androidx.compose.material.icons.filled.Science
 
 /* ------------------------------------------------------------------ *
  *  SCR-AUTH-02 · Login                                               *
@@ -66,8 +68,16 @@ import com.nxthike.android.presentation.session.SessionViewModel
 @Composable
 fun LoginScreen(onSignedIn: () -> Unit, onRegister: () -> Unit) {
     val vm: AuthViewModel = hiltViewModel()
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    // Debug builds can pre-fill a development account, set in `local.properties`
+    // as `devLoginEmail` / `devLoginPassword`. Release builds compile these to
+    // empty strings — see the comment in `app/build.gradle.kts` for why a real
+    // credential must never reach a shipped APK.
+    val devEmail = if (BuildConfig.DEBUG) BuildConfig.DEV_LOGIN_EMAIL else ""
+    val devPassword = if (BuildConfig.DEBUG) BuildConfig.DEV_LOGIN_PASSWORD else ""
+    val prefilled = devEmail.isNotBlank() && devPassword.isNotBlank()
+
+    var email by remember { mutableStateOf(devEmail) }
+    var password by remember { mutableStateOf(devPassword) }
     var reveal by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -92,6 +102,19 @@ fun LoginScreen(onSignedIn: () -> Unit, onRegister: () -> Unit) {
             T.InkMuted,
             Modifier.padding(top = 8.dp),
         )
+
+        if (prefilled) {
+            Banner(
+                Icons.Default.Science, T.AmberSurface, T.AmberBorder, T.Amber,
+                Modifier.padding(top = 18.dp),
+            ) {
+                TText(
+                    "Debug build — development credentials pre-filled from local.properties. " +
+                        "Release builds never carry them.",
+                    Type.bodySm, T.AmberDeep,
+                )
+            }
+        }
 
         Spacer(Modifier.height(26.dp))
         TField(email, { email = it; error = null }, label = "Work email", placeholder = "you@company.com", minHeight = 52.dp)
@@ -588,6 +611,10 @@ private val Bold = FontWeight.Bold
 @Composable
 fun AccessPendingScreen(session: SessionViewModel, onSignOut: () -> Unit) {
     val user by session.user.collectAsState()
+    // What the server actually said. It refuses with a reason, so show that
+    // rather than guessing — the remedy differs between "no persona assigned"
+    // and "this account is suspended".
+    val reason = session.accessDenialReason
 
     Column(
         Modifier.fillMaxSize().background(T.Bg).verticalScroll(rememberScrollState())
@@ -598,9 +625,9 @@ fun AccessPendingScreen(session: SessionViewModel, onSignOut: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) { Icon(Icons.Default.Lock, null, tint = T.Amber, modifier = Modifier.size(28.dp)) }
 
-        TText("Hiring access not granted yet", Type.heroTitle, T.Ink, Modifier.padding(top = 26.dp))
+        TText("No workspace access yet", Type.heroTitle, T.Ink, Modifier.padding(top = 26.dp))
         TText(
-            "You're signed in, but this account can't see candidates or calls yet.",
+            reason ?: "You're signed in, but this account can't see candidates or calls yet.",
             Type.body, T.InkMuted, Modifier.padding(top = 8.dp),
         )
 
@@ -610,12 +637,12 @@ fun AccessPendingScreen(session: SessionViewModel, onSignOut: () -> Unit) {
                 TText(user?.email ?: "—", Type.cardTitleSm, T.Ink, maxLines = 1)
             }
             Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                TText("Current role", Type.body, T.InkMuted, Modifier.weight(1f))
+                TText("Portal role", Type.body, T.InkMuted, Modifier.weight(1f))
                 Badge(session.role, T.AmberTint, T.AmberInk)
             }
             Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                TText("Role required", Type.body, T.InkMuted, Modifier.weight(1f))
-                Badge("admin", T.GreenTint, T.Green)
+                TText("Persona", Type.body, T.InkMuted, Modifier.weight(1f))
+                Badge("not assigned", T.MaroonTint, T.Maroon)
             }
         }
 
@@ -624,9 +651,9 @@ fun AccessPendingScreen(session: SessionViewModel, onSignOut: () -> Unit) {
             Modifier.padding(top = 14.dp),
         ) {
             TText(
-                "Ask a workspace admin to promote you: " +
-                    "PATCH /api/auth/users/{id}/role with {\"role\":\"admin\"}. " +
-                    "Then sign out and back in.",
+                "Ask a workspace admin to assign you a persona — Sourcer, Recruiter, " +
+                    "Team Lead, Account Manager, Hiring Manager or Interviewer all open " +
+                    "the desk. You do not need to be an admin. Then tap Check again.",
                 Type.bodySm, T.AmberDeep,
             )
         }

@@ -37,6 +37,8 @@ import com.nxthike.android.data.local.WorkspaceMode
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.session.SessionViewModel
 import com.nxthike.android.presentation.talent.common.*
+import com.nxthike.android.core.model.hasConsent
+import com.nxthike.android.core.model.isDnc
 
 /* ------------------------------------------------------------------ *
  *  SCR-JOB-01 · Requisition list                                     *
@@ -434,8 +436,8 @@ fun PipelineBoardScreen(
                                         )
                                         Spacer(Modifier.weight(1f))
                                         ComplianceFlag(
-                                            com.nxthike.android.core.model.CandidateTags.hasDnc(c.tags),
-                                            com.nxthike.android.core.model.CandidateTags.hasConsent(c.tags),
+                                            c.isDnc,
+                                            c.hasConsent,
                                             13.dp,
                                         )
                                     }
@@ -530,8 +532,8 @@ fun PipelineListScreen(
                                         TText(candidateSubtitle(c), Type.labelSm, T.InkMuted, maxLines = 1)
                                     }
                                     ComplianceFlag(
-                                        com.nxthike.android.core.model.CandidateTags.hasDnc(c.tags),
-                                        com.nxthike.android.core.model.CandidateTags.hasConsent(c.tags),
+                                        c.isDnc,
+                                        c.hasConsent,
                                     )
                                 }
                             }

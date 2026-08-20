@@ -28,6 +28,7 @@ import com.nxthike.android.data.remote.dto.CallLogDto
 import com.nxthike.android.domain.repository.AuthRepository
 import com.nxthike.android.domain.repository.CallRepository
 import com.nxthike.android.domain.repository.HiringRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.talent.common.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +41,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.nxthike.android.core.result.AppResult
 
 /** One recruiter's numbers, aggregated from their call logs. */
 data class RecruiterRow(
@@ -48,6 +50,9 @@ data class RecruiterRow(
     val calls: Int,
     val connected: Int,
     val submissions: Int,
+    /** The persona the workspace has assigned, e.g. "Sourcer". */
+    val persona: String? = null,
+    val status: String = "active",
 ) {
     val connectRate: String get() = Fmt.percent(connected, calls)
 }
@@ -74,6 +79,7 @@ class ReportingViewModel @Inject constructor(
     private val calls: CallRepository,
     private val hiring: HiringRepository,
     private val auth: AuthRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ReportingState())
@@ -84,11 +90,18 @@ class ReportingViewModel @Inject constructor(
     fun load() = viewModelScope.launch {
         _state.value = _state.value.copy(loading = true, error = null)
 
-        val logs = calls.list(pageSize = 200).getOrNull()?.items
+        val logsR = calls.list(pageSize = 200)
+        val logs = logsR.getOrNull()?.items
         if (logs == null) {
+            val failure = logsR as? AppResult.Error
             _state.value = _state.value.copy(
                 loading = false,
-                error = "Couldn't load call activity. Check your connection and retry.",
+                error = when {
+                    failure == null -> "Couldn't load call activity. Retry in a moment."
+                    failure.code == null ->
+                        "Couldn't reach the API. Check your connection and retry."
+                    else -> "${failure.message} (HTTP ${failure.code})"
+                },
             )
             return@launch
         }
@@ -115,20 +128,31 @@ class ReportingViewModel @Inject constructor(
             .map { Triple(it.key, it.value, Dispositions.display(it.key)) }
 
         // Team roll-up, keyed by the email stamped on each call log.
-        val users = auth.listUsers().getOrNull().orEmpty()
+        //
+        // The roster comes from `/api/workspace/users`, which carries the persona
+        // and account status; `/api/auth/users` is admin-only and knows neither,
+        // so a lead looking at their own team used to get an empty list.
+        val users = workspace.users().getOrNull().orEmpty()
+        // Submissions are real records now, so a recruiter's number is countable
+        // rather than the flat zero this column used to show.
+        val submissionsByRecruiter = workspace.submissions().getOrNull()
+            .orEmpty()
+            .groupingBy { it.submittedByName.orEmpty() }
+            .eachCount()
         val byUser = logs.groupBy { it.userEmail ?: "unattributed" }
         val team = byUser.map { (email, rows) ->
-            val user = users.firstOrNull { it.email == email }
+            val user = users.firstOrNull { it.email.equals(email, true) }
+            val name = user?.name?.takeIf { it.isNotBlank() } ?: email.substringBefore('@')
             RecruiterRow(
-                name = user?.let { u ->
-                    listOfNotNull(u.firstName, u.lastName).joinToString(" ").ifBlank { u.email.substringBefore('@') }
-                } ?: email.substringBefore('@'),
+                name = name,
                 email = email,
                 calls = rows.size,
                 connected = rows.count {
                     Dispositions.find(it.disposition)?.category == DispositionCategory.Reached
                 },
-                submissions = 0,
+                submissions = submissionsByRecruiter[name] ?: 0,
+                persona = user?.personaName,
+                status = user?.status ?: "active",
             )
         }.sortedByDescending { it.calls }
 

@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.nxthike.android.core.model.hasConsent
+import com.nxthike.android.core.model.isDnc
 
 /** A row in the dial list, decorated with everything the queue card renders. */
 data class QueueRow(
@@ -70,8 +72,21 @@ data class PreCallState(
     val position: Int = 0,
     val queueSize: Int = 0,
 ) {
-    val consent: Boolean get() = CandidateTags.hasConsent(candidate?.tags)
-    val dnc: Boolean get() = CandidateTags.hasDnc(candidate?.tags) || row?.dnc == true
+    /**
+     * Consent and DNC read the candidate's own columns, which the pre-call card
+     * has because it fetches the full record. The tag fallback covers records an
+     * older build wrote before these columns were used; `row.dnc` covers the case
+     * where the last logged disposition was `do_not_call` but the column was
+     * never set — a call logged by a build that only wrote the tag.
+     */
+    val consent: Boolean
+        get() = candidate?.hasConsent == true
+
+    val dnc: Boolean
+        get() = candidate?.isDnc == true || row?.dnc == true
+
+    /** The server withheld the phone number for this persona — it is not dialable. */
+    val piiMasked: Boolean get() = candidate?.piiMasked == true
 }
 
 /** Draft outcome being composed in the disposition sheet. */
@@ -355,16 +370,17 @@ class CallFlowViewModel @Inject constructor(
      */
     private suspend fun applySideEffects(disposition: String, row: QueueRow) {
         val candidate = _preCall.value.candidate ?: return
-        val tags = candidate.tags.toMutableList()
-        var changed = false
-        if (disposition == "do_not_call" && !CandidateTags.hasDnc(tags)) {
-            tags += CandidateTags.DNC
-            changed = true
-        }
-        if (changed) {
+        // `do_not_call` sets the column, not a tag.
+        //
+        // The disposition alone blocks the dialer only while it remains the
+        // *latest* call — one later log of any other outcome and the number is
+        // dialable again on every surface. `Candidate.dnc` is the permanent flag,
+        // and it is what the web desk's gate, the `dncOnly` filter and the
+        // compliance count all read.
+        if (disposition == "do_not_call" && candidate.dnc != true) {
             hiring.patchCandidate(
                 row.candidateId,
-                com.nxthike.android.data.remote.dto.CandidatePatchDto(tags = tags),
+                com.nxthike.android.data.remote.dto.CandidatePatchDto(dnc = true),
             )
         }
     }

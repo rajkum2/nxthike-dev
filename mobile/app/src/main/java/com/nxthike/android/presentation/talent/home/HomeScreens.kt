@@ -389,7 +389,7 @@ fun TasksScreen(onBack: () -> Unit, onOpenCandidate: (String) -> Unit) {
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
         TopBar("Tasks", onBack) {
-            TText("${tasks.count { it.id !in done }} OPEN", Type.mono, T.InkMuted)
+            TText("${tasks.count { !it.done && it.id !in done }} OPEN", Type.mono, T.InkMuted)
         }
         when {
             loading -> SkeletonList(4, Modifier.padding(horizontal = T.Gutter))
@@ -403,7 +403,7 @@ fun TasksScreen(onBack: () -> Unit, onOpenCandidate: (String) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(T.Gap),
             ) {
                 items(tasks, key = { it.id }) { task ->
-                    val isDone = task.id in done
+                    val isDone = task.done || task.id in done
                     TCard(onClick = { task.candidateId?.let(onOpenCandidate) }) {
                         Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
                             Icon(

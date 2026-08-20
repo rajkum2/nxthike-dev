@@ -103,6 +103,34 @@ object Fmt {
     /** 23676 → "23,676". Large pipelines are unreadable without it. */
     fun count(n: Int): String = java.text.NumberFormat.getIntegerInstance(Locale.UK).format(n)
 
+    /**
+     * Money the way an Indian recruiting desk reads it.
+     *
+     * Comp is quoted in lakhs and crores in this market, so a CTC of 1_850_000
+     * reads "₹18.5L", not "₹1,850,000". Whole values lose the decimal — ₹12L,
+     * not ₹12.0L — and anything under a lakh falls back to grouped digits.
+     */
+    fun money(amount: Double?): String {
+        val v = amount ?: return "—"
+        val abs = kotlin.math.abs(v)
+        fun trim(x: Double): String =
+            if (x % 1.0 == 0.0) x.toLong().toString() else "%.2f".format(x).trimEnd('0').trimEnd('.')
+        return when {
+            abs >= 10_000_000 -> "₹${trim(v / 10_000_000)}Cr"
+            abs >= 100_000 -> "₹${trim(v / 100_000)}L"
+            else -> "₹${java.text.NumberFormat.getIntegerInstance(Locale.UK).format(v.toLong())}"
+        }
+    }
+
+    /** A comp band, collapsing to one figure when both ends match. */
+    fun moneyRange(min: Double?, max: Double?): String = when {
+        min == null && max == null -> "—"
+        min == null -> money(max)
+        max == null -> "${money(min)}+"
+        min == max -> money(min)
+        else -> "${money(min)} – ${money(max)}"
+    }
+
     fun percent(numerator: Int, denominator: Int): String =
         if (denominator <= 0) "0%" else "${Math.round(numerator * 100.0 / denominator)}%"
 

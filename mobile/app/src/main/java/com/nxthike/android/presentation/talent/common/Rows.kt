@@ -28,6 +28,11 @@ import com.nxthike.android.data.remote.dto.CallLogDto
 import com.nxthike.android.data.remote.dto.CandidateDto
 import com.nxthike.android.presentation.calls.QueueRow
 import com.nxthike.android.presentation.designsystem.*
+import com.nxthike.android.core.model.hasConsent
+import com.nxthike.android.core.model.isDnc
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.filled.ExpandMore
 
 /* ------------------------------------------------------------------ *
  *  Flags                                                             *
@@ -71,48 +76,108 @@ fun ConsentBadge(consent: Boolean, modifier: Modifier = Modifier) = Badge(
  *  Candidate rows                                                    *
  * ------------------------------------------------------------------ */
 
-/** Search-result row: avatar, name + flag, role line, stage + facts, call/chat. */
+/**
+ * Search-result row.
+ *
+ * Rebuilt for density: the previous version stacked two 36dp action buttons in a
+ * trailing column, which set a floor on row height and fitted about four
+ * candidates on a screen. Actions now collapse to one full-height call target,
+ * with the rest behind a long-press, so the same screen shows eight or nine.
+ *
+ * Three tap zones, all comfortably sized:
+ *  - the row opens the profile
+ *  - the stage pill changes the stage in place
+ *  - the trailing button dials
+ *
+ * Long-press opens the quick-actions sheet (message, star, stage, open).
+ */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CandidateCard(
     candidate: CandidateDto,
     onOpen: () -> Unit,
     onCall: () -> Unit,
-    onChat: () -> Unit,
+    onStage: () -> Unit,
+    onMore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val dnc = com.nxthike.android.core.model.CandidateTags.hasDnc(candidate.tags)
-    val consent = com.nxthike.android.core.model.CandidateTags.hasConsent(candidate.tags)
-    TCard(modifier, onClick = onOpen) {
-        Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            Avatar(candidate.name, candidate.id)
+    val dnc = candidate.isDnc
+    val consent = candidate.hasConsent
+    val stage = Stages.find(candidate.status)
+
+    TCard(
+        modifier,
+        padding = 11.dp,
+        border = if (dnc) T.MaroonBorder else T.Border,
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .combinedClickable(onClick = onOpen, onLongClick = onMore),
+            horizontalArrangement = Arrangement.spacedBy(11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Avatar(candidate.name, candidate.id, 42.dp)
+
             Column(Modifier.weight(1f)) {
+                TText(
+                    candidate.name ?: "Unnamed",
+                    Type.cardTitle, T.Ink, maxLines = 1,
+                )
+                TText(
+                    candidateSubtitle(candidate),
+                    Type.bodySm, T.InkMuted, Modifier.padding(top = 1.dp), maxLines = 1,
+                )
                 Row(
+                    Modifier.padding(top = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    TText(candidate.name ?: "Unnamed", Type.cardTitle, T.Ink, Modifier.weight(1f, false), maxLines = 1)
-                    ComplianceFlag(dnc, consent)
-                }
-                TText(candidateSubtitle(candidate), Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp), maxLines = 1)
-                Spacer(Modifier.height(7.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    StageBadge(Stages.find(candidate.status))
+                    // Tappable, with a chevron so it reads as a control rather
+                    // than a label — this is the fast path for moving a stage.
+                    Row(
+                        Modifier
+                            .clip(T.RPill)
+                            .background(stage.tint)
+                            .clickable(onClick = onStage)
+                            .padding(start = 9.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        TText(stage.label, Type.labelSm, stage.color, maxLines = 1)
+                        Icon(
+                            Icons.Default.ExpandMore, null,
+                            tint = stage.color, modifier = Modifier.size(14.dp),
+                        )
+                    }
                     candidate.city?.takeIf { it.isNotBlank() }?.let {
-                        TText(it, Type.labelSm, T.InkFaint, maxLines = 1)
+                        TText(it, Type.labelSm, T.InkFaint, Modifier.weight(1f, false), maxLines = 1)
+                    }
+                    // Only flagged when it changes what you should do. Showing
+                    // "no consent" on every row — which is most of the database —
+                    // made the amber badge read as decoration.
+                    if (dnc) {
+                        Icon(
+                            Icons.Default.Block, "Do not call",
+                            tint = T.Maroon, modifier = Modifier.size(15.dp),
+                        )
+                    } else if (!consent) {
+                        Icon(
+                            Icons.Default.GppMaybe, "No consent on file",
+                            tint = T.Amber, modifier = Modifier.size(15.dp),
+                        )
                     }
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                IconTile(
-                    Icons.Default.Call, onCall, size = 36.dp,
-                    background = if (dnc) T.MaroonTint else T.IndigoTint,
-                    tint = if (dnc) T.Maroon else T.Indigo, iconSize = 18.dp,
-                )
-                IconTile(Icons.Default.Chat, onChat, size = 36.dp, background = T.TealTint, tint = T.Teal, iconSize = 18.dp)
-            }
+
+            IconTile(
+                if (dnc) Icons.Default.Block else Icons.Default.Call,
+                onCall,
+                size = 44.dp,
+                background = if (dnc) T.MaroonTint else T.IndigoTint,
+                tint = if (dnc) T.Maroon else T.Indigo,
+                iconSize = 20.dp,
+            )
         }
     }
 }

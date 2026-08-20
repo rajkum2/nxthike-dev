@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.MoveDown
 import androidx.compose.material.icons.filled.Note
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.PictureAsPdf
@@ -54,6 +55,17 @@ import com.nxthike.android.core.util.Fmt
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.session.SessionViewModel
 import com.nxthike.android.presentation.talent.common.*
+import com.nxthike.android.core.model.sourceLabel
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.BookmarkBorder
+import com.nxthike.android.data.remote.dto.CandidateDto
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.GppMaybe
+import androidx.compose.material.icons.filled.ExpandLess
 
 /* ------------------------------------------------------------------ *
  *  SCR-CAND-01 · Candidate search & list                             *
@@ -67,8 +79,12 @@ fun CandidatesScreen(
     onCompose: (String) -> Unit,
     onAdd: () -> Unit,
     onFilters: () -> Unit,
+    onStage: (CandidateDto) -> Unit,
+    onMore: (CandidateDto) -> Unit,
+    onSaveSearch: () -> Unit,
 ) {
     val state by vm.state.collectAsState()
+    val applied = state.savedSearches.firstOrNull { it.id == state.appliedSearchId }
 
     Box(Modifier.fillMaxSize().background(T.Bg)) {
         Column(Modifier.fillMaxSize()) {
@@ -86,7 +102,7 @@ fun CandidatesScreen(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Icon(
-                        Icons.Default.PersonSearch, "Filters",
+                        Icons.Default.Tune, "Filters",
                         tint = if (state.filters.count > 0) T.Indigo else T.InkMuted,
                         modifier = Modifier.size(20.dp),
                     )
@@ -96,14 +112,62 @@ fun CandidatesScreen(
                 }
             }
 
+            // One rail, two kinds of chip: the fixed quick views first, then the
+            // searches this workspace has saved — the same rows the web desk
+            // shows, so a search saved at a desk is one tap away on a phone.
             ChipRail(Modifier.padding(horizontal = T.Gutter).padding(top = 10.dp, bottom = 6.dp)) {
                 CandidateChip.entries.forEach { chip ->
-                    FilterChip(chip.label, state.chip == chip, { vm.setChip(chip) })
+                    FilterChip(
+                        chip.label,
+                        state.chip == chip && state.appliedSearchId == null,
+                        { vm.setChip(chip) },
+                    )
+                }
+                state.savedSearches.forEach { search ->
+                    FilterChip(
+                        search.name,
+                        state.appliedSearchId == search.id,
+                        { vm.applySavedSearch(search) },
+                        accent = T.Teal,
+                        icon = Icons.Default.BookmarkBorder,
+                    )
+                }
+                // Offered once something is actually narrowed — saving the
+                // unfiltered list would just be a second "All".
+                if (state.filters.count > 0 || state.query.isNotBlank()) {
+                    FilterChip(
+                        "Save search", false, onSaveSearch,
+                        accent = T.Indigo, icon = Icons.Default.BookmarkAdd,
+                    )
+                }
+            }
+
+            if (applied != null) {
+                val dropped = vm.unsupportedKeys(applied)
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = T.Gutter).padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    Icon(Icons.Default.Bookmark, null, tint = T.Teal, modifier = Modifier.size(15.dp))
+                    TText(
+                        if (dropped.isEmpty()) "Saved search · ${applied.name}"
+                        // Better to name the gap than to quietly apply half a search.
+                        else "Saved search · ${applied.name} — ${dropped.joinToString(", ")} not supported here",
+                        Type.labelSm,
+                        if (dropped.isEmpty()) T.TealInk else T.AmberInk,
+                        Modifier.weight(1f),
+                        maxLines = 2,
+                    )
+                    TText(
+                        "Clear", Type.label, T.Indigo,
+                        Modifier.clickable { vm.clearFilters(); vm.setQuery("") },
+                    )
                 }
             }
 
             when {
-                state.loading -> SkeletonList(6, Modifier.padding(horizontal = T.Gutter, vertical = 6.dp))
+                state.loading -> SkeletonList(7, Modifier.padding(horizontal = T.Gutter, vertical = 4.dp))
                 state.error != null -> ErrorState(state.error!!, onRetry = { vm.load() })
                 state.items.isEmpty() -> StateBlock(
                     Icons.Default.PersonSearch, "No candidates match",
@@ -112,17 +176,19 @@ fun CandidatesScreen(
                 )
                 else -> LazyColumn(
                     Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = T.Gutter, vertical = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(T.Gap),
+                    contentPadding = PaddingValues(horizontal = T.Gutter, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     items(state.items, key = { it.id }) { c ->
                         CandidateCard(
                             c,
                             onOpen = { onOpen(c.id) },
                             onCall = { onCall(c.id) },
-                            onChat = { onCompose(c.id) },
+                            onStage = { onStage(c) },
+                            onMore = { onMore(c) },
                         )
                     }
+                    // Clears the FAB, which used to sit on top of the last row.
                     item { Spacer(Modifier.height(T.FabInset)) }
                 }
             }
@@ -137,57 +203,386 @@ fun CandidatesScreen(
     }
 }
 
-/** Filter sheet — the axes the API can actually filter on. */
+/** Names a search before saving it. */
+@Composable
+fun SaveSearchSheetContent(
+    filterCount: Int,
+    query: String,
+    onSave: (String) -> Unit,
+) {
+    var name by rememberSaveable { mutableStateOf("") }
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = T.Gutter).padding(top = 12.dp, bottom = 22.dp),
+    ) {
+        TText("Save this search", Type.sheetTitle, T.Ink)
+        TText(
+            listOfNotNull(
+                query.takeIf { it.isNotBlank() }?.let { "\"$it\"" },
+                "$filterCount filter${if (filterCount == 1) "" else "s"}",
+            ).joinToString(" · "),
+            Type.bodySm, T.InkMuted, Modifier.padding(top = 5.dp),
+        )
+        Spacer(Modifier.height(16.dp))
+        TField(name, { name = it }, label = "Name", placeholder = "e.g. Pune Java, 30-day notice")
+        Spacer(Modifier.height(8.dp))
+        TText(
+            "Saved searches are shared with the web desk — this will appear there too.",
+            Type.labelSm, T.InkFaint,
+        )
+        Spacer(Modifier.height(16.dp))
+        PrimaryButton(
+            "Save search", { onSave(name) },
+            enabled = name.isNotBlank(), height = 52.dp,
+        )
+    }
+}
+
+/**
+ * One collapsible filter axis.
+ *
+ * Collapsed it is a single row showing the axis and its current value; expanded
+ * it reveals the options. Only one is open at a time, so the whole filter set —
+ * nine axes — fits on one screen and the Apply button never scrolls away.
+ *
+ * The previous version rendered every picker permanently open, which meant two
+ * long lists (22 requisitions, 250 cities) each took a full screen of their own
+ * and pushed Apply two scrolls down even after you had chosen.
+ */
+@Composable
+private fun FilterSection(
+    label: String,
+    value: String?,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    onClear: (() -> Unit)? = null,
+    content: @Composable () -> Unit,
+) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(T.RField)
+                .background(if (expanded) T.SurfaceMuted else T.Surface)
+                .border(1.dp, if (value != null) T.Indigo.copy(alpha = 0.45f) else T.Border, T.RField)
+                .clickable(onClick = onToggle)
+                .padding(horizontal = 13.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TText(label, Type.body, T.Ink, Modifier.weight(1f), maxLines = 1)
+            TText(
+                value ?: "Any",
+                if (value != null) Type.cardTitleSm else Type.body,
+                if (value != null) T.IndigoInk else T.InkFaint,
+                Modifier.widthIn(max = 150.dp),
+                maxLines = 1,
+            )
+            if (value != null && onClear != null) {
+                Icon(
+                    Icons.Default.Close, "Clear $label",
+                    tint = T.InkMuted,
+                    modifier = Modifier.size(17.dp).clickable(onClick = onClear),
+                )
+            }
+            Icon(
+                if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                null, tint = T.InkFaint, modifier = Modifier.size(19.dp),
+            )
+        }
+        if (expanded) {
+            Column(Modifier.fillMaxWidth().padding(top = 8.dp, start = 2.dp, end = 2.dp)) { content() }
+        }
+    }
+}
+
+/** Options as chips — for axes with a handful of values. */
+@Composable
+private fun ChipOptions(
+    options: List<String>,
+    selected: String?,
+    accent: Color = T.Indigo,
+    onSelect: (String?) -> Unit,
+) {
+    @OptIn(ExperimentalLayoutApi::class)
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        FilterChip("Any", selected == null, { onSelect(null) }, height = 38.dp)
+        options.forEach { o ->
+            FilterChip(o, selected == o, { onSelect(o) }, accent = accent, height = 38.dp)
+        }
+    }
+}
+
+/**
+ * Type-to-narrow options, for the long lists.
+ *
+ * Renders at most [maxShown] matches so there is no scroll container nested
+ * inside the sheet's own scroll.
+ */
+@Composable
+private fun NarrowingOptions(
+    options: List<String>,
+    selected: String?,
+    onSelect: (String?) -> Unit,
+    emptyHint: String,
+    maxShown: Int = 6,
+) {
+    var query by rememberSaveable(options.size, selected) { mutableStateOf("") }
+    val hits = remember(options, query) {
+        if (query.isBlank()) options else options.filter { it.contains(query, ignoreCase = true) }
+    }
+    val shown = hits.take(maxShown)
+
+    if (options.isEmpty()) {
+        TText(emptyHint, Type.bodySm, T.InkFaint)
+        return
+    }
+    SearchBar(query, { query = it }, "Type to narrow ${options.size}")
+    Spacer(Modifier.height(6.dp))
+    if (shown.isEmpty()) {
+        TText("Nothing matches \"$query\".", Type.bodySm, T.InkFaint)
+    }
+    shown.forEach { option ->
+        val on = option == selected
+        Row(
+            Modifier.fillMaxWidth().padding(bottom = 5.dp)
+                .clip(T.RIcon)
+                .background(if (on) T.IndigoTint else T.Surface)
+                .border(1.dp, if (on) T.Indigo else T.Border, T.RIcon)
+                .clickable { onSelect(if (on) null else option) }
+                .padding(horizontal = 12.dp, vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TText(
+                option, Type.body, if (on) T.IndigoInk else T.Ink,
+                Modifier.weight(1f), maxLines = 1,
+            )
+            if (on) Icon(Icons.Default.Check, null, tint = T.Indigo, modifier = Modifier.size(17.dp))
+        }
+    }
+    if (hits.size > shown.size) {
+        TText("${hits.size - shown.size} more — keep typing", Type.labelSm, T.InkFaint)
+    }
+}
+
+/** Experience buckets the server can filter on, in its own vocabulary. */
+private val EXP_BUCKETS = listOf("0-1", "1-3", "3-5", "5-7", "7-10", "10+")
+private val AI_MATCH_GRADES = listOf("Excellent", "Good", "Moderate")
+private val GENDERS = listOf("Male", "Female")
+
+/**
+ * Filter sheet — every axis `/api/hiring/candidates` accepts, applied server-side.
+ *
+ * Nine collapsed rows and one chip block, with Apply and Save pinned below, so
+ * the whole thing is one screen and saving a search no longer means applying it
+ * first and then hunting for a chip in the rail.
+ */
 @Composable
 fun CandidateFiltersSheetContent(
     state: CandidatesState,
     onApply: (CandidateFilters) -> Unit,
     onReset: () -> Unit,
+    onSave: (CandidateFilters) -> Unit,
 ) {
     var draft by remember(state.filters) { mutableStateOf(state.filters) }
+    // Accordion: one axis open at a time.
+    var open by rememberSaveable { mutableStateOf<String?>(null) }
+    fun toggle(id: String) { open = if (open == id) null else id }
 
-    Column(Modifier.fillMaxWidth().padding(horizontal = T.Gutter).padding(top = 12.dp, bottom = 18.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = T.Gutter).padding(top = 12.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             TText("Filters", Type.sheetTitle, T.Ink, Modifier.weight(1f))
-            TText("Reset", Type.label, T.Indigo, Modifier.clickable { draft = CandidateFilters(); onReset() })
-        }
-
-        Spacer(Modifier.height(12.dp))
-        TText("Requisition", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            FilterChip("Any", draft.roleId == null, { draft = draft.copy(roleId = null) }, height = 38.dp)
-            state.roles.forEach { r ->
-                FilterChip(r.name, draft.roleId == r.id, { draft = draft.copy(roleId = r.id) }, height = 38.dp)
+            if (draft.count > 0) {
+                Badge("${draft.count} active", T.IndigoTint, T.IndigoInk, Modifier.padding(end = 10.dp))
             }
+            TText(
+                "Reset", Type.label,
+                if (draft.count > 0) T.Indigo else T.InkGhost,
+                Modifier.clickable(enabled = draft.count > 0) {
+                    draft = CandidateFilters(); open = null; onReset()
+                },
+            )
         }
 
-        Spacer(Modifier.height(14.dp))
-        TText("Stage", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
-        @OptIn(ExperimentalLayoutApi::class)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            FilterChip("Any", draft.status == null, { draft = draft.copy(status = null) }, height = 38.dp)
-            Stages.ALL.forEach { s ->
-                FilterChip(
-                    s.label, draft.status == s.id, { draft = draft.copy(status = s.id) },
-                    accent = s.color, height = 38.dp,
+        // Bounded so the footer stays on screen whatever is expanded.
+        Column(
+            Modifier
+                .heightIn(max = 430.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = T.Gutter),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            FilterSection(
+                "Requisition",
+                state.roles.firstOrNull { it.id == draft.roleId }?.name,
+                open == "req", { toggle("req") },
+                onClear = { draft = draft.copy(roleId = null) },
+            ) {
+                NarrowingOptions(
+                    state.roles.map { it.name },
+                    state.roles.firstOrNull { it.id == draft.roleId }?.name,
+                    { name ->
+                        draft = draft.copy(roleId = name?.let { n -> state.roles.first { it.name == n }.id })
+                    },
+                    "Requisitions haven't loaded — close and reopen this sheet.",
                 )
             }
+
+            FilterSection(
+                "Stage",
+                draft.status?.let { Stages.find(it).label },
+                open == "stage", { toggle("stage") },
+                onClear = { draft = draft.copy(status = null) },
+            ) {
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    FilterChip("Any", draft.status == null, { draft = draft.copy(status = null) }, height = 38.dp)
+                    Stages.ALL.forEach { st ->
+                        FilterChip(
+                            st.label, draft.status == st.id, { draft = draft.copy(status = st.id) },
+                            accent = st.color, height = 38.dp,
+                        )
+                    }
+                }
+            }
+
+            FilterSection(
+                "City", draft.city, open == "city", { toggle("city") },
+                onClear = { draft = draft.copy(city = null) },
+            ) {
+                NarrowingOptions(
+                    state.cities, draft.city,
+                    { draft = draft.copy(city = it) },
+                    "City facets haven't loaded yet.",
+                )
+            }
+
+            FilterSection(
+                "Gender", draft.gender, open == "gender", { toggle("gender") },
+                onClear = { draft = draft.copy(gender = null) },
+            ) {
+                ChipOptions(GENDERS, draft.gender) { draft = draft.copy(gender = it) }
+            }
+
+            FilterSection(
+                "Experience",
+                when (draft.experience) {
+                    "yes" -> "Has experience"
+                    "no" -> "Fresher"
+                    else -> null
+                },
+                open == "exp", { toggle("exp") },
+                onClear = { draft = draft.copy(experience = null) },
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    FilterChip("Any", draft.experience == null, { draft = draft.copy(experience = null) }, height = 38.dp)
+                    FilterChip("Has experience", draft.experience == "yes", { draft = draft.copy(experience = "yes") }, height = 38.dp)
+                    FilterChip("Fresher", draft.experience == "no", { draft = draft.copy(experience = "no") }, height = 38.dp)
+                }
+            }
+
+            FilterSection(
+                "Years of experience",
+                draft.expYears?.let { if (it == "10+") "10+ years" else "$it years" },
+                open == "years", { toggle("years") },
+                onClear = { draft = draft.copy(expYears = null) },
+            ) {
+                ChipOptions(EXP_BUCKETS, draft.expYears) { draft = draft.copy(expYears = it) }
+                TText(
+                    "Counted from total experience on the record, not a text match.",
+                    Type.labelSm, T.InkFaint, Modifier.padding(top = 6.dp),
+                )
+            }
+
+            FilterSection(
+                "Graduation year", draft.graduationYear,
+                open == "grad", { toggle("grad") },
+                onClear = { draft = draft.copy(graduationYear = null) },
+            ) {
+                NarrowingOptions(
+                    state.graduationYears, draft.graduationYear,
+                    { draft = draft.copy(graduationYear = it) },
+                    "Graduation-year facets haven't loaded yet.",
+                )
+            }
+
+            FilterSection(
+                "Source", draft.source, open == "source", { toggle("source") },
+                onClear = { draft = draft.copy(source = null) },
+            ) {
+                ChipOptions(CandidateTags.SOURCES, draft.source) { draft = draft.copy(source = it) }
+            }
+
+            FilterSection(
+                "Résumé match", draft.aiMatch, open == "ai", { toggle("ai") },
+                onClear = { draft = draft.copy(aiMatch = null) },
+            ) {
+                ChipOptions(AI_MATCH_GRADES, draft.aiMatch, accent = T.Teal) {
+                    draft = draft.copy(aiMatch = it)
+                }
+            }
+
+            Column(Modifier.padding(top = 4.dp)) {
+                TText("Record", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    FilterChip("Has phone", draft.hasPhone, { draft = draft.copy(hasPhone = !draft.hasPhone) }, height = 38.dp)
+                    FilterChip("Has email", draft.hasEmail, { draft = draft.copy(hasEmail = !draft.hasEmail) }, height = 38.dp)
+                    FilterChip("Has résumé", draft.hasResume, { draft = draft.copy(hasResume = !draft.hasResume) }, height = 38.dp)
+                    FilterChip("Has notes", draft.hasNotes, { draft = draft.copy(hasNotes = !draft.hasNotes) }, height = 38.dp)
+                    FilterChip(
+                        "On DND", draft.dncOnly, { draft = draft.copy(dncOnly = !draft.dncOnly) },
+                        accent = T.Maroon, height = 38.dp,
+                    )
+                }
+            }
+
+            if (draft.dncOnly) {
+                Banner(Icons.Default.Block, T.MaroonTint, T.MaroonBorder, T.Maroon) {
+                    TText(
+                        "Showing numbers locked from every queue. These records cannot be dialled.",
+                        Type.bodySm, T.MaroonInk,
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
         }
 
-        if (state.cities.isNotEmpty()) {
-            Spacer(Modifier.height(14.dp))
-            TText("City", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
-            @OptIn(ExperimentalLayoutApi::class)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                FilterChip("Any", draft.city == null, { draft = draft.copy(city = null) }, height = 38.dp)
-                state.cities.forEach { c ->
-                    FilterChip(c, draft.city == c, { draft = draft.copy(city = c) }, height = 38.dp)
+        // Pinned: apply, or save this exact set as a one-tap chip for next time.
+        Column(
+            Modifier.fillMaxWidth().background(T.Surface)
+                .padding(horizontal = T.Gutter).padding(top = 12.dp, bottom = 16.dp),
+        ) {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(T.Divider))
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                GhostButton(
+                    "Save", { onSave(draft) },
+                    Modifier.weight(0.42f),
+                    icon = Icons.Default.BookmarkAdd,
+                    height = 52.dp,
+                )
+                Box(Modifier.weight(1f)) {
+                    PrimaryButton(
+                        if (draft.count > 0) "Apply ${draft.count} filter${if (draft.count == 1) "" else "s"}"
+                        else "Show all candidates",
+                        { onApply(draft) },
+                        height = 52.dp, shape = RoundedCornerShape(15.dp),
+                    )
                 }
             }
         }
-
-        Spacer(Modifier.height(18.dp))
-        PrimaryButton("Apply filters", { onApply(draft) }, height = 52.dp, shape = RoundedCornerShape(15.dp))
     }
 }
 
@@ -299,8 +694,21 @@ fun CandidateProfileScreen(
                             horizontalArrangement = Arrangement.spacedBy(5.dp),
                             verticalArrangement = Arrangement.spacedBy(5.dp),
                         ) {
-                            Box(Modifier.clickable(onClick = onStageChange)) {
-                                StageBadge(Stages.find(c.status))
+                            // Reads as a control, not a label — this is the
+                            // shortcut for the edit recruiters make most.
+                            val stage = Stages.find(c.status)
+                            Row(
+                                Modifier.clip(T.RPill).background(stage.tint)
+                                    .clickable(onClick = onStageChange)
+                                    .padding(start = 10.dp, end = 7.dp, top = 5.dp, bottom = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                            ) {
+                                TText(stage.label, Type.labelSm, stage.color, maxLines = 1)
+                                Icon(
+                                    Icons.Default.ExpandMore, "Change stage",
+                                    tint = stage.color, modifier = Modifier.size(15.dp),
+                                )
                             }
                             ConsentBadge(state.consent)
                             if (state.dnc) Badge("DND · do not call", T.MaroonTint, T.Maroon, icon = Icons.Default.Lock)
@@ -349,7 +757,10 @@ fun CandidateProfileScreen(
 
                 Column(
                     Modifier.weight(1f).verticalScroll(rememberScrollState())
-                        .padding(horizontal = T.Gutter).padding(top = 14.dp, bottom = 90.dp),
+                        // Must clear the overlaid Call button: 56dp tall with 14dp
+                        // above and below, plus breathing room. At 90dp the last
+                        // row sat underneath it.
+                        .padding(horizontal = T.Gutter).padding(top = 14.dp, bottom = 104.dp),
                 ) {
                     when (tab) {
                         "overview" -> {
@@ -359,7 +770,7 @@ fun CandidateProfileScreen(
                                         "Phone" to (if (prefs.maskPii) Fmt.maskPhone(c.phone) else c.phone.orEmpty()),
                                         "Email" to (if (prefs.maskPii) Fmt.maskEmail(c.email) else c.email.orEmpty()),
                                         "Location" to c.city.orEmpty(),
-                                        "Source" to (CandidateTags.sourceOf(c.tags) ?: "—"),
+                                        "Source" to (c.sourceLabel ?: "—"),
                                         "Experience" to (c.experienceDuration ?: c.hasWorkExperience ?: "—"),
                                         "Availability" to (c.availability ?: "—"),
                                         "Institute" to (c.institute ?: "—"),
@@ -599,6 +1010,7 @@ fun CandidateEditScreen(
                     .padding(horizontal = T.Gutter).padding(top = 16.dp, bottom = 110.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
+                FormSection("Who they are", first = true)
                 TField(f.name, { v -> vm.update { it.copy(name = v) } }, label = "Full name *", placeholder = "e.g. Ritu Malhotra")
 
                 Column {
@@ -642,20 +1054,38 @@ fun CandidateEditScreen(
                 }
 
                 TField(f.email, { v -> vm.update { it.copy(email = v) } }, label = "Email", placeholder = "name@company.com")
+
+                FormSection("Work")
                 TField(f.latestRole, { v -> vm.update { it.copy(latestRole = v) } }, label = "Current role", placeholder = "e.g. Senior Java Developer")
                 TField(f.latestCompany, { v -> vm.update { it.copy(latestCompany = v) } }, label = "Current company", placeholder = "e.g. Infosys")
                 TField(f.city, { v -> vm.update { it.copy(city = v) } }, label = "City", placeholder = "e.g. Pune")
                 TField(f.skills, { v -> vm.update { it.copy(skills = v) } }, label = "Skills", placeholder = "Java, Spring Boot, Kafka", singleLine = false, minHeight = 60.dp)
-                TField(f.availability, { v -> vm.update { it.copy(availability = v) } }, label = "Notice period / availability", placeholder = "e.g. 60 days, buyout possible")
+                TField(f.availability, { v -> vm.update { it.copy(availability = v) } }, label = "Availability", placeholder = "e.g. immediate, buyout possible")
 
-                Column {
-                    TText("Requisition *", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
-                    @OptIn(ExperimentalLayoutApi::class)
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        state.roles.forEach { r ->
-                            FilterChip(r.name, f.roleId == r.id, { vm.pickRole(r) }, height = 40.dp)
-                        }
-                    }
+                FormSection("Pipeline")
+
+                // Opens itself until a requisition is picked — it is required, so
+                // an empty collapsed row would hide the one thing still blocking save.
+                val pickedRole = state.roles.firstOrNull { it.id == f.roleId }?.name
+                var reqOpen by rememberSaveable { mutableStateOf(false) }
+                FilterSection(
+                    "Requisition *",
+                    pickedRole,
+                    expanded = reqOpen || pickedRole == null,
+                    onToggle = { reqOpen = !reqOpen },
+                ) {
+                    NarrowingOptions(
+                        state.roles.map { it.name },
+                        pickedRole,
+                        { name ->
+                            if (name == null) vm.update { form -> form.copy(roleId = "", roleName = "") }
+                            else state.roles.firstOrNull { it.name == name }?.let { r ->
+                                vm.pickRole(r)
+                                reqOpen = false
+                            }
+                        },
+                        "Requisitions haven't loaded — go back and reopen this screen.",
+                    )
                 }
 
                 Column {
@@ -682,6 +1112,35 @@ fun CandidateEditScreen(
                     }
                 }
 
+                // Comp and notice: the three facts an offer conversation needs, and
+                // the ones a recruiter is asked for first. They were columns the app
+                // could read but never write.
+                Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    Box(Modifier.weight(1f)) {
+                        TField(
+                            f.currentCtc, { v -> vm.update { it.copy(currentCtc = v) } },
+                            label = "Current CTC", placeholder = "8.5", mono = true,
+                        )
+                    }
+                    Box(Modifier.weight(1f)) {
+                        TField(
+                            f.expectedCtc, { v -> vm.update { it.copy(expectedCtc = v) } },
+                            label = "Expected CTC", placeholder = "12", mono = true,
+                        )
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TText("In lakhs per annum", Type.labelSm, T.InkFaint, Modifier.weight(1f))
+                    lakhsToRupees(f.expectedCtc)?.let {
+                        TText("Expected ${Fmt.money(it)}", Type.labelSm, T.TealInk)
+                    }
+                }
+                TField(
+                    f.noticeDays, { v -> vm.update { it.copy(noticeDays = v.filter(Char::isDigit)) } },
+                    label = "Notice period (days)", placeholder = "60", mono = true,
+                )
+
+                FormSection("Compliance")
                 Row(
                     Modifier.fillMaxWidth().clip(T.RField).background(T.TealTint)
                         .border(1.dp, T.TealBorder, T.RField)
@@ -713,18 +1172,48 @@ fun CandidateEditScreen(
             Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(T.Surface)
                 .padding(horizontal = T.Gutter).padding(top = 12.dp, bottom = 16.dp),
         ) {
-            PrimaryButton(
-                when {
-                    state.saving -> "Saving…"
-                    !f.valid -> "Name, number and requisition required"
-                    editing -> "Save changes"
-                    else -> "Save candidate"
-                },
-                onClick = { vm.save(onDone) },
-                enabled = f.valid && !state.saving,
-                height = 52.dp, shape = RoundedCornerShape(15.dp),
-            )
+            Column {
+                // The button says what it does; the line above says what is
+                // missing. A button labelled with a validation error tells you
+                // there is a problem but not where to go.
+                if (!f.valid) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(bottom = 9.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.GppMaybe, null,
+                            tint = T.Amber, modifier = Modifier.size(15.dp),
+                        )
+                        TText(
+                            "Still needed: ${f.missing.joinToString(", ")}",
+                            Type.labelSm, T.AmberInk,
+                        )
+                    }
+                }
+                PrimaryButton(
+                    when {
+                        state.saving -> "Saving…"
+                        editing -> "Save changes"
+                        else -> "Save candidate"
+                    },
+                    onClick = { vm.save(onDone) },
+                    enabled = f.valid && !state.saving,
+                    height = 52.dp, shape = RoundedCornerShape(15.dp),
+                )
+            }
         }
+    }
+}
+
+/** Groups the edit form so it reads as four short forms, not one long one. */
+@Composable
+private fun FormSection(title: String, first: Boolean = false) {
+    Column(Modifier.padding(top = if (first) 0.dp else 8.dp)) {
+        Eyebrow(title)
+        Spacer(Modifier.height(3.dp))
+        Box(Modifier.fillMaxWidth().height(1.dp).background(T.DividerFaint))
     }
 }
 

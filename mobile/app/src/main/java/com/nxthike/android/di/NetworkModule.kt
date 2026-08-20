@@ -3,6 +3,7 @@ package com.nxthike.android.di
 import com.nxthike.android.BuildConfig
 import com.nxthike.android.data.remote.api.*
 import com.nxthike.android.data.remote.interceptor.AuthInterceptor
+import com.nxthike.android.data.remote.moshi.LenientStringAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -22,6 +23,8 @@ object NetworkModule {
 
     @Provides @Singleton
     fun provideMoshi(): Moshi = Moshi.Builder()
+        // Registered before the reflective factory so the qualifier wins.
+        .add(LenientStringAdapter)
         .add(KotlinJsonAdapterFactory())
         .build()
 
@@ -62,4 +65,5 @@ object NetworkModule {
     @Provides @Singleton fun hiringApi(r: Retrofit): HiringApi = r.create(HiringApi::class.java)
     @Provides @Singleton fun dashboardApi(r: Retrofit): DashboardApi = r.create(DashboardApi::class.java)
     @Provides @Singleton fun callsApi(r: Retrofit): CallsApi = r.create(CallsApi::class.java)
+    @Provides @Singleton fun workspaceApi(r: Retrofit): WorkspaceApi = r.create(WorkspaceApi::class.java)
 }
