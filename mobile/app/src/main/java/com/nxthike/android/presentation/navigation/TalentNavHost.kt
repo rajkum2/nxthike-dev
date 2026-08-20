@@ -46,6 +46,7 @@ import com.nxthike.android.presentation.talent.requisitions.*
 import com.nxthike.android.presentation.talent.settings.*
 import com.nxthike.android.presentation.talent.team.*
 import java.net.URLDecoder
+import com.nxthike.android.data.remote.dto.CandidateDto
 
 /** Sheets and dialogs are hosted above the graph so they survive navigation. */
 private sealed interface AppSheet {
@@ -57,7 +58,18 @@ private sealed interface AppSheet {
     data class Erasure(val candidateId: String) : AppSheet
     data object Filters : AppSheet
     data object StageChange : AppSheet
+    data object SaveSearch : AppSheet
+
+    /**
+     * Carries the candidate rather than an id: the row already has the record,
+     * and the sheet needs its current stage and note trail to build the move.
+     */
+    data class Stage(val candidate: CandidateDto) : AppSheet
+    data class QuickActions(val candidate: CandidateDto) : AppSheet
 }
+
+/** Screens reachable without a session — never bounce away from these. */
+private val AUTH_ROUTES = setOf(R.SPLASH, R.LOGIN, R.REGISTER)
 
 private data class Tab(val route: String, val label: String, val icon: ImageVector)
 
@@ -79,6 +91,7 @@ fun TalentNavHost() {
 
     val loggedIn by session.isLoggedIn.collectAsState()
     val bootstrapped by session.bootstrapped.collectAsState()
+    val candidateProfileState by candidateProfile.state.collectAsState()
     val needsAccess by session.needsAccess.collectAsState()
     val profileResolved by session.profileResolved.collectAsState()
     val prefs by session.prefs.collectAsState()
@@ -154,8 +167,9 @@ fun TalentNavHost() {
             }
         },
     ) { padding ->
-        // Server-side, every CRM route needs an admin JWT. Guarding here rather
-        // than routing means no screen can be reached before the role is known.
+        // Access is a persona, not a role: `get_workspace_user` admits all eight
+        // personas and refuses portal-only accounts with a reason. Guarding here
+        // rather than in routing means no screen is reachable before that lands.
         if (loggedIn && profileResolved && needsAccess) {
             Box(Modifier.padding(padding)) {
                 AccessPendingScreen(session) {
@@ -163,6 +177,16 @@ fun TalentNavHost() {
                 }
             }
             return@Scaffold
+        }
+
+        // The token can be dropped mid-session — it expires after eight hours, and
+        // the interceptor clears it on any 401. Splash only routes on first
+        // launch, so without this the app would sit on a screen whose every
+        // request fails.
+        LaunchedEffect(loggedIn, bootstrapped) {
+            if (bootstrapped && !loggedIn && route != null && route !in AUTH_ROUTES) {
+                nav.navigate(R.LOGIN) { popUpTo(0) { inclusive = true } }
+            }
         }
 
         NavHost(
@@ -347,7 +371,10 @@ fun TalentNavHost() {
                     onCall = ::startCall,
                     onCompose = { nav.navigate(R.composer(it)) },
                     onAdd = { nav.navigate(R.candidateEdit()) },
-                    onFilters = { sheet = AppSheet.Filters },
+                    onFilters = { candidates.ensureReferenceData(); sheet = AppSheet.Filters },
+                    onStage = { sheet = AppSheet.Stage(it) },
+                    onMore = { sheet = AppSheet.QuickActions(it) },
+                    onSaveSearch = { sheet = AppSheet.SaveSearch },
                 )
             }
 
@@ -365,7 +392,11 @@ fun TalentNavHost() {
                     onMerge = { nav.navigate(R.merge(id)) },
                     onConsent = { sheet = AppSheet.Consent(id) },
                     onErasure = { sheet = AppSheet.Erasure(id) },
-                    onStageChange = { nav.navigate(R.pipelist()) },
+                    // Was a jump to the pipeline list, which showed the board
+                    // rather than changing anything. Opens the stage picker now.
+                    onStageChange = {
+                        candidateProfileState.candidate?.let { sheet = AppSheet.Stage(it) }
+                    },
                 )
             }
 
@@ -536,7 +567,9 @@ fun TalentNavHost() {
 
             composable(R.OFFER, listOf(navArgument("id") { type = NavType.StringType })) { entry ->
                 OfferDetailScreen(
-                    candidateId = entry.arguments?.getString("id").orEmpty(),
+                    // The route now carries an offer id: offers are their own
+                    // records, not a candidate parked at the Offer stage.
+                    offerId = entry.arguments?.getString("id").orEmpty(),
                     vm = offers,
                     onBack = { nav.popBackStack() },
                     onDecided = { nav.popBackStack() },
@@ -617,7 +650,7 @@ fun TalentNavHost() {
                 }
             }
             composable(R.CALL_WINDOW) { CallWindowScreen(session) { nav.popBackStack() } }
-            composable(R.ROLES) { RolesMatrixScreen { nav.popBackStack() } }
+            composable(R.ROLES) { RolesMatrixScreen(session) { nav.popBackStack() } }
             composable(R.COMPLIANCE) {
                 ComplianceScreen(
                     onBack = { nav.popBackStack() },
@@ -750,6 +783,43 @@ fun TalentNavHost() {
                     state = candidatesState,
                     onApply = { candidates.setFilters(it); sheet = null },
                     onReset = { candidates.clearFilters() },
+                    // Apply first, then name it: the search being saved is the one
+                    // the list is showing, which is what the user just checked.
+                    onSave = { candidates.setFilters(it); sheet = AppSheet.SaveSearch },
+                )
+
+                AppSheet.SaveSearch -> SaveSearchSheetContent(
+                    filterCount = candidatesState.filters.count,
+                    query = candidatesState.query,
+                    onSave = { name -> candidates.saveCurrentSearch(name) { sheet = null } },
+                )
+
+                is AppSheet.Stage -> StagePickerSheetContent(
+                    // Re-read from the list so the sheet shows the stage as it is
+                    // now, not as it was when the row was long-pressed.
+                    candidate = candidatesState.items.firstOrNull { it.id == s.candidate.id }
+                        ?: s.candidate,
+                    saving = candidatesState.busyId == s.candidate.id,
+                    onConfirm = { stage, note, reason ->
+                        candidates.changeStage(s.candidate, stage, note, reason) {
+                            // One write; refresh the profile too when it is the
+                            // screen the move was made from.
+                            if (candidateProfileState.candidate?.id == s.candidate.id) {
+                                candidateProfile.load(s.candidate.id, force = true)
+                            }
+                            sheet = null
+                        }
+                    },
+                )
+
+                is AppSheet.QuickActions -> CandidateQuickActionsSheetContent(
+                    candidate = candidatesState.items.firstOrNull { it.id == s.candidate.id }
+                        ?: s.candidate,
+                    onOpen = { sheet = null; nav.navigate(R.candidate(s.candidate.id)) },
+                    onCall = { sheet = null; startCall(s.candidate.id) },
+                    onMessage = { sheet = null; nav.navigate(R.composer(s.candidate.id)) },
+                    onStage = { sheet = AppSheet.Stage(s.candidate) },
+                    onToggleStar = { candidates.toggleStar(s.candidate); sheet = null },
                 )
 
                 AppSheet.StageChange -> {

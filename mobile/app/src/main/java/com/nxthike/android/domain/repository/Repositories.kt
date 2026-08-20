@@ -52,16 +52,29 @@ interface CompanyRepository {
 interface HiringRepository {
     suspend fun roles(): AppResult<List<HiringRoleDto>>
     suspend fun createRole(body: HiringRoleWriteDto): AppResult<HiringRoleDto>
+    suspend fun updateRole(id: String, changes: Map<String, Any?>): AppResult<HiringRoleDto>
     suspend fun deleteRole(id: String): AppResult<Unit>
     suspend fun dashboard(roleId: String?): AppResult<HiringDashboardDto>
+
+    /** The common case: the three filters most screens need. */
     suspend fun candidates(
         search: String?, roleId: String?, status: String?, page: Int, pageSize: Int,
     ): AppResult<PaginatedCandidatesDto>
+
+    /** The full filter set, applied server-side. */
+    suspend fun search(query: CandidateQuery): AppResult<PaginatedCandidatesDto>
+
+    /** Distinct cities and graduation years with counts, for the filter sheet. */
+    suspend fun facets(q: String? = null): AppResult<CandidateFacetsDto>
+
     suspend fun getCandidate(id: String): AppResult<CandidateDto>
     suspend fun createCandidate(body: CandidateWriteDto): AppResult<CandidateDto>
+    suspend fun replaceCandidate(id: String, body: CandidateWriteDto): AppResult<CandidateDto>
     suspend fun patchCandidate(id: String, body: CandidatePatchDto): AppResult<CandidateDto>
     suspend fun deleteCandidate(id: String): AppResult<Unit>
     suspend fun bulkStatus(ids: List<String>, status: String): AppResult<Int>
+    suspend fun bulkRole(ids: List<String>, roleId: String, roleName: String? = null): AppResult<Int>
+    suspend fun bulkUpdate(body: BulkUpdateRequest): AppResult<Int>
     suspend fun bulkDelete(ids: List<String>): AppResult<Int>
 }
 

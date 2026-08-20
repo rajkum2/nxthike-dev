@@ -3,14 +3,16 @@ package com.nxthike.android.presentation.talent.requisitions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nxthike.android.core.model.Stage
+import com.nxthike.android.core.model.StageMove
 import com.nxthike.android.core.model.Stages
 import com.nxthike.android.core.result.AppResult
 import com.nxthike.android.data.remote.dto.CandidateDto
 import com.nxthike.android.data.remote.dto.CandidatePatchDto
-import com.nxthike.android.data.remote.dto.HiringRoleDto
-import com.nxthike.android.data.remote.dto.HiringRoleWriteDto
+import com.nxthike.android.data.remote.dto.RequisitionDto
+import com.nxthike.android.data.remote.dto.RequisitionWriteDto
 import com.nxthike.android.domain.repository.HiringRepository
 import com.nxthike.android.domain.repository.JobRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -21,9 +23,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * A requisition, as this app understands it: a `HiringRole` plus the pipeline
- * counts that make it actionable. The role is what candidates hang off, so it
- * is the thing you can build a call queue from.
+ * A requisition as the workspace defines it.
+ *
+ * Priority, openings, the SLA and the comp band used to be absent or guessed
+ * here — `priority` was inferred from pipeline shape, because the only thing
+ * available was a `HiringRole` and a count. They are real columns now, and
+ * `/api/workspace/requisitions` returns them with the stage breakdown in one
+ * request, so the per-role fan-out this screen used to do is gone too.
  */
 data class Requisition(
     val id: String,
@@ -32,7 +38,23 @@ data class Requisition(
     val active: Boolean,
     val total: Int,
     val byStage: Map<String, Int>,
-    /** False until the per-role stage breakdown has arrived. */
+    val priority: String = "P2",
+    val openings: Int = 1,
+    val filled: Int = 0,
+    val clientId: String? = null,
+    val clientName: String? = null,
+    val department: String? = null,
+    val location: String? = null,
+    val skills: List<String> = emptyList(),
+    val status: String = "open",
+    val slaLabel: String? = null,
+    val slaBreached: Boolean = false,
+    val compLabel: String? = null,
+    /** Null unless this persona is entitled to see commercials. */
+    val billRate: String? = null,
+    val payRate: String? = null,
+    val ownerId: String? = null,
+    /** Kept for the loading state: counts arrive with the list now, so this is true. */
     val detailed: Boolean = true,
 ) {
     val submitted: Int get() = byStage[Stages.Submitted.id] ?: 0
@@ -44,13 +66,33 @@ data class Requisition(
     val advanced: Float
         get() = if (total == 0) 0f else (total - sourced).toFloat() / total
 
-    /** Priority is inferred from shape: a big untouched pipeline is urgent. */
-    val priority: String
-        get() = when {
-            total >= 20 && advanced < 0.2f -> "P1"
-            total >= 8 && advanced < 0.5f -> "P2"
-            else -> "P3"
-        }
+    val remaining: Int get() = (openings - filled).coerceAtLeast(0)
+
+    companion object {
+        fun from(dto: RequisitionDto) = Requisition(
+            id = dto.id,
+            title = dto.title,
+            description = dto.description,
+            active = dto.isActive,
+            total = dto.pipelineTotal,
+            byStage = dto.byStage,
+            priority = dto.priority,
+            openings = dto.openings,
+            filled = dto.filled,
+            clientId = dto.clientId,
+            clientName = dto.clientName,
+            department = dto.department,
+            location = dto.location,
+            skills = dto.skills,
+            status = dto.status,
+            slaLabel = dto.slaLabel,
+            slaBreached = dto.slaBreached,
+            compLabel = dto.compLabel,
+            billRate = dto.billRate,
+            payRate = dto.payRate,
+            ownerId = dto.ownerId,
+        )
+    }
 }
 
 data class RequisitionsState(
@@ -62,78 +104,40 @@ data class RequisitionsState(
 
 @HiltViewModel
 class RequisitionsViewModel @Inject constructor(
-    private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RequisitionsState())
     val state: StateFlow<RequisitionsState> = _state.asStateFlow()
 
-    private var enrichJob: Job? = null
-
     init { load() }
 
+    /**
+     * One request for the whole board.
+     *
+     * `includeCounts` has the server group candidates by role and stage in a
+     * single query, so this replaces the old dashboard call plus one follow-up
+     * request per role — which on a workspace with thirty requisitions was
+     * thirty-one round trips to render one list.
+     */
     fun load() = viewModelScope.launch {
         _state.update { it.copy(loading = true, error = null) }
-        when (val dash = hiring.dashboard(null)) {
+        when (val r = workspace.requisitions(includeCounts = true)) {
             is AppResult.Success -> {
-                val roles = dash.data.roles.ifEmpty { hiring.roles().getOrNull().orEmpty() }
-
-                // Show the list straight away from the roll-up the dashboard already
-                // returned. Per-role stage breakdowns are a separate request each and
-                // the API takes seconds per call, so they stream in afterwards rather
-                // than holding the whole screen on a skeleton.
+                val items = r.data.map(Requisition::from)
                 _state.value = RequisitionsState(
                     loading = false,
-                    totalCandidates = dash.data.total,
-                    items = roles.map { role ->
-                        Requisition(
-                            id = role.id,
-                            title = role.name,
-                            description = role.description,
-                            active = role.is_active,
-                            total = dash.data.byRole[role.id] ?: role.count,
-                            byStage = emptyMap(),
-                            detailed = false,
-                        )
-                    },
+                    items = items,
+                    totalCandidates = items.sumOf { it.total },
                 )
-                enrich(roles.map { it.id })
             }
-            is AppResult.Error -> _state.update { it.copy(loading = false, error = dash.message) }
-        }
-    }
-
-    /** Fills in each role's stage breakdown as it arrives, card by card. */
-    private fun enrich(roleIds: List<String>) {
-        enrichJob?.cancel()
-        enrichJob = viewModelScope.launch {
-            roleIds.forEach { id ->
-                launch {
-                    val perRole = hiring.dashboard(id).getOrNull() ?: return@launch
-                    _state.update { s ->
-                        s.copy(
-                            items = s.items.map { req ->
-                                if (req.id == id) {
-                                    req.copy(
-                                        total = perRole.total,
-                                        byStage = perRole.byStatus,
-                                        detailed = true,
-                                    )
-                                } else {
-                                    req
-                                }
-                            },
-                        )
-                    }
-                }
-            }
+            is AppResult.Error -> _state.update { it.copy(loading = false, error = r.message) }
         }
     }
 
     fun create(name: String, description: String, onDone: () -> Unit) = viewModelScope.launch {
-        val id = name.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_').ifBlank { "role" }
-        hiring.createRole(
-            HiringRoleWriteDto(id = id, name = name, description = description.ifBlank { null }),
+        workspace.createRequisition(
+            RequisitionWriteDto(title = name, description = description.ifBlank { null }),
         ).onSuccess { load(); onDone() }
             .onError { e -> _state.update { it.copy(error = e.message) } }
     }
@@ -154,40 +158,36 @@ data class RequisitionDetailState(
 @HiltViewModel
 class RequisitionDetailViewModel @Inject constructor(
     private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
     private val jobs: JobRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RequisitionDetailState())
     val state: StateFlow<RequisitionDetailState> = _state.asStateFlow()
 
-    fun load(roleId: String) = viewModelScope.launch {
+    fun load(reqId: String) = viewModelScope.launch {
         _state.update { it.copy(loading = true, error = null) }
-        val roles = hiring.roles().getOrNull().orEmpty()
-        val role: HiringRoleDto? = roles.firstOrNull { it.id == roleId }
-        val dash = hiring.dashboard(roleId).getOrNull()
-        if (role == null && dash == null) {
-            _state.update { it.copy(loading = false, error = "That requisition could not be loaded.") }
-            return@launch
+        when (val r = workspace.requisition(reqId)) {
+            is AppResult.Success -> {
+                val req = Requisition.from(r.data)
+                val candidates = hiring.candidates(null, reqId, null, 1, 60)
+                    .getOrNull()?.items.orEmpty()
+                // The comp band is a requisition column now. A matching job posting
+                // is still worth showing, but only as the public advert — it is no
+                // longer the only place a salary range could be found.
+                val posting = jobs.list(search = req.title, type = null, page = 1, status = null)
+                    .getOrNull()?.items?.firstOrNull { it.title.equals(req.title, true) }
+                _state.value = RequisitionDetailState(
+                    loading = false,
+                    requisition = req,
+                    candidates = candidates,
+                    posting = posting,
+                )
+            }
+            is AppResult.Error -> _state.update {
+                it.copy(loading = false, error = r.message)
+            }
         }
-        val candidates = hiring.candidates(null, roleId, null, 1, 60).getOrNull()?.items.orEmpty()
-        // A job posting with a matching title carries the comp range the CRM lacks.
-        val posting = role?.let { r ->
-            jobs.list(search = r.name, type = null, page = 1, status = null)
-                .getOrNull()?.items?.firstOrNull { it.title.equals(r.name, true) }
-        }
-        _state.value = RequisitionDetailState(
-            loading = false,
-            requisition = Requisition(
-                id = roleId,
-                title = role?.name ?: roleId,
-                description = role?.description,
-                active = role?.is_active ?: true,
-                total = dash?.total ?: candidates.size,
-                byStage = dash?.byStatus.orEmpty(),
-            ),
-            candidates = candidates,
-            posting = posting,
-        )
     }
 }
 
@@ -249,15 +249,8 @@ class PipelineViewModel @Inject constructor(
         val move = _state.value.pendingMove ?: return
         viewModelScope.launch {
             _state.update { it.copy(moving = move.candidate.id) }
-            val trail = buildString {
-                append("[stage] ${move.from.label} → ${move.to.label}")
-                if (!dropReason.isNullOrBlank()) append(" · $dropReason")
-                if (note.isNotBlank()) append(" — $note")
-            }
-            val patch = CandidatePatchDto(
-                status = move.to.id,
-                notes = (move.candidate.notes.trimEnd() + "\n" + trail).trim(),
-            )
+            // Shared with the list row and the profile — one move, one record.
+            val patch = StageMove.patch(move.candidate, move.to, note, dropReason)
             when (hiring.patchCandidate(move.candidate.id, patch)) {
                 is AppResult.Success -> {
                     _state.update { it.copy(moving = null, pendingMove = null) }

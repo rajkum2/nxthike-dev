@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
@@ -31,7 +32,12 @@ import com.nxthike.android.core.model.Stages
 import com.nxthike.android.core.util.Fmt
 import com.nxthike.android.data.remote.dto.CandidateDto
 import com.nxthike.android.data.remote.dto.CandidatePatchDto
+import com.nxthike.android.data.remote.dto.InterviewCreateDto
+import com.nxthike.android.data.remote.dto.InterviewDto
+import com.nxthike.android.data.remote.dto.PanellistDto
+import com.nxthike.android.data.remote.dto.ScorecardWriteDto
 import com.nxthike.android.domain.repository.HiringRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.talent.common.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,14 +49,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * The API has no interview table, so the interview surface is built from the
- * candidates that are actually at the interview stage. Panels, slots and
- * scorecards are captured back onto the candidate record as notes.
+ * Interviews and scorecards, as records rather than note text.
+ *
+ * This screen used to build itself from whichever candidates happened to sit at
+ * the Interview stage, and wrote schedules and scorecards back as formatted
+ * lines in the candidate's notes blob — readable to a person, opaque to the web
+ * desk and impossible to report on. Both are real tables now.
+ *
+ * [candidates] is still loaded, but only to populate the candidate picker on the
+ * schedule screen; the calendar itself comes from [interviews].
  */
 @HiltViewModel
 class InterviewsViewModel @Inject constructor(
     private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
+
+    private val _interviews = MutableStateFlow<List<InterviewDto>>(emptyList())
+    val interviews: StateFlow<List<InterviewDto>> = _interviews.asStateFlow()
 
     private val _candidates = MutableStateFlow<List<CandidateDto>>(emptyList())
     val candidates: StateFlow<List<CandidateDto>> = _candidates.asStateFlow()
@@ -58,13 +74,24 @@ class InterviewsViewModel @Inject constructor(
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
     private val _selected = MutableStateFlow<CandidateDto?>(null)
     val selected: StateFlow<CandidateDto?> = _selected.asStateFlow()
+
+    /** The interview a scorecard will be attached to, when one is known. */
+    private val _selectedInterview = MutableStateFlow<InterviewDto?>(null)
+    val selectedInterview: StateFlow<InterviewDto?> = _selectedInterview.asStateFlow()
 
     init { load() }
 
     fun load() = viewModelScope.launch {
         _loading.value = true
+        _error.value = null
+        workspace.interviews()
+            .onSuccess { _interviews.value = it.sortedBy { i -> i.scheduledAt ?: "" } }
+            .onError { e -> _error.value = e.message }
         hiring.candidates(null, null, Stages.Interview.id, 1, 60)
             .onSuccess { _candidates.value = it.items }
         _loading.value = false
@@ -73,26 +100,54 @@ class InterviewsViewModel @Inject constructor(
     fun select(id: String) = viewModelScope.launch {
         _selected.value = _candidates.value.firstOrNull { it.id == id }
             ?: hiring.getCandidate(id).getOrNull()
+        // Prefer the soonest interview still open for this candidate, so a
+        // scorecard attaches to the round it was actually written for.
+        _selectedInterview.value = _interviews.value
+            .filter { it.candidateId == id }
+            .minByOrNull { it.scheduledAt ?: "9999" }
+            ?: workspace.interviews(candidateId = id).getOrNull()
+                ?.minByOrNull { it.scheduledAt ?: "9999" }
     }
 
-    /** Writes the scheduled slot and panel onto the record's note trail. */
-    fun schedule(candidateId: String, type: String, slot: String, panel: String, location: String, onDone: () -> Unit) =
-        viewModelScope.launch {
-            val c = hiring.getCandidate(candidateId).getOrNull() ?: return@launch onDone()
-            val line = "[${Fmt.toIso(LocalDateTime.now()).take(16)}] Interview scheduled — " +
-                "$type · $slot · panel: $panel · $location"
-            hiring.patchCandidate(
-                candidateId,
-                CandidatePatchDto(
-                    status = Stages.Interview.id,
-                    notes = (c.notes.trimEnd() + "\n" + line).trim(),
-                ),
-            )
-            load()
-            onDone()
-        }
+    /** Creates the interview record: panel, slot, mode and duration as columns. */
+    fun schedule(
+        candidateId: String,
+        type: String,
+        slotIso: String?,
+        panel: String,
+        location: String,
+        onDone: () -> Unit,
+    ) = viewModelScope.launch {
+        val candidate = _selected.value?.takeIf { it.id == candidateId }
+            ?: hiring.getCandidate(candidateId).getOrNull()
+        val result = workspace.createInterview(
+            InterviewCreateDto(
+                candidateId = candidateId,
+                requisitionId = candidate?.requisitionId ?: candidate?.roleId,
+                kind = interviewKind(type),
+                roundLabel = type,
+                scheduledAt = slotIso,
+                durationMinutes = 45,
+                mode = if (looksRemote(location)) "video" else "onsite",
+                location = location.ifBlank { null },
+                panel = panel.split(',')
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() && !it.equals("TBC", true) }
+                    .map { PanellistDto(name = it) },
+            ),
+        )
+        result.onError { e -> _error.value = e.message }
+        load()
+        onDone()
+    }
 
-    /** Persists the scorecard as a structured note and advances or drops the candidate. */
+    /**
+     * Submits the scorecard.
+     *
+     * The stage move is the server's to make — `POST /scorecards` advances a
+     * `hire` to Offer and a `strong_no` to Dropped, and records the audit line.
+     * Doing it here as well would double-write and could disagree with it.
+     */
     fun submitScorecard(
         candidateId: String,
         scores: Map<String, Int>,
@@ -100,26 +155,40 @@ class InterviewsViewModel @Inject constructor(
         evidence: String,
         onDone: () -> Unit,
     ) = viewModelScope.launch {
-        val c = hiring.getCandidate(candidateId).getOrNull() ?: return@launch onDone()
-        val avg = if (scores.isEmpty()) 0.0 else scores.values.average()
-        val line = buildString {
-            append("[${Fmt.toIso(LocalDateTime.now()).take(16)}] Scorecard — ")
-            append(scores.entries.joinToString(", ") { "${it.key}:${it.value}" })
-            append(" · avg %.1f".format(avg))
-            append(" · $recommendation")
-            if (evidence.isNotBlank()) append(" — $evidence")
-        }
-        val nextStage = when (recommendation) {
-            "Strong hire", "Hire" -> Stages.Offer.id
-            "Strong no" -> Stages.Dropped.id
-            else -> c.status
-        }
-        hiring.patchCandidate(
-            candidateId,
-            CandidatePatchDto(status = nextStage, notes = (c.notes.trimEnd() + "\n" + line).trim()),
-        )
+        workspace.submitScorecard(
+            ScorecardWriteDto(
+                candidateId = candidateId,
+                interviewId = _selectedInterview.value?.id,
+                scores = scores,
+                recommendation = recommendationId(recommendation),
+                evidence = evidence,
+                isDraft = false,
+            ),
+        ).onError { e -> _error.value = e.message }
         load()
         onDone()
+    }
+
+    private fun looksRemote(location: String): Boolean {
+        val l = location.lowercase()
+        return l.startsWith("http") || listOf("meet", "zoom", "teams", "webex", "call").any { it in l }
+    }
+
+    private fun interviewKind(display: String): String = when (display.lowercase()) {
+        "screening" -> "screening"
+        "panel" -> "panel"
+        "culture fit" -> "culture"
+        "hr round" -> "hr"
+        else -> "technical"
+    }
+
+    /** The server stores recommendation ids, not the words on the buttons. */
+    private fun recommendationId(display: String): String = when (display.lowercase()) {
+        "strong hire" -> "strong_hire"
+        "hire" -> "hire"
+        "no hire" -> "no_hire"
+        "strong no" -> "strong_no"
+        else -> display.lowercase().replace(' ', '_')
     }
 }
 
@@ -134,18 +203,18 @@ fun InterviewsScreen(
     onSchedule: () -> Unit,
     onOpenKit: (String) -> Unit,
 ) {
-    val list by vm.candidates.collectAsState()
+    val list by vm.interviews.collectAsState()
     val loading by vm.loading.collectAsState()
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
-        TopBar("Interviews", onBack, subtitle = "${list.size} candidates at interview stage") {
+        TopBar("Interviews", onBack, subtitle = "${list.size} scheduled") {
             IconTile(Icons.Default.Add, onSchedule, size = 38.dp, background = T.IndigoTint, tint = T.Indigo)
         }
         when {
             loading -> SkeletonList(4, Modifier.padding(horizontal = T.Gutter))
             list.isEmpty() -> StateBlock(
                 Icons.Default.Event, "No interviews in flight",
-                "Move a candidate to the Interview stage and they appear here.",
+                "Schedule one and it appears here with its panel and slot.",
                 actionLabel = "Schedule one", onAction = onSchedule,
             )
             else -> LazyColumn(
@@ -153,17 +222,18 @@ fun InterviewsScreen(
                 contentPadding = PaddingValues(horizontal = T.Gutter),
                 verticalArrangement = Arrangement.spacedBy(T.Gap),
             ) {
-                items(list, key = { it.id }) { c ->
+                items(list, key = { it.id }) { iv ->
+                    val at = Fmt.parse(iv.scheduledAt)
                     Row(
-                        Modifier.fillMaxWidth().clickable { onOpenKit(c.id) },
+                        Modifier.fillMaxWidth().clickable { onOpenKit(iv.candidateId) },
                         horizontalArrangement = Arrangement.spacedBy(11.dp),
                     ) {
                         Column(
                             Modifier.width(48.dp).padding(top = 12.dp),
                             horizontalAlignment = Alignment.End,
                         ) {
-                            TText(Fmt.time(Fmt.parse(c.updatedAt)).ifBlank { "—" }, Type.mono, T.Ink)
-                            TText(Fmt.shortDate(Fmt.parse(c.updatedAt)), Type.monoXs, T.InkFaint, Modifier.padding(top = 2.dp))
+                            TText(Fmt.time(at).ifBlank { "TBC" }, Type.mono, T.Ink)
+                            TText(Fmt.shortDate(at), Type.monoXs, T.InkFaint, Modifier.padding(top = 2.dp))
                         }
                         Column(
                             Modifier.weight(1f)
@@ -178,10 +248,23 @@ fun InterviewsScreen(
                                         horizontalArrangement = Arrangement.spacedBy(9.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Avatar(c.name, c.id, 32.dp)
+                                        Avatar(iv.candidateName, iv.candidateId, 32.dp)
                                         Column(Modifier.weight(1f)) {
-                                            TText(c.name ?: "Unnamed", Type.cardTitleSm, T.Ink, maxLines = 1)
-                                            TText(candidateSubtitle(c), Type.bodySm, T.InkMuted, maxLines = 1)
+                                            TText(
+                                                iv.candidateName ?: "Unnamed",
+                                                Type.cardTitleSm, T.Ink, maxLines = 1,
+                                            )
+                                            TText(
+                                                listOfNotNull(
+                                                    iv.roundLabel ?: iv.kind,
+                                                    iv.requisitionName,
+                                                    "${iv.durationMinutes} min",
+                                                ).joinToString(" · "),
+                                                Type.bodySm, T.InkMuted, maxLines = 1,
+                                            )
+                                        }
+                                        if (iv.hasScorecard) {
+                                            Badge("SCORED", T.GreenTint, T.Green)
                                         }
                                     }
                                     Row(
@@ -189,9 +272,26 @@ fun InterviewsScreen(
                                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Badge(c.roleName.ifBlank { "Interview" }, T.PurpleTint, T.Purple)
-                                        Icon(Icons.Default.Videocam, null, tint = T.InkMuted, modifier = Modifier.size(14.dp))
-                                        TText(c.city ?: "Remote", Type.labelSm, T.InkMuted, maxLines = 1)
+                                        Badge(
+                                            iv.status.replace('_', ' ').uppercase(),
+                                            T.PurpleTint, T.Purple,
+                                        )
+                                        Icon(
+                                            if (iv.mode == "onsite") Icons.Default.Place
+                                            else Icons.Default.Videocam,
+                                            null, tint = T.InkMuted, modifier = Modifier.size(14.dp),
+                                        )
+                                        TText(
+                                            iv.location ?: iv.mode ?: "—",
+                                            Type.labelSm, T.InkMuted, maxLines = 1,
+                                        )
+                                    }
+                                    if (iv.panel.isNotEmpty()) {
+                                        TText(
+                                            "Panel: " + iv.panel.mapNotNull { it.name }.joinToString(", "),
+                                            Type.labelSm, T.InkFaint,
+                                            Modifier.padding(top = 6.dp), maxLines = 1,
+                                        )
                                     }
                                 }
                             }
@@ -227,11 +327,13 @@ fun ScheduleInterviewScreen(
 
     LaunchedEffect(candidateId) { if (candidateId.isNotBlank()) vm.select(candidateId) }
 
+    // Label for the chip, ISO for the wire. The server stores a real timestamp,
+    // so a human-readable slot string is no longer enough to send.
     val slots = remember {
         val base = LocalDateTime.now().plusDays(1).withMinute(0).withSecond(0).withNano(0)
         listOf(10, 12, 15, 17).flatMap { h ->
             listOf(base.withHour(h), base.plusDays(1).withHour(h))
-        }.map { Fmt.whenLabel(it) }
+        }.map { Fmt.whenLabel(it) to Fmt.toIso(it) }
     }
 
     Box(Modifier.fillMaxSize().background(T.Bg)) {
@@ -285,8 +387,8 @@ fun ScheduleInterviewScreen(
                     TText("Proposed slot", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
                     @OptIn(ExperimentalLayoutApi::class)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        slots.forEach { s ->
-                            FilterChip(s, slot == s, { slot = s }, height = 40.dp)
+                        slots.forEach { (label, iso) ->
+                            FilterChip(label, slot == iso, { slot = iso }, height = 40.dp)
                         }
                     }
                 }
@@ -300,7 +402,7 @@ fun ScheduleInterviewScreen(
             onClick = {
                 val id = selected?.id ?: chosenId
                 if (id.isNotBlank()) {
-                    vm.schedule(id, type, slot, panel.ifBlank { "TBC" }, location) { onScheduled() }
+                    vm.schedule(id, type, slot.ifBlank { null }, panel, location) { onScheduled() }
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter).padding(horizontal = T.Gutter, vertical = 14.dp),

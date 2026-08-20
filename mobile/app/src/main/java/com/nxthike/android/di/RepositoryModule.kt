@@ -19,4 +19,5 @@ abstract class RepositoryModule {
     @Binds @Singleton abstract fun hiring(impl: HiringRepositoryImpl): HiringRepository
     @Binds @Singleton abstract fun dashboard(impl: DashboardRepositoryImpl): DashboardRepository
     @Binds @Singleton abstract fun calls(impl: CallRepositoryImpl): CallRepository
+    @Binds @Singleton abstract fun workspace(impl: WorkspaceRepositoryImpl): WorkspaceRepository
 }

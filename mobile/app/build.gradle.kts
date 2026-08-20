@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,8 +17,8 @@ android {
         applicationId = "com.nxthike.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "2.0.0"
+        versionCode = 9
+        versionName = "2.2.1"
         // Production API (public). Override for local:
         //   ./gradlew assembleDebug -PapiBaseUrl=http://10.0.2.2:8010/
         //   ./gradlew assembleDebug -PapiBaseUrl=http://192.168.x.x:8010/
@@ -25,6 +28,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Convenience sign-in for development builds only.
+    //
+    // Put these in `local.properties` (git-ignored) or pass -PdevLoginEmail=... :
+    //
+    //   devLoginEmail=admin@nxthike.com
+    //   devLoginPassword=<the ADMIN_PASSWORD from BE/.env>
+    //
+    // They are compiled into the DEBUG build only, and the login screen
+    // pre-fills them so a tester signs in with one tap. Release builds get empty
+    // strings — a BuildConfig constant is recoverable from any APK with
+    // `unzip` and `strings`, so a real credential must never reach one.
+    val localProps = Properties()
+    rootProject.file("local.properties").takeIf { it.exists() }?.let { f ->
+        FileInputStream(f).use { localProps.load(it) }
+    }
+    fun devProp(name: String): String =
+        (project.findProperty(name) as String?) ?: localProps.getProperty(name) ?: ""
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -32,8 +53,14 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Never ship credentials, even if they are configured locally.
+            buildConfigField("String", "DEV_LOGIN_EMAIL", "\"\"")
+            buildConfigField("String", "DEV_LOGIN_PASSWORD", "\"\"")
         }
-        debug { }
+        debug {
+            buildConfigField("String", "DEV_LOGIN_EMAIL", "\"${devProp("devLoginEmail")}\"")
+            buildConfigField("String", "DEV_LOGIN_PASSWORD", "\"${devProp("devLoginPassword")}\"")
+        }
     }
 
     compileOptions {

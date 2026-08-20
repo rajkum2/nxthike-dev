@@ -25,12 +25,11 @@ import androidx.lifecycle.viewModelScope
 import com.nxthike.android.core.model.Stages
 import com.nxthike.android.core.telephony.DialerHelper
 import com.nxthike.android.core.util.Fmt
-import com.nxthike.android.data.remote.dto.CandidateDto
-import com.nxthike.android.data.remote.dto.CompanyDto
+import com.nxthike.android.data.remote.dto.ClientDto
 import com.nxthike.android.data.remote.dto.JobDto
-import com.nxthike.android.domain.repository.CompanyRepository
-import com.nxthike.android.domain.repository.HiringRepository
+import com.nxthike.android.data.remote.dto.SubmissionDto
 import com.nxthike.android.domain.repository.JobRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.session.SessionViewModel
 import com.nxthike.android.presentation.talent.common.*
@@ -44,16 +43,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/** Clients are the companies the portal already knows about. */
+/**
+ * Client accounts from `/api/workspace/clients`.
+ *
+ * These are accounts, not portal companies: health, margin, payment terms,
+ * contacts and the submitted/placed counts are columns the workspace keeps. The
+ * screen used to read `/api/companies`, which knows a company's industry and
+ * website but nothing about the commercial relationship.
+ */
 @HiltViewModel
 class ClientsViewModel @Inject constructor(
-    private val companies: CompanyRepository,
+    private val workspace: WorkspaceRepository,
     private val jobs: JobRepository,
-    private val hiring: HiringRepository,
 ) : ViewModel() {
 
-    private val _list = MutableStateFlow<List<CompanyDto>>(emptyList())
-    val list: StateFlow<List<CompanyDto>> = _list.asStateFlow()
+    private val _list = MutableStateFlow<List<ClientDto>>(emptyList())
+    val list: StateFlow<List<ClientDto>> = _list.asStateFlow()
 
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -61,28 +66,29 @@ class ClientsViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    private val _selected = MutableStateFlow<CompanyDto?>(null)
-    val selected: StateFlow<CompanyDto?> = _selected.asStateFlow()
+    private val _selected = MutableStateFlow<ClientDto?>(null)
+    val selected: StateFlow<ClientDto?> = _selected.asStateFlow()
 
     private val _postings = MutableStateFlow<List<JobDto>>(emptyList())
     val postings: StateFlow<List<JobDto>> = _postings.asStateFlow()
 
-    private val _submissions = MutableStateFlow<List<CandidateDto>>(emptyList())
-    val submissions: StateFlow<List<CandidateDto>> = _submissions.asStateFlow()
+    /** Real submission records — who was sent where, when, by whom, at what rate. */
+    private val _submissions = MutableStateFlow<List<SubmissionDto>>(emptyList())
+    val submissions: StateFlow<List<SubmissionDto>> = _submissions.asStateFlow()
 
     init { load() }
 
     fun load() = viewModelScope.launch {
         _loading.value = true
         _error.value = null
-        companies.list()
+        workspace.clients()
             .onSuccess { _list.value = it.sortedBy { c -> c.name } }
             .onError { e -> _error.value = e.message }
         _loading.value = false
     }
 
     fun select(id: String) = viewModelScope.launch {
-        val client = _list.value.firstOrNull { it.id == id } ?: companies.get(id).getOrNull()
+        val client = _list.value.firstOrNull { it.id == id } ?: workspace.client(id).getOrNull()
         _selected.value = client
         if (client != null) {
             _postings.value = jobs.list(search = client.name, type = null, page = 1, status = null)
@@ -91,16 +97,17 @@ class ClientsViewModel @Inject constructor(
         }
     }
 
-    /** Everyone submitted or beyond — the client-facing view of the pipeline. */
-    fun loadSubmissions(clientName: String?) = viewModelScope.launch {
-        val stages = listOf(Stages.Submitted, Stages.Interview, Stages.Offer, Stages.Hired)
-        val all = coroutineScope {
-            stages.map { s ->
-                async { hiring.candidates(null, null, s.id, 1, 40).getOrNull()?.items.orEmpty() }
-            }.awaitAll().flatten()
-        }
-        _submissions.value = if (clientName.isNullOrBlank()) all
-        else all.filter { it.latestCompany.equals(clientName, true) || it.roleName.contains(clientName, true) }
+    /**
+     * Submissions for one account, or across all of them.
+     *
+     * Filtered by client id server-side. Matching on company name — which this
+     * used to do, against the candidate's *previous* employer — put people in
+     * front of the wrong client whenever a name happened to collide.
+     */
+    fun loadSubmissions(clientId: String?) = viewModelScope.launch {
+        workspace.submissions(clientId = clientId)
+            .onSuccess { _submissions.value = it }
+            .onError { e -> _error.value = e.message }
     }
 }
 
@@ -130,7 +137,7 @@ fun ClientsScreen(
             error != null -> ErrorState(error!!, onRetry = { vm.load() })
             list.isEmpty() -> StateBlock(
                 Icons.Default.Apartment, "No ${prefs.mode.clientWord.lowercase()}s yet",
-                "Companies added to the portal appear here.",
+                "Accounts with an open requisition appear here.",
             )
             else -> LazyColumn(
                 Modifier.fillMaxSize(),
@@ -151,7 +158,7 @@ fun ClientsScreen(
                                     Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp), maxLines = 1,
                                 )
                             }
-                            val open = c.openPositions ?: 0
+                            val open = c.openRequisitions
                             Badge(
                                 if (open > 0) "$open open" else "No openings",
                                 if (open > 0) T.GreenTint else T.NeutralTint,
@@ -211,25 +218,61 @@ fun ClientDetailScreen(
                         Type.body, T.InkMuted, Modifier.padding(top = 3.dp),
                     )
 
-                    if (!c.description.isNullOrBlank()) {
-                        Column(
-                            Modifier.fillMaxWidth().padding(top = 14.dp)
-                                .clip(T.RCard).background(T.SurfaceMuted).padding(13.dp),
-                        ) {
-                            Eyebrow("ACCOUNT BRIEF")
-                            TText(c.description!!, Type.body, T.InkBody, Modifier.padding(top = 8.dp))
-                        }
+                    Row(
+                        Modifier.padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        val healthy = c.health.equals("good", true)
+                        val atRisk = c.health.equals("at_risk", true) || c.health.equals("risk", true)
+                        Badge(
+                            c.health.replace('_', ' ').uppercase(),
+                            if (healthy) T.GreenTint else if (atRisk) T.AmberTint else T.MaroonTint,
+                            if (healthy) T.Green else if (atRisk) T.AmberInk else T.Maroon,
+                        )
+                        // Margin is a commercial figure; the server withholds it
+                        // from personas that may not see rates, so null means
+                        // "not entitled", not "zero".
+                        c.marginPct?.let { Badge("${it.toInt()}% margin", T.TealTint, T.TealInk) }
                     }
 
                     TCard(Modifier.padding(top = 12.dp), shape = T.RCardLg, padding = 14.dp) {
                         FactGrid(
                             listOf(
-                                "Open positions" to "${c.openPositions ?: 0}",
+                                "Open requisitions" to "${c.openRequisitions}",
+                                "Submissions" to "${c.submissions}",
+                                "Placements" to "${c.placements}",
+                                "Payment terms" to (c.terms ?: "—"),
                                 "Industry" to (c.industry ?: "—"),
                                 "Location" to (c.location ?: "—"),
-                                "Website" to (c.website ?: "—"),
                             ),
                         )
+                        if (c.contacts.isNotEmpty()) {
+                            Spacer(Modifier.height(12.dp))
+                            Eyebrow("CONTACTS")
+                            c.contacts.forEach { contact ->
+                                Row(
+                                    Modifier.padding(top = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(9.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Avatar(contact.name, contact.email ?: contact.name.orEmpty(), 30.dp)
+                                    Column(Modifier.weight(1f)) {
+                                        TText(contact.name ?: "—", Type.cardTitleSm, T.Ink, maxLines = 1)
+                                        TText(
+                                            listOfNotNull(contact.role, contact.phone).joinToString(" · "),
+                                            Type.labelSm, T.InkMuted, maxLines = 1,
+                                        )
+                                    }
+                                    contact.phone?.takeIf { it.isNotBlank() }?.let { phone ->
+                                        GhostButton(
+                                            "Call", { DialerHelper.dial(context, phone) },
+                                            height = 34.dp,
+                                        )
+                                    }
+                                }
+                            }
+                        }
                         if (!c.website.isNullOrBlank()) {
                             Spacer(Modifier.height(10.dp))
                             GhostButton(
@@ -282,7 +325,7 @@ fun SubmissionsScreen(
     val client by vm.selected.collectAsState()
     val subs by vm.submissions.collectAsState()
 
-    LaunchedEffect(clientId, client?.name) { vm.loadSubmissions(client?.name) }
+    LaunchedEffect(clientId) { vm.loadSubmissions(clientId) }
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
         TopBar("Submissions", onBack, subtitle = client?.name ?: "Across all accounts")
@@ -297,23 +340,45 @@ fun SubmissionsScreen(
                 contentPadding = PaddingValues(horizontal = T.Gutter),
                 verticalArrangement = Arrangement.spacedBy(T.Gap),
             ) {
-                items(subs, key = { it.id }) { c ->
-                    TCard(onClick = { onOpenCandidate(c.id) }) {
+                items(subs, key = { it.id }) { sub ->
+                    TCard(onClick = { onOpenCandidate(sub.candidateId) }) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(11.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Avatar(c.name, c.id, 36.dp)
+                            Avatar(sub.candidateName, sub.candidateId, 36.dp)
                             Column(Modifier.weight(1f)) {
-                                TText(c.name ?: "Unnamed", Type.cardTitleSm, T.Ink, maxLines = 1)
-                                TText(c.roleName, Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp), maxLines = 1)
+                                TText(
+                                    sub.candidateName ?: "Unnamed",
+                                    Type.cardTitleSm, T.Ink, maxLines = 1,
+                                )
+                                TText(
+                                    listOfNotNull(sub.requisitionName, sub.clientName)
+                                        .joinToString(" · ").ifBlank { "—" },
+                                    Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp), maxLines = 1,
+                                )
                                 Row(
                                     Modifier.padding(top = 6.dp),
                                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    StageBadge(Stages.find(c.status))
-                                    TText(Fmt.shortDate(Fmt.parse(c.updatedAt)), Type.monoXs, T.InkFaint)
+                                    Badge(
+                                        sub.status.replace('_', ' ').uppercase(),
+                                        T.BlueTint, T.Blue,
+                                    )
+                                    sub.submittedCtc?.let {
+                                        TText(Fmt.money(it), Type.monoXs, T.InkMuted)
+                                    }
+                                    TText(
+                                        Fmt.shortDate(Fmt.parse(sub.submittedAt)),
+                                        Type.monoXs, T.InkFaint,
+                                    )
+                                }
+                                sub.submittedByName?.takeIf { it.isNotBlank() }?.let {
+                                    TText(
+                                        "by $it", Type.labelSm, T.InkFaint,
+                                        Modifier.padding(top = 4.dp), maxLines = 1,
+                                    )
                                 }
                             }
                         }

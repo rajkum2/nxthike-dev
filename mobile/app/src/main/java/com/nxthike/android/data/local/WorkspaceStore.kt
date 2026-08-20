@@ -8,6 +8,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.nxthike.android.core.model.CallingWindow
+import com.nxthike.android.data.remote.dto.CallingWindowDto
+import com.nxthike.android.data.remote.dto.SessionDto
+import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.DayOfWeek
 import javax.inject.Inject
@@ -43,14 +46,26 @@ data class WorkspacePrefs(
 )
 
 /**
- * Workspace-level preferences. These are the settings the spec exposes but the
- * NxtHike API has no endpoint for (mode, calling window, notification channels),
- * so they live on-device rather than being invented server-side.
+ * Workspace-level state on disk.
+ *
+ * Two different things live here, and the difference matters:
+ *
+ *  - **Server-owned settings** — mode and the calling window. These come from
+ *    `GET /api/workspace/settings`; this store is a cache so the dial gate still
+ *    holds when the app opens without a signal. [applyServerSettings] is the
+ *    only thing that should write them on a normal launch.
+ *  - **Device preferences** — onboarding progress, notification channels and the
+ *    mask-PII toggle. These are genuinely local and stay that way.
+ *
+ * [saveSession] keeps the last good session so a network failure degrades to
+ * the persona the user actually holds rather than to no capabilities at all.
  */
 @Singleton
 class WorkspaceStore @Inject constructor(
     @ApplicationContext private val context: Context,
+    moshi: Moshi,
 ) {
+    private val sessionAdapter = moshi.adapter(SessionDto::class.java)
     private object K {
         val mode = stringPreferencesKey("mode")
         val openHour = intPreferencesKey("window_open_hour")
@@ -65,7 +80,47 @@ class WorkspaceStore @Inject constructor(
         val nInterviews = booleanPreferencesKey("notify_interviews")
         val nWindow = booleanPreferencesKey("notify_window")
         val mask = booleanPreferencesKey("mask_pii")
+        val session = stringPreferencesKey("session_json")
+        val timezone = stringPreferencesKey("window_timezone")
     }
+
+    /**
+     * The last session the server returned, or null before the first success.
+     *
+     * A malformed blob (an app upgrade that changed the shape) reads as null
+     * rather than throwing — a stale cache must never brick the launch path.
+     */
+    val cachedSession: Flow<SessionDto?> = context.workspaceStore.data.map { p ->
+        p[K.session]?.let { json -> runCatching { sessionAdapter.fromJson(json) }.getOrNull() }
+    }
+
+    suspend fun saveSession(session: SessionDto) {
+        context.workspaceStore.edit { p ->
+            p[K.session] = sessionAdapter.toJson(session)
+        }
+        applyServerSettings(session.mode, session.settings.callingWindow)
+    }
+
+    suspend fun clearSession() = context.workspaceStore.edit { it.remove(K.session) }.let { }
+
+    /**
+     * Mirrors the workspace's own mode and calling window onto the device.
+     *
+     * The server is the authority: an admin tightening the window centrally has
+     * to change the gate on every phone, so this overwrites whatever was here.
+     */
+    suspend fun applyServerSettings(mode: String, window: CallingWindowDto) =
+        context.workspaceStore.edit { p ->
+            runCatching { WorkspaceMode.valueOf(mode) }.getOrNull()?.let { p[K.mode] = it.name }
+            p[K.openHour] = window.openHour.coerceIn(0, 23)
+            p[K.closeHour] = window.closeHour.coerceIn(1, 24)
+            // The server sends ISO weekday numbers (1 = Monday).
+            window.days
+                .mapNotNull { n -> runCatching { DayOfWeek.of(n) }.getOrNull() }
+                .takeIf { it.isNotEmpty() }
+                ?.let { days -> p[K.days] = days.map { it.name }.toSet() }
+            p[K.timezone] = window.timezone
+        }.let { }
 
     val prefs: Flow<WorkspacePrefs> = context.workspaceStore.data.map { p ->
         val days = p[K.days]
@@ -80,6 +135,7 @@ class WorkspaceStore @Inject constructor(
                 openHour = p[K.openHour] ?: 9,
                 closeHour = p[K.closeHour] ?: 21,
                 days = days,
+                zoneLabel = p[K.timezone] ?: CallingWindow.Default.zoneLabel,
             ),
             onboarded = p[K.onboarded] ?: false,
             dpdpAccepted = p[K.dpdp] ?: false,

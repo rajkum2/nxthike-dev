@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
@@ -51,7 +52,10 @@ import com.nxthike.android.data.local.WorkspaceMode
 import com.nxthike.android.data.remote.dto.CallLogDto
 import com.nxthike.android.data.remote.dto.CandidateDto
 import com.nxthike.android.domain.repository.CallRepository
+import com.nxthike.android.data.remote.dto.AuditDto
+import com.nxthike.android.data.remote.dto.ErasureDto
 import com.nxthike.android.domain.repository.HiringRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.session.SessionViewModel
 import com.nxthike.android.presentation.talent.common.*
@@ -369,93 +373,120 @@ private fun StepButton(label: String, onClick: () -> Unit) = Box(
  *  SCR-SET-06 · Roles & permissions                                  *
  * ------------------------------------------------------------------ */
 
-private val CAPABILITIES = listOf(
-    "See candidate phone / email",
-    "Log call outcomes",
-    "Move pipeline stages",
-    "Create requisitions",
-    "Approve offers",
-    "See client commercials",
-    "Export reports",
-    "Purge candidate records",
-    "Edit the disposition taxonomy",
+/**
+ * The capability keys the server's `caps` map uses, with the words this screen
+ * shows for them. Order follows the sequence a recruiter actually meets them in.
+ */
+private val CAPABILITY_ROWS = listOf(
+    "db" to "See candidate database",
+    "create" to "Add / edit candidates",
+    "dial" to "Use the dialer queue",
+    "log" to "Log call outcomes",
+    "stage" to "Move pipeline stages",
+    "reqs" to "Requisitions",
+    "score" to "Submit scorecards",
+    "approve" to "Approve offers",
+    "rates" to "See client commercials",
+    "analytics" to "Reporting",
+    "eeo" to "See EEO data",
+    "erasure" to "Action erasure requests",
+    "admin" to "Workspace admin",
 )
 
-private val ROLE_COLUMNS = listOf("SOURCER", "RECRUITER", "LEAD", "ADMIN")
-
-/** Permission levels cycle on tap: none → view → yes → all. */
-private val LEVELS = listOf(
-    Triple("—", T.NeutralTint, T.InkFaint),
-    Triple("View", T.SlateTint, T.Slate),
-    Triple("Yes", T.GreenTint, T.Green),
-    Triple("All", T.IndigoTint, T.IndigoInk),
-)
-
-/** Sensible starting matrix: seniority increases capability left to right. */
-private fun defaultLevel(row: Int, col: Int): Int = when (row) {
-    0 -> if (col == 0) 1 else 3
-    1 -> if (col == 0) 2 else 2
-    2 -> if (col == 0) 0 else 2
-    3 -> if (col >= 2) 2 else 0
-    4 -> if (col >= 2) 2 else 0
-    5 -> if (col == 3) 3 else if (col == 2) 1 else 0
-    6 -> if (col >= 2) 2 else 0
-    7 -> if (col == 3) 2 else 0
-    else -> if (col == 3) 2 else 0
-}
-
-@Composable
-fun RolesMatrixScreen(onBack: () -> Unit) {
-    var levels by remember {
-        mutableStateOf(
-            CAPABILITIES.indices.flatMap { r -> ROLE_COLUMNS.indices.map { c -> "$r-$c" to defaultLevel(r, c) } }
-                .toMap(),
+/** How a capability value reads as a cell: label, background, foreground. */
+private fun capabilityCell(value: Any?): Triple<String, androidx.compose.ui.graphics.Color, androidx.compose.ui.graphics.Color> =
+    when (value) {
+        null, false, "none", "" -> Triple("—", T.NeutralTint, T.InkFaint)
+        true -> Triple("Yes", T.GreenTint, T.Green)
+        "all" -> Triple("All", T.IndigoTint, T.IndigoInk)
+        "partial", "config", "ifPanel", "gated" -> Triple(
+            value.toString().replaceFirstChar { it.uppercase() }, T.AmberTint, T.AmberInk,
+        )
+        else -> Triple(
+            value.toString().replaceFirstChar { it.uppercase() }.take(9), T.SlateTint, T.Slate,
         )
     }
 
+/**
+ * The workspace's real permission matrix.
+ *
+ * Read-only, and deliberately so. This screen used to be an editable grid over a
+ * local map with a banner admitting the API "currently enforces two roles" —
+ * both halves are now out of date: the server enforces eight personas with
+ * per-capability gates, and the matrix it returns is the one doing the enforcing.
+ * Editing it is a web-admin job, because most capabilities are enums rather than
+ * on/off and a tap-to-cycle control would happily write an invalid level.
+ */
+@Composable
+fun RolesMatrixScreen(session: SessionViewModel, onBack: () -> Unit) {
+    val current by session.session.collectAsState()
+    val personas = current?.personas.orEmpty()
+    val matrix = current?.settings?.roleMatrix.orEmpty()
+
+    // Columns come from the persona catalogue, so they stay in step with the
+    // server rather than being a hardcoded four.
+    val columns = personas.mapNotNull { p ->
+        val id = p["id"] as? String ?: return@mapNotNull null
+        val short = (p["short"] as? String) ?: (p["name"] as? String) ?: id
+        id to short.uppercase()
+    }
+
     Column(Modifier.fillMaxSize().background(T.Bg)) {
-        TopBar("Roles & permissions", onBack, subtitle = "Tap a cell to cycle the level")
+        TopBar(
+            "Roles & permissions", onBack,
+            subtitle = if (columns.isEmpty()) "Loading…" else "${columns.size} personas · enforced by the API",
+        )
+        if (columns.isEmpty()) {
+            StateBlock(
+                Icons.Default.Lock, "Matrix unavailable",
+                "Sign in to the workspace to see how capabilities are assigned.",
+            )
+            return@Column
+        }
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 14.dp),
         ) {
-            Column(
-                Modifier.fillMaxWidth().clip(T.RCard).background(T.Surface).border(1.dp, T.Border, T.RCard),
-            ) {
-                Row(
-                    Modifier.fillMaxWidth().background(T.SurfaceMuted).padding(horizontal = 10.dp, vertical = 9.dp),
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                Column(
+                    Modifier.clip(T.RCard).background(T.Surface).border(1.dp, T.Border, T.RCard),
                 ) {
-                    TText("CAPABILITY", Type.monoXs, T.InkFaint, Modifier.weight(1f))
-                    ROLE_COLUMNS.forEach {
-                        TText(it, Type.monoXs, T.InkFaint, Modifier.width(52.dp))
-                    }
-                }
-                CAPABILITIES.forEachIndexed { r, cap ->
                     Row(
-                        Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 7.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        Modifier.background(T.SurfaceMuted).padding(horizontal = 10.dp, vertical = 9.dp),
                     ) {
-                        TText(cap, Type.bodySm, T.Ink, Modifier.weight(1f))
-                        ROLE_COLUMNS.indices.forEach { c ->
-                            val key = "$r-$c"
-                            val level = levels[key] ?: 0
-                            val (label, bg, fg) = LEVELS[level]
-                            Box(
-                                Modifier.size(48.dp, 30.dp).clip(T.RIcon).background(bg)
-                                    .clickable { levels = levels + (key to (level + 1) % LEVELS.size) },
-                                contentAlignment = Alignment.Center,
-                            ) { TText(label, Type.labelSm, fg) }
+                        TText("CAPABILITY", Type.monoXs, T.InkFaint, Modifier.width(190.dp))
+                        columns.forEach { (_, label) ->
+                            TText(label, Type.monoXs, T.InkFaint, Modifier.width(62.dp), maxLines = 1)
                         }
                     }
-                    if (r != CAPABILITIES.lastIndex) {
-                        Box(Modifier.fillMaxWidth().height(1.dp).background(T.DividerFaint))
+                    CAPABILITY_ROWS.forEachIndexed { index, (key, label) ->
+                        Row(
+                            Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            TText(label, Type.bodySm, T.Ink, Modifier.width(190.dp), maxLines = 2)
+                            columns.forEach { (personaId, _) ->
+                                val (cellLabel, bg, fg) = capabilityCell(matrix[personaId]?.get(key))
+                                Box(
+                                    Modifier.size(58.dp, 30.dp).clip(T.RIcon).background(bg),
+                                    contentAlignment = Alignment.Center,
+                                ) { TText(cellLabel, Type.labelSm, fg, maxLines = 1) }
+                            }
+                        }
+                        if (index != CAPABILITY_ROWS.lastIndex) {
+                            Box(Modifier.fillMaxWidth().height(1.dp).background(T.DividerFaint))
+                        }
                     }
                 }
             }
-            Banner(Icons.Default.Lock, T.AmberSurface, T.AmberBorder, T.Amber, Modifier.padding(vertical = 14.dp)) {
+            Banner(
+                Icons.Default.Lock, T.AmberSurface, T.AmberBorder, T.Amber,
+                Modifier.padding(vertical = 14.dp),
+            ) {
                 TText(
-                    "This matrix is a local model. The API currently enforces two roles — admin and user — " +
-                        "so changes here document intent rather than gating the server.",
+                    "This is the live matrix the API enforces — every route checks it server-side. " +
+                        "Your persona is ${session.personaName.ifBlank { "not assigned" }}. " +
+                        "Changing it is an admin action on the web console.",
                     Type.bodySm, T.AmberDeep,
                 )
             }
@@ -473,35 +504,60 @@ data class ComplianceState(
     val dncCount: Int = 0,
     val noConsent: Int = 0,
     val total: Int = 0,
-    val erasureQueue: List<CandidateDto> = emptyList(),
+    val retentionMonths: Int = 24,
+    val erasureQueue: List<ErasureDto> = emptyList(),
+    val error: String? = null,
 )
 
+/**
+ * The workspace's compliance position, from `/api/workspace/compliance`.
+ *
+ * Counted by the database across every record. This screen used to count tags
+ * over the first two hundred candidates, which was wrong twice: the tags were
+ * only ever written by this app, and two hundred is not the workspace.
+ */
 @HiltViewModel
 class ComplianceViewModel @Inject constructor(
-    private val hiring: HiringRepository,
-    private val calls: CallRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ComplianceState())
     val state: StateFlow<ComplianceState> = _state.asStateFlow()
 
-    private val _audit = MutableStateFlow<List<CallLogDto>>(emptyList())
-    val audit: StateFlow<List<CallLogDto>> = _audit.asStateFlow()
+    /** The real audit trail — every actor and action, not just logged calls. */
+    private val _audit = MutableStateFlow<List<AuditDto>>(emptyList())
+    val audit: StateFlow<List<AuditDto>> = _audit.asStateFlow()
 
     init { load() }
 
     fun load() = viewModelScope.launch {
-        _state.value = _state.value.copy(loading = true)
-        val all = hiring.candidates(null, null, null, 1, 200).getOrNull()
-        val items = all?.items.orEmpty()
-        _state.value = ComplianceState(
-            loading = false,
-            dncCount = items.count { CandidateTags.hasDnc(it.tags) },
-            noConsent = items.count { !CandidateTags.hasConsent(it.tags) },
-            total = all?.total ?: items.size,
-            erasureQueue = items.filter { CandidateTags.erasureRaised(it.tags) },
-        )
-        calls.list(pageSize = 100).onSuccess { _audit.value = it.items }
+        _state.value = _state.value.copy(loading = true, error = null)
+        val erasures = workspace.erasures().getOrNull().orEmpty()
+        workspace.compliance()
+            .onSuccess { c ->
+                _state.value = ComplianceState(
+                    loading = false,
+                    dncCount = c.dncCount,
+                    noConsent = c.missingConsent,
+                    total = c.totalCandidates,
+                    retentionMonths = c.retentionMonths,
+                    // The summary counts open requests; the list is what to act on.
+                    erasureQueue = erasures.filter {
+                        it.status.lowercase() in listOf("open", "verifying", "ready")
+                    },
+                )
+            }
+            .onError { e ->
+                _state.value = _state.value.copy(loading = false, error = e.message)
+            }
+        workspace.audit(limit = 100).onSuccess { _audit.value = it }
+    }
+
+    /** Completes or rejects an erasure request. Admin-gated server-side. */
+    fun decideErasure(id: String, status: String) = viewModelScope.launch {
+        workspace.decideErasure(id, status)
+            .onSuccess { load() }
+            .onError { e -> _state.value = _state.value.copy(error = e.message) }
     }
 }
 
@@ -551,21 +607,36 @@ fun ComplianceScreen(onBack: () -> Unit, onAudit: () -> Unit, onOpenCandidate: (
                 Modifier.padding(horizontal = T.Gutter),
                 verticalArrangement = Arrangement.spacedBy(T.Gap),
             ) {
-                s.erasureQueue.forEach { c ->
-                    TCard(onClick = { onOpenCandidate(c.id) }) {
+                s.erasureQueue.forEach { req ->
+                    TCard(onClick = { onOpenCandidate(req.candidateId) }) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(11.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Avatar(c.name, c.id, 32.dp)
+                            Avatar(req.candidateName, req.candidateId, 32.dp)
                             Column(Modifier.weight(1f)) {
-                                TText(c.name ?: "Unnamed", Type.cardTitleSm, T.Ink, maxLines = 1)
                                 TText(
-                                    "Raised ${Fmt.whenLabel(Fmt.parse(c.updatedAt))}",
+                                    req.candidateName ?: "Unnamed",
+                                    Type.cardTitleSm, T.Ink, maxLines = 1,
+                                )
+                                TText(
+                                    listOfNotNull(
+                                        req.raisedByName?.let { "Raised by $it" },
+                                        Fmt.whenLabel(Fmt.parse(req.createdAt)).takeIf { it.isNotBlank() },
+                                    ).joinToString(" · "),
                                     Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp),
                                 )
+                                req.reason.takeIf { it.isNotBlank() }?.let {
+                                    TText(
+                                        it, Type.labelSm, T.InkFaint,
+                                        Modifier.padding(top = 4.dp), maxLines = 2,
+                                    )
+                                }
                             }
-                            Badge("Awaiting admin", T.AmberTint, T.AmberInk)
+                            Badge(
+                                req.status.replace('_', ' ').uppercase(),
+                                T.AmberTint, T.AmberInk,
+                            )
                         }
                     }
                 }
@@ -585,33 +656,42 @@ fun AuditScreen(onBack: () -> Unit) {
     val audit by vm.audit.collectAsState()
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
-        TopBar("Audit log", onBack, subtitle = "Immutable · derived from logged calls")
+        TopBar("Audit log", onBack, subtitle = "Immutable · every actor and action")
         if (audit.isEmpty()) {
-            StateBlock(Icons.Default.Rule, "Nothing to audit yet", "Logged calls build this trail.")
+            StateBlock(Icons.Default.Rule, "Nothing to audit yet", "Workspace activity builds this trail.")
         } else {
             LazyColumn(
                 Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = T.Gutter),
                 verticalArrangement = Arrangement.spacedBy(7.dp),
             ) {
-                items(audit, key = { it.id }) { log ->
-                    val d = Dispositions.display(log.disposition)
-                    val who = log.userEmail?.substringBefore('@') ?: "system"
+                items(audit, key = { it.id }) { row ->
+                    val who = row.actorName?.takeIf { it.isNotBlank() }
+                        ?: row.actorEmail?.substringBefore('@')
+                        ?: "system"
                     TCard(shape = T.RField, padding = 11.dp) {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Avatar(who, log.userEmail ?: "system", 28.dp)
+                            Avatar(who, row.actorEmail ?: row.id, 28.dp)
                             Column(Modifier.weight(1f)) {
-                                TText("$who logged ${d.label.lowercase()}", Type.bodySm, T.Ink)
+                                TText("$who ${row.action}", Type.bodySm, T.Ink)
+                                row.objectLabel?.takeIf { it.isNotBlank() }?.let {
+                                    TText(
+                                        it, Type.monoSm, T.Indigo,
+                                        Modifier.padding(top = 3.dp), maxLines = 1,
+                                    )
+                                }
                                 TText(
-                                    log.candidateName ?: log.candidateId,
-                                    Type.monoSm, T.Indigo, Modifier.padding(top = 3.dp), maxLines = 1,
-                                )
-                                TText(
-                                    Fmt.audit(Fmt.parse(log.calledAt)),
+                                    listOfNotNull(
+                                        Fmt.audit(Fmt.parse(row.createdAt)).takeIf { it.isNotBlank() },
+                                        row.objectKind?.uppercase(),
+                                    ).joinToString(" · "),
                                     Type.monoXs, T.InkFaint, Modifier.padding(top = 4.dp),
                                 )
                             }
-                            Icon(d.icon, null, tint = T.InkGhost, modifier = Modifier.size(17.dp))
+                            Icon(
+                                Icons.Default.Rule, null,
+                                tint = T.InkGhost, modifier = Modifier.size(17.dp),
+                            )
                         }
                     }
                 }

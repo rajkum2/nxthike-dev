@@ -47,39 +47,70 @@ advances. More → Offline & sync shows exactly what is pending and retries.
 
 ## Design → API mapping
 
-The spec's vocabulary and the API's schema differ in wording only for the two
-things that matter most:
+The spec's vocabulary and the API's schema differ in wording only:
 
 | Spec | API | Notes |
 |------|-----|-------|
 | 11 disposition codes | `CALL_DISPOSITIONS` | Identical sets. `Dispositions` adds label/colour/icon/next-action. |
 | Sourced / Screening / Submitted / Interview / Offer / Hired / Dropped | `new` / `reviewing` / `shortlisted` / `interview` / `offer` / `hired` / `rejected` | `Stages` maps them; `on_hold` is handled off-board. |
-| Requisition | `HiringRole` | Roles own the pipeline, so they are what a call queue is built from. |
-| Client | `/api/companies` | |
-| Submission | Candidate at Submitted or beyond | |
+| Requisition | `GET /api/workspace/requisitions` | Requisition ids are `HiringRole` ids, so a call queue is still built per requisition. |
+| Client | `GET /api/workspace/clients` | Account records — health, margin, terms, contacts. Not `/api/companies`. |
+| Submission | `GET /api/workspace/submissions` | Real records: who was sent where, when, at what rate. |
+| Interview / Scorecard / Offer / Approval | `/api/workspace/{interviews,scorecards,offers,approvals}` | Real tables, each with its own columns. |
 
-Where the API has no field, the app shows what the record *does* know rather
-than inventing data. Concretely, there is no CTC / bill-rate / offer table, so:
+Everything under `/api/workspace/…` is served by two FastAPI routers
+(`workspace.py`, `recruiting.py`) but is one namespace over the wire, so it is
+one Retrofit interface here: `data/remote/api/WorkspaceApi.kt`.
 
-- The candidate fact grid shows experience, availability, source and institute.
-- Requisition commercials come from a matching public posting on `/api/jobs`, or
-  the card is omitted.
-- Offers, interviews and scorecards are derived from pipeline stage, and write
-  back as structured note lines on the candidate.
-- The roles matrix is a local model — the API enforces `admin`/`user` only, and
-  the screen says so.
+### Compliance fields go to columns, not tags
+
+Consent, DNC and erasure are columns and a table — `Candidate.consent_at`,
+`Candidate.consent_channel`, `Candidate.dnc`, and the `ErasureRequest` register.
+This app writes all three there, which is what the web desk reads, what the
+`dncOnly` / `noConsent` filters query and what `/api/workspace/compliance`
+counts.
+
+An earlier build wrote them as candidate *tags*, which no other surface could
+see. Reads still fall back to those tags so nothing already captured disappears;
+every write goes to the column, so the fallback drains over time.
+
+Two details worth knowing:
+
+- **DNC has two signals.** A `do_not_call` disposition blocks the dialer, but
+  only while it remains the *latest* call. `Candidate.dnc` is the durable flag,
+  and logging that disposition now sets it.
+- **Consent timestamps are UTC instants** (`Instant.now()`), matching the web.
+  A zone-less local time would be read back as UTC and shift by the device
+  offset.
+
+### What the server owns
+
+- **Capabilities.** `GET /api/workspace/session` returns the persona, its `caps`
+  map and a nav allow-list. `core/model/Caps.kt` mirrors `WorkspaceIdentity` in
+  `BE/app/services/personas.py` exactly, including that `"none"` is falsy and
+  that `admin` must be literally `true` (it can hold `"partial"`).
+- **The calling window.** Hours, days and timezone come from
+  `settings.callingWindow` and are cached to `WorkspaceStore` so the gate holds
+  offline. Days are ISO weekday numbers (1 = Monday). Only an admin can move it;
+  for anyone else the local edit is reverted from the server's copy.
+- **Pipeline moves on scorecards.** `POST /scorecards` advances a `hire` to
+  Offer and a `strong_no` to Dropped, and writes the audit line. The app does
+  not also move the stage.
+- **The roles matrix** is the live matrix the API enforces, shown read-only —
+  most capabilities are enums, so a tap-to-cycle editor would write invalid
+  levels. Editing is a web-admin action.
 
 ## Architecture
 
 ```
-core/model/       Dispositions, Stages, CallingWindow, CandidateTags
+core/model/       Dispositions, Stages, CallingWindow, CandidateTags, Caps
 core/util/        Fmt (dates, durations, masking, counts)
 data/local/       TokenStore, WorkspaceStore (mode, window, toggles), OutboxStore
 data/remote/      Retrofit APIs + Moshi DTOs
 data/repository/  AppResult-returning repositories
 presentation/
   designsystem/   Tokens (T), Type, Theme, Components
-  session/        SessionViewModel — auth, mode, window, outbox
+  session/        SessionViewModel — session, capabilities, window, outbox
   talent/         one package per screen area
   navigation/     R (routes) + TalentNavHost (graph, bottom bar, sheets)
 ```
@@ -112,45 +143,46 @@ cd mobile && ./gradlew assembleDebug
 
 ## Personas & access
 
-Two independent things get called a "persona" here — don't conflate them.
+Access to the recruiting workspace is a **persona**, not the portal role.
 
-**1. Server roles** (`User.role`, the only thing actually enforced):
+`/api/hiring/…` and `/api/calls/…` sit behind `get_workspace_user`, which admits
+any account with a persona assigned (and any admin), then gates individual
+actions with `require_cap("dial")`, `("log")`, `("create")`, `("stage")` and so
+on. All eight personas can use this app:
 
-| Role | Can use TalentDialer? | Why |
-|------|----------------------|-----|
-| `admin` | Yes — everything | `/api/hiring/*`, `/api/calls/*`, `/api/dashboard/*` all depend on `get_admin_user` |
-| `employer` | No | 403 on every CRM route |
-| `student` | No | 403 on every CRM route |
+| Persona | Short | Mode | Lands on |
+|---------|-------|------|----------|
+| Senior Recruiter (360) | Recruiter | AGENCY | Call queue |
+| Sourcer | Sourcer | AGENCY | Candidates |
+| In-house TA Specialist | In-house TA | IN_HOUSE | Pipeline board |
+| Recruitment Team Lead | Team Lead | AGENCY | Team |
+| Account Manager | Acct Mgr | AGENCY | Clients |
+| Hiring Manager | Hiring Mgr | IN_HOUSE | Approvals |
+| Interviewer / Panellist | Interviewer | IN_HOUSE | Interview calendar |
+| Admin / Ops | Admin | AGENCY | Users |
 
-There is **no** `recruiter`, `sourcer` or `team lead` role on the server. A
-signed-in non-admin is stopped at an access-pending screen naming the exact
-promotion needed, rather than being dropped into twelve screens that each 403.
-
-`POST /api/auth/register` refuses self-registration as admin (it forces
-`student`/`employer`), so new accounts must be promoted by an existing admin:
+A portal-only account (student, employer, or anyone with no persona) is refused
+with a 403 that explains itself, and the access screen shows that message rather
+than guessing. The remedy is a persona, not a promotion to admin:
 
 ```bash
 # as an admin
-curl -X PATCH https://api.nxthike.com/api/auth/users/<id>/role \
+curl -X PATCH https://api.nxthike.com/api/workspace/users/<id> \
   -H "Authorization: Bearer <admin-token>" \
-  -H "Content-Type: application/json" -d '{"role":"admin"}'
+  -H "Content-Type: application/json" -d '{"persona":"p2"}'
 ```
 
-**2. Workspace mode** (`WorkspaceStore`, on-device, no server equivalent):
-`AGENCY` → Client / Requisition, rates visible. `IN_HOUSE` → Department /
-Opening, rates hidden. Switchable any time under More → Settings.
-
-The spec's Sourcer / Recruiter / Team lead / Admin matrix exists as the
-**Roles & permissions** screen, which is explicitly a local model — the screen
-says so, because the server only knows `admin` vs the rest.
+**Workspace mode** (`AGENCY` → Client / Requisition, rates visible; `IN_HOUSE` →
+Department / Opening, rates hidden) comes from the persona and the workspace
+settings, and is cached on-device. An admin changing it changes it for everyone.
 
 ### Seeded accounts
 
 | Email | Password | Role | TalentDialer |
 |-------|----------|------|--------------|
 | `admin@nxthike.com` | *(from `ADMIN_PASSWORD` in `BE/.env`)* | `admin` | Full access |
-| `employer@nxthike.com` | `password123` | `employer` | Access-pending screen |
-| `student@nxthike.com` | `password123` | `student` | Access-pending screen |
+| `employer@nxthike.com` | `password123` | `employer` | No-access screen (no persona) |
+| `student@nxthike.com` | `password123` | `student` | No-access screen (no persona) |
 
 Admin credentials come from `BE/.env` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`); the two
 demo accounts are hardcoded in `BE/app/seed.py`. **Change all three before any

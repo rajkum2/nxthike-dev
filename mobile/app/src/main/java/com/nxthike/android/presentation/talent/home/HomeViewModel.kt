@@ -10,7 +10,9 @@ import com.nxthike.android.data.remote.dto.CallLogDto
 import com.nxthike.android.data.remote.dto.CandidateDto
 import com.nxthike.android.data.remote.dto.HiringRoleDto
 import com.nxthike.android.domain.repository.CallRepository
+import com.nxthike.android.data.remote.dto.TaskPatchDto
 import com.nxthike.android.domain.repository.HiringRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.nxthike.android.core.result.AppResult
 
 /** One "Needs you" card — always derived from live data, never a placeholder. */
 data class Alert(
@@ -56,6 +59,7 @@ data class HomeState(
 class HomeViewModel @Inject constructor(
     private val calls: CallRepository,
     private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -72,15 +76,31 @@ class HomeViewModel @Inject constructor(
                 val dashD = async { hiring.dashboard(null) }
                 val cbD = async { calls.list(disposition = "connected_callback", pageSize = 60) }
 
-                val stats = statsD.await().getOrNull()
-                val queue = queueD.await().getOrNull()
-                val dash = dashD.await().getOrNull()
+                val statsR = statsD.await()
+                val queueR = queueD.await()
+                val dashR = dashD.await()
+                val stats = statsR.getOrNull()
+                val queue = queueR.getOrNull()
+                val dash = dashR.getOrNull()
                 val callbacks = cbD.await().getOrNull()?.items.orEmpty()
 
                 if (stats == null && queue == null && dash == null) {
+                    // Report what the server said. Assuming connectivity sent
+                    // people to check their wifi when the real answer was an
+                    // expired session or a persona without dialer access — both
+                    // of which arrive as a perfectly healthy HTTP response.
+                    val failure = listOf(statsR, queueR, dashR)
+                        .filterIsInstance<AppResult.Error>()
+                        .firstOrNull()
                     _state.value = _state.value.copy(
                         loading = false,
-                        error = "Couldn't reach the hiring API. Check your connection and retry.",
+                        error = when {
+                            failure == null -> "Couldn't load your desk. Retry in a moment."
+                            failure.code == null ->
+                                "Couldn't reach the API. Check your connection and retry."
+                            failure.code == 403 -> "Your role can't see this. ${failure.message}"
+                            else -> "${failure.message} (HTTP ${failure.code})"
+                        },
                     )
                     return@coroutineScope
                 }
@@ -95,6 +115,9 @@ class HomeViewModel @Inject constructor(
                 val reached = Dispositions.ALL
                     .filter { it.category == DispositionCategory.Reached }
                     .sumOf { stats?.byDisposition?.get(it.id) ?: 0 }
+
+                val openTaskCount = workspace.tasks(mine = true, includeDone = false)
+                    .getOrNull()?.count { !it.done } ?: 0
 
                 _state.value = HomeState(
                     loading = false,
@@ -118,7 +141,9 @@ class HomeViewModel @Inject constructor(
                         )
                     },
                     alerts = buildAlerts(dash, pendingCallbacks, now),
-                    openTasks = overdue + (dash?.byStatus?.get(Stages.Offer.id) ?: 0),
+                    // Real open tasks, plus the overdue callbacks that live on
+                    // call logs rather than in the task table.
+                    openTasks = overdue + openTaskCount,
                     roles = dash?.roles.orEmpty(),
                     totalCandidates = dash?.total ?: 0,
                 )
@@ -178,19 +203,29 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-/** Everything the notifications centre groups, built from real activity. */
+/** A row in the notifications centre. */
 data class NotificationItem(
+    val id: String,
     val kind: Alert.Kind,
     val title: String,
     val detail: String,
     val at: LocalDateTime?,
     val targetId: String? = null,
+    val read: Boolean = false,
 )
 
+/**
+ * Notifications from `/api/workspace/notifications`.
+ *
+ * These are the workspace's own notifications — the same ones the web desk shows,
+ * marked read for the whole account by `POST /notifications/read-all`. This
+ * screen used to synthesise a plausible list out of call logs and pipeline state,
+ * which meant it never showed a mention, an assignment or an approval request,
+ * and "mark all read" had nothing to mark.
+ */
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
-    private val calls: CallRepository,
-    private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _items = MutableStateFlow<List<NotificationItem>>(emptyList())
@@ -199,56 +234,56 @@ class NotificationsViewModel @Inject constructor(
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    val unreadCount: Int get() = _items.value.count { !it.read }
+
     init { refresh() }
 
     fun refresh() = viewModelScope.launch {
         _loading.value = true
-        val out = mutableListOf<NotificationItem>()
-
-        calls.list(disposition = "connected_callback", pageSize = 40).onSuccess { page ->
-            page.items.mapNotNull { l -> Fmt.parse(l.callbackAt)?.let { l to it } }
-                .sortedBy { it.second }
-                .take(6)
-                .forEach { (log, at) ->
-                    out += NotificationItem(
-                        Alert.Kind.OverdueCallback,
-                        "Callback ${if (at.isBefore(LocalDateTime.now())) "overdue" else "due"}",
-                        "${log.candidateName ?: "Candidate"} · ${log.note.ifBlank { "no note captured" }}",
-                        at, log.candidateId,
-                    )
-                }
-        }
-
-        hiring.candidates(null, null, Stages.Offer.id, 1, 10).onSuccess { page ->
-            page.items.forEach { c ->
-                out += NotificationItem(
-                    Alert.Kind.Approval,
-                    "Offer awaiting decision",
-                    "${c.name ?: "Candidate"} · ${c.roleName}",
-                    Fmt.parse(c.updatedAt), c.id,
-                )
+        _error.value = null
+        workspace.notifications()
+            .onSuccess { list ->
+                _items.value = list
+                    .map { n ->
+                        NotificationItem(
+                            id = n.id,
+                            kind = kindOf(n.kind),
+                            title = n.title,
+                            detail = n.detail,
+                            at = Fmt.parse(n.createdAt),
+                            targetId = n.refId,
+                            read = n.read,
+                        )
+                    }
+                    .sortedByDescending { it.at }
             }
-        }
-
-        calls.list(disposition = "wrong_number", pageSize = 10).onSuccess { page ->
-            page.items.take(3).forEach { l ->
-                out += NotificationItem(
-                    Alert.Kind.DataIssue,
-                    "Number flagged for cleanup",
-                    "${l.candidateName ?: "Candidate"} · ${l.candidatePhone ?: "no number"}",
-                    Fmt.parse(l.calledAt), l.candidateId,
-                )
-            }
-        }
-
-        _items.value = out.sortedByDescending { it.at }
+            .onError { e -> _error.value = e.message }
         _loading.value = false
+    }
+
+    fun markAllRead() = viewModelScope.launch {
+        workspace.markAllRead().onSuccess {
+            _items.value = _items.value.map { it.copy(read = true) }
+        }
+    }
+
+    /** Maps the server's notification kinds onto the alert styling this app has. */
+    private fun kindOf(raw: String): Alert.Kind = when {
+        raw.contains("callback", true) -> Alert.Kind.OverdueCallback
+        raw.contains("approval", true) || raw.contains("offer", true) -> Alert.Kind.Approval
+        raw.contains("data", true) || raw.contains("dedupe", true) -> Alert.Kind.DataIssue
+        else -> Alert.Kind.Approval
     }
 }
 
 /**
- * Tasks are inferred, not stored — the API has no task table, so the app derives
- * the recruiter's real to-do list from pipeline state.
+ * A row on the task list.
+ *
+ * [serverId] is set for rows that are real `Task` records; it is null for the
+ * callback reminders derived from call logs, which have no task row to update.
  */
 data class TaskItem(
     val id: String,
@@ -257,33 +292,99 @@ data class TaskItem(
     val link: String,
     val urgent: Boolean,
     val candidateId: String? = null,
+    val serverId: String? = null,
+    val done: Boolean = false,
 )
 
+/**
+ * Tasks from `/api/workspace/tasks`, plus the callbacks the call log owns.
+ *
+ * The task table is the shared list: what the desk assigns, what a lead hands
+ * out, what survives closing the app. Ticking one persists through
+ * `PATCH /tasks/{id}` rather than being forgotten on the next launch, which is
+ * what happened while this list was derived from pipeline state.
+ *
+ * Callback reminders stay derived on purpose — a callback lives on its call log,
+ * not in the task table, and it is the single most time-critical thing a dialer
+ * has to see.
+ */
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val calls: CallRepository,
-    private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _tasks = MutableStateFlow<List<TaskItem>>(emptyList())
     val tasks: StateFlow<List<TaskItem>> = _tasks.asStateFlow()
 
+    /** Locally ticked ids — used only for the derived rows, which cannot persist. */
     private val _done = MutableStateFlow<Set<String>>(emptySet())
     val done: StateFlow<Set<String>> = _done.asStateFlow()
 
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
     init { refresh() }
 
+    /**
+     * Ticks a task off. A real task is updated on the server and stays ticked;
+     * a derived callback reminder can only be dismissed for this session.
+     */
     fun toggle(id: String) {
-        _done.value = if (id in _done.value) _done.value - id else _done.value + id
+        val task = _tasks.value.firstOrNull { it.id == id }
+        val serverId = task?.serverId
+        if (serverId == null) {
+            _done.value = if (id in _done.value) _done.value - id else _done.value + id
+            return
+        }
+        val nowDone = !(task.done)
+        // Optimistic: the row moves immediately, and is reconciled by the reload.
+        _tasks.value = _tasks.value.map { if (it.id == id) it.copy(done = nowDone) else it }
+        viewModelScope.launch {
+            workspace.patchTask(serverId, TaskPatchDto(done = nowDone))
+                .onError { e ->
+                    _error.value = e.message
+                    _tasks.value = _tasks.value.map { if (it.id == id) it.copy(done = !nowDone) else it }
+                }
+        }
+    }
+
+    fun create(title: String, detail: String = "", onDone: () -> Unit = {}) = viewModelScope.launch {
+        workspace.createTask(
+            com.nxthike.android.data.remote.dto.TaskCreateDto(title = title, detail = detail),
+        ).onSuccess { refresh(); onDone() }
+            .onError { e -> _error.value = e.message }
     }
 
     fun refresh() = viewModelScope.launch {
         _loading.value = true
+        _error.value = null
         val out = mutableListOf<TaskItem>()
         val now = LocalDateTime.now()
+
+        workspace.tasks(mine = true, includeDone = false)
+            .onSuccess { list ->
+                list.forEach { t ->
+                    out += TaskItem(
+                        id = "task-${t.id}",
+                        title = t.title,
+                        due = when {
+                            t.overdue -> "Overdue"
+                            t.dueAt != null -> Fmt.whenLabel(Fmt.parse(t.dueAt))
+                            else -> t.detail.ifBlank { "No due date" }
+                        },
+                        link = t.linkLabel ?: t.linkKind ?: "Task",
+                        urgent = t.overdue,
+                        candidateId = t.linkId?.takeIf { t.linkKind == "candidate" },
+                        serverId = t.id,
+                        done = t.done,
+                    )
+                }
+            }
+            .onError { e -> _error.value = e.message }
 
         calls.list(disposition = "connected_callback", pageSize = 40).onSuccess { page ->
             page.items.mapNotNull { l -> Fmt.parse(l.callbackAt)?.let { l to it } }
@@ -301,36 +402,11 @@ class TasksViewModel @Inject constructor(
                 }
         }
 
-        hiring.candidates(null, null, Stages.Screening.id, 1, 5).onSuccess { page ->
-            page.items.forEach { c ->
-                out += TaskItem(
-                    id = "screen-${c.id}",
-                    title = "Finish screening ${c.name ?: "candidate"}",
-                    due = "In screening",
-                    link = c.roleName,
-                    urgent = false,
-                    candidateId = c.id,
-                )
-            }
-        }
-
-        calls.list(disposition = "wrong_number", pageSize = 20).onSuccess { page ->
-            if (page.items.isNotEmpty()) {
-                out += TaskItem(
-                    id = "cleanup",
-                    title = "Clean up ${page.items.size} wrong-number record(s)",
-                    due = "Data hygiene",
-                    link = "Compliance",
-                    urgent = false,
-                )
-            }
-        }
-
-        _tasks.value = out
+        _tasks.value = out.sortedByDescending { it.urgent }
         _loading.value = false
     }
 
-    fun openCount(): Int = _tasks.value.count { it.id !in _done.value }
+    fun openCount(): Int = _tasks.value.count { !it.done && it.id !in _done.value }
 }
 
 /** Global search across candidates, requisitions and clients. */

@@ -32,7 +32,9 @@ import com.nxthike.android.core.model.Stages
 import com.nxthike.android.core.telephony.DialerHelper
 import com.nxthike.android.core.util.Fmt
 import com.nxthike.android.data.remote.dto.CandidateDto
+import com.nxthike.android.data.remote.dto.TemplateDto
 import com.nxthike.android.domain.repository.HiringRepository
+import com.nxthike.android.domain.repository.WorkspaceRepository
 import com.nxthike.android.presentation.designsystem.*
 import com.nxthike.android.presentation.session.SessionViewModel
 import com.nxthike.android.presentation.talent.common.*
@@ -64,8 +66,23 @@ data class MessageTemplate(
 /**
  * Outreach templates. Variables in `{{braces}}` resolve against the candidate
  * and requisition the composer was opened from.
+ *
+ * [ALL] is the built-in set, kept as a fallback for a workspace that has not
+ * written any templates yet (and for an offline compose). The live library comes
+ * from `/api/workspace/templates` — see [TemplatesViewModel] — so a template an
+ * admin edits on the web is the one that goes out from a phone.
  */
 object Templates {
+    /** Maps a server template onto the shape the composer renders. */
+    fun from(dto: TemplateDto) = MessageTemplate(
+        id = dto.id,
+        name = dto.name,
+        channel = Channel.entries.firstOrNull { it.key.equals(dto.channel, true) }
+            ?: Channel.WhatsApp,
+        stage = dto.stage ?: "Any stage",
+        body = dto.body,
+    )
+
     val ALL = listOf(
         MessageTemplate(
             "t1", "First outreach", Channel.WhatsApp, Stages.Sourced.label,
@@ -107,6 +124,8 @@ data class ComposerState(
     val candidate: CandidateDto? = null,
     val channel: Channel = Channel.WhatsApp,
     val templateId: String = "t1",
+    /** The workspace's template library, falling back to the built-ins. */
+    val templates: List<MessageTemplate> = Templates.ALL,
     val error: String? = null,
     val logging: Boolean = false,
 )
@@ -114,6 +133,7 @@ data class ComposerState(
 @HiltViewModel
 class ComposerViewModel @Inject constructor(
     private val hiring: HiringRepository,
+    private val workspace: WorkspaceRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ComposerState())
@@ -121,23 +141,34 @@ class ComposerViewModel @Inject constructor(
 
     fun load(candidateId: String) = viewModelScope.launch {
         _state.value = _state.value.copy(loading = true)
+        // Only active templates: an admin deactivating one should stop it going out.
+        val library = workspace.templates().getOrNull()
+            .orEmpty()
+            .filter { it.isActive }
+            .map(Templates::from)
+            .ifEmpty { Templates.ALL }
         hiring.getCandidate(candidateId)
             .onSuccess { c ->
                 // Open on the template that matches where the candidate actually is.
                 val stageLabel = Stages.find(c.status).label
-                val match = Templates.ALL.firstOrNull { it.stage == stageLabel }
+                val match = library.firstOrNull { it.stage.equals(stageLabel, true) }
                 _state.value = ComposerState(
                     loading = false, candidate = c,
-                    templateId = match?.id ?: "t1",
+                    templateId = match?.id ?: library.first().id,
                     channel = match?.channel ?: Channel.WhatsApp,
+                    templates = library,
                 )
             }
-            .onError { e -> _state.value = _state.value.copy(loading = false, error = e.message) }
+            .onError { e ->
+                _state.value = _state.value.copy(
+                    loading = false, error = e.message, templates = library,
+                )
+            }
     }
 
     fun setChannel(c: Channel) { _state.value = _state.value.copy(channel = c) }
     fun setTemplate(id: String) {
-        val t = Templates.ALL.firstOrNull { it.id == id } ?: return
+        val t = _state.value.templates.firstOrNull { it.id == id } ?: return
         _state.value = _state.value.copy(templateId = id, channel = t.channel)
     }
 
@@ -153,7 +184,7 @@ class ComposerViewModel @Inject constructor(
     }
 
     fun composed(recruiterName: String): String {
-        val t = Templates.ALL.firstOrNull { it.id == _state.value.templateId } ?: return ""
+        val t = _state.value.templates.firstOrNull { it.id == _state.value.templateId } ?: return ""
         return Templates.resolve(t.body, variables(recruiterName))
     }
 
@@ -243,7 +274,7 @@ fun ComposerScreen(
 
                     // Template picker
                     TText("Template", Type.label, T.InkMuted, Modifier.padding(top = 14.dp, bottom = 8.dp))
-                    Templates.ALL.filter { it.channel == state.channel }.forEach { t ->
+                    state.templates.filter { it.channel == state.channel }.forEach { t ->
                         val on = state.templateId == t.id
                         Row(
                             Modifier
@@ -343,15 +374,50 @@ fun ComposerScreen(
  *  SCR-COMM-02 · Template library                                    *
  * ------------------------------------------------------------------ */
 
+/**
+ * The workspace template library.
+ *
+ * Falls back to the built-in set when the workspace has none of its own, so the
+ * screen is never empty for a new workspace — but anything an admin has written
+ * on the web is what shows here.
+ */
+@HiltViewModel
+class TemplatesViewModel @Inject constructor(
+    private val workspace: WorkspaceRepository,
+) : ViewModel() {
+
+    private val _templates = MutableStateFlow(Templates.ALL)
+    val templates: StateFlow<List<MessageTemplate>> = _templates.asStateFlow()
+
+    private val _loading = MutableStateFlow(true)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    init { refresh() }
+
+    fun refresh() = viewModelScope.launch {
+        _loading.value = true
+        workspace.templates().onSuccess { list ->
+            _templates.value = list.filter { it.isActive }
+                .map(Templates::from)
+                .ifEmpty { Templates.ALL }
+        }
+        _loading.value = false
+    }
+}
+
 @Composable
 fun TemplatesScreen(onBack: () -> Unit) {
+    val vm: TemplatesViewModel = hiltViewModel()
+    val all by vm.templates.collectAsState()
+    val loading by vm.loading.collectAsState()
     var channel by rememberSaveable { mutableStateOf<String?>(null) }
-    val shown = Templates.ALL.filter { channel == null || it.channel.key == channel }
+    val shown = all.filter { channel == null || it.channel.key == channel }
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
-        TopBar("Templates", onBack, subtitle = "${Templates.ALL.size} across three channels") {
-            IconTile(Icons.Default.Add, {}, size = 36.dp, background = T.IndigoTint, tint = T.Indigo, iconSize = 20.dp)
-        }
+        TopBar(
+            "Templates", onBack,
+            subtitle = if (loading) "Loading…" else "${all.size} in this workspace",
+        )
         ChipRail(Modifier.padding(horizontal = T.Gutter).padding(bottom = 10.dp)) {
             FilterChip("All", channel == null, { channel = null })
             Channel.entries.forEach { ch ->
