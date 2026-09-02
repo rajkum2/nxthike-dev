@@ -16,6 +16,9 @@ import {
   maskEmail, maskPhone, num, shortDate, splitList, useLoad, useMediaQuery, whenLabel,
 } from '../ui';
 import { CallRow } from './Calls';
+import {
+  candidateExportFilename, downloadCandidatesXlsx, fetchAllFilteredCandidates,
+} from '../exportExcel';
 
 const STATUS_CHIPS = [
   { key: 'all', label: 'All' },
@@ -628,29 +631,29 @@ export function CandidatesScreen() {
   };
 
   const pageSize = viewMode === 'table' ? 100 : 60;
+  // Shared by the table load and Excel export so the two can't drift.
+  const filterParams: Record<string, unknown> = {
+    search: debouncedQ || undefined,
+    status: status !== 'all' ? status : undefined,
+    roleId: roleId !== 'all' ? roleId : undefined,
+    experience: experience !== 'all' ? experience : undefined,
+    city: cities.length ? cities : undefined,
+    source: debouncedSource || undefined,
+    gender: gender !== 'all' ? gender : undefined,
+    graduationYear: graduationYears.length ? graduationYears : undefined,
+    expYears: expYearsList.length ? expYearsList : undefined,
+    starredOnly: starredOnly || undefined,
+    hasNotes: hasNotes || undefined,
+    hasPhone: hasPhone || undefined,
+    hasEmail: hasEmail || undefined,
+    hasResume: hasResume || undefined,
+    dncOnly: dncOnly || undefined,
+    noConsent: noConsent || undefined,
+    sortKey,
+    sortDir,
+  };
   const list = useLoad(
-    () => deskApi.candidates({
-      search: debouncedQ || undefined,
-      status: status !== 'all' ? status : undefined,
-      roleId: roleId !== 'all' ? roleId : undefined,
-      experience: experience !== 'all' ? experience : undefined,
-      city: cities.length ? cities : undefined,
-      source: debouncedSource || undefined,
-      gender: gender !== 'all' ? gender : undefined,
-      graduationYear: graduationYears.length ? graduationYears : undefined,
-      expYears: expYearsList.length ? expYearsList : undefined,
-      starredOnly: starredOnly || undefined,
-      hasNotes: hasNotes || undefined,
-      hasPhone: hasPhone || undefined,
-      hasEmail: hasEmail || undefined,
-      hasResume: hasResume || undefined,
-      dncOnly: dncOnly || undefined,
-      noConsent: noConsent || undefined,
-      sortKey,
-      sortDir,
-      page,
-      pageSize,
-    }),
+    () => deskApi.candidates({ ...filterParams, page, pageSize }),
     [...filterDeps, page, pageSize],
   );
 
@@ -725,6 +728,48 @@ export function CandidatesScreen() {
   const lockedByRole = detail.data?.piiMasked
     ?? (c.db === 'limitedPII' || c.db === 'ownReqs' || c.db === 'ownInterviews');
   const masked = lockedByRole || !unmask;
+
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportProgress, setExportProgress] = useState<string | null>(null);
+
+  /** 'filtered' → every row matching the current filters; 'selected' → checked rows only. */
+  const runExport = async (mode: 'filtered' | 'selected') => {
+    if (exportBusy) return;
+    setExportBusy(true);
+    try {
+      const onProgress = (p: number, t: number) => setExportProgress(t > 1 ? `${p}/${t}` : null);
+      let toExport = await fetchAllFilteredCandidates(filterParams, onProgress);
+      if (mode === 'selected') {
+        const wanted = new Set(selectedIds);
+        toExport = toExport.filter((r) => wanted.has(r.id));
+        // Selection can outlive a filter change; fetch any checked rows the
+        // current filter no longer returns.
+        const missing = selectedIds.filter((id) => !toExport.some((r) => r.id === id));
+        for (let i = 0; i < missing.length; i += 10) {
+          const chunk = await Promise.all(
+            missing.slice(i, i + 10).map((id) => deskApi.candidate(id).catch(() => null)),
+          );
+          toExport = toExport.concat(chunk.filter((x): x is DeskCandidate => !!x));
+        }
+      }
+      if (!toExport.length) {
+        setBulkMsg('Nothing to export');
+        window.setTimeout(() => setBulkMsg(null), 2500);
+        return;
+      }
+      const roleName = roleId !== 'all'
+        ? (rolesLoad.data || []).find((r) => r.id === roleId)?.name
+        : null;
+      downloadCandidatesXlsx(toExport, masked, candidateExportFilename(roleName));
+      setBulkMsg(`Downloaded ${toExport.length} candidate${toExport.length === 1 ? '' : 's'} to Excel`);
+      window.setTimeout(() => setBulkMsg(null), 3200);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setExportBusy(false);
+      setExportProgress(null);
+    }
+  };
   const selectedCount = Object.keys(selection).length;
   const totalPages = list.data?.totalPages || 1;
   const activeCols = COLUMN_DEFS.filter((col) => visibleCols[col.id]);
@@ -1005,6 +1050,20 @@ export function CandidatesScreen() {
               onClick={() => openModal('addcand')}
               style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
             />
+          )}
+          <Button
+            variant="ghost"
+            icon={exportBusy ? 'hourglass_top' : 'download'}
+            title="Download Excel (all rows matching current filters)"
+            aria-label="Download Excel"
+            onClick={() => runExport('filtered')}
+            disabled={exportBusy || !rows.length}
+            style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
+          />
+          {exportBusy && exportProgress && (
+            <span className="mono" style={{ fontSize: 11, color: T.inkMuted, whiteSpace: 'nowrap' }}>
+              {exportProgress}
+            </span>
           )}
           {/* View toggle — icon only */}
           <div
@@ -1431,7 +1490,7 @@ export function CandidatesScreen() {
       {selectedCount > 0 && (
         <BulkActionBar
           count={selectedCount}
-          busy={bulkBusy}
+          busy={bulkBusy || exportBusy}
           canEdit={canEdit}
           canStage={canStage}
           canDelete={canDelete}
@@ -1442,6 +1501,7 @@ export function CandidatesScreen() {
           onStar={() => runBulkQuick({ starred: true }, 'Starred')}
           onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
           onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
+          onExport={() => runExport('selected')}
           onDelete={runBulkDelete}
           onClear={clearSelection}
         />
@@ -1560,7 +1620,7 @@ export function CandidatesScreen() {
       {selectedCount > 0 && (
         <BulkActionBar
           count={selectedCount}
-          busy={bulkBusy}
+          busy={bulkBusy || exportBusy}
           canEdit={canEdit}
           canStage={canStage}
           canDelete={canDelete}
@@ -1571,6 +1631,7 @@ export function CandidatesScreen() {
           onStar={() => runBulkQuick({ starred: true }, 'Starred')}
           onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
           onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
+          onExport={() => runExport('selected')}
           onDelete={runBulkDelete}
           onClear={clearSelection}
         />
@@ -2038,12 +2099,12 @@ export function CandidatesScreen() {
 
 function BulkActionBar({
   count, busy, canEdit, canStage, canDelete,
-  onStage, onRole, onEdit, onTags, onStar, onUnstar, onDnc, onDelete, onClear,
+  onStage, onRole, onEdit, onTags, onStar, onUnstar, onDnc, onExport, onDelete, onClear,
 }: {
   count: number; busy: boolean;
   canEdit: boolean; canStage: boolean; canDelete: boolean;
   onStage: () => void; onRole: () => void; onEdit: () => void; onTags: () => void;
-  onStar: () => void; onUnstar: () => void; onDnc: () => void;
+  onStar: () => void; onUnstar: () => void; onDnc: () => void; onExport: () => void;
   onDelete: () => void; onClear: () => void;
 }) {
   const btn: React.CSSProperties = { height: 28, padding: '0 9px', fontSize: 11.5 };
@@ -2098,6 +2159,10 @@ function BulkActionBar({
           DND
         </Button>
       )}
+      {/* Export is read-only, so no capability gate. */}
+      <Button variant="soft" icon="download" onClick={onExport} disabled={busy} style={btn}>
+        Export
+      </Button>
       {canDelete && (
         <Button variant="danger" icon="delete" onClick={onDelete} disabled={busy} style={btn}>
           Delete
