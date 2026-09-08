@@ -97,6 +97,33 @@ const Navbar: React.FC = () => {
     setActiveDropdown(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMenuOpen(false);
+    };
+    const onResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMenuOpen(false);
+        setActiveDropdown(null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
   const handleMouseEnter = (key: string) => {
     if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
     setActiveDropdown(key);
@@ -115,6 +142,11 @@ const Navbar: React.FC = () => {
     navigate('/');
   };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    setActiveDropdown(null);
+  };
+
   return (
     <nav
       className={`sticky top-0 z-50 w-full transition-all duration-300 bg-white/95 backdrop-blur-sm ${
@@ -125,10 +157,17 @@ const Navbar: React.FC = () => {
     >
       {/* Full-bleed bar: logo left · nav center · actions right */}
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 w-full gap-2">
+        {/*
+          Mobile: flex + justify-between so logo stays left and the close
+          button sits on the far right. Desktop: 3-column grid so Home/Jobs/
+          etc. stay centered. Do not use `hidden` on the center column without
+          this split — display:none drops that grid item and the hamburger
+          lands in column 2.
+        */}
+        <div className="flex items-center justify-between h-16 w-full gap-2 lg:grid lg:grid-cols-[1fr_auto_1fr]">
           {/* Left — Logo */}
           <div className="flex items-center justify-start min-w-0">
-            <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+            <Link to="/" className="flex items-center gap-2.5 group shrink-0" onClick={closeMenu}>
               <div className="h-8 w-8 rounded-md bg-brand-600 flex items-center justify-center shadow-sm group-hover:bg-brand-700 transition-colors">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
@@ -244,24 +283,33 @@ const Navbar: React.FC = () => {
 
             <button
               type="button"
-              className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-surface-500 hover:text-surface-700 hover:bg-surface-100 transition-colors"
+              className="lg:hidden inline-flex items-center justify-center h-11 w-11 -mr-1 rounded-md text-surface-500 hover:text-surface-700 hover:bg-surface-100 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-nav-sheet"
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — full-viewport sheet so the hero is not visible behind it */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
-          <div className="w-full px-4 sm:px-6 pt-3 pb-4 space-y-1">
+        <div
+          id="mobile-nav-sheet"
+          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-white flex flex-col"
+        >
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 pt-3 pb-4 space-y-1">
             <Link
               to="/"
-              className="block px-3 py-2.5 text-sm font-medium text-surface-700 hover:text-brand-600 hover:bg-brand-50/50 rounded-md transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+              className={`block px-3 py-3 text-base font-medium rounded-md transition-colors ${
+                location.pathname === '/'
+                  ? 'text-brand-600 bg-brand-50'
+                  : 'text-surface-700 hover:text-brand-600 hover:bg-brand-50/50'
+              }`}
+              onClick={closeMenu}
             >
               Home
             </Link>
@@ -269,12 +317,14 @@ const Navbar: React.FC = () => {
             {navItems.map((item) => (
               <div key={item.key}>
                 <button
-                  className="flex justify-between items-center w-full px-3 py-2.5 text-sm font-medium text-surface-700 hover:text-brand-600 hover:bg-brand-50/50 rounded-md transition-colors"
+                  type="button"
+                  className="flex justify-between items-center w-full px-3 py-3 text-base font-medium text-surface-700 hover:text-brand-600 hover:bg-brand-50/50 rounded-md transition-colors"
                   onClick={() => toggleMobileDropdown(`m-${item.key}`)}
+                  aria-expanded={activeDropdown === `m-${item.key}`}
                 >
                   {item.label}
                   <ChevronDown
-                    size={14}
+                    size={16}
                     className={`transition-transform duration-200 ${
                       activeDropdown === `m-${item.key}` ? 'rotate-180' : ''
                     }`}
@@ -285,10 +335,10 @@ const Navbar: React.FC = () => {
                   <div className="ml-4 mt-1 mb-1 space-y-0.5 border-l-2 border-brand-200 pl-4">
                     {item.links.map((link) => (
                       <Link
-                        key={link.to}
+                        key={`${link.to}-${link.label}`}
                         to={link.to}
-                        className="block px-3 py-2 text-sm text-surface-600 hover:text-brand-600 transition-colors rounded"
-                        onClick={() => setIsMenuOpen(false)}
+                        className="block px-3 py-2.5 text-sm text-surface-600 hover:text-brand-600 transition-colors rounded"
+                        onClick={closeMenu}
                       >
                         {link.label}
                       </Link>
@@ -299,10 +349,10 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          <div className="px-4 sm:px-6 pb-4 pt-3 border-t border-gray-100 space-y-2.5">
+          <div className="px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 border-t border-gray-100 space-y-2.5 bg-white">
             {user ? (
               <>
-                <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                <Link to="/dashboard" onClick={closeMenu}>
                   <Button variant="outline" fullWidth size="md">
                     Dashboard
                   </Button>
@@ -313,7 +363,7 @@ const Navbar: React.FC = () => {
                   size="md"
                   onClick={() => {
                     handleSignOut();
-                    setIsMenuOpen(false);
+                    closeMenu();
                   }}
                 >
                   Sign Out
@@ -321,12 +371,12 @@ const Navbar: React.FC = () => {
               </>
             ) : (
               <>
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                <Link to="/login" onClick={closeMenu} className="block">
                   <Button variant="outline" fullWidth size="md">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                <Link to="/register" onClick={closeMenu} className="block">
                   <Button fullWidth size="md">
                     Get Started
                   </Button>
