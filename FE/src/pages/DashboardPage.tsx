@@ -32,9 +32,14 @@ const DashboardPage: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Admins get the full console instead of the student-style dashboard
+  // Admins land on the hiring workspace Dashboard, not the student page or Users.
   if (user.role === 'admin') {
-    return <Navigate to="/admin" replace />;
+    try {
+      sessionStorage.setItem('nxthike_workspace_screen', 'home');
+    } catch {
+      /* ignore */
+    }
+    return <Navigate to="/hiring" replace />;
   }
 
   const stats = [
