@@ -98,11 +98,13 @@ const Navbar: React.FC = () => {
   }, [location.pathname]);
 
   useEffect(() => {
+    document.body.classList.toggle('nxthike-mobile-nav-open', isMenuOpen);
     if (!isMenuOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
+      document.body.classList.remove('nxthike-mobile-nav-open');
     };
   }, [isMenuOpen]);
 
@@ -149,7 +151,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-      className={`sticky top-0 z-50 w-full transition-all duration-300 bg-white/95 backdrop-blur-sm ${
+      className={`sticky top-0 z-50 w-full transition-all duration-300 bg-white/95 ${
         isScrolled
           ? 'shadow-[0_1px_3px_rgba(0,0,0,0.05)] border-b border-gray-200/60'
           : 'border-b border-gray-100'
@@ -295,13 +297,17 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile menu — full-viewport sheet so the hero is not visible behind it */}
+      {/*
+        In-flow sheet (not position:fixed). backdrop-filter / transform on a
+        parent makes `fixed` resolve against the 64px header, which collapsed
+        the link list to 0 height and left only Sign In / Get Started.
+      */}
       {isMenuOpen && (
         <div
           id="mobile-nav-sheet"
-          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-white flex flex-col"
+          className="lg:hidden bg-white border-t border-gray-100 shadow-lg max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
         >
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 pt-3 pb-4 space-y-1">
+          <div className="px-4 sm:px-6 pt-3 pb-2 space-y-1">
             <Link
               to="/"
               className={`block px-3 py-3 text-base font-medium rounded-md transition-colors ${
@@ -352,7 +358,7 @@ const Navbar: React.FC = () => {
           <div className="px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 border-t border-gray-100 space-y-2.5 bg-white">
             {user ? (
               <>
-                <Link to="/dashboard" onClick={closeMenu}>
+                <Link to="/dashboard" onClick={closeMenu} className="block">
                   <Button variant="outline" fullWidth size="md">
                     Dashboard
                   </Button>
