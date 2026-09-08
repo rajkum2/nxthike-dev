@@ -7,6 +7,14 @@ import { useAuthStore } from '../store/authStore';
 import { isHiringAdmin } from '../utils/admin';
 import type { User } from '../types';
 
+const rememberWorkspaceDashboard = () => {
+  try {
+    sessionStorage.setItem('nxthike_workspace_screen', 'home');
+  } catch {
+    /* ignore */
+  }
+};
+
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,9 +51,12 @@ const LoginPage: React.FC = () => {
 
   const redirectAfterLogin = (loggedIn: User | null) => {
     if (nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')) {
-      // Only allow next=/hiring* for admins; others go home
+      // Only allow next=/hiring* for workspace admins; others go home
       if (nextPath.startsWith('/hiring')) {
         if (isHiringAdmin(loggedIn)) {
+          if (nextPath === '/hiring' || nextPath === '/hiring/') {
+            rememberWorkspaceDashboard();
+          }
           navigate(nextPath);
           return;
         }
@@ -56,6 +67,7 @@ const LoginPage: React.FC = () => {
       return;
     }
     if (isHiringAdmin(loggedIn)) {
+      rememberWorkspaceDashboard();
       navigate('/hiring');
       return;
     }
