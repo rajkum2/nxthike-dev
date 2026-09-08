@@ -80,3 +80,13 @@ iframe[src*="beTracker"],
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* Zoho SalesIQ covers the mobile menu and login Google button — hide while nav is open */
+body.nxthike-mobile-nav-open [id^="zsiq"],
+body.nxthike-mobile-nav-open [class*="siq"],
+body.nxthike-mobile-nav-open #siqibt,
+body.nxthike-mobile-nav-open .zsiq_float {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
