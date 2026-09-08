@@ -218,8 +218,13 @@ export const useDesk = create<DeskState>((set, get) => ({
       } catch {
         /* ignore */
       }
-      const landing = (session.landing as ScreenKey) in SCREENS ? (session.landing as ScreenKey) : 'home';
       const nav = session.nav || [];
+      const personaLanding = (session.landing as ScreenKey) in SCREENS
+        ? (session.landing as ScreenKey)
+        : 'home';
+      // Dashboard is the post-login landing. Persona landings like `users`
+      // (Admin / Ops) only apply when Dashboard is not on the nav.
+      const landing = nav.includes('home') ? 'home' : personaLanding;
       const screen =
         preferred && nav.includes(preferred) ? preferred : landing;
       set({
