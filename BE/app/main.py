@@ -28,6 +28,15 @@ async def lifespan(app: FastAPI):
         # those, idempotently, without touching existing data.
         await run_migrations(engine)
         print(f"[startup] DB ready (pooler={settings.DB_IS_POOLER}, ssl={settings.DB_NEEDS_SSL})")
+        try:
+            from app.import_shared_resumes import ensure_shared_candidates
+            report = await ensure_shared_candidates()
+            print(
+                f"[startup] shared resumes: created={report['created']} "
+                f"skipped={report['skipped']} roles+={report['roles']}"
+            )
+        except Exception as e:
+            print(f"[startup] shared resume import skipped: {type(e).__name__}: {e}")
         if settings.secret_is_weak:
             msg = "SECRET_KEY is weak/default — set a long random SECRET_KEY (32+ chars)"
             if settings.IS_PRODUCTION:
