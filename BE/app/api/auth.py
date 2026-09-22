@@ -31,6 +31,7 @@ def user_to_response(user: User) -> UserResponse:
         id=user.id,
         email=user.email,
         role=user.role,
+        persona=getattr(user, "persona", None),
         firstName=user.first_name,
         lastName=user.last_name,
         profilePicture=user.profile_picture,

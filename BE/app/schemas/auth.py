@@ -29,6 +29,8 @@ class UserResponse(BaseModel):
     id: str
     email: str
     role: str
+    #: Workspace persona (p1 recruiter … p8 admin). Null for portal-only accounts.
+    persona: str | None = None
     firstName: str
     lastName: str
     profilePicture: str | None = None

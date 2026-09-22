@@ -4,12 +4,12 @@ import { Mail, Lock, Sparkles } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useAuthStore } from '../store/authStore';
-import { isHiringAdmin } from '../utils/admin';
+import { isWorkspaceMember, workspaceEntryScreen } from '../utils/admin';
 import type { User } from '../types';
 
-const rememberWorkspaceDashboard = () => {
+const rememberWorkspaceScreen = (user: User | null) => {
   try {
-    sessionStorage.setItem('nxthike_workspace_screen', 'home');
+    sessionStorage.setItem('nxthike_workspace_screen', workspaceEntryScreen(user));
   } catch {
     /* ignore */
   }
@@ -51,11 +51,11 @@ const LoginPage: React.FC = () => {
 
   const redirectAfterLogin = (loggedIn: User | null) => {
     if (nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')) {
-      // Only allow next=/hiring* for workspace admins; others go home
+      // Recruiters and admins may open the hiring workspace. Portal accounts may not.
       if (nextPath.startsWith('/hiring')) {
-        if (isHiringAdmin(loggedIn)) {
+        if (isWorkspaceMember(loggedIn)) {
           if (nextPath === '/hiring' || nextPath === '/hiring/') {
-            rememberWorkspaceDashboard();
+            rememberWorkspaceScreen(loggedIn);
           }
           navigate(nextPath);
           return;
@@ -66,8 +66,8 @@ const LoginPage: React.FC = () => {
       navigate(nextPath);
       return;
     }
-    if (isHiringAdmin(loggedIn)) {
-      rememberWorkspaceDashboard();
+    if (isWorkspaceMember(loggedIn)) {
+      rememberWorkspaceScreen(loggedIn);
       navigate('/hiring');
       return;
     }

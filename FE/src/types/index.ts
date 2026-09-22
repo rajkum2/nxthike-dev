@@ -2,6 +2,8 @@ export interface User {
   id: string;
   email: string;
   role: 'student' | 'employer' | 'admin';
+  /** Hiring workspace persona, e.g. p1 Senior Recruiter. Absent for portal-only accounts. */
+  persona?: string | null;
   firstName: string;
   lastName: string;
   profilePicture?: string;

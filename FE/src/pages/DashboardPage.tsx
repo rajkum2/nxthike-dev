@@ -13,6 +13,7 @@ import {
 import Button from '../components/ui/Button';
 import Card, { CardContent } from '../components/ui/Card';
 import { useAuthStore } from '../store/authStore';
+import { isWorkspaceMember, workspaceEntryScreen } from '../utils/admin';
 
 const DashboardPage: React.FC = () => {
   const { user, isLoading } = useAuthStore();
@@ -32,10 +33,10 @@ const DashboardPage: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Admins land on the hiring workspace Dashboard, not the student page or Users.
-  if (user.role === 'admin') {
+  // Recruiters and admins belong in the hiring workspace, not the student overview.
+  if (isWorkspaceMember(user)) {
     try {
-      sessionStorage.setItem('nxthike_workspace_screen', 'home');
+      sessionStorage.setItem('nxthike_workspace_screen', workspaceEntryScreen(user));
     } catch {
       /* ignore */
     }

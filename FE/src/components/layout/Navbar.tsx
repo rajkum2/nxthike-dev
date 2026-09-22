@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import Button from '../ui/Button';
 import { useAuthStore } from '../../store/authStore';
-import { isHiringAdmin } from '../../utils/admin';
+import { isHiringAdmin, isWorkspaceMember, workspaceEntryScreen } from '../../utils/admin';
 
 const publicNavItems = [
   {
@@ -247,6 +247,19 @@ const Navbar: React.FC = () => {
                         Console
                       </Button>
                     </Link>
+                  ) : isWorkspaceMember(user) ? (
+                    <Link
+                      to="/hiring"
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem('nxthike_workspace_screen', workspaceEntryScreen(user));
+                        } catch { /* ignore */ }
+                      }}
+                    >
+                      <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
+                        Dashboard
+                      </Button>
+                    </Link>
                   ) : (
                     <Link to="/dashboard">
                       <Button variant="ghost" size="sm" leftIcon={<User size={15} />}>
@@ -358,7 +371,18 @@ const Navbar: React.FC = () => {
           <div className="px-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 border-t border-gray-100 space-y-2.5 bg-white">
             {user ? (
               <>
-                <Link to="/dashboard" onClick={closeMenu} className="block">
+                <Link
+                  to={isWorkspaceMember(user) ? '/hiring' : '/dashboard'}
+                  onClick={() => {
+                    if (isWorkspaceMember(user)) {
+                      try {
+                        sessionStorage.setItem('nxthike_workspace_screen', workspaceEntryScreen(user));
+                      } catch { /* ignore */ }
+                    }
+                    closeMenu();
+                  }}
+                  className="block"
+                >
                   <Button variant="outline" fullWidth size="md">
                     Dashboard
                   </Button>
