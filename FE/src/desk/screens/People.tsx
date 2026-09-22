@@ -38,7 +38,7 @@ type ViewMode = 'split' | 'table';
 type ColId =
   | 'name' | 'status' | 'role' | 'phone' | 'email' | 'city' | 'latestRole' | 'company'
   | 'experience' | 'source' | 'currentCtc' | 'expectedCtc' | 'notice' | 'institute'
-  | 'degree' | 'skills' | 'updatedAt' | 'starred' | 'dnc' | 'gender';
+  | 'degree' | 'skills' | 'createdAt' | 'updatedAt' | 'starred' | 'dnc' | 'gender';
 
 const ROW_ACTION_BTN: React.CSSProperties = {
   width: 28,
@@ -197,6 +197,7 @@ const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number
   { id: 'degree', label: 'Degree', defaultOn: false, minW: 100 },
   { id: 'skills', label: 'Skills', defaultOn: false, minW: 160 },
   { id: 'gender', label: 'Gender', defaultOn: false, minW: 80 },
+  { id: 'createdAt', label: 'Added', defaultOn: false, minW: 100 },
   { id: 'updatedAt', label: 'Updated', defaultOn: true, minW: 100 },
   { id: 'starred', label: 'Starred', defaultOn: false, minW: 70 },
   { id: 'dnc', label: 'DND', defaultOn: false, minW: 60 },
@@ -224,6 +225,7 @@ const COL_SORT_KEY: Partial<Record<ColId, string>> = {
   degree: 'degree',
   skills: 'skills',
   gender: 'gender',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   starred: 'starred',
   dnc: 'dnc',
@@ -919,6 +921,8 @@ export function CandidatesScreen() {
       }
       case 'gender':
         return r.gender || '—';
+      case 'createdAt':
+        return shortDate(r.createdAt);
       case 'updatedAt':
         return shortDate(r.updatedAt);
       case 'starred':
