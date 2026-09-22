@@ -115,6 +115,31 @@ function AppShell() {
   );
 }
 
+const SALESIQ_HIDDEN = [/^\/hiring(\/|$)/, /^\/admin(\/|$)/, /^\/dashboard(\/|$)/, /^\/employer\/dashboard(\/|$)/];
+
+function SalesIQGate() {
+  const { pathname } = useLocation();
+  const hide = SALESIQ_HIDDEN.some((re) => re.test(pathname));
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('nx-hide-salesiq', hide);
+    const zoho = (window as Window & {
+      $zoho?: { salesiq?: { floatbutton?: { visible: (v: string) => void }; floatwindow?: { visible: (v: string) => void } } };
+    }).$zoho?.salesiq;
+    try {
+      zoho?.floatbutton?.visible(hide ? 'hide' : 'show');
+      if (hide) zoho?.floatwindow?.visible?.('hide');
+    } catch {
+      /* widget not ready yet; the stylesheet still covers it */
+    }
+    return () => {
+      document.documentElement.classList.remove('nx-hide-salesiq');
+    };
+  }, [hide]);
+
+  return null;
+}
+
 function App() {
   const { fetchUser } = useAuthStore();
 
@@ -124,7 +149,7 @@ function App() {
 
   return (
     <Router>
-      {/* Metricool / floating chat widget disabled for now — re-enable when AI chat ships */}
+      <SalesIQGate />
       <AppShell />
     </Router>
   );

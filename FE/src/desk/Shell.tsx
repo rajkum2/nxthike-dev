@@ -6,6 +6,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 import { deskApi } from './api';
 import { T } from './tokens';
 import { NAV, SCREENS, useDesk, type ScreenKey } from './store';
@@ -20,6 +22,12 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
     screen, session, allowed, go, setPalette, openModal, toggleRail,
     candidateRoleId,
   } = useDesk();
+  const navigate = useNavigate();
+  const signOut = useAuthStore((s) => s.signOut);
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
   const badges: Partial<Record<ScreenKey, number>> = {};
   const [candsOpen, setCandsOpen] = useState(true);
   const canSeeCands = !!session?.nav?.includes('cands');
@@ -301,6 +309,9 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
             <button onClick={() => openModal('personas')} title="Switch persona">
               <Icon name="swap_horiz" size={18} color={T.railFaint} />
             </button>
+            <button onClick={handleSignOut} title="Sign out" aria-label="Sign out" style={{ padding: 4 }}>
+              <Icon name="logout" size={18} color={T.railFaint} />
+            </button>
             <button onClick={toggleRail} title="Collapse sidebar">
               <Icon name="left_panel_close" size={18} color={T.railFaint} />
             </button>
@@ -308,11 +319,16 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
         ) : (
           // The narrow rail keeps its own way back out, so expanding never
           // depends on finding the control in the top bar.
-          !onNavigate && (
-            <button onClick={toggleRail} title="Expand sidebar" style={{ padding: 4 }}>
-              <Icon name="left_panel_open" size={18} color={T.railFaint} />
+          <>
+            <button onClick={handleSignOut} title="Sign out" aria-label="Sign out" style={{ padding: 4 }}>
+              <Icon name="logout" size={18} color={T.railFaint} />
             </button>
-          )
+            {!onNavigate && (
+              <button onClick={toggleRail} title="Expand sidebar" style={{ padding: 4 }}>
+                <Icon name="left_panel_open" size={18} color={T.railFaint} />
+              </button>
+            )}
+          </>
         )}
       </div>
     </>

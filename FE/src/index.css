@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Zoho SalesIQ is for the public site. Keep it off the workspace and admin dashboards. */
+html.nx-hide-salesiq #zsiq_float,
+html.nx-hide-salesiq .zsiq_floatmain,
+html.nx-hide-salesiq .zsiq_custommain,
+html.nx-hide-salesiq #zsiqbtn,
+html.nx-hide-salesiq .siq_bR,
+html.nx-hide-salesiq iframe[id*='siq'],
+html.nx-hide-salesiq div[id^='zsiq'],
+html.nx-hide-salesiq div[class*='zsiq'] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
