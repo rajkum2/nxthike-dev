@@ -295,6 +295,9 @@ async def list_roles(
     result: list[HiringRoleResponse] = []
     for r in roles:
         count = await _role_candidate_count(db, r.id, me)
+        # A recruiter only works roles that actually have people on their book.
+        if me.sees_assigned_only and count == 0:
+            continue
         result.append(
             HiringRoleResponse(
                 id=r.id,

@@ -39,7 +39,8 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
       : Promise.resolve([] as { id: string; name: string; count: number }[])),
     [session?.userId, canSeeCands],
   );
-  const roles = rolesLoad.data || [];
+  const assignedOnly = session?.caps?.db === 'assigned';
+  const roles = (rolesLoad.data || []).filter((role) => !assignedOnly || (role.count ?? 0) > 0);
 
   // Keep the Candidates role tree open while that area is active.
   useEffect(() => {

@@ -245,18 +245,22 @@ NAV_RULES: dict[str, callable] = {
     "history": lambda c: bool(c.get("log")),
     "cands": lambda c: c.get("db") != "none",
     "addcand": lambda c: bool(c.get("create")),
-    "tags": lambda c: bool(c.get("create")),
-    "jobs": lambda c: c.get("reqs") != "none",
-    "kanban": lambda c: c.get("reqs") != "none",
+    "tags": lambda c: bool(c.get("create")) and c.get("db") != "assigned",
+    "jobs": lambda c: c.get("reqs") in ("own", "all"),
+    "kanban": lambda c: c.get("reqs") in ("own", "all"),
     "clients": lambda c: c.get("reqs") == "all",
-    "subs": lambda c: c.get("reqs") != "none",
-    "composer": lambda c: c.get("db") != "none",
-    "templates": lambda c: c.get("db") != "none",
-    "scorecard": lambda c: bool(c.get("score")),
-    "offers": lambda c: c.get("reqs") != "none" or bool(c.get("approve")),
+    "subs": lambda c: c.get("reqs") in ("own", "all"),
+    "composer": lambda c: c.get("db") not in (None, "none", "assigned", "ownInterviews"),
+    "templates": lambda c: c.get("db") not in (None, "none", "assigned", "ownInterviews"),
+    "scorecard": lambda c: c.get("score") is True,
+    "offers": lambda c: c.get("reqs") in ("own", "all") or bool(c.get("approve")),
     "approvals": lambda c: bool(c.get("approve")),
     "perf": lambda c: c.get("analytics") != "none",
     "team": lambda c: c.get("analytics") in ("team", "all"),
+    "feed": lambda c: c.get("analytics") in ("team", "all") or c.get("admin") is True,
+    "intcal": lambda c: c.get("score") is True or bool(c.get("approve")),
+    "sync": lambda c: c.get("admin") is True,
+    "states": lambda c: c.get("admin") is True,
     "roles": lambda c: bool(c.get("admin")),
     "users": lambda c: bool(c.get("admin")),
     "compliance": lambda c: bool(c.get("admin")),
@@ -273,7 +277,9 @@ NAV_RULES: dict[str, callable] = {
 }
 
 #: Always available to anyone with workspace access.
-ALWAYS_NAV = ["home", "notifs", "tasks", "feed", "settings", "sync", "states", "intcal"]
+#: Interviews, the activity feed, offline sync and the state gallery are gated
+#: above — a recruiter working an assigned book does not need them.
+ALWAYS_NAV = ["home", "notifs", "tasks", "settings"]
 
 
 def allowed_nav(caps: dict) -> list[str]:
