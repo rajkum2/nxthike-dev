@@ -140,3 +140,5 @@ temp_interactive_push.bat
 # Local credential dumps
 **/.env.admin-credentials.local
 **/*credentials.local*
+.vercel
+.env*
