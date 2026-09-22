@@ -573,6 +573,10 @@ export const deskApi = {
     req<{ updated: number; ownerId: string | null }>('/api/hiring/candidates/bulk-assign', {
       method: 'POST', body: JSON.stringify({ ids, ownerId }),
     }),
+  bulkAssignQuery: (body: Record<string, unknown>) =>
+    req<{ updated: number; ownerId: string | null }>('/api/hiring/candidates/bulk-assign-query', {
+      method: 'POST', body: JSON.stringify(body),
+    }),
 
   callQueue: (p: Record<string, unknown> = {}) =>
     req<Paginated<QueueItem>>(`/api/calls/queue${qs({ pageSize: 100, ...p })}`),

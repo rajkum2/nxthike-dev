@@ -197,13 +197,14 @@ const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number
   { id: 'degree', label: 'Degree', defaultOn: false, minW: 100 },
   { id: 'skills', label: 'Skills', defaultOn: false, minW: 160 },
   { id: 'gender', label: 'Gender', defaultOn: false, minW: 80 },
-  { id: 'createdAt', label: 'Added', defaultOn: false, minW: 100 },
+  { id: 'createdAt', label: 'Uploaded', defaultOn: false, minW: 110 },
   { id: 'updatedAt', label: 'Updated', defaultOn: true, minW: 100 },
   { id: 'starred', label: 'Starred', defaultOn: false, minW: 70 },
   { id: 'dnc', label: 'DND', defaultOn: false, minW: 60 },
 ];
 
 const COLS_STORAGE_KEY = 'nxthike.candidates.visibleCols';
+const COL_ORDER_KEY = 'nxthike.candidates.colOrder';
 const VIEW_STORAGE_KEY = 'nxthike.candidates.viewMode';
 
 /** Column id → API sortKey (must match BE sort_map). */
@@ -230,6 +231,21 @@ const COL_SORT_KEY: Partial<Record<ColId, string>> = {
   starred: 'starred',
   dnc: 'dnc',
 };
+
+function loadColOrder(): ColId[] {
+  const fallback = COLUMN_DEFS.map((c) => c.id);
+  try {
+    const raw = localStorage.getItem(COL_ORDER_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as ColId[];
+    const known = new Set(fallback);
+    const kept = parsed.filter((id) => known.has(id));
+    for (const id of fallback) if (!kept.includes(id)) kept.push(id);
+    return kept;
+  } catch {
+    return fallback;
+  }
+}
 
 function loadVisibleCols(): Record<ColId, boolean> {
   const base = Object.fromEntries(COLUMN_DEFS.map((c) => [c.id, c.defaultOn])) as Record<ColId, boolean>;
@@ -472,6 +488,15 @@ export function CandidatesScreen() {
   const [gender, setGender] = useState('all');
   const [graduationYears, setGraduationYears] = useState<string[]>([]);
   const [expYearsList, setExpYearsList] = useState<string[]>([]);
+  const [ownerFilter, setOwnerFilter] = useState('all');
+  const [degree, setDegree] = useState('');
+  const [debouncedDegree, setDebouncedDegree] = useState('');
+  const [company, setCompany] = useState('');
+  const [debouncedCompany, setDebouncedCompany] = useState('');
+  const [institute, setInstitute] = useState('');
+  const [debouncedInstitute, setDebouncedInstitute] = useState('');
+  const [english, setEnglish] = useState('all');
+  const [assignAllMatching, setAssignAllMatching] = useState(false);
   const [starredOnly, setStarredOnly] = useState(false);
   const [hasNotes, setHasNotes] = useState(false);
   const [hasPhone, setHasPhone] = useState(false);
@@ -496,6 +521,10 @@ export function CandidatesScreen() {
     }
   });
   const [visibleCols, setVisibleCols] = useState<Record<ColId, boolean>>(loadVisibleCols);
+  const [colOrder, setColOrder] = useState<ColId[]>(loadColOrder);
+  const [dragCol, setDragCol] = useState<ColId | null>(null);
+  const [uploadedFrom, setUploadedFrom] = useState('');
+  const [uploadedTo, setUploadedTo] = useState('');
   const [unmask, setUnmask] = useState(() => c.db === 'all' || c.admin === true);
   const [editOpen, setEditOpen] = useState(false);
   const [tableDetailOpen, setTableDetailOpen] = useState(!!candidateId);
@@ -523,6 +552,18 @@ export function CandidatesScreen() {
     const t = window.setTimeout(() => setDebouncedSource(source.trim()), 320);
     return () => window.clearTimeout(t);
   }, [source]);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedDegree(degree.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [degree]);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedCompany(company.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [company]);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedInstitute(institute.trim()), 320);
+    return () => window.clearTimeout(t);
+  }, [institute]);
 
   const citiesKey = cities.slice().sort().join('|');
   const yearsKey = graduationYears.slice().sort().join('|');
@@ -530,7 +571,8 @@ export function CandidatesScreen() {
 
   const filterDeps = [
     debouncedQ, status, roleId, experience, citiesKey, debouncedSource, gender,
-    yearsKey, expKey,
+    yearsKey, expKey, ownerFilter, debouncedDegree, debouncedCompany, debouncedInstitute, english,
+    uploadedFrom, uploadedTo,
     starredOnly, hasNotes, hasPhone, hasEmail, hasResume, dncOnly, noConsent, sortKey, sortDir,
     candidatesRev,
   ];
@@ -542,6 +584,9 @@ export function CandidatesScreen() {
   React.useEffect(() => {
     try { localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(visibleCols)); } catch { /* ignore */ }
   }, [visibleCols]);
+  React.useEffect(() => {
+    try { localStorage.setItem(COL_ORDER_KEY, JSON.stringify(colOrder)); } catch { /* ignore */ }
+  }, [colOrder]);
 
   const rolesLoad = useLoad(() => deskApi.hiringDashboard().then((d) => d.roles || []), []);
   const savedLoad = useLoad(() => deskApi.savedSearches().catch(() => []), []);
@@ -566,6 +611,13 @@ export function CandidatesScreen() {
     gender,
     graduationYears,
     expYearsList,
+    ownerFilter,
+    degree: debouncedDegree || degree,
+    company: debouncedCompany || company,
+    institute: debouncedInstitute || institute,
+    english,
+    uploadedFrom,
+    uploadedTo,
     starredOnly,
     hasNotes,
     hasPhone,
@@ -592,6 +644,13 @@ export function CandidatesScreen() {
     setGender(s('gender', 'all') || 'all');
     setGraduationYears(asStrList(f.graduationYears?.length ? f.graduationYears : f.graduationYear));
     setExpYearsList(asStrList(f.expYearsList?.length ? f.expYearsList : f.expYears));
+    setOwnerFilter(s('ownerFilter', 'all') || 'all');
+    setDegree(s('degree')); setDebouncedDegree(s('degree'));
+    setCompany(s('company')); setDebouncedCompany(s('company'));
+    setInstitute(s('institute')); setDebouncedInstitute(s('institute'));
+    setEnglish(s('english', 'all') || 'all');
+    setUploadedFrom(s('uploadedFrom'));
+    setUploadedTo(s('uploadedTo'));
     setStarredOnly(b('starredOnly'));
     setHasNotes(b('hasNotes'));
     setHasPhone(b('hasPhone'));
@@ -644,6 +703,13 @@ export function CandidatesScreen() {
     gender: gender !== 'all' ? gender : undefined,
     graduationYear: graduationYears.length ? graduationYears : undefined,
     expYears: expYearsList.length ? expYearsList : undefined,
+    owner: ownerFilter !== 'all' ? ownerFilter : undefined,
+    degree: debouncedDegree || undefined,
+    company: debouncedCompany || undefined,
+    institute: debouncedInstitute || undefined,
+    english: english !== 'all' ? english : undefined,
+    uploadedFrom: uploadedFrom || undefined,
+    uploadedTo: uploadedTo || undefined,
     starredOnly: starredOnly || undefined,
     hasNotes: hasNotes || undefined,
     hasPhone: hasPhone || undefined,
@@ -705,17 +771,36 @@ export function CandidatesScreen() {
   );
 
   const runBulkAssign = async (ownerId: string | null) => {
-    if (!selectedIds.length || !isFullAdmin) return;
+    if (!isFullAdmin) return;
+    const matchCount = list.data?.total || 0;
+    if (!assignAllMatching && !selectedIds.length) return;
+    const who = ownerId
+      ? (recruitersLoad.data || []).find((u) => u.id === ownerId)?.name || 'recruiter'
+      : 'nobody';
+    if (assignAllMatching) {
+      const ok = window.confirm(
+        ownerId
+          ? `Assign all ${matchCount} candidates matching these filters to ${who}?`
+          : `Clear the assignment on all ${matchCount} candidates matching these filters?`,
+      );
+      if (!ok) {
+        setAssignAllMatching(false);
+        setBulkPanel(null);
+        return;
+      }
+    }
     setBulkBusy(true);
     try {
       let updated = 0;
-      for (let i = 0; i < selectedIds.length; i += 150) {
-        const r = await deskApi.bulkAssign(selectedIds.slice(i, i + 150), ownerId);
-        updated += r.updated;
+      if (assignAllMatching) {
+        const r = await deskApi.bulkAssignQuery({ ...filterParams, ownerId });
+        updated = r.updated;
+      } else {
+        for (let i = 0; i < selectedIds.length; i += 150) {
+          const r = await deskApi.bulkAssign(selectedIds.slice(i, i + 150), ownerId);
+          updated += r.updated;
+        }
       }
-      const who = ownerId
-        ? (recruitersLoad.data || []).find((u) => u.id === ownerId)?.name || 'recruiter'
-        : 'nobody';
       await afterBulk(
         ownerId
           ? `Assigned ${updated} candidate${updated === 1 ? '' : 's'} to ${who}`
@@ -725,6 +810,7 @@ export function CandidatesScreen() {
       alert((e as Error).message);
     } finally {
       setBulkBusy(false);
+      setAssignAllMatching(false);
     }
   };
 
@@ -803,12 +889,37 @@ export function CandidatesScreen() {
   };
   const selectedCount = Object.keys(selection).length;
   const totalPages = list.data?.totalPages || 1;
-  const activeCols = COLUMN_DEFS.filter((col) => visibleCols[col.id]);
+  const orderedCols = colOrder
+    .map((id) => COLUMN_DEFS.find((c) => c.id === id))
+    .filter((c): c is (typeof COLUMN_DEFS)[number] => !!c);
+  const activeCols = orderedCols.filter((col) => visibleCols[col.id]);
+  const moveColumn = (id: ColId, dir: -1 | 1) => {
+    setColOrder((prev) => {
+      const i = prev.indexOf(id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= prev.length) return prev;
+      const next = prev.slice();
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  };
+  const dropColumn = (target: ColId) => {
+    if (!dragCol || dragCol === target) return;
+    setColOrder((prev) => {
+      const next = prev.filter((id) => id !== dragCol);
+      const at = next.indexOf(target);
+      next.splice(at < 0 ? next.length : at, 0, dragCol);
+      return next;
+    });
+    setDragCol(null);
+  };
 
   const activeFilterCount = [
     status !== 'all', roleId !== 'all', experience !== 'all', starredOnly, hasNotes,
     hasPhone, hasEmail, hasResume, dncOnly, noConsent, !!debouncedQ, cities.length > 0,
     !!debouncedSource, gender !== 'all', graduationYears.length > 0, expYearsList.length > 0,
+    ownerFilter !== 'all', !!debouncedDegree, !!debouncedCompany, !!debouncedInstitute, english !== 'all',
+    !!uploadedFrom, !!uploadedTo,
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -817,6 +928,13 @@ export function CandidatesScreen() {
     setExperience('all'); setCities([]); setCitySearch(''); setDebouncedCitySearch('');
     setSource(''); setDebouncedSource('');
     setGender('all'); setGraduationYears([]); setExpYearsList([]);
+    setOwnerFilter('all');
+    setDegree(''); setDebouncedDegree('');
+    setCompany(''); setDebouncedCompany('');
+    setInstitute(''); setDebouncedInstitute('');
+    setEnglish('all');
+    setUploadedFrom('');
+    setUploadedTo('');
     setStarredOnly(false); setHasNotes(false);
     setHasPhone(false); setHasEmail(false); setHasResume(false); setDncOnly(false); setNoConsent(false);
     setSortKey('updatedAt'); setSortDir('desc'); setPage(1);
@@ -1162,7 +1280,7 @@ export function CandidatesScreen() {
                       right: 0,
                       top: 36,
                       zIndex: 50,
-                      width: 220,
+                      width: 268,
                       maxHeight: 360,
                       overflowY: 'auto',
                       background: T.surface,
@@ -1172,31 +1290,48 @@ export function CandidatesScreen() {
                       padding: 8,
                     }}
                   >
-                    <div style={{ fontSize: 11, fontWeight: 700, color: T.inkFaint, padding: '4px 8px 8px' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: T.inkFaint, padding: '4px 8px 2px' }}>
                       SHOW COLUMNS
                     </div>
-                    {COLUMN_DEFS.map((col) => (
-                      <label
+                    <div style={{ fontSize: 10.5, color: T.inkFaint, padding: '0 8px 8px' }}>
+                      Drag a row to reorder the table.
+                    </div>
+                    {orderedCols.map((col, index) => (
+                      <div
                         key={col.id}
+                        draggable
+                        onDragStart={() => setDragCol(col.id)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => dropColumn(col.id)}
+                        onDragEnd={() => setDragCol(null)}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 8,
-                          padding: '6px 8px',
+                          gap: 6,
+                          padding: '4px 6px',
                           borderRadius: 6,
-                          cursor: col.id === 'name' ? 'default' : 'pointer',
+                          cursor: 'grab',
                           fontSize: 12.5,
-                          opacity: col.id === 'name' ? 0.6 : 1,
+                          background: dragCol === col.id ? T.indigoTint : 'transparent',
                         }}
                       >
-                        <input
-                          type="checkbox"
-                          checked={!!visibleCols[col.id]}
-                          disabled={col.id === 'name'}
-                          onChange={() => toggleCol(col.id)}
-                        />
-                        {col.label}
-                      </label>
+                        <Icon name="drag_indicator" size={14} color={T.inkFaint} />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0, cursor: col.id === 'name' ? 'default' : 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={!!visibleCols[col.id]}
+                            disabled={col.id === 'name'}
+                            onChange={() => toggleCol(col.id)}
+                          />
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{col.label}</span>
+                        </label>
+                        <button type="button" title="Move up" disabled={index === 0} onClick={() => moveColumn(col.id, -1)} style={{ opacity: index === 0 ? 0.3 : 1, padding: 0 }}>
+                          <Icon name="arrow_upward" size={13} color={T.inkMuted} />
+                        </button>
+                        <button type="button" title="Move down" disabled={index === orderedCols.length - 1} onClick={() => moveColumn(col.id, 1)} style={{ opacity: index === orderedCols.length - 1 ? 0.3 : 1, padding: 0 }}>
+                          <Icon name="arrow_downward" size={13} color={T.inkMuted} />
+                        </button>
+                      </div>
                     ))}
                     <div style={{ borderTop: `1px solid ${T.divider}`, marginTop: 6, paddingTop: 6, display: 'flex', gap: 6 }}>
                       <button
@@ -1209,7 +1344,10 @@ export function CandidatesScreen() {
                       <button
                         type="button"
                         style={{ flex: 1, fontSize: 11, fontWeight: 650, color: T.inkMuted, padding: 6 }}
-                        onClick={() => setVisibleCols(Object.fromEntries(COLUMN_DEFS.map((x) => [x.id, x.defaultOn])) as Record<ColId, boolean>)}
+                        onClick={() => {
+                          setVisibleCols(Object.fromEntries(COLUMN_DEFS.map((x) => [x.id, x.defaultOn])) as Record<ColId, boolean>);
+                          setColOrder(COLUMN_DEFS.map((x) => x.id));
+                        }}
                       >
                         Reset
                       </button>
@@ -1259,6 +1397,88 @@ export function CandidatesScreen() {
           }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            {isFullAdmin && (
+              <Select
+                value={ownerFilter}
+                onChange={(e) => setOwnerFilter(e.target.value)}
+                title="Assigned recruiter"
+                style={{ ...compactCtrl, width: 150, flex: '0 0 150px' }}
+              >
+                <option value="all">Any assignment</option>
+                <option value="unassigned">Unassigned</option>
+                <option value="assigned">Assigned</option>
+                {(recruitersLoad.data || []).map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </Select>
+            )}
+            <input
+              className="field"
+              value={degree}
+              onChange={(e) => setDegree(e.target.value)}
+              placeholder="Degree"
+              title="Degree"
+              style={{ ...compactCtrl, width: 110, flex: '0 1 110px' }}
+            />
+            <input
+              className="field"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Company"
+              title="Current or past company"
+              style={{ ...compactCtrl, width: 120, flex: '0 1 120px' }}
+            />
+            <input
+              className="field"
+              value={institute}
+              onChange={(e) => setInstitute(e.target.value)}
+              placeholder="Institute"
+              title="Institute"
+              style={{ ...compactCtrl, width: 120, flex: '0 1 120px' }}
+            />
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: T.inkMuted }}>
+              Uploaded
+              <input
+                type="date"
+                className="field"
+                value={uploadedFrom}
+                onChange={(e) => setUploadedFrom(e.target.value)}
+                title="Uploaded from"
+                style={{ ...compactCtrl, width: 132 }}
+              />
+              <span>to</span>
+              <input
+                type="date"
+                className="field"
+                value={uploadedTo}
+                onChange={(e) => setUploadedTo(e.target.value)}
+                title="Uploaded to"
+                style={{ ...compactCtrl, width: 132 }}
+              />
+            </label>
+            <Select
+              value={english}
+              onChange={(e) => setEnglish(e.target.value)}
+              title="English level"
+              style={{ ...compactCtrl, width: 118, flex: '0 0 118px' }}
+            >
+              <option value="all">English</option>
+              <option value="basic">Basic</option>
+              <option value="good">Good</option>
+              <option value="fluent">Fluent</option>
+              <option value="advanced">Advanced</option>
+            </Select>
+            {isFullAdmin && (list.data?.total || 0) > 0 && (
+              <Button
+                variant="soft"
+                size="sm"
+                icon="person_add"
+                disabled={bulkBusy}
+                onClick={() => { setAssignAllMatching(true); setBulkPanel('assign'); }}
+              >
+                Assign {num(list.data?.total || 0)}
+              </Button>
+            )}
             <MultiSelectFilter
               label="City"
               values={cities}
@@ -1299,7 +1519,7 @@ export function CandidatesScreen() {
             />
             <Select value={sortKey} onChange={(e) => setSortKey(e.target.value)} title="Sort by" style={{ ...compactCtrl, width: 108, flex: '0 0 108px' }}>
               <option value="updatedAt">Updated</option>
-              <option value="createdAt">Added</option>
+              <option value="createdAt">Uploaded</option>
               <option value="name">Name</option>
               <option value="status">Stage</option>
               <option value="city">City</option>
@@ -1532,7 +1752,7 @@ export function CandidatesScreen() {
           onRole={() => setBulkPanel('role')}
           onEdit={() => setBulkPanel('edit')}
           onTags={() => setBulkPanel('tags')}
-          onAssign={() => setBulkPanel('assign')}
+          onAssign={() => { setAssignAllMatching(false); setBulkPanel('assign'); }}
           onStar={() => runBulkQuick({ starred: true }, 'Starred')}
           onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
           onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
@@ -1664,7 +1884,7 @@ export function CandidatesScreen() {
           onRole={() => setBulkPanel('role')}
           onEdit={() => setBulkPanel('edit')}
           onTags={() => setBulkPanel('tags')}
-          onAssign={() => setBulkPanel('assign')}
+          onAssign={() => { setAssignAllMatching(false); setBulkPanel('assign'); }}
           onStar={() => runBulkQuick({ starred: true }, 'Starred')}
           onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
           onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
@@ -2071,11 +2291,11 @@ export function CandidatesScreen() {
       {bulkPanel && (
         <BulkActionModal
           kind={bulkPanel}
-          count={selectedCount}
+          count={assignAllMatching ? (list.data?.total || 0) : selectedCount}
           busy={bulkBusy}
           roles={rolesLoad.data || []}
           recruiters={recruitersLoad.data || []}
-          onClose={() => setBulkPanel(null)}
+          onClose={() => { setBulkPanel(null); setAssignAllMatching(false); }}
           onStage={runBulkStatus}
           onRole={runBulkRole}
           onAssign={runBulkAssign}

@@ -1,9 +1,9 @@
 import math
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, func, or_, and_, cast, Float, case, literal, literal_column
+from sqlalchemy import select, func, or_, and_, cast, Float, case, literal, literal_column, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -32,6 +32,7 @@ from app.schemas.hiring import (
     BulkStatusRequest,
     BulkDeleteRequest,
     BulkAssignRequest,
+    BulkAssignQuery,
     BulkRoleRequest,
     BulkUpdateRequest,
     HiringDashboardStats,
@@ -616,33 +617,35 @@ async def candidate_facets(
     }
 
 
-@router.get("/candidates", response_model=PaginatedCandidateResponse)
-async def list_candidates(
+def _candidate_filters(
+    me: WorkspaceIdentity,
+    *,
     search: str | None = None,
-    role_id: str | None = Query(None, alias="roleId"),
+    role_id: str | None = None,
     status: str | None = None,
-    city: list[str] | None = Query(None),
+    city: list[str] | None = None,
     source: str | None = None,
     gender: str | None = None,
     experience: str | None = None,
-    graduation_year: list[str] | None = Query(None, alias="graduationYear"),
-    exp_years: list[str] | None = Query(None, alias="expYears"),
-    ai_match: str | None = Query(None, alias="aiMatch"),
-    starred_only: bool = Query(False, alias="starredOnly"),
-    has_notes: bool = Query(False, alias="hasNotes"),
-    has_phone: bool = Query(False, alias="hasPhone"),
-    has_resume: bool = Query(False, alias="hasResume"),
-    has_email: bool = Query(False, alias="hasEmail"),
-    dnc_only: bool = Query(False, alias="dncOnly"),
-    no_consent: bool = Query(False, alias="noConsent"),
-    sort_key: str = Query("name", alias="sortKey"),
-    sort_dir: str = Query("asc", alias="sortDir"),
-    page: int = Query(1, ge=1),
-    page_size: int = Query(50, ge=1, le=100, alias="pageSize"),
-    me: WorkspaceIdentity = Depends(get_workspace_user),
-    db: AsyncSession = Depends(get_db),
-):
-    query = select(Candidate)
+    graduation_year: list[str] | None = None,
+    exp_years: list[str] | None = None,
+    ai_match: str | None = None,
+    starred_only: bool = False,
+    has_notes: bool = False,
+    has_phone: bool = False,
+    has_resume: bool = False,
+    has_email: bool = False,
+    dnc_only: bool = False,
+    no_consent: bool = False,
+    owner: str | None = None,
+    degree: str | None = None,
+    company: str | None = None,
+    institute: str | None = None,
+    english: str | None = None,
+    uploaded_from: str | None = None,
+    uploaded_to: str | None = None,
+) -> list:
+    """Shared by the candidate list and 'assign everyone matching these filters'."""
     filters = []
     if (scope := _assigned_clause(me)) is not None:
         filters.append(scope)
@@ -696,6 +699,51 @@ async def list_candidates(
         filters.append(Candidate.dnc.is_(True))
     if no_consent:
         filters.append(Candidate.consent_at.is_(None))
+
+    owner_key = (owner or "").strip()
+    if owner_key == "unassigned":
+        filters.append(or_(Candidate.owner_id.is_(None), Candidate.owner_id == ""))
+    elif owner_key == "assigned":
+        filters.append(and_(Candidate.owner_id.is_not(None), Candidate.owner_id != ""))
+    elif owner_key and owner_key != "all":
+        filters.append(Candidate.owner_id == owner_key)
+
+    def _contains(column, raw: str | None):
+        text = (raw or "").strip()
+        if text:
+            filters.append(column.ilike(f"%{text}%"))
+
+    _contains(Candidate.degree, degree)
+    _contains(Candidate.institute, institute)
+    if (company or "").strip():
+        text = f"%{company.strip()}%"
+        filters.append(or_(Candidate.latest_company.ilike(text), Candidate.companies.ilike(text)))
+    if (english or "").strip() and english.strip().lower() != "all":
+        filters.append(Candidate.languages.ilike(f"%English: {english.strip()}%"))
+
+    # Upload dates are calendar days in India; created_at is stored as naive UTC.
+    ist = timezone(timedelta(hours=5, minutes=30))
+
+    def _uploaded_bound(raw: str | None, *, end: bool) -> datetime | None:
+        text = (raw or "").strip()[:10]
+        if not text:
+            return None
+        try:
+            day = datetime.strptime(text, "%Y-%m-%d")
+        except ValueError:
+            return None
+        start = day.replace(tzinfo=ist)
+        if end:
+            start = start + timedelta(days=1)
+        return start.astimezone(timezone.utc).replace(tzinfo=None)
+
+    start = _uploaded_bound(uploaded_from, end=False)
+    end = _uploaded_bound(uploaded_to, end=True)
+    if start is not None:
+        filters.append(Candidate.created_at >= start)
+    if end is not None:
+        filters.append(Candidate.created_at < end)
+
     if search:
         term = f"%{search.strip()}%"
         filters.append(
@@ -710,9 +758,75 @@ async def list_candidates(
                 Candidate.other_skills.ilike(term),
                 Candidate.notes.ilike(term),
                 Candidate.latest_role.ilike(term),
+                Candidate.latest_company.ilike(term),
+                Candidate.degree.ilike(term),
                 Candidate.source.ilike(term),
             )
         )
+    return filters
+
+
+@router.get("/candidates", response_model=PaginatedCandidateResponse)
+async def list_candidates(
+    search: str | None = None,
+    role_id: str | None = Query(None, alias="roleId"),
+    status: str | None = None,
+    city: list[str] | None = Query(None),
+    source: str | None = None,
+    gender: str | None = None,
+    experience: str | None = None,
+    graduation_year: list[str] | None = Query(None, alias="graduationYear"),
+    exp_years: list[str] | None = Query(None, alias="expYears"),
+    ai_match: str | None = Query(None, alias="aiMatch"),
+    starred_only: bool = Query(False, alias="starredOnly"),
+    has_notes: bool = Query(False, alias="hasNotes"),
+    has_phone: bool = Query(False, alias="hasPhone"),
+    has_resume: bool = Query(False, alias="hasResume"),
+    has_email: bool = Query(False, alias="hasEmail"),
+    dnc_only: bool = Query(False, alias="dncOnly"),
+    no_consent: bool = Query(False, alias="noConsent"),
+    owner: str | None = None,
+    degree: str | None = None,
+    company: str | None = None,
+    institute: str | None = None,
+    english: str | None = None,
+    uploaded_from: str | None = Query(None, alias="uploadedFrom"),
+    uploaded_to: str | None = Query(None, alias="uploadedTo"),
+    sort_key: str = Query("name", alias="sortKey"),
+    sort_dir: str = Query("asc", alias="sortDir"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100, alias="pageSize"),
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Candidate)
+    filters = _candidate_filters(
+        me,
+        search=search,
+        role_id=role_id,
+        status=status,
+        city=city,
+        source=source,
+        gender=gender,
+        experience=experience,
+        graduation_year=graduation_year,
+        exp_years=exp_years,
+        ai_match=ai_match,
+        starred_only=starred_only,
+        has_notes=has_notes,
+        has_phone=has_phone,
+        has_resume=has_resume,
+        has_email=has_email,
+        dnc_only=dnc_only,
+        no_consent=no_consent,
+        owner=owner,
+        degree=degree,
+        company=company,
+        institute=institute,
+        english=english,
+        uploaded_from=uploaded_from,
+        uploaded_to=uploaded_to,
+    )
 
     if filters:
         query = query.where(and_(*filters))
@@ -1064,6 +1178,65 @@ async def bulk_assign(
         c.updated_at = now
     await db.commit()
     return {"updated": len(rows), "ownerId": owner.id if owner else None}
+
+
+@router.post("/candidates/bulk-assign-query")
+async def bulk_assign_query(
+    body: BulkAssignQuery,
+    me: WorkspaceIdentity = Depends(require_full_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Assign every candidate that matches the list filters. Capped so a blank filter cannot wipe the book."""
+    owner = None
+    if body.ownerId:
+        owner = await db.get(User, body.ownerId)
+        if not owner or (owner.status or "active") == "suspended":
+            raise HTTPException(status_code=400, detail="That recruiter account is not available.")
+        if owner.persona != "p1":
+            raise HTTPException(status_code=400, detail="Candidates can only be assigned to a recruiter.")
+    filters = _candidate_filters(
+        me,
+        search=body.search,
+        role_id=body.roleId,
+        status=body.status,
+        city=body.city,
+        source=body.source,
+        gender=body.gender,
+        experience=body.experience,
+        graduation_year=body.graduationYear,
+        exp_years=body.expYears,
+        ai_match=body.aiMatch,
+        starred_only=body.starredOnly,
+        has_notes=body.hasNotes,
+        has_phone=body.hasPhone,
+        has_resume=body.hasResume,
+        has_email=body.hasEmail,
+        dnc_only=body.dncOnly,
+        no_consent=body.noConsent,
+        owner=body.owner,
+        degree=body.degree,
+        company=body.company,
+        institute=body.institute,
+        english=body.english,
+        uploaded_from=body.uploadedFrom,
+        uploaded_to=body.uploadedTo,
+    )
+    count_q = select(func.count()).select_from(Candidate)
+    if filters:
+        count_q = count_q.where(and_(*filters))
+    total = (await db.execute(count_q)).scalar() or 0
+    if total > 10000:
+        raise HTTPException(
+            status_code=400,
+            detail=f"{total} candidates match. Narrow the filters below 10,000 before assigning them all.",
+        )
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    stmt = update(Candidate).values(owner_id=owner.id if owner else None, updated_at=now)
+    if filters:
+        stmt = stmt.where(and_(*filters))
+    result = await db.execute(stmt)
+    await db.commit()
+    return {"updated": result.rowcount or total, "ownerId": owner.id if owner else None}
 
 
 @router.post("/candidates/bulk-import")

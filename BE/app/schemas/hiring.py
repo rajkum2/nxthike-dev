@@ -210,6 +210,35 @@ class BulkAssignRequest(BaseModel):
     ownerId: str | None = None
 
 
+class BulkAssignQuery(BaseModel):
+    """Assign every candidate matching the current list filters, not just the ticked page."""
+    ownerId: str | None = None
+    search: str | None = None
+    roleId: str | None = None
+    status: str | None = None
+    city: list[str] | None = None
+    source: str | None = None
+    gender: str | None = None
+    experience: str | None = None
+    graduationYear: list[str] | None = None
+    expYears: list[str] | None = None
+    aiMatch: str | None = None
+    starredOnly: bool = False
+    hasNotes: bool = False
+    hasPhone: bool = False
+    hasResume: bool = False
+    hasEmail: bool = False
+    dncOnly: bool = False
+    noConsent: bool = False
+    owner: str | None = None
+    degree: str | None = None
+    company: str | None = None
+    institute: str | None = None
+    english: str | None = None
+    uploadedFrom: str | None = None
+    uploadedTo: str | None = None
+
+
 class BulkRoleRequest(BaseModel):
     ids: list[str]
     roleId: str
