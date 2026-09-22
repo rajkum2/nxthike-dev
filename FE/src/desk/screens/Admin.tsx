@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { deskApi, type WorkspaceUser } from '../api';
-import { DISPOSITIONS, T } from '../tokens';
+import { DISPOSITIONS, T, disposition, stage } from '../tokens';
 import { useDesk } from '../store';
 import {
   Avatar, Badge, Banner, Button, Card, Chip, EmptyState, ErrorState, Eyebrow,
@@ -103,9 +103,11 @@ export function SettingsScreen() {
           </div>
         </div>
         <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <Button variant="ghost" icon="switch_account" onClick={() => useDesk.getState().openModal('personas')}>
-            Switch persona
-          </Button>
+          {session.role === 'admin' && (
+            <Button variant="ghost" icon="switch_account" onClick={() => useDesk.getState().openModal('personas')}>
+              Switch persona
+            </Button>
+          )}
           <Button variant="ghost" icon="refresh" onClick={() => boot()}>Reload session</Button>
         </div>
       </Card>
@@ -171,11 +173,16 @@ export function SettingsScreen() {
  * ------------------------------------------------------------------ */
 
 export function UsersScreen() {
-  const { session, caps, openModal } = useDesk();
+  const { session, caps, openModal, go } = useDesk();
   const c = caps();
   const [search, setSearch] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
+  const [bookUserId, setBookUserId] = useState<string | null>(null);
   const load = useLoad(() => deskApi.users(search || undefined), [search]);
+  const book = useLoad(
+    () => (bookUserId ? deskApi.userBook(bookUserId) : Promise.resolve(null)),
+    [bookUserId],
+  );
 
   if (!anyAdmin(c)) {
     return (
@@ -224,7 +231,7 @@ export function UsersScreen() {
           <div style={{ overflowX: 'auto' }}>
             <table className="tbl">
               <thead>
-                <tr><th>User</th><th>Workspace role</th><th>Account</th><th>Status</th><th>Last active</th><th /></tr>
+                <tr><th>User</th><th>Workspace role</th><th>Assigned</th><th>Calls</th><th>Account</th><th>Status</th><th>Last active</th><th /></tr>
               </thead>
               <tbody>
                 {load.data.map((u) => {
@@ -254,6 +261,16 @@ export function UsersScreen() {
                           {personas.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                         </Select>
                       </td>
+                      <td>
+                        <button
+                          type="button"
+                          onClick={() => setBookUserId(u.id)}
+                          style={{ fontWeight: 700, color: T.indigo }}
+                        >
+                          {num(u.assignedCount || 0)}
+                        </button>
+                      </td>
+                      <td className="mono" style={{ color: T.inkMuted }}>{num(u.callCount || 0)}</td>
                       <td style={{ color: T.inkMuted }}>{u.role}</td>
                       <td>
                         <Badge
@@ -265,7 +282,14 @@ export function UsersScreen() {
                       <td className="mono" style={{ fontSize: 11, color: T.inkFaint }}>
                         {u.lastActiveAt ? shortDate(u.lastActiveAt) : '—'}
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <button
+                          type="button"
+                          onClick={() => setBookUserId(u.id)}
+                          style={{ fontSize: 11.5, fontWeight: 700, color: T.indigo, marginRight: 10 }}
+                        >
+                          View
+                        </button>
                         {!me && canEdit && (
                           <button
                             onClick={() => change(u, { status: u.status === 'suspended' ? 'active' : 'suspended' })}
@@ -283,7 +307,145 @@ export function UsersScreen() {
           </div>
         </Card>
       )}
+      {bookUserId && (
+        <UserBookDrawer
+          loading={book.loading}
+          error={book.error}
+          data={book.data}
+          onClose={() => setBookUserId(null)}
+          onRetry={book.reload}
+          onOpenCandidate={(id) => { setBookUserId(null); go('cands', { candidateId: id }); }}
+          onOpenList={(ownerId) => {
+            try {
+              sessionStorage.setItem('nxthike.pendingCandFilters', JSON.stringify({ ownerFilter: ownerId }));
+            } catch { /* ignore */ }
+            setBookUserId(null);
+            go('cands');
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function UserBookDrawer({
+  loading, error, data, onClose, onRetry, onOpenCandidate, onOpenList,
+}: {
+  loading: boolean;
+  error: string | null;
+  data: Awaited<ReturnType<typeof deskApi.userBook>> | null;
+  onClose: () => void;
+  onRetry: () => void;
+  onOpenCandidate: (id: string) => void;
+  onOpenList: (ownerId: string) => void;
+}) {
+  const person = data?.user;
+  return (
+    <>
+      <div role="presentation" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 80, background: 'rgba(20,18,40,.32)' }} />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Recruiter book"
+        style={{
+          position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(760px, 100vw)', zIndex: 90,
+          background: T.surface, boxShadow: '-16px 0 48px rgba(20,18,40,.2)',
+          display: 'flex', flexDirection: 'column',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: `1px solid ${T.divider}` }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 16, fontWeight: 750 }}>{person?.name || 'Recruiter'}</div>
+            <div style={{ fontSize: 12, color: T.inkMuted }}>{person?.email} · {person?.personaName || 'No workspace role'}</div>
+          </div>
+          <Button variant="ghost" onClick={onClose}>Close</Button>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+          {loading && <SkeletonRows rows={6} />}
+          {error && <ErrorState message={error} onRetry={onRetry} />}
+          {data && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
+                <Stat label="Assigned" value={num(data.assigned)} />
+                <Stat label="Calls logged" value={num(data.calls.total)} />
+                <Stat label="Calls today" value={num(data.calls.today)} />
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+                {Object.entries(data.byStatus).map(([st, n]) => (
+                  <Chip key={st} label={`${stage(st).label} ${num(n)}`} on={false} onClick={() => {}} />
+                ))}
+                {Object.keys(data.byStatus).length === 0 && (
+                  <span style={{ fontSize: 12.5, color: T.inkMuted }}>No candidates assigned yet.</span>
+                )}
+              </div>
+              {data.user?.id && data.assigned > 0 && (
+                <div style={{ marginTop: 10 }}>
+                  <Button variant="soft" size="sm" onClick={() => onOpenList(data.user.id)}>
+                    Open full list
+                  </Button>
+                </div>
+              )}
+
+              <div style={{ marginTop: 18, fontSize: 13, fontWeight: 750 }}>People on this book</div>
+              <div style={{ marginTop: 8, overflowX: 'auto' }}>
+                <table className="tbl">
+                  <thead>
+                    <tr>
+                      <th>Name</th><th>Stage</th><th>Role</th><th>Phone</th><th>City</th><th>Latest role</th><th>Company</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.candidates.map((cand) => (
+                      <tr key={cand.id}>
+                        <td>
+                          <button type="button" onClick={() => onOpenCandidate(cand.id)} style={{ fontWeight: 700, color: T.indigo, textAlign: 'left' }}>
+                            {cand.name || '—'}
+                          </button>
+                          <div style={{ fontSize: 11, color: T.inkFaint }}>{cand.email || cand.degree || ''}</div>
+                        </td>
+                        <td>{stage(cand.status).label}</td>
+                        <td>{cand.roleName || '—'}</td>
+                        <td className="mono">{cand.phone || '—'}</td>
+                        <td>{cand.city || '—'}</td>
+                        <td>{cand.latestRole || '—'}</td>
+                        <td>{cand.latestCompany || '—'}</td>
+                      </tr>
+                    ))}
+                    {data.candidates.length === 0 && (
+                      <tr><td colSpan={7} style={{ color: T.inkMuted }}>Nothing assigned.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {data.assigned > data.candidates.length && (
+                <div style={{ marginTop: 8, fontSize: 12, color: T.inkMuted }}>
+                  Showing the {data.candidates.length} most recently updated of {num(data.assigned)}.
+                </div>
+              )}
+
+              <div style={{ marginTop: 22, fontSize: 13, fontWeight: 750 }}>Recent activity</div>
+              <div style={{ marginTop: 8 }}>
+                {data.recentCalls.length === 0 && (
+                  <div style={{ fontSize: 12.5, color: T.inkMuted }}>No calls logged yet.</div>
+                )}
+                {data.recentCalls.map((call) => (
+                  <div key={call.id} style={{ padding: '8px 0', borderBottom: `1px solid ${T.divider}` }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                      <span style={{ fontWeight: 700 }}>{call.candidateName || 'Candidate'}</span>
+                      <span style={{ fontSize: 12, color: T.indigo }}>{disposition(call.disposition).label}</span>
+                      <span className="mono" style={{ marginLeft: 'auto', fontSize: 11, color: T.inkFaint }}>
+                        {call.calledAt ? shortDate(call.calledAt) : ''}
+                      </span>
+                    </div>
+                    {call.note && <div style={{ fontSize: 12.5, color: T.inkBody, marginTop: 2 }}>{call.note}</div>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }
 

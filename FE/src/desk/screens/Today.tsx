@@ -192,7 +192,9 @@ export function HomeScreen() {
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Button icon={cta[home]?.icon} onClick={cta[home]?.go}>{cta[home]?.label}</Button>
-          <Button variant="ghost" icon="swap_horiz" onClick={() => openModal('personas')}>Switch persona</Button>
+          {session?.role === 'admin' && (
+            <Button variant="ghost" icon="swap_horiz" onClick={() => openModal('personas')}>Switch persona</Button>
+          )}
         </div>
       </Card>
 

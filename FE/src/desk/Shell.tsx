@@ -28,6 +28,8 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
     await signOut();
     navigate('/login');
   };
+  const canSwitchRole = session?.role === 'admin';
+  const openRoles = () => { if (canSwitchRole) openModal('personas'); };
   const badges: Partial<Record<ScreenKey, number>> = {};
   const [candsOpen, setCandsOpen] = useState(true);
   const canSeeCands = !!session?.nav?.includes('cands');
@@ -282,14 +284,18 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
         flexDirection: wide ? 'row' : 'column',
       }}
       >
-        <button onClick={() => openModal('personas')} title={`${session?.name} · ${session?.personaName}`}>
+        <button
+          onClick={openRoles}
+          title={`${session?.name} · ${session?.personaName}`}
+          style={{ cursor: canSwitchRole ? 'pointer' : 'default' }}
+        >
           <Avatar name={session?.name} id={session?.userId || 'me'} size={30} />
         </button>
         {wide ? (
           <>
             <button
-              onClick={() => openModal('personas')}
-              style={{ minWidth: 0, flex: 1, textAlign: 'left' }}
+              onClick={openRoles}
+              style={{ minWidth: 0, flex: 1, textAlign: 'left', cursor: canSwitchRole ? 'pointer' : 'default' }}
             >
               <div style={{
                 fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap',
@@ -306,9 +312,11 @@ function RailContent({ wide, onNavigate }: { wide: boolean; onNavigate?: () => v
                 {session?.personaName}
               </div>
             </button>
-            <button onClick={() => openModal('personas')} title="Switch persona">
-              <Icon name="swap_horiz" size={18} color={T.railFaint} />
-            </button>
+            {canSwitchRole && (
+              <button onClick={openRoles} title="Switch persona">
+                <Icon name="swap_horiz" size={18} color={T.railFaint} />
+              </button>
+            )}
             <button onClick={handleSignOut} title="Sign out" aria-label="Sign out" style={{ padding: 4 }}>
               <Icon name="logout" size={18} color={T.railFaint} />
             </button>

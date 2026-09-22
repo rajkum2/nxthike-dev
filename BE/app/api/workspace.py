@@ -339,9 +339,11 @@ class WorkspaceUserOut(BaseModel):
     createdAt: str | None = None
     lastActiveAt: str | None = None
     invitedAt: str | None = None
+    assignedCount: int = 0
+    callCount: int = 0
 
 
-def _user_out(u: User) -> WorkspaceUserOut:
+def _user_out(u: User, assigned: int = 0, calls: int = 0) -> WorkspaceUserOut:
     from app.models.workspace import PERSONA_BY_ID
 
     persona = getattr(u, "persona", None)
@@ -358,6 +360,8 @@ def _user_out(u: User) -> WorkspaceUserOut:
         createdAt=_iso(u.created_at),
         lastActiveAt=_iso(getattr(u, "last_active_at", None)),
         invitedAt=_iso(getattr(u, "invited_at", None)),
+        assignedCount=assigned,
+        callCount=calls,
     )
 
 
@@ -372,7 +376,110 @@ async def list_workspace_users(
         term = f"%{search.strip()}%"
         q = q.where(or_(User.email.ilike(term), User.first_name.ilike(term), User.last_name.ilike(term)))
     rows = (await db.execute(q.order_by(User.created_at.desc()))).scalars().all()
-    return [_user_out(u) for u in rows]
+    assigned = {
+        owner: n
+        for owner, n in (
+            await db.execute(
+                select(Candidate.owner_id, func.count()).group_by(Candidate.owner_id)
+            )
+        ).all()
+        if owner
+    }
+    calls = {
+        uid: n
+        for uid, n in (
+            await db.execute(select(CallLog.user_id, func.count()).group_by(CallLog.user_id))
+        ).all()
+        if uid
+    }
+    return [_user_out(u, int(assigned.get(u.id, 0)), int(calls.get(u.id, 0))) for u in rows]
+
+
+@router.get("/users/{user_id}/book")
+async def user_book(
+    user_id: str,
+    me: WorkspaceIdentity = Depends(require_full_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Assigned candidates and the work this person has logged. Admin only."""
+    target = await db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    owned = Candidate.owner_id == user_id
+    total = (await db.execute(select(func.count()).select_from(Candidate).where(owned))).scalar() or 0
+    by_status = {
+        st or "new": int(n)
+        for st, n in (
+            await db.execute(
+                select(Candidate.status, func.count()).where(owned).group_by(Candidate.status)
+            )
+        ).all()
+    }
+    people = (
+        await db.execute(
+            select(Candidate).where(owned).order_by(Candidate.updated_at.desc().nullslast()).limit(300)
+        )
+    ).scalars().all()
+
+    mine = CallLog.user_id == user_id
+    now = _utcnow()
+    start_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    call_total = (await db.execute(select(func.count()).select_from(CallLog).where(mine))).scalar() or 0
+    call_today = (
+        await db.execute(
+            select(func.count()).select_from(CallLog).where(and_(mine, CallLog.called_at >= start_today))
+        )
+    ).scalar() or 0
+    by_disp = {
+        d: int(n)
+        for d, n in (
+            await db.execute(
+                select(CallLog.disposition, func.count()).where(mine).group_by(CallLog.disposition)
+            )
+        ).all()
+    }
+    recent = (
+        await db.execute(
+            select(CallLog).where(mine).order_by(CallLog.called_at.desc()).limit(25)
+        )
+    ).scalars().all()
+
+    return {
+        "user": _user_out(target, int(total), int(call_total)),
+        "assigned": int(total),
+        "byStatus": by_status,
+        "calls": {"total": int(call_total), "today": int(call_today), "byDisposition": by_disp},
+        "candidates": [
+            {
+                "id": c.id,
+                "name": c.name,
+                "phone": c.phone,
+                "email": c.email,
+                "city": c.city,
+                "status": c.status,
+                "roleName": c.role_name,
+                "latestRole": c.latest_role,
+                "latestCompany": c.latest_company,
+                "experienceDuration": c.experience_duration,
+                "degree": c.degree,
+                "source": c.source,
+                "updatedAt": _iso(c.updated_at),
+            }
+            for c in people
+        ],
+        "recentCalls": [
+            {
+                "id": row.id,
+                "candidateId": row.candidate_id,
+                "candidateName": row.candidate_name,
+                "disposition": row.disposition,
+                "note": row.note or "",
+                "calledAt": _iso(row.called_at),
+            }
+            for row in recent
+        ],
+    }
 
 
 class InviteRequest(BaseModel):

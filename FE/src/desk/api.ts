@@ -259,6 +259,40 @@ export interface WorkspaceUser {
   createdAt?: string | null;
   lastActiveAt?: string | null;
   invitedAt?: string | null;
+  assignedCount?: number;
+  callCount?: number;
+}
+
+export interface UserBookCandidate {
+  id: string;
+  name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  city?: string | null;
+  status?: string | null;
+  roleName?: string | null;
+  latestRole?: string | null;
+  latestCompany?: string | null;
+  experienceDuration?: string | null;
+  degree?: string | null;
+  source?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface UserBook {
+  user: WorkspaceUser;
+  assigned: number;
+  byStatus: Record<string, number>;
+  calls: { total: number; today: number; byDisposition: Record<string, number> };
+  candidates: UserBookCandidate[];
+  recentCalls: {
+    id: string;
+    candidateId: string;
+    candidateName?: string | null;
+    disposition: string;
+    note: string;
+    calledAt?: string | null;
+  }[];
 }
 
 export interface Note {
@@ -524,6 +558,7 @@ export const deskApi = {
 
   // Admin
   users: (search?: string) => req<WorkspaceUser[]>(`${W}/users${qs({ search })}`),
+  userBook: (userId: string) => req<UserBook>(`${W}/users/${userId}/book`),
   inviteUser: (body: Record<string, unknown>) =>
     req<WorkspaceUser>(`${W}/users/invite`, { method: 'POST', body: JSON.stringify(body) }),
   updateUser: (id: string, body: Record<string, unknown>) =>

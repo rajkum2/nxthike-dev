@@ -31,6 +31,10 @@ function PersonaModal({ onClose }: { onClose: () => void }) {
    */
   const canSwitch = session?.role === 'admin';
 
+  useEffect(() => {
+    if (!canSwitch) onClose();
+  }, [canSwitch, onClose]);
+
   const pick = async (id: string) => {
     if (!session) return;
     setBusy(id); setError(null);
@@ -44,14 +48,10 @@ function PersonaModal({ onClose }: { onClose: () => void }) {
     }
   };
 
+  if (!canSwitch) return null;
+
   return (
     <Modal title="Roles in this workspace" subtitle="Each one sees a different dashboard." onClose={onClose} width={620}>
-      {!canSwitch && (
-        <Banner icon="info" tone="info">
-          You are signed in as <b>{session?.personaName}</b>. Only an admin account can change which
-          role it holds — this list is here so you can see what the others can do.
-        </Banner>
-      )}
       {canSwitch && (
         <Banner icon="switch_account" tone="info">
           Switching changes what this account can see and do, immediately and for real — the API
