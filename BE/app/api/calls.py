@@ -19,7 +19,7 @@ from app.database import get_db
 from app.models.hiring import Candidate, CallLog, CALL_DISPOSITIONS
 from app.models.user import User
 from app.services.auth import get_admin_user, get_current_user  # noqa: F401
-from app.services.personas import WorkspaceIdentity, get_workspace_user, require_cap
+from app.services.personas import WorkspaceIdentity, get_workspace_user, refuse_if_unassigned, require_cap
 from app.schemas.calls import (
     CallLogCreate,
     CallLogUpdate,
@@ -40,6 +40,12 @@ router = APIRouter(
     tags=["calls"],
     dependencies=[Depends(get_workspace_user)],
 )
+
+
+def _owned_ids(me: WorkspaceIdentity):
+    if not me.sees_assigned_only:
+        return None
+    return select(Candidate.id).where(Candidate.owner_id == me.user.id)
 
 
 def _utcnow() -> datetime:
@@ -84,27 +90,34 @@ async def call_stats(
 ):
     now = _utcnow()
     start_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    total = (await db.execute(select(func.count()).select_from(CallLog))).scalar() or 0
+    owned = _owned_ids(me)
+    stat_filters = []
+    if owned is not None:
+        stat_filters.append(CallLog.candidate_id.in_(owned))
+    stat_where = and_(*stat_filters) if stat_filters else True
+    total = (await db.execute(select(func.count()).select_from(CallLog).where(stat_where))).scalar() or 0
     today = (
         await db.execute(
-            select(func.count()).select_from(CallLog).where(CallLog.called_at >= start_today)
+            select(func.count()).select_from(CallLog).where(
+                and_(CallLog.called_at >= start_today, stat_where) if stat_filters else CallLog.called_at >= start_today
+            )
         )
     ).scalar() or 0
     by_rows = (
-        await db.execute(select(CallLog.disposition, func.count()).group_by(CallLog.disposition))
+        await db.execute(
+            select(CallLog.disposition, func.count()).where(stat_where).group_by(CallLog.disposition)
+        )
     ).all()
     by_disp = {d: n for d, n in by_rows}
+    callback_filters = [
+        CallLog.callback_at.is_not(None),
+        CallLog.callback_at <= now + timedelta(days=1),
+        CallLog.disposition == "connected_callback",
+        *stat_filters,
+    ]
     callbacks_due = (
         await db.execute(
-            select(func.count())
-            .select_from(CallLog)
-            .where(
-                and_(
-                    CallLog.callback_at.is_not(None),
-                    CallLog.callback_at <= now + timedelta(days=1),
-                    CallLog.disposition == "connected_callback",
-                )
-            )
+            select(func.count()).select_from(CallLog).where(and_(*callback_filters))
         )
     ).scalar() or 0
     return CallStatsResponse(
@@ -129,6 +142,8 @@ async def call_queue(
     """Candidates ready to call (have phone). Sorted by least-recently called."""
     q = select(Candidate)
     filters = []
+    if (owned := _owned_ids(me)) is not None:
+        filters.append(Candidate.id.in_(owned))
     if has_phone:
         filters.append(and_(Candidate.phone.is_not(None), Candidate.phone != ""))
     if role_id and role_id != "all":
@@ -212,10 +227,13 @@ async def list_calls(
     role_id: str | None = Query(None, alias="roleId"),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200, alias="pageSize"),
+    me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
     q = select(CallLog)
     filters = []
+    if (owned := _owned_ids(me)) is not None:
+        filters.append(CallLog.candidate_id.in_(owned))
     if candidate_id:
         filters.append(CallLog.candidate_id == candidate_id)
     if disposition and disposition != "all":
@@ -238,10 +256,17 @@ async def list_calls(
 
 
 @router.get("/{call_id}", response_model=CallLogResponse)
-async def get_call(call_id: str, db: AsyncSession = Depends(get_db)):
+async def get_call(
+    call_id: str,
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
     c = await db.get(CallLog, call_id)
     if not c:
         raise HTTPException(status_code=404, detail="Call log not found")
+    if me.sees_assigned_only:
+        cand = await db.get(Candidate, c.candidate_id)
+        refuse_if_unassigned(me, cand.owner_id if cand else None)
     return call_to_response(c)
 
 
@@ -259,6 +284,7 @@ async def create_call(
     cand = await db.get(Candidate, body.candidateId)
     if not cand:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, cand.owner_id)
 
     now = _utcnow()
     entry = CallLog(
@@ -317,6 +343,9 @@ async def update_call(
     c = await db.get(CallLog, call_id)
     if not c:
         raise HTTPException(status_code=404, detail="Call log not found")
+    if me.sees_assigned_only:
+        cand = await db.get(Candidate, c.candidate_id)
+        refuse_if_unassigned(me, cand.owner_id if cand else None)
     # Non-admins may only edit their own logs
     if not me.can("admin") and c.user_id and c.user_id != me.user.id:
         raise HTTPException(status_code=403, detail="You can only edit your own call logs.")

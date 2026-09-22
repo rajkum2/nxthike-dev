@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import { hiringService } from '../services/hiringService';
 import {
   Briefcase,
   ChevronLeft,
@@ -130,6 +132,12 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
     totalPages,
     stats: storeStats,
   } = store;
+  const isAdmin = useAuthStore((s) => s.user?.role === 'admin');
+  const [recruiters, setRecruiters] = useState<{ id: string; name: string; email: string }[]>([]);
+  useEffect(() => {
+    if (!isAdmin) return;
+    hiringService.recruiters().then(setRecruiters).catch(() => setRecruiters([]));
+  }, [isAdmin]);
 
   const goView = (v: ViewMode) => {
     store.setView(v);
@@ -519,6 +527,34 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                       <option key={st} value={st}>{STATUS_LABELS[st]}</option>
                     ))}
                   </select>
+                  {isAdmin && (
+                    <select
+                      className="select"
+                      defaultValue=""
+                      onChange={async (e) => {
+                        const value = e.target.value;
+                        e.target.value = '';
+                        if (!value) return;
+                        const ownerId = value === '__none__' ? null : value;
+                        const ids = [...selectedIds];
+                        try {
+                          for (let i = 0; i < ids.length; i += 150) {
+                            await hiringService.bulkAssign(ids.slice(i, i + 150), ownerId);
+                          }
+                          store.clearSelection();
+                          await store.refresh();
+                        } catch (err) {
+                          alert((err as Error).message);
+                        }
+                      }}
+                    >
+                      <option value="">Assign to recruiter…</option>
+                      <option value="__none__">Clear assignment</option>
+                      {recruiters.map((u) => (
+                        <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                      ))}
+                    </select>
+                  )}
                   <button className="btn danger" onClick={() => { if (confirm(`Delete ${selectedIds.size} candidates?`)) store.deleteSelected(); }}>
                     <Trash2 size={14} /> Delete
                   </button>

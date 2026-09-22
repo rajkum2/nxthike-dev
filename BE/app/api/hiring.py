@@ -14,8 +14,10 @@ from app.services.personas import (
     WorkspaceIdentity,
     apply_pii_policy,
     get_workspace_user,
+    refuse_if_unassigned,
     require_cap,
     require_cap_in,
+    require_full_admin,
 )
 from app.config import settings
 from app.schemas.hiring import (
@@ -29,10 +31,18 @@ from app.schemas.hiring import (
     HiringRoleResponse,
     BulkStatusRequest,
     BulkDeleteRequest,
+    BulkAssignRequest,
     BulkRoleRequest,
     BulkUpdateRequest,
     HiringDashboardStats,
 )
+
+
+def _assigned_clause(me: WorkspaceIdentity):
+    """SQL filter for recruiters who may only see their own book."""
+    if me.sees_assigned_only:
+        return Candidate.owner_id == me.user.id
+    return None
 
 
 def _cap_bulk_ids(ids: list[str]) -> list[str]:
@@ -266,14 +276,24 @@ def apply_candidate_payload(c: Candidate, data: dict) -> None:
 # ---------- Roles ----------
 
 
+async def _role_candidate_count(db: AsyncSession, role_id: str, me: WorkspaceIdentity | None) -> int:
+    filters = [Candidate.role_id == role_id]
+    if me is not None and (scope := _assigned_clause(me)) is not None:
+        filters.append(scope)
+    return (
+        await db.execute(select(func.count()).select_from(Candidate).where(and_(*filters)))
+    ).scalar() or 0
+
+
 @router.get("/roles", response_model=list[HiringRoleResponse])
-async def list_roles(db: AsyncSession = Depends(get_db)):
+async def list_roles(
+    me: WorkspaceIdentity = Depends(get_workspace_user),
+    db: AsyncSession = Depends(get_db),
+):
     roles = (await db.execute(select(HiringRole).order_by(HiringRole.sort_order, HiringRole.name))).scalars().all()
     result: list[HiringRoleResponse] = []
     for r in roles:
-        count = (
-            await db.execute(select(func.count()).select_from(Candidate).where(Candidate.role_id == r.id))
-        ).scalar() or 0
+        count = await _role_candidate_count(db, r.id, me)
         result.append(
             HiringRoleResponse(
                 id=r.id,
@@ -286,12 +306,12 @@ async def list_roles(db: AsyncSession = Depends(get_db)):
         )
     # Include roles present only on candidates (orphans)
     if not roles:
-        rows = (
-            await db.execute(
-                select(Candidate.role_id, Candidate.role_name, func.count())
-                .group_by(Candidate.role_id, Candidate.role_name)
-            )
-        ).all()
+        orphan_q = select(Candidate.role_id, Candidate.role_name, func.count()).group_by(
+            Candidate.role_id, Candidate.role_name
+        )
+        if (scope := _assigned_clause(me)) is not None:
+            orphan_q = orphan_q.where(scope)
+        rows = (await db.execute(orphan_q)).all()
         for role_id, role_name, count in rows:
             result.append(
                 HiringRoleResponse(
@@ -351,9 +371,7 @@ async def update_role(
         setattr(role, k, v)
     await db.commit()
     await db.refresh(role)
-    count = (
-        await db.execute(select(func.count()).select_from(Candidate).where(Candidate.role_id == role.id))
-    ).scalar() or 0
+    count = await _role_candidate_count(db, role.id, me)
     return HiringRoleResponse(
         id=role.id,
         name=role.name,
@@ -388,43 +406,49 @@ async def delete_role(
 @router.get("/dashboard", response_model=HiringDashboardStats)
 async def hiring_dashboard(
     role_id: str | None = Query(None, alias="roleId"),
+    me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Aggregate stats via SQL — do not load all candidate rows into memory
     (tens of thousands in production).
     """
-    base = select(Candidate)
+    scope = []
     if role_id and role_id != "all":
-        base = base.where(Candidate.role_id == role_id)
+        scope.append(Candidate.role_id == role_id)
+    if (owner := _assigned_clause(me)) is not None:
+        scope.append(owner)
 
+    def _where(extra=None):
+        parts = list(scope)
+        if extra is not None:
+            parts.append(extra)
+        return and_(*parts) if parts else True
+
+    base = select(Candidate).where(_where())
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar() or 0
 
-    starred_q = select(func.count()).select_from(Candidate).where(Candidate.starred.is_(True))
-    if role_id and role_id != "all":
-        starred_q = starred_q.where(Candidate.role_id == role_id)
-    starred = (await db.execute(starred_q)).scalar() or 0
+    starred = (
+        await db.execute(select(func.count()).select_from(Candidate).where(_where(Candidate.starred.is_(True))))
+    ).scalar() or 0
 
-    exp_q = select(func.count()).select_from(Candidate).where(
-        func.lower(Candidate.has_work_experience) == "yes"
-    )
-    if role_id and role_id != "all":
-        exp_q = exp_q.where(Candidate.role_id == role_id)
-    with_exp = (await db.execute(exp_q)).scalar() or 0
+    with_exp = (
+        await db.execute(
+            select(func.count()).select_from(Candidate).where(
+                _where(func.lower(Candidate.has_work_experience) == "yes")
+            )
+        )
+    ).scalar() or 0
 
-    status_q = select(Candidate.status, func.count()).group_by(Candidate.status)
-    if role_id and role_id != "all":
-        status_q = status_q.where(Candidate.role_id == role_id)
+    status_q = select(Candidate.status, func.count()).where(_where()).group_by(Candidate.status)
     by_status: dict[str, int] = {s: 0 for s in PIPELINE_STATUSES}
     for st, n in (await db.execute(status_q)).all():
         by_status[st or "new"] = n
 
-    role_q = select(Candidate.role_id, func.count()).group_by(Candidate.role_id)
-    if role_id and role_id != "all":
-        role_q = role_q.where(Candidate.role_id == role_id)
+    role_q = select(Candidate.role_id, func.count()).where(_where()).group_by(Candidate.role_id)
     by_role = {rid: n for rid, n in (await db.execute(role_q)).all() if rid}
 
-    roles = await list_roles(db)
+    roles = await list_roles(me, db)
     return HiringDashboardStats(
         total=total,
         starred=starred,
@@ -558,6 +582,8 @@ async def candidate_facets(
         Candidate.city.is_not(None),
         Candidate.city != "",
     ]
+    if (scope := _assigned_clause(me)) is not None:
+        city_filters.append(scope)
     if q and q.strip():
         city_filters.append(Candidate.city.ilike(f"%{q.strip()}%"))
     city_rows = (
@@ -569,15 +595,16 @@ async def candidate_facets(
             .limit(250)
         )
     ).all()
+    year_filters = [
+        Candidate.graduation_year.is_not(None),
+        Candidate.graduation_year != "",
+    ]
+    if (scope := _assigned_clause(me)) is not None:
+        year_filters.append(scope)
     year_rows = (
         await db.execute(
             select(Candidate.graduation_year, func.count().label("n"))
-            .where(
-                and_(
-                    Candidate.graduation_year.is_not(None),
-                    Candidate.graduation_year != "",
-                )
-            )
+            .where(and_(*year_filters))
             .group_by(Candidate.graduation_year)
             .order_by(func.count().desc())
             .limit(40)
@@ -617,6 +644,8 @@ async def list_candidates(
 ):
     query = select(Candidate)
     filters = []
+    if (scope := _assigned_clause(me)) is not None:
+        filters.append(scope)
 
     if role_id and role_id != "all":
         filters.append(Candidate.role_id == role_id)
@@ -746,6 +775,7 @@ async def get_candidate(
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, c.owner_id)
     return candidate_for(c, me)
 
 
@@ -764,6 +794,9 @@ async def create_candidate(
         role = await db.get(HiringRole, c.role_id)
         if role:
             c.role_name = role.name
+    # A recruiter's own adds land on their book; they cannot claim someone else's.
+    if me.sees_assigned_only:
+        c.owner_id = me.user.id
     db.add(c)
     await db.commit()
     await db.refresh(c)
@@ -780,7 +813,13 @@ async def replace_candidate(
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
-    apply_candidate_payload(c, body.model_dump())
+    refuse_if_unassigned(me, c.owner_id)
+    payload = body.model_dump()
+    if not me.is_admin:
+        payload.pop("ownerId", None)
+    if me.sees_assigned_only:
+        payload["ownerId"] = me.user.id
+    apply_candidate_payload(c, payload)
     await db.commit()
     await db.refresh(c)
     return candidate_to_response(c)
@@ -796,8 +835,11 @@ async def patch_candidate(
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, c.owner_id)
 
     data = body.model_dump(exclude_unset=True)
+    if not me.is_admin:
+        data.pop("ownerId", None)
 
     # A stage move needs `stage`; editing anything else needs `create`.
     if "status" in data and not me.can("stage"):
@@ -833,6 +875,7 @@ async def delete_candidate(
     c = await db.get(Candidate, candidate_id)
     if not c:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, c.owner_id)
     await db.delete(c)
     await db.commit()
 
@@ -849,7 +892,7 @@ async def bulk_status(
     if not ids:
         return {"updated": 0}
     result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
-    rows = result.scalars().all()
+    rows = [c for c in result.scalars().all() if not me.sees_assigned_only or c.owner_id == me.user.id]
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     for c in rows:
         c.status = body.status
@@ -874,7 +917,7 @@ async def bulk_role(
         role = await db.get(HiringRole, body.roleId)
         role_name = role.name if role else body.roleId
     result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
-    rows = result.scalars().all()
+    rows = [c for c in result.scalars().all() if not me.sees_assigned_only or c.owner_id == me.user.id]
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     for c in rows:
         c.role_id = body.roleId
@@ -907,7 +950,7 @@ async def bulk_update(
         raise HTTPException(status_code=403, detail="Bulk edit is not available while PII is masked for your role.")
 
     result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
-    rows = result.scalars().all()
+    rows = [c for c in result.scalars().all() if not me.sees_assigned_only or c.owner_id == me.user.id]
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     role_name = body.roleName
     if body.roleId and not role_name:
@@ -967,11 +1010,60 @@ async def bulk_delete(
     if not ids:
         return {"deleted": 0}
     result = await db.execute(select(Candidate).where(Candidate.id.in_(ids)))
-    rows = result.scalars().all()
+    rows = [c for c in result.scalars().all() if not me.sees_assigned_only or c.owner_id == me.user.id]
     for c in rows:
         await db.delete(c)
     await db.commit()
     return {"deleted": len(rows)}
+
+
+@router.get("/recruiters")
+async def list_recruiters(
+    me: WorkspaceIdentity = Depends(require_full_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Active Senior Recruiters an admin can hand candidates to."""
+    rows = (
+        await db.execute(
+            select(User)
+            .where(User.persona == "p1", User.status != "suspended")
+            .order_by(User.first_name, User.email)
+        )
+    ).scalars().all()
+    return [
+        {
+            "id": u.id,
+            "name": " ".join(x for x in [u.first_name, u.last_name] if x).strip() or u.email.split("@")[0],
+            "email": u.email,
+        }
+        for u in rows
+    ]
+
+
+@router.post("/candidates/bulk-assign")
+async def bulk_assign(
+    body: BulkAssignRequest,
+    me: WorkspaceIdentity = Depends(require_full_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Assign many candidates to one recruiter in a single request."""
+    ids = _cap_bulk_ids(body.ids or [])
+    if not ids:
+        return {"updated": 0}
+    owner = None
+    if body.ownerId:
+        owner = await db.get(User, body.ownerId)
+        if not owner or (owner.status or "active") == "suspended":
+            raise HTTPException(status_code=400, detail="That recruiter account is not available.")
+        if owner.persona != "p1":
+            raise HTTPException(status_code=400, detail="Candidates can only be assigned to a recruiter.")
+    rows = (await db.execute(select(Candidate).where(Candidate.id.in_(ids)))).scalars().all()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    for c in rows:
+        c.owner_id = owner.id if owner else None
+        c.updated_at = now
+    await db.commit()
+    return {"updated": len(rows), "ownerId": owner.id if owner else None}
 
 
 @router.post("/candidates/bulk-import")

@@ -567,6 +567,12 @@ export const deskApi = {
     req<{ deleted: number }>('/api/hiring/candidates/bulk-delete', {
       method: 'POST', body: JSON.stringify({ ids }),
     }),
+  recruiters: () =>
+    req<{ id: string; name: string; email: string }[]>('/api/hiring/recruiters'),
+  bulkAssign: (ids: string[], ownerId: string | null) =>
+    req<{ updated: number; ownerId: string | null }>('/api/hiring/candidates/bulk-assign', {
+      method: 'POST', body: JSON.stringify({ ids, ownerId }),
+    }),
 
   callQueue: (p: Record<string, unknown> = {}) =>
     req<Paginated<QueueItem>>(`/api/calls/queue${qs({ pageSize: 100, ...p })}`),

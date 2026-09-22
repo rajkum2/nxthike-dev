@@ -204,6 +204,12 @@ class BulkDeleteRequest(BaseModel):
     ids: list[str]
 
 
+class BulkAssignRequest(BaseModel):
+    """Hand a set of candidates to one recruiter. ownerId null clears the assignment."""
+    ids: list[str]
+    ownerId: str | None = None
+
+
 class BulkRoleRequest(BaseModel):
     ids: list[str]
     roleId: str

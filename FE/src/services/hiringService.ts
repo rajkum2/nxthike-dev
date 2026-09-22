@@ -152,6 +152,15 @@ export const hiringService = {
       body: JSON.stringify({ ids }),
     }),
 
+  recruiters: () =>
+    request<{ id: string; name: string; email: string }[]>('/recruiters'),
+
+  bulkAssign: (ids: string[], ownerId: string | null) =>
+    request<{ updated: number; ownerId: string | null }>('/candidates/bulk-assign', {
+      method: 'POST',
+      body: JSON.stringify({ ids, ownerId }),
+    }),
+
   bulkImport: (list: Candidate[]) =>
     request<{ created: number; updated: number; total: number }>('/candidates/bulk-import', {
       method: 'POST',

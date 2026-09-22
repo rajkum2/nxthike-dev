@@ -62,6 +62,11 @@ class WorkspaceIdentity:
         return self.caps.get("admin") is True
 
     @property
+    def sees_assigned_only(self) -> bool:
+        """Recruiter book: only candidates an admin has assigned to this user."""
+        return self.caps.get("db") == "assigned"
+
+    @property
     def masks_pii(self) -> bool:
         """
         Roles that may see a candidate but not their contact details.
@@ -79,6 +84,12 @@ class WorkspaceIdentity:
     def name(self) -> str:
         full = " ".join(x for x in [self.user.first_name, self.user.last_name] if x).strip()
         return full or self.user.email.split("@")[0]
+
+
+def refuse_if_unassigned(me: WorkspaceIdentity, owner_id: str | None) -> None:
+    """Hide records that are not on this recruiter's book. 404, not 403, so ids do not leak."""
+    if me.sees_assigned_only and owner_id != me.user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
 
 
 async def get_workspace_user(user: User = Depends(get_current_user)) -> WorkspaceIdentity:

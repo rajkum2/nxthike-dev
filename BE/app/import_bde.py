@@ -55,7 +55,7 @@ def _get(row: dict, *keys: str):
             s = str(v).strip()
             if s.endswith(".0") and re.fullmatch(r"\d+\.0", s):
                 s = s[:-2]
-            if s and s.lower() not in {"none", "nan", "null", "na", "n/a"}:
+            if s and s.lower() not in {"none", "nan", "null", "na", "n/a", "not available", "-"}:
                 return s
     return None
 
@@ -106,28 +106,41 @@ def _status(*parts: str | None) -> str:
     return "new"
 
 
+def _rows_from_sheet(ws) -> list[dict]:
+    it = ws.iter_rows(values_only=True)
+    try:
+        header_row = next(it)
+    except StopIteration:
+        return []
+    headers = [str(h).strip() if h is not None else f"col{i}" for i, h in enumerate(header_row)]
+    if not any(headers):
+        return []
+    rows = []
+    for raw in it:
+        if not raw or all(c is None or str(c).strip() == "" for c in raw):
+            continue
+        rows.append({headers[i]: (raw[i] if i < len(raw) else None) for i in range(len(headers))})
+    return rows
+
+
 def load_xlsx_all_sheets(path: Path) -> list[tuple[str, list[dict]]]:
-    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    out: list[tuple[str, list[dict]]] = []
-    for sn in wb.sheetnames:
-        ws = wb[sn]
-        it = ws.iter_rows(values_only=True)
+    def collect(read_only: bool) -> list[tuple[str, list[dict]]]:
+        wb = openpyxl.load_workbook(path, read_only=read_only, data_only=True)
+        out: list[tuple[str, list[dict]]] = []
         try:
-            header_row = next(it)
-        except StopIteration:
-            continue
-        headers = [str(h).strip() if h is not None else f"col{i}" for i, h in enumerate(header_row)]
-        # skip empty header sheets
-        if not any(headers):
-            continue
-        rows = []
-        for raw in it:
-            if not raw or all(c is None or str(c).strip() == "" for c in raw):
-                continue
-            rows.append({headers[i]: (raw[i] if i < len(raw) else None) for i in range(len(headers))})
-        if rows:
-            out.append((sn, rows))
-    wb.close()
+            for sn in wb.sheetnames:
+                rows = _rows_from_sheet(wb[sn])
+                if rows:
+                    out.append((sn, rows))
+        finally:
+            wb.close()
+        return out
+
+    # Some Apna exports store a 1-cell dimension. read_only then yields only
+    # the first header cell and zero body rows, so fall back to a full load.
+    out = collect(True)
+    if not out:
+        out = collect(False)
     return out
 
 
@@ -141,7 +154,163 @@ def is_apna_headers(row: dict) -> bool:
     return "phone number" in keys and "name" in keys and ("area" in keys or "education" in keys)
 
 
+def is_apna_matched(row: dict) -> bool:
+    """Newer Apna employer export: Candidate Name / Phone number / Email ID."""
+    keys = {str(k).strip().lower() for k in row.keys()}
+    return "candidate name" in keys and ("phone number" in keys or "email id" in keys)
+
+
+HYDERABAD_BDE_ROLE = ("bde_hyderabad", "Business Development Executive (BDE) - Hyderabad")
+
+
+def _gender(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    s = raw.strip().lower()
+    if s in {"f", "female"}:
+        return "Female"
+    if s in {"m", "male"}:
+        return "Male"
+    return raw.strip()
+
+
+def _apna_candidate_status(raw: str | None) -> str:
+    blob = (raw or "").lower().replace("_", " ")
+    if "reject" in blob:
+        return "rejected"
+    if "shortlist" in blob or "selected" in blob:
+        return "shortlisted"
+    if "interview" in blob:
+        return "interview"
+    if "hold" in blob:
+        return "on_hold"
+    return "new"
+
+
+def _role_for_matched(job: str | None, city: str | None) -> tuple[str, str]:
+    title = (job or "Business Development Executive").strip()
+    place = (city or "").strip()
+    blob = f"{title} {place}".lower()
+    if "hyderabad" in blob and ("bde" in blob or "business development" in blob):
+        return HYDERABAD_BDE_ROLE
+    slug = re.sub(r"[^a-z0-9]+", "_", blob).strip("_")[:48] or "bde_import"
+    name = f"{title} - {place}" if place else title
+    return slug, name
+
+
+def row_from_apna_matched(row: dict, source: str) -> dict | None:
+    name = _get(row, "Candidate Name", "Name")
+    email = _email(_get(row, "Email ID", "Email"))
+    phone = _phone(_get(row, "Phone number", "Phone Number", "Phone"))
+    if not name and not email and not phone:
+        return None
+
+    job = _get(row, "Job Applied For")
+    job_city = _get(row, "Job city", "Job City")
+    role_id, role_name = _role_for_matched(job, job_city)
+    city = _get(row, "Candidate city", "Candidate City")
+    area = _get(row, "Candidate Area")
+    education = _get(row, "Education")
+    degree = _get(row, "Highest Degree") or education
+    institute = _get(row, "Institute")
+    exp = _get(row, "Experience")
+    current_role = _get(row, "Current Job role", "Current Job Role")
+    company = _get(row, "Current Company")
+    department = _get(row, "Department")
+    sub_dept = _get(row, "Sub Department")
+    industry = _get(row, "Industry")
+    relocate = _get(row, "Open to Relocate")
+    interest = _get(row, "Candidate Job Interest")
+    english = _get(row, "English Level")
+    assets = _get(row, "Assets")
+    your_notes = _get(row, "Your Notes")
+    status_raw = _get(row, "Candidate Status")
+    connection = _get(row, "Connection Status")
+    call_status = _get(row, "Call Status")
+    resume = _get(row, "Resume, Skills etc")
+    origin = _get(row, "Source") or "Apna"
+    matched = _get(row, "Matched Data")
+    job_id = _get(row, "Job id", "Job Id")
+    recruiter = _get(row, "Recruiter Name")
+    age = _get(row, "Age")
+
+    key = phone or email or (name or "").lower()
+    cid = f"bdehy_{hashlib.sha1(f'{role_id}|{key}'.encode()).hexdigest()[:12]}"
+
+    notes = [f"Source: {source}", f"Origin: {origin}"]
+    if recruiter:
+        notes.append(f"Recruiter: {recruiter}")
+    if job:
+        notes.append(f"Job: {job}" + (f" ({job_city})" if job_city else ""))
+    if job_id:
+        notes.append(f"Apna job id: {job_id}")
+    if area:
+        notes.append(f"Area: {area}")
+    if industry:
+        notes.append(f"Industry: {industry}")
+    if department:
+        notes.append(f"Department: {department}")
+    if relocate:
+        notes.append(f"Relocation: {relocate}")
+    if interest:
+        notes.append(f"Job interest: {interest}")
+    if assets:
+        notes.append(f"Assets: {assets}")
+    if age:
+        notes.append(f"Age: {age}")
+    if connection:
+        notes.append(f"Connection: {connection}")
+    if call_status:
+        notes.append(f"Call status: {call_status}")
+    if matched:
+        notes.append(f"Matched on: {matched}")
+    if your_notes:
+        notes.append(your_notes)
+    if status_raw:
+        notes.append(f"Apna status: {status_raw}")
+
+    link = resume if resume and resume.lower().startswith("http") else None
+    extra_bits = [bit for bit in (
+        f"Age: {age}" if age else None,
+        f"Assets: {assets}" if assets else None,
+        f"Interest: {interest}" if interest else None,
+    ) if bit]
+
+    return {
+        "id": cid,
+        "role_id": role_id,
+        "role_name": role_name,
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "gender": _gender(_get(row, "Gender")),
+        "city": city,
+        "degree": degree,
+        "stream": education if education and education != degree else None,
+        "institute": institute,
+        "experience_duration": exp,
+        "has_work_experience": _has_exp(exp),
+        "companies": company,
+        "latest_company": company,
+        "job_titles": current_role,
+        "latest_role": current_role,
+        "relevant_skills": sub_dept,
+        "languages": f"English: {english}" if english else None,
+        "resume_link": link,
+        "application_link": link,
+        "source": origin,
+        "applied_at": applied if (applied := _get(row, "Applied on", "Applied On")) else None,
+        "additional_details": "\n".join(extra_bits) or None,
+        "status": _apna_candidate_status(status_raw),
+        "notes": "\n".join(notes),
+        "tags": ["bde", "hyderabad", "apna", "excel_import"],
+        "requisition_id": role_id,
+    }
+
+
 def row_to_payload(row: dict, source: str) -> dict | None:
+    if is_apna_matched(row):
+        return row_from_apna_matched(row, source)
     name = _get(row, "Name")
     email = _email(_get(row, "Email ID", "Email"))
     phone = _phone(_get(row, "Phone Number", "Phone"))
@@ -248,39 +417,37 @@ def row_to_payload(row: dict, source: str) -> dict | None:
     }
 
 
-async def ensure_role() -> None:
+async def ensure_role(
+    role_id: str = ROLE_ID,
+    role_name: str = ROLE_NAME,
+    *,
+    location: str | None = None,
+    description: str | None = None,
+) -> None:
     async with async_session() as db:
-        r = await db.get(HiringRole, ROLE_ID)
+        r = await db.get(HiringRole, role_id)
         if not r:
             db.add(
                 HiringRole(
-                    id=ROLE_ID,
-                    name=ROLE_NAME,
-                    description="Business Development Executive applicants (Naukri/Apna/BDE exports)",
+                    id=role_id,
+                    name=role_name,
+                    description=description
+                    or "Business Development Executive applicants (Naukri/Apna/BDE exports)",
                     is_active=True,
                     sort_order=20,
+                    location=location,
+                    status="open",
                 )
             )
             await db.commit()
-            print(f"Created role {ROLE_ID}")
+            print(f"Created role {role_id} ({role_name})")
         else:
-            print(f"Role exists: {ROLE_ID}")
+            print(f"Role exists: {role_id}")
 
 
 async def run(files: list[Path], reset: bool) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    await ensure_role()
-
-    if reset:
-        async with async_session() as db:
-            old = (
-                await db.execute(select(Candidate).where(Candidate.role_id == ROLE_ID))
-            ).scalars().all()
-            for c in old:
-                await db.delete(c)
-            await db.commit()
-            print(f"Cleared {len(old)} previous BDE candidates")
 
     by_id: dict[str, dict] = {}
     for path in files:
@@ -313,6 +480,25 @@ async def run(files: list[Path], reset: bool) -> None:
                 file_rows += 1
         print(f"{path.name}: rows={file_rows} unique_so_far={len(by_id)}")
 
+    roles: dict[str, str] = {}
+    for payload in by_id.values():
+        roles[payload.get("role_id") or ROLE_ID] = payload.get("role_name") or ROLE_NAME
+
+    if reset and roles:
+        async with async_session() as db:
+            old = (
+                await db.execute(select(Candidate).where(Candidate.role_id.in_(list(roles))))
+            ).scalars().all()
+            for c in old:
+                await db.delete(c)
+            await db.commit()
+            print(f"Cleared {len(old)} previous candidates on {', '.join(sorted(roles))}")
+
+    for rid, rname in sorted(roles.items()):
+        location = "Hyderabad" if rid == HYDERABAD_BDE_ROLE[0] else None
+        description = None if rid == ROLE_ID else f"Applicants for {rname}"
+        await ensure_role(rid, rname, location=location, description=description)
+
     created = 0
     updated = 0
     now = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -320,31 +506,41 @@ async def run(files: list[Path], reset: bool) -> None:
     async with async_session() as db:
         for payload in by_id.values():
             cid = payload["id"]
+            role_id = payload.get("role_id") or ROLE_ID
             existing = await db.get(Candidate, cid)
             fields = {
-                "role_id": ROLE_ID,
-                "role_name": ROLE_NAME,
+                "role_id": role_id,
+                "role_name": payload.get("role_name") or ROLE_NAME,
                 "status": payload.get("status") or "new",
                 "tags": payload.get("tags") or ["bde"],
                 "notes": payload.get("notes") or "",
                 "name": payload.get("name"),
                 "email": payload.get("email"),
                 "phone": payload.get("phone"),
+                "gender": payload.get("gender"),
                 "city": payload.get("city"),
                 "companies": payload.get("companies"),
                 "latest_company": payload.get("latest_company"),
                 "job_titles": payload.get("job_titles"),
                 "latest_role": payload.get("latest_role"),
                 "other_skills": payload.get("other_skills"),
+                "relevant_skills": payload.get("relevant_skills"),
                 "career_objective": payload.get("career_objective"),
                 "work_experience_detail": payload.get("work_experience_detail"),
                 "degree": payload.get("degree"),
+                "stream": payload.get("stream"),
                 "institute": payload.get("institute"),
                 "graduation_year": payload.get("graduation_year"),
                 "experience_duration": payload.get("experience_duration"),
                 "has_work_experience": payload.get("has_work_experience"),
                 "availability": payload.get("availability"),
                 "applied_at": payload.get("applied_at"),
+                "languages": payload.get("languages"),
+                "resume_link": payload.get("resume_link"),
+                "application_link": payload.get("application_link"),
+                "source": payload.get("source"),
+                "additional_details": payload.get("additional_details"),
+                "requisition_id": payload.get("requisition_id") or role_id,
                 "updated_at": now,
             }
             if existing:
@@ -358,23 +554,36 @@ async def run(files: list[Path], reset: bool) -> None:
         await db.commit()
 
     async with async_session() as db:
-        total = (
-            await db.execute(
-                select(func.count()).select_from(Candidate).where(Candidate.role_id == ROLE_ID)
-            )
-        ).scalar()
-    print("\n=== BDE import done ===")
-    print(f"unique: {len(by_id)}  created: {created}  updated: {updated}")
-    print(f"role {ROLE_NAME}: {total}")
+        print("\n=== BDE import done ===")
+        print(f"unique: {len(by_id)}  created: {created}  updated: {updated}")
+        for rid, rname in sorted(roles.items()):
+            total = (
+                await db.execute(
+                    select(func.count()).select_from(Candidate).where(Candidate.role_id == rid)
+                )
+            ).scalar()
+            print(f"  {rname}: {total}")
 
 
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--reset", action="store_true")
+    p.add_argument(
+        "--file",
+        action="append",
+        default=[],
+        help="XLSX to import. When set, only these files are imported.",
+    )
     args = p.parse_args()
-    files = [f for f in DEFAULT_FILES if f.exists()]
-    if not files:
-        raise SystemExit("No BDE files found")
+    if args.file:
+        files = [Path(f).expanduser() for f in args.file]
+        missing = [str(f) for f in files if not f.exists()]
+        if missing:
+            raise SystemExit("Missing file(s):\n" + "\n".join(missing))
+    else:
+        files = [f for f in DEFAULT_FILES if f.exists()]
+        if not files:
+            raise SystemExit("No BDE files found")
     asyncio.run(run(files, args.reset))
 
 

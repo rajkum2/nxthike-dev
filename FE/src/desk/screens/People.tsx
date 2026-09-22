@@ -499,7 +499,7 @@ export function CandidatesScreen() {
   const [unmask, setUnmask] = useState(() => c.db === 'all' || c.admin === true);
   const [editOpen, setEditOpen] = useState(false);
   const [tableDetailOpen, setTableDetailOpen] = useState(!!candidateId);
-  const [bulkPanel, setBulkPanel] = useState<null | 'stage' | 'role' | 'edit' | 'tags'>(null);
+  const [bulkPanel, setBulkPanel] = useState<null | 'stage' | 'role' | 'edit' | 'tags' | 'assign'>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkMsg, setBulkMsg] = useState<string | null>(null);
 
@@ -692,6 +692,35 @@ export function CandidatesScreen() {
     try {
       const r = await deskApi.bulkRole(selectedIds, nextRoleId, role?.name);
       await afterBulk(`Moved ${r.updated} to ${role?.name || 'role'}`);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const recruitersLoad = useLoad(
+    () => (isFullAdmin ? deskApi.recruiters() : Promise.resolve([])),
+    [isFullAdmin],
+  );
+
+  const runBulkAssign = async (ownerId: string | null) => {
+    if (!selectedIds.length || !isFullAdmin) return;
+    setBulkBusy(true);
+    try {
+      let updated = 0;
+      for (let i = 0; i < selectedIds.length; i += 150) {
+        const r = await deskApi.bulkAssign(selectedIds.slice(i, i + 150), ownerId);
+        updated += r.updated;
+      }
+      const who = ownerId
+        ? (recruitersLoad.data || []).find((u) => u.id === ownerId)?.name || 'recruiter'
+        : 'nobody';
+      await afterBulk(
+        ownerId
+          ? `Assigned ${updated} candidate${updated === 1 ? '' : 's'} to ${who}`
+          : `Cleared assignment on ${updated} candidate${updated === 1 ? '' : 's'}`,
+      );
     } catch (e) {
       alert((e as Error).message);
     } finally {
@@ -1498,10 +1527,12 @@ export function CandidatesScreen() {
           canEdit={canEdit}
           canStage={canStage}
           canDelete={canDelete}
+          canAssign={isFullAdmin}
           onStage={() => setBulkPanel('stage')}
           onRole={() => setBulkPanel('role')}
           onEdit={() => setBulkPanel('edit')}
           onTags={() => setBulkPanel('tags')}
+          onAssign={() => setBulkPanel('assign')}
           onStar={() => runBulkQuick({ starred: true }, 'Starred')}
           onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
           onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
@@ -1628,10 +1659,12 @@ export function CandidatesScreen() {
           canEdit={canEdit}
           canStage={canStage}
           canDelete={canDelete}
+          canAssign={isFullAdmin}
           onStage={() => setBulkPanel('stage')}
           onRole={() => setBulkPanel('role')}
           onEdit={() => setBulkPanel('edit')}
           onTags={() => setBulkPanel('tags')}
+          onAssign={() => setBulkPanel('assign')}
           onStar={() => runBulkQuick({ starred: true }, 'Starred')}
           onUnstar={() => runBulkQuick({ starred: false }, 'Unstarred')}
           onDnc={() => runBulkQuick({ dnc: true }, 'Flagged DND')}
@@ -2041,9 +2074,11 @@ export function CandidatesScreen() {
           count={selectedCount}
           busy={bulkBusy}
           roles={rolesLoad.data || []}
+          recruiters={recruitersLoad.data || []}
           onClose={() => setBulkPanel(null)}
           onStage={runBulkStatus}
           onRole={runBulkRole}
+          onAssign={runBulkAssign}
           onEdit={async (patch) => {
             setBulkBusy(true);
             try {
@@ -2102,12 +2137,13 @@ export function CandidatesScreen() {
  * ------------------------------------------------------------------ */
 
 function BulkActionBar({
-  count, busy, canEdit, canStage, canDelete,
-  onStage, onRole, onEdit, onTags, onStar, onUnstar, onDnc, onExport, onDelete, onClear,
+  count, busy, canEdit, canStage, canDelete, canAssign,
+  onStage, onRole, onEdit, onTags, onAssign, onStar, onUnstar, onDnc, onExport, onDelete, onClear,
 }: {
   count: number; busy: boolean;
-  canEdit: boolean; canStage: boolean; canDelete: boolean;
+  canEdit: boolean; canStage: boolean; canDelete: boolean; canAssign: boolean;
   onStage: () => void; onRole: () => void; onEdit: () => void; onTags: () => void;
+  onAssign: () => void;
   onStar: () => void; onUnstar: () => void; onDnc: () => void; onExport: () => void;
   onDelete: () => void; onClear: () => void;
 }) {
@@ -2148,6 +2184,11 @@ function BulkActionBar({
           Tags
         </Button>
       )}
+      {canAssign && (
+        <Button variant="soft" icon="person_add" onClick={onAssign} disabled={busy} style={btn}>
+          Assign
+        </Button>
+      )}
       {canEdit && (
         <Button variant="ghost" icon="star" onClick={onStar} disabled={busy} style={btn}>
           Star
@@ -2185,17 +2226,19 @@ function BulkActionBar({
 }
 
 function BulkActionModal({
-  kind, count, busy, roles, onClose, onStage, onRole, onEdit, onTags,
+  kind, count, busy, roles, recruiters, onClose, onStage, onRole, onEdit, onTags, onAssign,
 }: {
-  kind: 'stage' | 'role' | 'edit' | 'tags';
+  kind: 'stage' | 'role' | 'edit' | 'tags' | 'assign';
   count: number;
   busy: boolean;
   roles: { id: string; name: string; count?: number }[];
+  recruiters: { id: string; name: string; email: string }[];
   onClose: () => void;
   onStage: (status: string) => void;
   onRole: (roleId: string) => void;
   onEdit: (patch: Record<string, unknown>) => void;
   onTags: (add: string[]) => void;
+  onAssign: (ownerId: string | null) => void;
 }) {
   const [stageVal, setStageVal] = useState('');
   const [roleVal, setRoleVal] = useState('');
@@ -2213,12 +2256,14 @@ function BulkActionModal({
   const [roleEdit, setRoleEdit] = useState('');
   const tagsLoad = useLoad(() => deskApi.tags(), []);
   const [tagPick, setTagPick] = useState<string[]>([]);
+  const [assignee, setAssignee] = useState('');
 
   const title = {
     stage: 'Change stage',
     role: 'Change hiring role',
     edit: 'Bulk edit fields',
     tags: 'Apply tags',
+    assign: 'Assign to recruiter',
   }[kind];
 
   const applyEdit = () => {
@@ -2276,6 +2321,11 @@ function BulkActionModal({
               {busy ? 'Applying…' : `Apply tags`}
             </Button>
           )}
+          {kind === 'assign' && (
+            <Button onClick={() => onAssign(assignee || null)} disabled={busy}>
+              {busy ? 'Assigning…' : assignee ? `Assign ${count}` : 'Clear assignment'}
+            </Button>
+          )}
         </>
       }
     >
@@ -2294,6 +2344,24 @@ function BulkActionModal({
             <option key={r.id} value={r.id}>{r.name}{r.count != null ? ` (${r.count})` : ''}</option>
           ))}
         </Select>
+      )}
+      {kind === 'assign' && (
+        <div>
+          <div style={{ fontSize: 12.5, color: T.inkMuted, marginBottom: 8 }}>
+            The recruiter will see only the candidates you assign. Leave this blank to take them off every recruiter’s book.
+          </div>
+          <Select value={assignee} onChange={(e) => setAssignee(e.target.value)}>
+            <option value="">Unassigned</option>
+            {recruiters.map((u) => (
+              <option key={u.id} value={u.id}>{u.name} · {u.email}</option>
+            ))}
+          </Select>
+          {recruiters.length === 0 && (
+            <div style={{ marginTop: 8, fontSize: 12, color: T.inkFaint }}>
+              No recruiter accounts yet. Invite one from Users with the Senior Recruiter role.
+            </div>
+          )}
+        </div>
       )}
       {kind === 'tags' && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>

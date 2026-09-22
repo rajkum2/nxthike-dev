@@ -35,6 +35,7 @@ from app.services.personas import (
     WorkspaceIdentity,
     apply_pii_policy,
     get_workspace_user,
+    refuse_if_unassigned,
     require_cap,
 )
 
@@ -145,10 +146,13 @@ async def list_requisitions(
 
     counts: dict[str, dict] = {}
     if include_counts and rows:
+        count_filters = [Candidate.role_id.in_([r.id for r in rows])]
+        if me.sees_assigned_only:
+            count_filters.append(Candidate.owner_id == me.user.id)
         stage_rows = (
             await db.execute(
                 select(Candidate.role_id, Candidate.status, func.count())
-                .where(Candidate.role_id.in_([r.id for r in rows]))
+                .where(and_(*count_filters))
                 .group_by(Candidate.role_id, Candidate.status)
             )
         ).all()
@@ -181,10 +185,13 @@ async def read_requisition(
         c = await db.get(Company, row.client_id)
         client_name = c.name if c else None
 
+    stage_filters = [Candidate.role_id == row.id]
+    if me.sees_assigned_only:
+        stage_filters.append(Candidate.owner_id == me.user.id)
     stage_rows = (
         await db.execute(
             select(Candidate.status, func.count())
-            .where(Candidate.role_id == row.id)
+            .where(and_(*stage_filters))
             .group_by(Candidate.status)
         )
     ).all()
@@ -464,6 +471,10 @@ async def list_submissions(
 ):
     q = select(Submission)
     filters = []
+    if me.sees_assigned_only:
+        filters.append(
+            Submission.candidate_id.in_(select(Candidate.id).where(Candidate.owner_id == me.user.id))
+        )
     if client_id:
         filters.append(Submission.client_id == client_id)
     if requisition_id:
@@ -493,6 +504,7 @@ async def create_submission(
     cand = await db.get(Candidate, body.candidateId)
     if not cand:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, cand.owner_id)
 
     req = await db.get(HiringRole, body.requisitionId or cand.role_id)
     client_id = body.clientId or (req.client_id if req else None)
@@ -583,6 +595,10 @@ async def list_interviews(
     db: AsyncSession = Depends(get_db),
 ):
     q = select(Interview)
+    if me.sees_assigned_only:
+        q = q.where(
+            Interview.candidate_id.in_(select(Candidate.id).where(Candidate.owner_id == me.user.id))
+        )
     if candidate_id:
         q = q.where(Interview.candidate_id == candidate_id)
     rows = (await db.execute(q.order_by(Interview.scheduled_at.asc().nullslast()).limit(200))).scalars().all()
@@ -634,6 +650,7 @@ async def create_interview(
     cand = await db.get(Candidate, body.candidateId)
     if not cand:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, cand.owner_id)
     req = await db.get(HiringRole, body.requisitionId or cand.role_id)
 
     i = Interview(
@@ -712,6 +729,10 @@ async def list_scorecards(
 ):
     q = select(Scorecard)
     filters = []
+    if me.sees_assigned_only:
+        filters.append(
+            Scorecard.candidate_id.in_(select(Candidate.id).where(Candidate.owner_id == me.user.id))
+        )
     if candidate_id:
         filters.append(Scorecard.candidate_id == candidate_id)
     if interview_id:
@@ -740,6 +761,7 @@ async def submit_scorecard(
     cand = await db.get(Candidate, body.candidateId)
     if not cand:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, cand.owner_id)
 
     s = Scorecard(
         interview_id=body.interviewId, candidate_id=cand.id,
@@ -820,6 +842,8 @@ async def list_offers(
     db: AsyncSession = Depends(get_db),
 ):
     q = select(Offer)
+    if me.sees_assigned_only:
+        q = q.where(Offer.candidate_id.in_(select(Candidate.id).where(Candidate.owner_id == me.user.id)))
     if status_filter and status_filter != "all":
         q = q.where(Offer.status == status_filter)
     rows = (await db.execute(q.order_by(Offer.created_at.desc()).limit(200))).scalars().all()
@@ -881,6 +905,7 @@ async def create_offer(
     cand = await db.get(Candidate, body.candidateId)
     if not cand:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, cand.owner_id)
     req = await db.get(HiringRole, body.requisitionId or cand.role_id)
     client = await db.get(Company, req.client_id) if req and req.client_id else None
 
@@ -1072,6 +1097,10 @@ async def list_notes(
     me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
+    cand = await db.get(Candidate, candidate_id)
+    if not cand:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    refuse_if_unassigned(me, cand.owner_id)
     rows = (
         await db.execute(
             select(CandidateNote)
@@ -1174,9 +1203,13 @@ async def apply_tags(
     me: WorkspaceIdentity = Depends(require_cap("create", "Your role cannot edit tags.")),
     db: AsyncSession = Depends(get_db),
 ):
+    if body.ownerId is not None and not me.is_admin:
+        raise HTTPException(status_code=403, detail="Only an admin can assign candidates to a recruiter.")
     rows = (
         await db.execute(select(Candidate).where(Candidate.id.in_(body.candidateIds)))
     ).scalars().all()
+    if me.sees_assigned_only:
+        rows = [c for c in rows if c.owner_id == me.user.id]
     for c in rows:
         tags = list(c.tags or [])
         for t in body.add:
