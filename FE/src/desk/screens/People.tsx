@@ -473,6 +473,7 @@ export function CandidatesScreen() {
   const canStage = isFullAdmin || !!c.stage;
   const canSelect = canEdit || canStage || isFullAdmin;
   const canDelete = isFullAdmin;
+  const canExport = isFullAdmin;
 
   const [query, setQuery] = useState('');
   const [debouncedQ, setDebouncedQ] = useState('');
@@ -525,7 +526,10 @@ export function CandidatesScreen() {
   const [dragCol, setDragCol] = useState<ColId | null>(null);
   const [uploadedFrom, setUploadedFrom] = useState('');
   const [uploadedTo, setUploadedTo] = useState('');
-  const [unmask, setUnmask] = useState(() => c.db === 'all' || c.admin === true);
+  // Recruiters dial from this list, so they see full numbers. Admin-only roles stay masked.
+  const [unmask, setUnmask] = useState(
+    () => c.db === 'all' || c.db === 'assigned' || c.db === 'yes' || c.admin === true || c.dial === true,
+  );
   const [editOpen, setEditOpen] = useState(false);
   const [tableDetailOpen, setTableDetailOpen] = useState(!!candidateId);
   const [bulkPanel, setBulkPanel] = useState<null | 'stage' | 'role' | 'edit' | 'tags' | 'assign'>(null);
@@ -851,7 +855,7 @@ export function CandidatesScreen() {
 
   /** 'filtered' → every row matching the current filters; 'selected' → checked rows only. */
   const runExport = async (mode: 'filtered' | 'selected') => {
-    if (exportBusy) return;
+    if (exportBusy || !canExport) return;
     setExportBusy(true);
     try {
       const onProgress = (p: number, t: number) => setExportProgress(t > 1 ? `${p}/${t}` : null);
@@ -1202,6 +1206,7 @@ export function CandidatesScreen() {
               style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
             />
           )}
+          {canExport && (
           <Button
             variant="ghost"
             icon={exportBusy ? 'hourglass_top' : 'download'}
@@ -1211,6 +1216,7 @@ export function CandidatesScreen() {
             disabled={exportBusy || !rows.length}
             style={{ height: 32, width: 32, padding: 0, minWidth: 32 }}
           />
+          )}
           {exportBusy && exportProgress && (
             <span className="mono" style={{ fontSize: 11, color: T.inkMuted, whiteSpace: 'nowrap' }}>
               {exportProgress}
@@ -1747,6 +1753,7 @@ export function CandidatesScreen() {
           canEdit={canEdit}
           canStage={canStage}
           canDelete={canDelete}
+          canExport={canExport}
           canAssign={isFullAdmin}
           onStage={() => setBulkPanel('stage')}
           onRole={() => setBulkPanel('role')}
@@ -1879,6 +1886,7 @@ export function CandidatesScreen() {
           canEdit={canEdit}
           canStage={canStage}
           canDelete={canDelete}
+          canExport={canExport}
           canAssign={isFullAdmin}
           onStage={() => setBulkPanel('stage')}
           onRole={() => setBulkPanel('role')}
@@ -2357,11 +2365,11 @@ export function CandidatesScreen() {
  * ------------------------------------------------------------------ */
 
 function BulkActionBar({
-  count, busy, canEdit, canStage, canDelete, canAssign,
+  count, busy, canEdit, canStage, canDelete, canAssign, canExport,
   onStage, onRole, onEdit, onTags, onAssign, onStar, onUnstar, onDnc, onExport, onDelete, onClear,
 }: {
   count: number; busy: boolean;
-  canEdit: boolean; canStage: boolean; canDelete: boolean; canAssign: boolean;
+  canEdit: boolean; canStage: boolean; canDelete: boolean; canAssign: boolean; canExport: boolean;
   onStage: () => void; onRole: () => void; onEdit: () => void; onTags: () => void;
   onAssign: () => void;
   onStar: () => void; onUnstar: () => void; onDnc: () => void; onExport: () => void;
@@ -2424,10 +2432,11 @@ function BulkActionBar({
           DND
         </Button>
       )}
-      {/* Export is read-only, so no capability gate. */}
-      <Button variant="soft" icon="download" onClick={onExport} disabled={busy} style={btn}>
-        Export
-      </Button>
+      {canExport && (
+        <Button variant="soft" icon="download" onClick={onExport} disabled={busy} style={btn}>
+          Export
+        </Button>
+      )}
       {canDelete && (
         <Button variant="danger" icon="delete" onClick={onDelete} disabled={busy} style={btn}>
           Delete

@@ -86,33 +86,46 @@ object Templates {
     val ALL = listOf(
         MessageTemplate(
             "t1", "First outreach", Channel.WhatsApp, Stages.Sourced.label,
-            "Hi {{name}}, {{recruiter}} here. We're hiring a {{role}} at {{client}}. " +
+            "Hi {{name}}, {{recruiter}} here from {{org}}. We're hiring for {{role}}. " +
                 "Your profile looks like a strong fit — is now a good time for a quick call?",
         ),
         MessageTemplate(
             "t2", "Screening follow-up", Channel.WhatsApp, Stages.Screening.label,
-            "Thanks for your time, {{name}}. Sharing the details for the {{role}} role at {{client}}. " +
+            "Thanks for your time, {{name}}. Sharing the details for the {{role}} role at {{org}}. " +
                 "Could you confirm your current CTC, expected CTC and notice period?",
         ),
         MessageTemplate(
             "t3", "Interview invite", Channel.Email, Stages.Interview.label,
-            "Hi {{name}}, your interview for {{role}} at {{client}} is confirmed. " +
+            "Hi {{name}}, your interview for {{role}} at {{org}} is confirmed. " +
                 "Panel details and the joining link are attached.",
         ),
         MessageTemplate(
             "t4", "Offer nudge", Channel.WhatsApp, Stages.Offer.label,
-            "Hi {{name}}, checking in on the offer for {{role}} at {{client}}. " +
+            "Hi {{name}}, checking in on the offer for {{role}} at {{org}}. " +
                 "Do you need anything from us to help you decide?",
         ),
         MessageTemplate(
             "t5", "Missed you", Channel.Sms, Stages.Sourced.label,
-            "Hi {{name}}, tried reaching you about the {{role}} role at {{client}}. " +
+            "Hi {{name}}, tried reaching you about the {{role}} role at {{org}}. " +
                 "Reply with a good time and I'll call back.",
         ),
     )
 
     fun resolve(body: String, vars: Map<String, String>): String =
-        vars.entries.fold(body) { acc, (k, v) -> acc.replace("{{$k}}", v) }
+        vars.entries.fold(body) { acc, (k, v) ->
+            acc.replace("{{$k}}", v).replace("{$k}", v)
+        }
+
+    /** Role titles imported from job boards sometimes carry the source in the name. */
+    fun publicLabel(raw: String?): String {
+        val text = raw?.trim().orEmpty()
+        if (text.isEmpty()) return ""
+        return text
+            .replace(Regex("\\s*\\(\\s*Naukri Import\\s*\\)", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\s+Naukri Import\\b", RegexOption.IGNORE_CASE), "")
+            .trim()
+            .ifBlank { text.substringBefore("(").trim() }
+    }
 }
 
 /* ------------------------------------------------------------------ *
@@ -128,6 +141,9 @@ data class ComposerState(
     val templates: List<MessageTemplate> = Templates.ALL,
     val error: String? = null,
     val logging: Boolean = false,
+    /** Edited copy of the message. Null until the recruiter changes the preview. */
+    val draft: String? = null,
+    val saved: Boolean = false,
 )
 
 @HiltViewModel
@@ -169,23 +185,53 @@ class ComposerViewModel @Inject constructor(
     fun setChannel(c: Channel) { _state.value = _state.value.copy(channel = c) }
     fun setTemplate(id: String) {
         val t = _state.value.templates.firstOrNull { it.id == id } ?: return
-        _state.value = _state.value.copy(templateId = id, channel = t.channel)
+        _state.value = _state.value.copy(templateId = id, channel = t.channel, draft = null, saved = false)
     }
 
-    fun variables(recruiterName: String): Map<String, String> {
+    fun setDraft(text: String) {
+        _state.value = _state.value.copy(draft = text, saved = false)
+    }
+
+    fun variables(recruiterName: String, org: String): Map<String, String> {
         val c = _state.value.candidate
+        val role = Templates.publicLabel(c?.roleName).ifBlank { "the role" }
+        val company = Templates.publicLabel(c?.latestCompany).ifBlank { org.ifBlank { "nxtsquare" } }
         return mapOf(
             "name" to Fmt.firstName(c?.name),
-            "role" to (c?.roleName?.takeIf { it.isNotBlank() } ?: "the role"),
-            "client" to (c?.latestCompany?.takeIf { it.isNotBlank() } ?: c?.roleName.orEmpty().ifBlank { "our client" }),
+            "role" to role,
+            "client" to company,
+            "org" to org.ifBlank { "nxtsquare" },
             "loc" to (c?.city ?: "your city"),
-            "recruiter" to Fmt.firstName(recruiterName),
+            "recruiter" to recruiterName.ifBlank { "nxtsquare" },
         )
     }
 
-    fun composed(recruiterName: String): String {
+    fun composed(recruiterName: String, org: String): String {
+        _state.value.draft?.let { return it }
         val t = _state.value.templates.firstOrNull { it.id == _state.value.templateId } ?: return ""
-        return Templates.resolve(t.body, variables(recruiterName))
+        return Templates.resolve(t.body, variables(recruiterName, org))
+    }
+
+    /** Keeps this exact wording on the candidate, so the next open starts from it. */
+    fun saveMessage(body: String, onDone: (Boolean) -> Unit) {
+        val c = _state.value.candidate ?: return onDone(false)
+        viewModelScope.launch {
+            _state.value = _state.value.copy(logging = true, error = null)
+            val line = "Saved message:\n${body.trim()}"
+            val result = hiring.patchCandidate(
+                c.id,
+                com.nxthike.android.data.remote.dto.CandidatePatchDto(
+                    notes = (c.notes.trimEnd() + "\n" + line).trim(),
+                ),
+            )
+            result.onSuccess { updated ->
+                _state.value = _state.value.copy(logging = false, candidate = updated, saved = true, draft = body)
+            }
+            result.onError { e ->
+                _state.value = _state.value.copy(logging = false, error = e.message)
+            }
+            onDone(result.isSuccess)
+        }
     }
 
     /** Records that outreach happened, so the timeline reflects it. */
@@ -225,7 +271,8 @@ fun ComposerScreen(
     LaunchedEffect(candidateId) { vm.load(candidateId) }
 
     val recruiter = session.displayName
-    val body = vm.composed(recruiter)
+    val org = session.orgName.ifBlank { "nxtsquare" }
+    val body = vm.composed(recruiter, org)
     val c = state.candidate
 
     Box(Modifier.fillMaxSize().background(T.Bg)) {
@@ -299,25 +346,22 @@ fun ComposerScreen(
                         TText("Preview · variables resolved", Type.label, T.InkMuted, Modifier.weight(1f))
                         TText("Library", Type.label, T.Indigo, Modifier.clickable(onClick = onTemplates))
                     }
-                    Column(
-                        Modifier.fillMaxWidth().padding(top = 8.dp)
-                            .clip(RoundedCornerShape(14.dp, 14.dp, 4.dp, 14.dp))
-                            .background(T.TealTint)
-                            .border(1.dp, T.TealBorder, RoundedCornerShape(14.dp, 14.dp, 4.dp, 14.dp))
-                            .padding(13.dp),
-                    ) {
-                        TText(body, Type.body.copy(lineHeight = androidx.compose.ui.unit.TextUnit(21f, androidx.compose.ui.unit.TextUnitType.Sp)), Color(0xFF0B3B36))
-                        TText(
-                            Fmt.time(java.time.LocalDateTime.now()), Type.monoXs, T.Teal,
-                            Modifier.align(Alignment.End).padding(top = 8.dp),
-                        )
+                    TTextArea(
+                        body,
+                        { vm.setDraft(it) },
+                        "Edit the message. It is saved on this candidate.",
+                        Modifier.padding(top = 8.dp),
+                        minHeight = 120.dp,
+                    )
+                    if (state.saved) {
+                        TText("Saved on this candidate", Type.labelSm, T.Teal, Modifier.padding(top = 6.dp))
                     }
 
                     // Variables
                     TCard(Modifier.padding(top = 12.dp), shape = T.RField, padding = 12.dp) {
                         Eyebrow("VARIABLES")
                         Spacer(Modifier.height(9.dp))
-                        vm.variables(recruiter).forEach { (k, v) ->
+                        vm.variables(recruiter, org).forEach { (k, v) ->
                             Row(
                                 Modifier.padding(bottom = 7.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -341,6 +385,12 @@ fun ComposerScreen(
                 Modifier.align(Alignment.BottomCenter).fillMaxWidth()
                     .padding(horizontal = T.Gutter, vertical = 14.dp),
             ) {
+                GhostButton(
+                    if (state.saved) "Message saved" else "Save message",
+                    onClick = { if (!state.logging && body.isNotBlank()) vm.saveMessage(body) {} },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(8.dp))
                 PrimaryButton(
                     when (state.channel) {
                         Channel.WhatsApp -> "Open in WhatsApp"

@@ -184,9 +184,19 @@ fun CandidateCard(
 
 /** "Senior Java Developer · Infosys", falling back through what the record has. */
 fun candidateSubtitle(c: CandidateDto): String = listOfNotNull(
-    c.latestRole?.takeIf { it.isNotBlank() } ?: c.roleName.takeIf { it.isNotBlank() },
-    c.latestCompany?.takeIf { it.isNotBlank() } ?: c.institute?.takeIf { it.isNotBlank() },
+    publicRole(c.latestRole?.takeIf { it.isNotBlank() } ?: c.roleName.takeIf { it.isNotBlank() }),
+    publicRole(c.latestCompany?.takeIf { it.isNotBlank() } ?: c.institute?.takeIf { it.isNotBlank() }),
 ).joinToString(" · ").ifBlank { c.email ?: c.phone ?: "No details on file" }
+
+private fun publicRole(raw: String?): String? {
+    val text = raw?.trim().orEmpty()
+    if (text.isEmpty()) return null
+    val cleaned = text
+        .replace(Regex("\\s*\\(\\s*Naukri Import\\s*\\)", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("\\s+Naukri Import\\b", RegexOption.IGNORE_CASE), "")
+        .trim()
+    return cleaned.ifBlank { null }
+}
 
 /**
  * Dial-list row. Denser than the search row: it leads with the last outcome and

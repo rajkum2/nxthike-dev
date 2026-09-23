@@ -656,7 +656,7 @@ data class CandidateForm(
     val roleId: String = "",
     val roleName: String = "",
     val status: String = Stages.Sourced.id,
-    val source: String = "Naukri",
+    val source: String = "",
     val starred: Boolean = false,
     val consent: Boolean = false,
     /** Lakhs per annum as typed; parsed to rupees on save. */
@@ -757,7 +757,7 @@ class CandidateEditViewModel @Inject constructor(
                             roleId = c.roleId,
                             roleName = c.roleName,
                             status = c.status,
-                            source = c.sourceLabel ?: "Naukri",
+                            source = c.sourceLabel.orEmpty().replace("Naukri Import", "").trim(),
                             starred = c.starred,
                             consent = c.hasConsent,
                             currentCtc = rupeesToLakhs(c.currentCtc),
