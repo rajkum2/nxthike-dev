@@ -373,6 +373,10 @@ fun TalentNavHost() {
                     onAdd = { nav.navigate(R.candidateEdit()) },
                     onFilters = { candidates.ensureReferenceData(); sheet = AppSheet.Filters },
                     onStage = { sheet = AppSheet.Stage(it) },
+                    onNote = {
+                        com.nxthike.android.presentation.talent.candidates.ProfileLaunch.notesFor = it.id
+                        nav.navigate(R.candidate(it.id))
+                    },
                     onMore = { sheet = AppSheet.QuickActions(it) },
                     onSaveSearch = { sheet = AppSheet.SaveSearch },
                 )
@@ -407,6 +411,7 @@ fun TalentNavHost() {
                 val id = entry.arguments?.getString("id") ?: "new"
                 CandidateEditScreen(
                     candidateId = id,
+                    showSource = session.caps.value.isAdmin,
                     onDone = { newId ->
                         candidates.load()
                         nav.popBackStack()
@@ -781,6 +786,7 @@ fun TalentNavHost() {
 
                 AppSheet.Filters -> CandidateFiltersSheetContent(
                     state = candidatesState,
+                    showSource = session.caps.value.isAdmin,
                     onApply = { candidates.setFilters(it); sheet = null },
                     onReset = { candidates.clearFilters() },
                     // Apply first, then name it: the search being saved is the one
@@ -819,6 +825,11 @@ fun TalentNavHost() {
                     onCall = { sheet = null; startCall(s.candidate.id) },
                     onMessage = { sheet = null; nav.navigate(R.composer(s.candidate.id)) },
                     onStage = { sheet = AppSheet.Stage(s.candidate) },
+                    onNote = {
+                        sheet = null
+                        com.nxthike.android.presentation.talent.candidates.ProfileLaunch.notesFor = s.candidate.id
+                        nav.navigate(R.candidate(s.candidate.id))
+                    },
                     onToggleStar = { candidates.toggleStar(s.candidate); sheet = null },
                 )
 

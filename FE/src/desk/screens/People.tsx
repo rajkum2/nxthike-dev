@@ -189,7 +189,7 @@ const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number
   { id: 'latestRole', label: 'Latest role', defaultOn: true, minW: 140 },
   { id: 'company', label: 'Company', defaultOn: false, minW: 130 },
   { id: 'experience', label: 'Experience', defaultOn: true, minW: 100 },
-  { id: 'source', label: 'Source', defaultOn: false, minW: 100 },
+  { id: 'source', label: 'Source', defaultOn: true, minW: 100 },
   { id: 'currentCtc', label: 'Current CTC', defaultOn: false, minW: 100 },
   { id: 'expectedCtc', label: 'Expected CTC', defaultOn: false, minW: 100 },
   { id: 'notice', label: 'Notice', defaultOn: false, minW: 70 },
@@ -531,6 +531,7 @@ export function CandidatesScreen() {
     () => c.db === 'all' || c.db === 'assigned' || c.db === 'yes' || c.admin === true || c.dial === true,
   );
   const [editOpen, setEditOpen] = useState(false);
+  const [openOnNotes, setOpenOnNotes] = useState(false);
   const [tableDetailOpen, setTableDetailOpen] = useState(!!candidateId);
   const [bulkPanel, setBulkPanel] = useState<null | 'stage' | 'role' | 'edit' | 'tags' | 'assign'>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -895,7 +896,7 @@ export function CandidatesScreen() {
   const totalPages = list.data?.totalPages || 1;
   const orderedCols = colOrder
     .map((id) => COLUMN_DEFS.find((c) => c.id === id))
-    .filter((c): c is (typeof COLUMN_DEFS)[number] => !!c);
+    .filter((c): c is (typeof COLUMN_DEFS)[number] => !!c && (isFullAdmin || c.id !== 'source'));
   const activeCols = orderedCols.filter((col) => visibleCols[col.id]);
   const moveColumn = (id: ColId, dir: -1 | 1) => {
     setColOrder((prev) => {
@@ -995,7 +996,8 @@ export function CandidatesScreen() {
 
   const allOnPageSelected = rows.length > 0 && rows.every((r) => selection[r.id]);
 
-  const openRow = (id: string) => {
+  const openRow = (id: string, notes = false) => {
+    setOpenOnNotes(notes);
     go('cands', { candidateId: id });
     if (viewMode === 'table') {
       setTableDetailOpen(true);
@@ -1494,14 +1496,16 @@ export function CandidatesScreen() {
               onSearch={setCitySearch}
               width={140}
             />
-            <input
-              className="field"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              placeholder="Source"
-              title="Source"
-              style={{ ...compactCtrl, width: 110, flex: '0 1 110px' }}
-            />
+            {isFullAdmin && (
+              <input
+                className="field"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                placeholder="Source"
+                title="Source"
+                style={{ ...compactCtrl, width: 110, flex: '0 1 110px' }}
+              />
+            )}
             <Select value={gender} onChange={(e) => setGender(e.target.value)} title="Gender" style={{ ...compactCtrl, width: 100, flex: '0 0 100px' }}>
               <option value="all">Gender</option>
               <option value="male">Male</option>
@@ -2112,6 +2116,15 @@ export function CandidatesScreen() {
                         </button>
                         <button
                           type="button"
+                          title="Add note"
+                          aria-label="Add note"
+                          onClick={() => openRow(r.id, true)}
+                          style={ROW_ACTION_BTN}
+                        >
+                          <Icon name="note_add" size={16} color={T.indigo} />
+                        </button>
+                        <button
+                          type="button"
                           title="Compose message"
                           aria-label="Compose message"
                           onClick={() => openComposer(r.id)}
@@ -2224,6 +2237,7 @@ export function CandidatesScreen() {
             }
           } : undefined}
           onReload={() => { detail.reload(); list.reload(); }}
+          initialTab={openOnNotes ? 'Notes' : 'Overview'}
           showClose={useDetailDrawer}
           onClose={closeDetailDrawer}
         />
@@ -2303,6 +2317,7 @@ export function CandidatesScreen() {
           busy={bulkBusy}
           roles={rolesLoad.data || []}
           recruiters={recruitersLoad.data || []}
+          showSource={isFullAdmin}
           onClose={() => { setBulkPanel(null); setAssignAllMatching(false); }}
           onStage={runBulkStatus}
           onRole={runBulkRole}
@@ -2455,13 +2470,14 @@ function BulkActionBar({
 }
 
 function BulkActionModal({
-  kind, count, busy, roles, recruiters, onClose, onStage, onRole, onEdit, onTags, onAssign,
+  kind, count, busy, roles, recruiters, showSource, onClose, onStage, onRole, onEdit, onTags, onAssign,
 }: {
   kind: 'stage' | 'role' | 'edit' | 'tags' | 'assign';
   count: number;
   busy: boolean;
   roles: { id: string; name: string; count?: number }[];
   recruiters: { id: string; name: string; email: string }[];
+  showSource?: boolean;
   onClose: () => void;
   onStage: (status: string) => void;
   onRole: (roleId: string) => void;
@@ -2635,10 +2651,12 @@ function BulkActionModal({
             <label className="label">City</label>
             <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Leave blank = no change" />
           </div>
-          <div>
-            <label className="label">Source</label>
-            <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="Leave blank = no change" />
-          </div>
+          {showSource && (
+            <div>
+              <label className="label">Source</label>
+              <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="Leave blank = no change" />
+            </div>
+          )}
           <div>
             <label className="label">Gender</label>
             <Select value={gender} onChange={(e) => setGender(e.target.value)}>
@@ -2698,20 +2716,24 @@ function BulkActionModal({
  *  Profile                                                           *
  * ------------------------------------------------------------------ */
 
-const TABS = ['Overview', 'Timeline', 'Documents', 'Notes', 'Submissions', 'Calls'] as const;
+const TABS = ['Overview', 'Notes', 'Timeline', 'Documents', 'Submissions', 'Calls'] as const;
 
 function CandidateProfile({
-  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onDelete, onReload, onClose, showClose, onToggleStar,
+  cand, masked, lockedByRole, canEdit, isAdmin, onToggleMask, onEdit, onDelete, onReload, onClose, showClose, onToggleStar, initialTab,
 }: {
   cand: DeskCandidate; masked: boolean; lockedByRole: boolean;
   canEdit: boolean; isAdmin: boolean;
   onToggleMask: () => void; onEdit: () => void; onDelete?: () => void; onReload: () => void;
   onClose?: () => void; showClose?: boolean;
   onToggleStar?: (next: boolean) => void;
+  initialTab?: (typeof TABS)[number];
 }) {
   const { go, caps, openModal, openComposer } = useDesk();
   const c = caps();
-  const [tab, setTab] = useState<(typeof TABS)[number]>('Overview');
+  const [tab, setTab] = useState<(typeof TABS)[number]>(initialTab || 'Overview');
+  React.useEffect(() => {
+    if (initialTab) setTab(initialTab);
+  }, [initialTab, cand.id]);
   const [noteDraft, setNoteDraft] = useState('');
   const [shared, setShared] = useState(true);
   const [starBusy, setStarBusy] = useState(false);
@@ -2928,6 +2950,14 @@ function CandidateProfile({
           <Button
             variant="ghost"
             size="sm"
+            icon="note_add"
+            title="Add note"
+            aria-label="Add note"
+            onClick={() => setTab('Notes')}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
             icon="edit_note"
             title="Compose message"
             aria-label="Compose message"
@@ -3033,7 +3063,7 @@ function CandidateProfile({
                 ['Phone', cand.piiMasked ? (cand.phone || '') : masked ? maskPhone(cand.phone) : cand.phone || ''],
                 ['Email', cand.piiMasked ? (cand.email || '') : masked ? maskEmail(cand.email) : cand.email || ''],
                 ['Location', cand.city || ''],
-                ['Source', cand.source || ''],
+                ...(isAdmin ? [['Source', cand.source || ''] as [string, string]] : []),
                 ['Current CTC', cand.currentCtc ? `₹${cand.currentCtc} LPA` : ''],
                 ['Expected CTC', cand.expectedCtc ? `₹${cand.expectedCtc} LPA` : ''],
                 ['Notice', cand.noticeDays ? `${cand.noticeDays} days${cand.buyout ? ' · buyout' : ''}` : (cand.availability || '')],
@@ -3389,6 +3419,7 @@ function EditCandidateModal({
                 {field('Email', 'email')}
                 {field('City', 'city')}
                 {field('Gender', 'gender')}
+                {isAdmin && field('Source', 'source')}
               </>
             ))}
 
@@ -3418,7 +3449,7 @@ function EditCandidateModal({
                     )}
                   </Select>
                 </div>
-                {field('Source', 'source')}
+
               </>
             ))}
 

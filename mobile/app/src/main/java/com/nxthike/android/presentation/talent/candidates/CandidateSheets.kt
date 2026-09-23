@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
@@ -170,6 +171,7 @@ fun CandidateQuickActionsSheetContent(
     onCall: () -> Unit,
     onMessage: () -> Unit,
     onStage: () -> Unit,
+    onNote: () -> Unit,
     onToggleStar: () -> Unit,
 ) {
     val dnc = candidate.isDnc
@@ -196,6 +198,7 @@ fun CandidateQuickActionsSheetContent(
         )
         QuickAction(Icons.Default.Chat, "Message", onMessage, tint = T.Teal)
         QuickAction(Icons.Default.Timeline, "Change stage", onStage, tint = T.Purple)
+        QuickAction(Icons.Default.Note, "Add note", onNote, tint = T.AmberInk)
         QuickAction(
             if (candidate.starred) Icons.Default.Star else Icons.Default.StarBorder,
             if (candidate.starred) "Remove star" else "Star candidate",

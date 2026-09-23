@@ -77,6 +77,13 @@ android {
     }
 }
 
+android.applicationVariants.configureEach {
+    val apkName = if (buildType.name == "debug") "nxthike-dev-app.apk" else "nxthike-dev-app-$name.apk"
+    outputs.configureEach {
+        (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = apkName
+    }
+}
+
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
     implementation(composeBom)

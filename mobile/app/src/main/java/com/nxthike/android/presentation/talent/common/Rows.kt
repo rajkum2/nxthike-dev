@@ -33,6 +33,7 @@ import com.nxthike.android.core.model.isDnc
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Note
 
 /* ------------------------------------------------------------------ *
  *  Flags                                                             *
@@ -99,6 +100,7 @@ fun CandidateCard(
     onCall: () -> Unit,
     onStage: () -> Unit,
     onMore: () -> Unit,
+    onNote: () -> Unit = onOpen,
     modifier: Modifier = Modifier,
 ) {
     val dnc = candidate.isDnc
@@ -170,6 +172,14 @@ fun CandidateCard(
                 }
             }
 
+            IconTile(
+                Icons.Default.Note,
+                onNote,
+                size = 44.dp,
+                background = T.AmberTint,
+                tint = T.AmberInk,
+                iconSize = 20.dp,
+            )
             IconTile(
                 if (dnc) Icons.Default.Block else Icons.Default.Call,
                 onCall,

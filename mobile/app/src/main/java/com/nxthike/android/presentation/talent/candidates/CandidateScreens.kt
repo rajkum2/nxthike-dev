@@ -80,6 +80,7 @@ fun CandidatesScreen(
     onAdd: () -> Unit,
     onFilters: () -> Unit,
     onStage: (CandidateDto) -> Unit,
+    onNote: (CandidateDto) -> Unit = {},
     onMore: (CandidateDto) -> Unit,
     onSaveSearch: () -> Unit,
 ) {
@@ -185,6 +186,7 @@ fun CandidatesScreen(
                             onOpen = { onOpen(c.id) },
                             onCall = { onCall(c.id) },
                             onStage = { onStage(c) },
+                            onNote = { onNote(c) },
                             onMore = { onMore(c) },
                         )
                     }
@@ -382,6 +384,7 @@ private val GENDERS = listOf("Male", "Female")
 @Composable
 fun CandidateFiltersSheetContent(
     state: CandidatesState,
+    showSource: Boolean,
     onApply: (CandidateFilters) -> Unit,
     onReset: () -> Unit,
     onSave: (CandidateFilters) -> Unit,
@@ -514,11 +517,13 @@ fun CandidateFiltersSheetContent(
                 )
             }
 
-            FilterSection(
-                "Source", draft.source, open == "source", { toggle("source") },
-                onClear = { draft = draft.copy(source = null) },
-            ) {
-                ChipOptions(CandidateTags.SOURCES, draft.source) { draft = draft.copy(source = it) }
+            if (showSource) {
+                FilterSection(
+                    "Source", draft.source, open == "source", { toggle("source") },
+                    onClear = { draft = draft.copy(source = null) },
+                ) {
+                    ChipOptions(CandidateTags.SOURCES, draft.source) { draft = draft.copy(source = it) }
+                }
             }
 
             FilterSection(
@@ -590,11 +595,21 @@ fun CandidateFiltersSheetContent(
  *  SCR-CAND-02 · Candidate profile                                   *
  * ------------------------------------------------------------------ */
 
+/** Set before opening a profile when the note composer should be showing. */
+object ProfileLaunch {
+    var notesFor: String? = null
+    fun takeNotes(id: String): Boolean {
+        if (notesFor != id) return false
+        notesFor = null
+        return true
+    }
+}
+
 private val PROFILE_TABS = listOf(
     "overview" to "Overview",
+    "notes" to "Notes",
     "timeline" to "Timeline",
     "docs" to "Documents",
-    "notes" to "Notes",
     "calls" to "Calls",
 )
 
@@ -615,8 +630,11 @@ fun CandidateProfileScreen(
 ) {
     val state by vm.state.collectAsState()
     val prefs by session.prefs.collectAsState()
+    val caps by session.caps.collectAsState()
     val context = LocalContext.current
-    var tab by rememberSaveable { mutableStateOf("overview") }
+    var tab by rememberSaveable(candidateId) {
+        mutableStateOf(if (ProfileLaunch.takeNotes(candidateId)) "notes" else "overview")
+    }
     var noteDraft by rememberSaveable { mutableStateOf("") }
     var noteShared by rememberSaveable { mutableStateOf(true) }
 
@@ -723,6 +741,9 @@ fun CandidateProfileScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     ProfileAction(Icons.Default.Call, "Call", T.IndigoTint, T.Indigo, Modifier.weight(1f), onCall)
+                    ProfileAction(Icons.Default.Note, "Note", T.AmberTint, T.AmberInk, Modifier.weight(1f)) {
+                        tab = "notes"
+                    }
                     ProfileAction(Icons.Default.Chat, "WhatsApp", T.TealTint, T.Teal, Modifier.weight(1f), onCompose)
                     ProfileAction(Icons.Default.Sms, "SMS", T.BlueTint, T.Blue, Modifier.weight(1f)) {
                         DialerHelper.sms(context, c.phone)
@@ -770,7 +791,7 @@ fun CandidateProfileScreen(
                                         "Phone" to (if (prefs.maskPii) Fmt.maskPhone(c.phone) else c.phone.orEmpty()),
                                         "Email" to (if (prefs.maskPii) Fmt.maskEmail(c.email) else c.email.orEmpty()),
                                         "Location" to c.city.orEmpty(),
-                                        "Source" to (c.sourceLabel ?: "—"),
+                                        *(if (caps.isAdmin) arrayOf("Source" to (c.sourceLabel ?: "—")) else emptyArray()),
                                         "Experience" to (c.experienceDuration ?: c.hasWorkExperience ?: "—"),
                                         "Availability" to (c.availability ?: "—"),
                                         "Institute" to (c.institute ?: "—"),
@@ -988,6 +1009,7 @@ private fun timelineVisual(kind: TimelineEntry.Kind): Triple<ImageVector, Color,
 @Composable
 fun CandidateEditScreen(
     candidateId: String,
+    showSource: Boolean,
     onDone: (String) -> Unit,
     onBack: () -> Unit,
     onOpenExisting: (String) -> Unit,
@@ -1059,6 +1081,15 @@ fun CandidateEditScreen(
                 TField(f.latestRole, { v -> vm.update { it.copy(latestRole = v) } }, label = "Current role", placeholder = "e.g. Senior Java Developer")
                 TField(f.latestCompany, { v -> vm.update { it.copy(latestCompany = v) } }, label = "Current company", placeholder = "e.g. Infosys")
                 TField(f.city, { v -> vm.update { it.copy(city = v) } }, label = "City", placeholder = "e.g. Pune")
+                if (showSource) {
+                    TText("Source", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp, top = 4.dp))
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        CandidateTags.SOURCES.forEach { src ->
+                            FilterChip(src, f.source == src, { vm.update { form -> form.copy(source = src) } }, height = 40.dp)
+                        }
+                    }
+                }
                 TField(f.skills, { v -> vm.update { it.copy(skills = v) } }, label = "Skills", placeholder = "Java, Spring Boot, Kafka", singleLine = false, minHeight = 60.dp)
                 TField(f.availability, { v -> vm.update { it.copy(availability = v) } }, label = "Availability", placeholder = "e.g. immediate, buyout possible")
 
@@ -1098,16 +1129,6 @@ fun CandidateEditScreen(
                                 { vm.update { form -> form.copy(status = s.id) } },
                                 accent = s.color, height = 40.dp,
                             )
-                        }
-                    }
-                }
-
-                Column {
-                    TText("Source", Type.label, T.InkMuted, Modifier.padding(bottom = 8.dp))
-                    @OptIn(ExperimentalLayoutApi::class)
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        CandidateTags.SOURCES.forEach { src ->
-                            FilterChip(src, f.source == src, { vm.update { form -> form.copy(source = src) } }, height = 40.dp)
                         }
                     }
                 }
