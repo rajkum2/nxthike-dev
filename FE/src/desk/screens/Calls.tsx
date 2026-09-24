@@ -22,7 +22,7 @@ import {
  * ------------------------------------------------------------------ */
 
 export function QueueScreen() {
-  const { session, caps, go, openComposer } = useDesk();
+  const { session, caps, go, openComposer, candidateId: requestedId } = useDesk();
   const c = caps();
   const isMobile = useMediaQuery('(max-width: 899px)');
   const cw = session?.settings.callingWindow;
@@ -44,7 +44,29 @@ export function QueueScreen() {
   const queue = useLoad(() => deskApi.callQueue({ pageSize: 100 }), []);
   const stats = useLoad(() => deskApi.callStats(), [logged.length]);
 
-  const rows = queue.data?.items || [];
+  // Opened from a candidate's call icon: start on that candidate. If they aren't in the queue
+  // (another stage, or beyond the first 100) they are added at the top as a one-off.
+  const requested = useLoad(
+    async () => (requestedId ? deskApi.candidate(requestedId) : null),
+    [requestedId],
+  );
+  const rows = useMemo(() => {
+    const items = queue.data?.items || [];
+    const cand = requested.data;
+    if (!cand || !requestedId || items.some((i) => i.candidateId === requestedId)) return items;
+    const oneOff: QueueItem = {
+      candidateId: cand.id, name: cand.name, phone: cand.phone, email: cand.email, city: cand.city,
+      roleId: cand.roleId, roleName: cand.roleName, status: cand.status, notes: cand.notes || '',
+      lastDisposition: null, lastCalledAt: null, starred: !!cand.starred,
+    };
+    return [oneOff, ...items];
+  }, [queue.data, requested.data, requestedId]);
+  const jumpedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!requestedId || jumpedFor.current === requestedId) return;
+    const i = rows.findIndex((row) => row.candidateId === requestedId);
+    if (i >= 0) { setCursor(i); jumpedFor.current = requestedId; }
+  }, [requestedId, rows]);
   const current: QueueItem | undefined = rows[cursor];
 
   // The only duration signal a browser has: a stopwatch the user controls.

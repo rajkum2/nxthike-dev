@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.home
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nxthike.android.core.model.DispositionCategory
@@ -395,7 +396,7 @@ class TasksViewModel @Inject constructor(
                         id = "cb-${log.id}",
                         title = "Call back ${log.candidateName ?: "candidate"}",
                         due = if (at.isBefore(now)) "Overdue" else Fmt.whenLabel(at),
-                        link = log.roleName.orEmpty().ifBlank { "Callback" },
+                        link = SourcePolicy.role(log.roleName).ifBlank { "Callback" },
                         urgent = at.isBefore(now),
                         candidateId = log.candidateId,
                     )
@@ -449,7 +450,7 @@ class SearchViewModel @Inject constructor(
                 if (hits.isNotEmpty()) {
                     out += SearchGroup(
                         "REQUISITIONS",
-                        hits.map { SearchHit(it.id, it.name, "${it.count} in pipeline", "req") },
+                        hits.map { SearchHit(it.id, SourcePolicy.role(it.name), "${it.count} in pipeline", "req") },
                     )
                 }
             }

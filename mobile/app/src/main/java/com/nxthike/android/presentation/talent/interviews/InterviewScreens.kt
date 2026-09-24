@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.interviews
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -354,7 +355,7 @@ fun ScheduleInterviewScreen(
                             Avatar(selected!!.name, selected!!.id, 38.dp)
                             Column(Modifier.weight(1f)) {
                                 TText(selected!!.name ?: "Unnamed", Type.cardTitleSm, T.Ink, maxLines = 1)
-                                TText(selected!!.roleName, Type.bodySm, T.InkMuted, maxLines = 1)
+                                TText(SourcePolicy.role(selected!!.roleName), Type.bodySm, T.InkMuted, maxLines = 1)
                             }
                         }
                     }

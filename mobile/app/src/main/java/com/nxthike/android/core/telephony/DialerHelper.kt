@@ -10,6 +10,28 @@ import android.widget.Toast
  * Advanced auto call-log capture can be added later.
  */
 object DialerHelper {
+    /**
+     * Number in the form wa.me expects: country code + number, digits only. Indian numbers are
+     * stored bare ("9789819592") or with a trunk 0 ("08309700415"); WhatsApp rejects both with
+     * "missing a country code". Returns null when there is no usable number.
+     */
+    fun whatsAppNumber(raw: String?): String? {
+        if (raw.isNullOrBlank()) return null
+        // "98xxxxxxxx / 97xxxxxxxx" — the first number only.
+        val first = raw.split('/', ',', ';', '|').map { it.trim() }.firstOrNull { it.any(Char::isDigit) } ?: return null
+        val international = first.startsWith("+") || first.startsWith("00")
+        var d = first.filter(Char::isDigit)
+        if (first.startsWith("00")) d = d.removePrefix("00")
+        if (d.length == 11 && d.startsWith("0")) d = d.substring(1)
+        if (d.length == 13 && d.startsWith("910")) d = "91" + d.substring(3) // +91 0xxxxxxxxxx
+        return when {
+            d.length == 10 -> "91$d"
+            d.length == 12 && d.startsWith("91") -> d
+            international && d.length in 8..15 -> d
+            else -> null
+        }
+    }
+
     fun dial(context: Context, phone: String?) {
         val digits = phone?.filter { it.isDigit() || it == '+' }.orEmpty()
         if (digits.length < 6) {
@@ -27,13 +49,8 @@ object DialerHelper {
     }
 
     fun openWhatsApp(context: Context, phone: String?, message: String = "") {
-        val digits = phone?.filter { it.isDigit() }.orEmpty()
-        val e164 = when {
-            digits.length == 10 -> "91$digits"
-            digits.startsWith("91") && digits.length >= 12 -> digits
-            else -> digits
-        }
-        if (e164.length < 10) {
+        val e164 = whatsAppNumber(phone)
+        if (e164 == null) {
             Toast.makeText(context, "No valid phone for WhatsApp", Toast.LENGTH_SHORT).show()
             return
         }

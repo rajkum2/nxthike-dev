@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.requisitions
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -85,10 +86,10 @@ fun RequisitionsScreen(
                     TCard(shape = T.RCardLg, padding = 14.dp, onClick = { onOpen(req.id) }) {
                         Row(verticalAlignment = Alignment.Top) {
                             Column(Modifier.weight(1f)) {
-                                TText(req.title, Type.section, T.Ink, maxLines = 2)
+                                TText(SourcePolicy.role(req.title), Type.section, T.Ink, maxLines = 2)
                                 // Only when there is something to add — the counts
                                 // below already carry the pipeline size.
-                                req.description?.takeIf { it.isNotBlank() }?.let {
+                                req.description?.let { SourcePolicy.text(it) }?.takeIf { it.isNotBlank() }?.let {
                                     TText(it, Type.bodySm, T.InkMuted, Modifier.padding(top = 3.dp), maxLines = 1)
                                 }
                             }
@@ -169,7 +170,7 @@ fun RequisitionDetailScreen(
 
     Box(Modifier.fillMaxSize().background(T.Bg)) {
         Column(Modifier.fillMaxSize()) {
-            TopBar(req?.title ?: prefs.mode.reqWord, onBack)
+            TopBar(req?.title?.let { SourcePolicy.role(it) } ?: prefs.mode.reqWord, onBack)
             when {
                 state.loading -> SkeletonList(4, Modifier.padding(horizontal = T.Gutter))
                 req == null -> ErrorState(state.error ?: "Not found", onRetry = { vm.load(roleId) })
@@ -177,11 +178,11 @@ fun RequisitionDetailScreen(
                     Modifier.weight(1f).verticalScroll(rememberScrollState())
                         .padding(horizontal = T.Gutter).padding(bottom = 100.dp),
                 ) {
-                    TText(req.title, Type.screenTitle, T.Ink, maxLines = 3)
+                    TText(SourcePolicy.role(req.title), Type.screenTitle, T.Ink, maxLines = 3)
                     TText(
                         listOfNotNull(
                             prefs.mode.clientWord,
-                            req.description?.takeIf { it.isNotBlank() },
+                            req.description?.let { SourcePolicy.text(it) }?.takeIf { it.isNotBlank() },
                         ).joinToString(" · "),
                         Type.body, T.InkMuted, Modifier.padding(top = 4.dp),
                     )
@@ -360,7 +361,7 @@ fun PipelineBoardScreen(
 
     Column(Modifier.fillMaxSize().background(T.Board)) {
         Column(Modifier.fillMaxWidth().background(T.Bg)) {
-            TopBar("Pipeline", onBack, subtitle = state.roleName) {
+            TopBar("Pipeline", onBack, subtitle = SourcePolicy.role(state.roleName)) {
                 IconTile(Icons.AutoMirrored.Filled.ViewList, onListView, size = 36.dp, iconSize = 19.dp)
                 IconTile(Icons.Default.ViewKanban, {}, size = 36.dp, background = T.IndigoTint, tint = T.Indigo, iconSize = 19.dp)
             }
@@ -495,7 +496,7 @@ fun PipelineListScreen(
     LaunchedEffect(roleId) { vm.load(roleId) }
 
     Column(Modifier.fillMaxSize().background(T.Bg)) {
-        TopBar("Pipeline list", onBack, subtitle = state.roleName) {
+        TopBar("Pipeline list", onBack, subtitle = SourcePolicy.role(state.roleName)) {
             IconTile(Icons.Default.ViewKanban, onBoardView, size = 36.dp, iconSize = 19.dp)
         }
         when {

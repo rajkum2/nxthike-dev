@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.candidates
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nxthike.android.core.model.CandidateTags
@@ -480,6 +481,8 @@ class CandidateProfileViewModel @Inject constructor(
         return raw.lines()
             .map { it.trim() }
             .filter { it.isNotEmpty() }
+            // Importer lines ("Source: …xlsx", "Origin: Apna", "Apna job id: …") are admin-only.
+            .filterNot { SourcePolicy.hidesNoteLine(it) }
             .map { line ->
                 val m = stampRe.find(line)
                 if (m != null) {
@@ -527,7 +530,10 @@ class CandidateProfileViewModel @Inject constructor(
         }
         out += TimelineEntry(
             TimelineEntry.Kind.Created, "Candidate created",
-            listOfNotNull(c.sourceLabel?.let { "Sourced from $it" }, c.roleName)
+            listOfNotNull(
+                c.sourceLabel?.takeIf { SourcePolicy.visible }?.let { "Sourced from $it" },
+                SourcePolicy.role(c.roleName).takeIf { it.isNotBlank() },
+            )
                 .joinToString(" · "),
             Fmt.parse(c.createdAt), null,
         )
@@ -886,7 +892,7 @@ class MergeViewModel @Inject constructor(
         MergeField("Email", a.email.orEmpty(), b.email.orEmpty(), "email"),
         MergeField("City", a.city.orEmpty(), b.city.orEmpty(), "city"),
         MergeField("Current role", a.latestRole.orEmpty(), b.latestRole.orEmpty(), "latestRole"),
-        MergeField("Requisition", a.roleName, b.roleName, "roleName"),
+        MergeField("Requisition", SourcePolicy.role(a.roleName), SourcePolicy.role(b.roleName), "roleName"),
     ).filter { it.left.isNotBlank() || it.right.isNotBlank() }
 
     fun pick(key: String, side: String) =

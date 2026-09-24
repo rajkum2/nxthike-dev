@@ -411,7 +411,7 @@ fun TalentNavHost() {
                 val id = entry.arguments?.getString("id") ?: "new"
                 CandidateEditScreen(
                     candidateId = id,
-                    showSource = session.caps.value.isAdmin,
+                    showSource = session.caps.value.seesSource,
                     onDone = { newId ->
                         candidates.load()
                         nav.popBackStack()
@@ -786,7 +786,7 @@ fun TalentNavHost() {
 
                 AppSheet.Filters -> CandidateFiltersSheetContent(
                     state = candidatesState,
-                    showSource = session.caps.value.isAdmin,
+                    showSource = session.caps.value.seesSource,
                     onApply = { candidates.setFilters(it); sheet = null },
                     onReset = { candidates.clearFilters() },
                     // Apply first, then name it: the search being saved is the one

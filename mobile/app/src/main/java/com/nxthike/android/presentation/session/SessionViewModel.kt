@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.session
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nxthike.android.core.model.CallingWindow
@@ -116,6 +117,8 @@ class SessionViewModel @Inject constructor(
     val profileResolved: StateFlow<Boolean> = _profileResolved.asStateFlow()
 
     init {
+        // Source visibility follows the persona; screens read SourcePolicy.visible.
+        viewModelScope.launch { _caps.collect { SourcePolicy.visible = it.seesSource } }
         // Track real connectivity, and drain the outbox the moment it returns.
         viewModelScope.launch {
             networkMonitor.online.collect { online ->

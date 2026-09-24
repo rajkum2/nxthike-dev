@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.home
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -223,7 +224,7 @@ fun HomeScreen(
                                         Column(Modifier.weight(1f)) {
                                             TText(row.name, Type.cardTitle, T.Ink, maxLines = 1)
                                             TText(
-                                                row.roleName.ifBlank { row.city.orEmpty() },
+                                                SourcePolicy.role(row.roleName).ifBlank { row.city.orEmpty() },
                                                 Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp), maxLines = 1,
                                             )
                                         }

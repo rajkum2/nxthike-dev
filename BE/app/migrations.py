@@ -172,6 +172,28 @@ async def ensure_columns(engine: AsyncEngine) -> list[str]:
     return added
 
 
+async def normalize_candidate_statuses(engine: AsyncEngine) -> int:
+    """
+    Rewrite statuses stored under another client's words (e.g. "screening" from older mobile
+    builds) to the canonical value, so the web desk shows the right stage. Idempotent: once
+    every row is canonical it updates nothing.
+    """
+    from app.schemas.hiring import STATUS_ALIASES
+
+    fixed = 0
+    async with engine.begin() as conn:
+        present = await conn.run_sync(lambda c: "candidates" in inspect(c).get_table_names())
+        if not present:
+            return 0
+        for alias, canonical in STATUS_ALIASES.items():
+            res = await conn.execute(
+                text("UPDATE candidates SET status = :canonical WHERE lower(trim(status)) = :alias"),
+                {"canonical": canonical, "alias": alias},
+            )
+            fixed += res.rowcount or 0
+    return fixed
+
+
 async def run_migrations(engine: AsyncEngine) -> None:
     try:
         added = await ensure_columns(engine)
@@ -182,3 +204,9 @@ async def run_migrations(engine: AsyncEngine) -> None:
         print(f"[migrate] added {len(added)} column(s): {', '.join(added)}")
     else:
         print("[migrate] schema already current")
+    try:
+        fixed = await normalize_candidate_statuses(engine)
+        if fixed:
+            print(f"[migrate] normalised {fixed} candidate status value(s)")
+    except Exception as e:  # pragma: no cover - defensive
+        print(f"[migrate] WARNING: could not normalise statuses: {type(e).__name__}: {e}")

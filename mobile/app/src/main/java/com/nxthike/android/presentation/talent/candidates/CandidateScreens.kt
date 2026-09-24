@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.candidates
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -422,15 +423,15 @@ fun CandidateFiltersSheetContent(
         ) {
             FilterSection(
                 "Requisition",
-                state.roles.firstOrNull { it.id == draft.roleId }?.name,
+                state.roles.firstOrNull { it.id == draft.roleId }?.name?.let { SourcePolicy.role(it) },
                 open == "req", { toggle("req") },
                 onClear = { draft = draft.copy(roleId = null) },
             ) {
                 NarrowingOptions(
-                    state.roles.map { it.name },
-                    state.roles.firstOrNull { it.id == draft.roleId }?.name,
+                    state.roles.map { SourcePolicy.role(it.name) },
+                    state.roles.firstOrNull { it.id == draft.roleId }?.name?.let { SourcePolicy.role(it) },
                     { name ->
-                        draft = draft.copy(roleId = name?.let { n -> state.roles.first { it.name == n }.id })
+                        draft = draft.copy(roleId = name?.let { n -> state.roles.first { SourcePolicy.role(it.name) == n }.id })
                     },
                     "Requisitions haven't loaded — close and reopen this sheet.",
                 )
@@ -791,11 +792,11 @@ fun CandidateProfileScreen(
                                         "Phone" to (if (prefs.maskPii) Fmt.maskPhone(c.phone) else c.phone.orEmpty()),
                                         "Email" to (if (prefs.maskPii) Fmt.maskEmail(c.email) else c.email.orEmpty()),
                                         "Location" to c.city.orEmpty(),
-                                        *(if (caps.isAdmin) arrayOf("Source" to (c.sourceLabel ?: "—")) else emptyArray()),
+                                        *(if (caps.seesSource) arrayOf("Source" to (c.sourceLabel ?: "—")) else emptyArray()),
                                         "Experience" to (c.experienceDuration ?: c.hasWorkExperience ?: "—"),
                                         "Availability" to (c.availability ?: "—"),
                                         "Institute" to (c.institute ?: "—"),
-                                        "Requisition" to c.roleName,
+                                        "Requisition" to SourcePolicy.role(c.roleName),
                                     ),
                                     monoValues = setOf("Phone"),
                                 )
@@ -863,7 +864,9 @@ fun CandidateProfileScreen(
                         }
 
                         "docs" -> {
-                            val resume = c.resumeLink ?: c.downloadLink ?: c.pdfFile
+                            // A resume hosted on a job board (employer.apna.co/…) names the source — admin-only.
+                            val resume = listOf(c.resumeLink, c.downloadLink, c.pdfFile)
+                                .firstOrNull { !it.isNullOrBlank() && !SourcePolicy.hidesLink(it) }
                             if (resume.isNullOrBlank()) {
                                 StateBlock(
                                     Icons.Default.Description, "No documents attached",
@@ -1097,7 +1100,7 @@ fun CandidateEditScreen(
 
                 // Opens itself until a requisition is picked — it is required, so
                 // an empty collapsed row would hide the one thing still blocking save.
-                val pickedRole = state.roles.firstOrNull { it.id == f.roleId }?.name
+                val pickedRole = state.roles.firstOrNull { it.id == f.roleId }?.name?.let { SourcePolicy.role(it) }
                 var reqOpen by rememberSaveable { mutableStateOf(false) }
                 FilterSection(
                     "Requisition *",
@@ -1106,11 +1109,11 @@ fun CandidateEditScreen(
                     onToggle = { reqOpen = !reqOpen },
                 ) {
                     NarrowingOptions(
-                        state.roles.map { it.name },
+                        state.roles.map { SourcePolicy.role(it.name) },
                         pickedRole,
                         { name ->
                             if (name == null) vm.update { form -> form.copy(roleId = "", roleName = "") }
-                            else state.roles.firstOrNull { it.name == name }?.let { r ->
+                            else state.roles.firstOrNull { SourcePolicy.role(it.name) == name }?.let { r ->
                                 vm.pickRole(r)
                                 reqOpen = false
                             }
@@ -1335,7 +1338,9 @@ fun ResumeScreen(candidateId: String, onBack: () -> Unit) {
     val context = LocalContext.current
     LaunchedEffect(candidateId) { vm.load(candidateId) }
 
-    val link = state.candidate?.let { it.resumeLink ?: it.downloadLink ?: it.pdfFile }
+    val link = state.candidate?.let { c ->
+        listOf(c.resumeLink, c.downloadLink, c.pdfFile).firstOrNull { !it.isNullOrBlank() && !SourcePolicy.hidesLink(it) }
+    }
 
     Column(Modifier.fillMaxSize().background(T.NightDeep)) {
         Row(

@@ -42,6 +42,9 @@ value class Caps(val raw: Map<String, Any?>) {
     /** Only the literal `true` — `"partial"` is truthy but is not full admin. */
     val isAdmin: Boolean get() = raw["admin"] == true
 
+    /** Candidate source / import channel is admin-only (see [SourcePolicy]). */
+    val seesSource: Boolean get() = isAdmin
+
     /** True when the server will mask `phone` and `email` for this persona. */
     val masksPii: Boolean get() = capIn("db", "limitedPII", "ownReqs", "ownInterviews")
 

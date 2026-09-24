@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 PIPELINE_STATUSES = (
@@ -14,6 +14,38 @@ PIPELINE_STATUSES = (
     "on_hold",
     "not_working",
 )
+
+#: Words other clients have sent for the same stages (older TalentDialer mobile builds used the
+#: recruiting labels). Normalised on write so they can never be stored as an unknown status —
+#: the web desk falls back to "Sourced" for anything it doesn't recognise.
+STATUS_ALIASES = {
+    "sourced": "new",
+    "screening": "reviewing",
+    "submitted": "shortlisted",
+    "dropped": "rejected",
+    "on hold": "on_hold",
+    "not working": "not_working",
+}
+
+
+def normalize_status(value: str | None) -> str | None:
+    """Canonical pipeline status, or ValueError (→ HTTP 422) for anything unknown."""
+    if value is None:
+        return None
+    v = value.strip().lower()
+    v = STATUS_ALIASES.get(v, v)
+    if v not in PIPELINE_STATUSES:
+        raise ValueError(f"Invalid status {value!r}. Allowed: {', '.join(PIPELINE_STATUSES)}")
+    return v
+
+
+class _ValidStatus:
+    """Mixin: validates and normalises a `status` field on write payloads."""
+
+    @field_validator("status", check_fields=False)
+    @classmethod
+    def _check_status(cls, v):
+        return normalize_status(v)
 
 
 class HiringRoleCreate(BaseModel):
@@ -42,7 +74,7 @@ class HiringRoleResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class CandidateBase(BaseModel):
+class CandidateBase(_ValidStatus, BaseModel):
     roleId: str
     roleName: str = ""
     status: str = "new"
@@ -115,7 +147,7 @@ class CandidateCreate(CandidateBase):
     id: str | None = None
 
 
-class CandidateUpdate(BaseModel):
+class CandidateUpdate(_ValidStatus, BaseModel):
     roleId: str | None = None
     roleName: str | None = None
     status: str | None = None
@@ -195,7 +227,7 @@ class PaginatedCandidateResponse(BaseModel):
     totalPages: int
 
 
-class BulkStatusRequest(BaseModel):
+class BulkStatusRequest(_ValidStatus, BaseModel):
     ids: list[str]
     status: str
 
@@ -245,7 +277,7 @@ class BulkRoleRequest(BaseModel):
     roleName: str | None = None
 
 
-class BulkUpdateRequest(BaseModel):
+class BulkUpdateRequest(_ValidStatus, BaseModel):
     """Apply the same non-empty fields to every selected candidate."""
     ids: list[str]
     status: str | None = None

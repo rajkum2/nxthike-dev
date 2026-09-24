@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.calls
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -226,7 +227,7 @@ fun PreCallScreen(
                             Column {
                                 TText(row.name, Type.barTitle, T.Ink, maxLines = 2)
                                 TText(
-                                    state.candidate?.let { candidateSubtitle(it) } ?: row.roleName,
+                                    state.candidate?.let { candidateSubtitle(it) } ?: SourcePolicy.role(row.roleName),
                                     Type.body, T.InkMuted, Modifier.padding(top = 3.dp), maxLines = 2,
                                 )
                             }
@@ -249,7 +250,7 @@ fun PreCallScreen(
                             listOf(
                                 "Phone" to (row.phone ?: "—"),
                                 "Location" to (row.city ?: "—"),
-                                "Requisition" to row.roleName.ifBlank { "—" },
+                                "Requisition" to SourcePolicy.role(row.roleName).ifBlank { "—" },
                                 "Experience" to (state.candidate?.experienceDuration ?: "—"),
                             ),
                             monoValues = setOf("Phone"),

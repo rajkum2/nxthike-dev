@@ -95,6 +95,31 @@ function messagingChannel(opts: {
   return 'none';
 }
 
+/** `tel:` target: 10-digit Indian mobiles dial as-is, 91-prefixed ones get their +. */
+function telHref(phone?: string | null) {
+  const d = normalizePhoneDigits(phone);
+  return `tel:${d.length === 12 && d.startsWith('91') ? `+${d}` : d}`;
+}
+
+/**
+ * Call icon: hands the number to the phone's dialer (or the desktop softphone) and opens the call
+ * console on this candidate so the outcome can be logged. The `tel:` handoff has to happen inside
+ * the tap itself — mobile browsers ignore a dialer launch that isn't a direct user gesture — which
+ * is why it isn't left to the console's own Start call button.
+ */
+function dialCandidate(cand: { id: string; phone?: string | null; dnc?: boolean | null }) {
+  if (cand.dnc || !hasCallablePhone(cand.phone)) return;
+  const { session, go } = useDesk.getState();
+  const cw = session?.settings.callingWindow;
+  if (cw && cw.isOpen === false) {
+    alert('Outside the calling window — calls are allowed during the workspace calling hours only.');
+    go('queue', { candidateId: cand.id });
+    return;
+  }
+  window.location.href = telHref(cand.phone);
+  go('queue', { candidateId: cand.id });
+}
+
 function hasCallablePhone(phone?: string | null) {
   return normalizePhoneDigits(phone).length >= 10;
 }
@@ -1842,7 +1867,7 @@ export function CandidatesScreen() {
                     title={r.dnc ? 'Blocked · DND' : hasCallablePhone(r.phone) ? 'Call' : 'No phone'}
                     aria-label="Call"
                     disabled={!!r.dnc || !hasCallablePhone(r.phone)}
-                    onClick={() => go('queue', { candidateId: r.id })}
+                    onClick={() => dialCandidate(r)}
                     style={{
                       ...ROW_ACTION_BTN,
                       opacity: !!r.dnc || !hasCallablePhone(r.phone) ? 0.35 : 1,
@@ -2090,7 +2115,7 @@ export function CandidatesScreen() {
                             title={r.dnc ? 'Blocked · DND' : canCall ? 'Call' : 'No phone'}
                             aria-label="Call"
                             disabled={!canCall}
-                            onClick={() => go('queue', { candidateId: r.id })}
+                            onClick={() => dialCandidate(r)}
                             style={{
                               ...ROW_ACTION_BTN,
                               opacity: canCall ? 1 : 0.35,
@@ -2913,7 +2938,7 @@ function CandidateProfile({
               icon="call"
               title={cand.dnc ? 'Blocked · DND' : hasCallablePhone(cand.phone) ? 'Call' : 'No phone'}
               aria-label={cand.dnc ? 'Blocked · DND' : 'Call'}
-              onClick={() => go('queue', { candidateId: cand.id })}
+              onClick={() => dialCandidate(cand)}
               disabled={!!cand.dnc || !hasCallablePhone(cand.phone)}
             />
           )}

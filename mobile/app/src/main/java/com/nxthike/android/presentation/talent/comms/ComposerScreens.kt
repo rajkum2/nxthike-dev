@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.comms
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -111,14 +112,29 @@ object Templates {
         ),
     )
 
+    /** {{org}}, {{ org }}, {{Org}} and {org} all count as the same variable. */
+    private val TOKEN = Regex("""\{\{\s*([A-Za-z_]+)\s*\}\}|\{([A-Za-z_]+)\}""")
+
+    /** Other names templates in the workspace library use for the same values. */
+    private val ALIASES = mapOf(
+        "first_name" to "name", "candidate" to "name", "candidate_name" to "name",
+        "job_title" to "role", "role_name" to "role",
+        "company" to "client",
+        "location" to "loc", "city" to "loc",
+        "recruiter_name" to "recruiter",
+        "organisation" to "org", "organization" to "org", "workspace" to "org",
+    )
+
+    /** Fills every known variable; an unknown one is left as written so it stays visible. */
     fun resolve(body: String, vars: Map<String, String>): String =
-        vars.entries.fold(body) { acc, (k, v) ->
-            acc.replace("{{$k}}", v).replace("{$k}", v)
+        TOKEN.replace(body) { m ->
+            val raw = m.groupValues[1].ifEmpty { m.groupValues[2] }.lowercase()
+            vars[ALIASES[raw] ?: raw] ?: m.value
         }
 
     /** Role titles imported from job boards sometimes carry the source in the name. */
     fun publicLabel(raw: String?): String {
-        val text = raw?.trim().orEmpty()
+        val text = SourcePolicy.stripChannel(raw)
         if (text.isEmpty()) return ""
         return text
             .replace(Regex("\\s*\\(\\s*Naukri Import\\s*\\)", RegexOption.IGNORE_CASE), "")
@@ -401,7 +417,7 @@ fun ComposerScreen(
                         when (state.channel) {
                             Channel.WhatsApp -> DialerHelper.openWhatsApp(context, c.phone, body)
                             Channel.Sms -> DialerHelper.sms(context, c.phone, body)
-                            Channel.Email -> DialerHelper.email(context, c.email, c.roleName, body)
+                            Channel.Email -> DialerHelper.email(context, c.email, Templates.publicLabel(c.roleName), body)
                         }
                         vm.logOutreach(state.channel, body) { onBack() }
                     },

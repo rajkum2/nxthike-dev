@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.talent.common
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -198,15 +199,8 @@ fun candidateSubtitle(c: CandidateDto): String = listOfNotNull(
     publicRole(c.latestCompany?.takeIf { it.isNotBlank() } ?: c.institute?.takeIf { it.isNotBlank() }),
 ).joinToString(" · ").ifBlank { c.email ?: c.phone ?: "No details on file" }
 
-private fun publicRole(raw: String?): String? {
-    val text = raw?.trim().orEmpty()
-    if (text.isEmpty()) return null
-    val cleaned = text
-        .replace(Regex("\\s*\\(\\s*Naukri Import\\s*\\)", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("\\s+Naukri Import\\b", RegexOption.IGNORE_CASE), "")
-        .trim()
-    return cleaned.ifBlank { null }
-}
+private fun publicRole(raw: String?): String? =
+    SourcePolicy.stripChannel(raw).ifBlank { null }
 
 /**
  * Dial-list row. Denser than the search row: it leads with the last outcome and
@@ -234,7 +228,7 @@ fun QueueCard(
                 TText(row.name, Type.cardTitle, T.Ink, Modifier.weight(1f, false), maxLines = 1)
                 ComplianceFlag(row.dnc, consent)
             }
-            row.roleName.takeIf { it.isNotBlank() }?.let {
+            SourcePolicy.role(row.roleName).takeIf { it.isNotBlank() }?.let {
                 TText(it, Type.bodySm, T.InkMuted, Modifier.padding(top = 2.dp), maxLines = 1)
             }
             Spacer(Modifier.height(8.dp))
@@ -305,7 +299,7 @@ fun CallLogCard(log: CallLogDto, modifier: Modifier = Modifier, showName: Boolea
         Spacer(Modifier.height(7.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             if (log.durationEstimated) TText("ESTIMATED", Type.monoXs, T.InkFaint)
-            log.roleName?.takeIf { it.isNotBlank() }?.let { TText(it, Type.bodySm, T.InkFaint, maxLines = 1) }
+            log.roleName?.takeIf { it.isNotBlank() }?.let { SourcePolicy.role(it) }?.let { TText(it, Type.bodySm, T.InkFaint, maxLines = 1) }
         }
     }
 }

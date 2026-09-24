@@ -1,5 +1,6 @@
 package com.nxthike.android.presentation.calls
 
+import com.nxthike.android.core.model.SourcePolicy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nxthike.android.core.model.CandidateTags
@@ -257,7 +258,7 @@ class CallFlowViewModel @Inject constructor(
         val points = mutableListOf<String>()
         val role = listOfNotNull(c.latestRole, c.latestCompany).joinToString(" at ").takeIf { it.isNotBlank() }
         if (role != null) points += "Currently $role. Open with what changed since they applied."
-        c.roleName.takeIf { it.isNotBlank() }?.let { points += "Applied for $it — confirm they still want this role." }
+        SourcePolicy.role(c.roleName).takeIf { it.isNotBlank() }?.let { points += "Applied for $it — confirm they still want this role." }
         val skills = Fmt.splitList(c.relevantSkills ?: c.otherSkills).take(4)
         if (skills.isNotEmpty()) points += "Probe on ${skills.joinToString(", ")}."
         c.availability?.takeIf { it.isNotBlank() }?.let { points += "Stated availability: $it. Confirm notice period." }
