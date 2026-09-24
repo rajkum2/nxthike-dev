@@ -101,23 +101,54 @@ function telHref(phone?: string | null) {
   return `tel:${d.length === 12 && d.startsWith('91') ? `+${d}` : d}`;
 }
 
+function isPhoneBrowser() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+/** Live check in the workspace timezone. The session flag is only a snapshot from page load. */
+function callingWindowOpen(cw?: { openHour: number; closeHour: number; days?: number[]; timezone?: string; isOpen?: boolean } | null) {
+  if (!cw) return true;
+  try {
+    const zone = cw.timezone || 'Asia/Kolkata';
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone,
+      hour: 'numeric',
+      hourCycle: 'h23',
+      weekday: 'short',
+    }).formatToParts(new Date());
+    const hour = Number(parts.find((p) => p.type === 'hour')?.value);
+    const weekday = parts.find((p) => p.type === 'weekday')?.value || '';
+    const iso: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+    const day = iso[weekday];
+    if (cw.days?.length && day && !cw.days.includes(day)) return false;
+    return hour >= cw.openHour && hour < cw.closeHour;
+  } catch {
+    return cw.isOpen !== false;
+  }
+}
+
 /**
- * Call icon: hands the number to the phone's dialer (or the desktop softphone) and opens the call
- * console on this candidate so the outcome can be logged. The `tel:` handoff has to happen inside
- * the tap itself — mobile browsers ignore a dialer launch that isn't a direct user gesture — which
- * is why it isn't left to the console's own Start call button.
+ * Call icon: hands the number to the phone's dialer and then opens the call
+ * console so the outcome can be logged. On a phone the dialer must be launched
+ * from the tap itself; a route change in the same turn cancels it.
  */
 function dialCandidate(cand: { id: string; phone?: string | null; dnc?: boolean | null }) {
   if (cand.dnc || !hasCallablePhone(cand.phone)) return;
   const { session, go } = useDesk.getState();
-  const cw = session?.settings.callingWindow;
-  if (cw && cw.isOpen === false) {
+  const open = callingWindowOpen(session?.settings.callingWindow);
+  const onPhone = isPhoneBrowser();
+  if (!open && !onPhone) {
     alert('Outside the calling window — calls are allowed during the workspace calling hours only.');
     go('queue', { candidateId: cand.id });
     return;
   }
-  window.location.href = telHref(cand.phone);
-  go('queue', { candidateId: cand.id });
+  const link = document.createElement('a');
+  link.href = telHref(cand.phone);
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => go('queue', { candidateId: cand.id }), onPhone ? 600 : 0);
 }
 
 function hasCallablePhone(phone?: string | null) {

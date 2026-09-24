@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 from datetime import datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
@@ -114,7 +115,13 @@ class SettingsResponse(BaseModel):
 
 
 def _window_open_now(row: WorkspaceSettings, now: datetime | None = None) -> bool:
-    now = now or datetime.now()
+    """Judge the window in the workspace timezone, not the server's clock."""
+    tz_name = (row.timezone or "Asia/Kolkata").strip() or "Asia/Kolkata"
+    try:
+        tz = ZoneInfo(tz_name)
+    except Exception:
+        tz = ZoneInfo("Asia/Kolkata")
+    now = now.astimezone(tz) if now and now.tzinfo else datetime.now(tz)
     if now.isoweekday() not in (row.window_days or []):
         return False
     t = now.time()

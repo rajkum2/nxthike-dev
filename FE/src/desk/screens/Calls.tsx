@@ -98,7 +98,12 @@ export function QueueScreen() {
     setElapsed(0);
     setLive(true);
     // Hand off to the softphone / desk phone. Nothing is recorded in the browser.
-    window.location.href = `tel:${current.phone.replace(/[^\d+]/g, '')}`;
+    const link = document.createElement('a');
+    link.href = `tel:${current.phone.replace(/[^\d+]/g, '')}`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   const endCall = () => setLive(false);

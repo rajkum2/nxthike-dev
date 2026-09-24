@@ -1,0 +1,6 @@
+mobile/app/build
+mobile/.gradle
+**/*.apk
+BE/venv
+BE/.venv
+*.db
