@@ -507,7 +507,8 @@ export const deskApi = {
   updateRequisition: (id: string, body: Record<string, unknown>) =>
     req<Requisition>(`${W}/requisitions/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(body) }),
 
-  clients: () => req<Client[]>(`${W}/clients`),
+  clients: (segment?: 'all' | 'clients' | 'prospects') =>
+    req<Client[]>(`${W}/clients${qs({ segment })}`),
   client: (id: string) => req<Client>(`${W}/clients/${encodeURIComponent(id)}`),
   updateClient: (id: string, body: Record<string, unknown>) =>
     req<Client>(`${W}/clients/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(body) }),
