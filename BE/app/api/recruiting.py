@@ -428,13 +428,42 @@ async def read_client(
     return item
 
 
+class ClientContact(BaseModel):
+    """One person at the account. Every field optional but `name`."""
+
+    name: str
+    role: str | None = None
+    phone: str | None = None
+    altPhone: str | None = None
+    email: str | None = None
+
+
 class ClientPatch(BaseModel):
     health: str | None = None
     marginPct: float | None = None
     terms: str | None = None
-    contacts: list | None = None
+    contacts: list[ClientContact] | None = None
     isClient: bool | None = None
     ownerId: str | None = None
+    # --- Account profile -------------------------------------------------
+    name: str | None = None
+    industry: str | None = None
+    location: str | None = None
+    description: str | None = None
+    website: str | None = None
+    # --- Storefront detail ------------------------------------------------
+    phone: str | None = None
+    address: str | None = None
+    pincode: str | None = None
+    rating: float | None = None
+    reviewsCount: int | None = None
+    mapsUrl: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    source: str | None = None
+    hours: dict | None = None
+    notes: str | None = None
+    tags: list[str] | None = None
 
 
 @router.patch("/clients/{client_id}", response_model=ClientOut)
@@ -453,10 +482,45 @@ async def patch_client(
     data = body.model_dump(exclude_unset=True)
     if "health" in data and data["health"] not in (None, "good", "watch", "risk"):
         raise HTTPException(status_code=400, detail="Unknown health value")
-    for key, attr in (("health", "health"), ("terms", "terms"), ("contacts", "contacts"),
-                      ("isClient", "is_client"), ("ownerId", "owner_id")):
-        if key in data and data[key] is not None:
-            setattr(c, attr, data[key])
+    if "name" in data and not (data["name"] or "").strip():
+        raise HTTPException(status_code=400, detail="Name cannot be empty")
+    if data.get("rating") is not None and not (0 <= data["rating"] <= 5):
+        raise HTTPException(status_code=400, detail="Rating must be between 0 and 5")
+    if data.get("reviewsCount") is not None and data["reviewsCount"] < 0:
+        raise HTTPException(status_code=400, detail="Reviews count cannot be negative")
+
+    # Columns whose value is written straight through when present. `name`,
+    # `industry` and `location` are NOT NULL, so an explicit null is ignored
+    # rather than sent to the database.
+    NEVER_NULL = {"name", "industry", "location", "description"}
+    for key, attr in (
+        ("health", "health"), ("terms", "terms"), ("contacts", "contacts"),
+        ("isClient", "is_client"), ("ownerId", "owner_id"),
+        ("name", "name"), ("industry", "industry"), ("location", "location"),
+        ("description", "description"), ("website", "website"),
+        ("phone", "phone"), ("address", "address"), ("pincode", "pincode"),
+        ("rating", "rating"), ("reviewsCount", "reviews_count"),
+        ("mapsUrl", "maps_url"), ("latitude", "latitude"), ("longitude", "longitude"),
+        ("source", "source"), ("hours", "hours"), ("notes", "notes"), ("tags", "tags"),
+    ):
+        if key not in data:
+            continue
+        value = data[key]
+        if value is None and key in NEVER_NULL:
+            continue
+        if key == "contacts" and value is not None:
+            # Pydantic models -> plain dicts for the JSON column, dropping the
+            # empty optional keys so stored rows stay tidy.
+            value = [
+                {k: v for k, v in (p.model_dump() if hasattr(p, "model_dump") else dict(p)).items() if v}
+                for p in value
+            ]
+        if isinstance(value, str) and key not in NEVER_NULL:
+            value = value.strip() or None
+        elif isinstance(value, str):
+            value = value.strip()
+        setattr(c, attr, value)
+
     if "marginPct" in data and me.sees_rates:
         c.margin_pct = data["marginPct"]
 

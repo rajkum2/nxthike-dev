@@ -16,6 +16,7 @@ import {
   SkeletonRows, num, useLoad,
 } from '../ui';
 import { clientExportFilename, downloadClientsXlsx } from '../exportExcel';
+import { ClientDetailBody } from './ClientDetail';
 
 type ViewMode = 'cards' | 'table';
 
@@ -249,6 +250,17 @@ export function ClientsScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [visibleCols, setVisibleCols] = useState<Record<ColId, boolean>>(() => loadVisibleCols());
   const [showColsMenu, setShowColsMenu] = useState(false);
+
+  /** Right-hand detail drawer; the expand button hands off to the full screen. */
+  const [openId, setOpenId] = useState<string | null>(null);
+  const closeDrawer = () => setOpenId(null);
+
+  useEffect(() => {
+    if (!openId) return undefined;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenId(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [openId]);
 
   useEffect(() => {
     try {
@@ -608,7 +620,7 @@ export function ClientsScreen() {
           {rows.map((cl) => {
             const h = HEALTH[cl.health] || HEALTH.good;
             return (
-              <Card key={cl.id} onClick={() => go('client', { clientId: cl.id })}>
+              <Card key={cl.id} onClick={() => setOpenId(cl.id)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <Avatar name={cl.name} id={cl.id} size={40} square />
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -686,8 +698,11 @@ export function ClientsScreen() {
               {rows.map((cl) => (
                 <tr
                   key={cl.id}
-                  onClick={() => go('client', { clientId: cl.id })}
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => setOpenId(cl.id)}
+                  style={{
+                    cursor: 'pointer',
+                    background: cl.id === openId ? T.indigoTint : 'transparent',
+                  }}
                 >
                   {activeCols.map((col) => (
                     <td
@@ -708,6 +723,41 @@ export function ClientsScreen() {
             </tbody>
           </table>
         </div>
+      )}
+
+
+      {openId && (
+        <>
+          <div
+            role="presentation"
+            onClick={closeDrawer}
+            style={{ position: 'fixed', inset: 0, zIndex: 80, background: 'rgba(20, 18, 40, 0.32)' }}
+          />
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${w.client} details`}
+            style={{
+              position: 'fixed', top: 0, right: 0, bottom: 0,
+              width: 'min(460px, 100vw)', zIndex: 90,
+              background: T.surface,
+              boxShadow: '-16px 0 48px rgba(20, 18, 40, 0.2)',
+              display: 'flex', flexDirection: 'column',
+              animation: 'nxthikeDrawerIn .18s ease-out',
+            }}
+          >
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: 12 }}>
+              <ClientDetailBody
+                clientId={openId}
+                compact
+                showClose
+                onClose={closeDrawer}
+                onExpand={() => { const id = openId; setOpenId(null); go('client', { clientId: id }); }}
+                onSaved={() => load.reload()}
+              />
+            </div>
+          </aside>
+        </>
       )}
 
       {totalPages > 1 && (

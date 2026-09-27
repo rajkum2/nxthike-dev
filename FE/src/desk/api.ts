@@ -119,6 +119,15 @@ export interface Requisition {
   byStage: Record<string, number>;
 }
 
+/** One person at a client account. */
+export interface ClientContact {
+  name?: string;
+  role?: string;
+  phone?: string;
+  altPhone?: string;
+  email?: string;
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -127,7 +136,7 @@ export interface Client {
   health: string;
   marginPct?: number | null;
   terms?: string | null;
-  contacts: { name?: string; role?: string; phone?: string; email?: string }[];
+  contacts: ClientContact[];
   openRequisitions: number;
   submissions: number;
   placements: number;

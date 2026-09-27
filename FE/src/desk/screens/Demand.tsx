@@ -14,6 +14,7 @@ import {
   FactGrid, Icon, Input, Meter, Panel, Select, SkeletonRows, Stat, Textarea,
   num, pct, shortDate, useLoad, useMediaQuery,
 } from '../ui';
+import { ClientDetailBody } from './ClientDetail';
 
 /* ------------------------------------------------------------------ *
  *  Requisition list                                                  *
@@ -486,91 +487,17 @@ export function KanbanScreen() {
  * ------------------------------------------------------------------ */
 
 export function ClientScreen() {
-  const { clientId, go, caps, words } = useDesk();
-  const c = caps();
+  const { clientId, go, words } = useDesk();
   const w = words();
-  const load = useLoad(async () => (clientId ? deskApi.client(clientId) : null), [clientId]);
-  const reqs = useLoad(() => deskApi.requisitions(), []);
-  const subs = useLoad(async () => (clientId ? deskApi.submissions({ clientId }) : []), [clientId]);
-
-  if (load.loading) return <div className="pad"><SkeletonRows rows={4} /></div>;
-  if (load.error) return <div className="pad"><ErrorState message={load.error} onRetry={load.reload} /></div>;
-  const cl = load.data;
-  if (!cl) return <div className="pad"><EmptyState icon="apartment" title="Nothing selected" body={`Pick a ${w.client.toLowerCase()}.`} /></div>;
-
-  const clientReqs = (reqs.data || []).filter((r) => r.clientId === cl.id);
 
   return (
     <div className="pad">
-      <Button variant="ghost" icon="arrow_back" onClick={() => go('clients')}>All {w.clientPlural.toLowerCase()}</Button>
-
-      <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-        <Avatar name={cl.name} id={cl.id} size={48} square />
-        <div style={{ flex: 1, minWidth: 220 }}>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-.02em' }}>{cl.name}</h2>
-          <div style={{ marginTop: 3, fontSize: 12.5, color: T.inkMuted }}>
-            {[cl.industry, cl.location].filter(Boolean).join(' · ') || '—'}
-          </div>
-        </div>
-        <Button variant="ghost" icon="send" onClick={() => go('subs', { clientId: cl.id })}>Submissions</Button>
+      <Button variant="ghost" icon="arrow_back" onClick={() => go('clients')}>
+        All {w.clientPlural.toLowerCase()}
+      </Button>
+      <div style={{ marginTop: 14 }}>
+        <ClientDetailBody clientId={clientId} />
       </div>
-
-      <div className="grid-auto" style={{ marginTop: 16 }}>
-        <Stat label="Open job orders" value={num(cl.openRequisitions)} icon="work" color={T.indigo} tint={T.indigoTint} />
-        <Stat label="Submissions" value={num(cl.submissions)} icon="send" color={T.blue} tint={T.blueTint} />
-        <Stat label="Placements" value={num(cl.placements)} icon="check_circle" color={T.green} tint={T.greenTint} />
-        {c.rates && (
-          <Stat label="Margin" value={cl.marginPct ? `${cl.marginPct}%` : '—'} sub={cl.marginPct ? '' : 'not recorded'}
-            icon="percent" color={T.teal} tint={T.tealTint} />
-        )}
-      </div>
-
-      {c.rates && (
-        <Card style={{ marginTop: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <Icon name="lock" size={16} color={T.amber} />
-            <span style={{ fontSize: 12.5, fontWeight: 700 }}>Contract · role-gated</span>
-          </div>
-          <div style={{ marginTop: 10, fontSize: 12.5, color: cl.terms ? T.inkBody : T.inkGhost, lineHeight: 1.55 }}>
-            {cl.terms || 'No contract terms recorded yet.'}
-          </div>
-        </Card>
-      )}
-
-      <Panel title="Contacts">
-        {(cl.contacts || []).map((p, i) => (
-          <div key={i} className="row">
-            <Avatar name={p.name} id={p.name || String(i)} size={34} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{p.name}</div>
-              <div style={{ fontSize: 11, color: T.inkMuted }}>{[p.role, p.phone].filter(Boolean).join(' · ')}</div>
-            </div>
-            {p.phone && (
-              <Button variant="ghost" icon="call" onClick={() => { window.location.href = `tel:${p.phone}`; }}>Call</Button>
-            )}
-          </div>
-        ))}
-        {!(cl.contacts || []).length && (
-          <EmptyState icon="contacts" title="No contacts recorded" body="Add the people you deal with at this account." />
-        )}
-      </Panel>
-
-      <Panel title="Job orders" subtitle={`${clientReqs.length} linked`}>
-        {clientReqs.map((r) => (
-          <div key={r.id} className="row row-click" onClick={() => go('job', { requisitionId: r.id })}>
-            <Icon name="work" size={18} color={T.indigo} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700 }}>{r.title}</div>
-              <div style={{ fontSize: 11, color: T.inkMuted }}>{num(r.pipelineTotal)} in pipeline</div>
-            </div>
-            <Badge label={r.priority} bg={T.fill} fg={T.inkMuted} />
-          </div>
-        ))}
-        {!clientReqs.length && (
-          <EmptyState icon="work" title="No job orders linked"
-            body={`Link a ${w.req.toLowerCase()} to this account from its detail screen.`} />
-        )}
-      </Panel>
     </div>
   );
 }

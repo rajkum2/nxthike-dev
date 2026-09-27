@@ -1,8 +1,26 @@
 -- Apna employer export — Business Development Executive (BDE), Hyderabad (job 166214983).
--- 193 candidates + the BDE requisition, loaded straight into Supabase.
--- Idempotent: re-running inserts nothing new (on conflict do nothing).
+-- 193 candidates + the BDE requisition.
+--
+-- !! ALREADY LOADED IN PRODUCTION (28 Sep 2026) !!
+-- These 193 people are live under role_id 'bde_hyderabad', with ids of the form
+-- 'bdehy_<hash>' — loaded by a different route than this file. All 193 phone
+-- numbers match. The ids here ('apna_166214983_<phone>') do NOT collide with
+-- those, so `on conflict (id) do nothing` would NOT protect you: running this
+-- as-is would insert 193 duplicate people. The guard below stops that.
+--
+-- Kept for provenance — it documents how the export maps onto the schema.
+-- To re-import deliberately, delete the matching rows first, then drop the guard.
 -- Apply after 20260802000000_hiring_crm and 20260806000000_talentdialer_workspace;
 -- this migration writes candidates.source, which the latter adds.
+
+do $$
+begin
+  if exists (select 1 from public.candidates where role_id = 'bde_hyderabad') then
+    raise exception
+      'BDE Hyderabad candidates are already loaded under role_id=bde_hyderabad; '
+      'this migration would duplicate them. See the header of this file.';
+  end if;
+end $$;
 
 insert into public.hiring_roles
   (id, name, description, is_active, sort_order,
