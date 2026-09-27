@@ -46,6 +46,19 @@ const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number
 
 const COLS_STORAGE_KEY = 'nxthike.clients.visibleCols';
 const VIEW_STORAGE_KEY = 'nxthike.clients.viewMode';
+const SEGMENT_STORAGE_KEY = 'nxthike.clients.segment';
+
+/**
+ * Accounts we work with vs leads imported from a directory. `isClient` is the
+ * flag: true for a real client, false for a bulk-imported prospect.
+ */
+type Segment = 'all' | 'clients' | 'prospects';
+
+const SEGMENTS: { id: Segment; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'clients', label: 'Clients' },
+  { id: 'prospects', label: 'Prospects' },
+];
 
 const HEALTH: Record<string, { bg: string; fg: string; label: string }> = {
   good: { bg: T.greenTint, fg: T.green, label: 'Healthy' },
@@ -231,6 +244,7 @@ export function ClientsScreen() {
   const w = words();
   const load = useLoad(() => deskApi.clients(), []);
 
+  const [segment, setSegment] = useState<Segment>('all');
   const [search, setSearch] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
   const [areas, setAreas] = useState<string[]>([]);
@@ -266,8 +280,14 @@ export function ClientsScreen() {
     try {
       const v = localStorage.getItem(VIEW_STORAGE_KEY);
       if (v === 'cards' || v === 'table') setViewMode(v);
+      const sg = localStorage.getItem(SEGMENT_STORAGE_KEY);
+      if (sg === 'all' || sg === 'clients' || sg === 'prospects') setSegment(sg);
     } catch { /* storage blocked */ }
   }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem(SEGMENT_STORAGE_KEY, segment); } catch { /* storage blocked */ }
+  }, [segment]);
 
   useEffect(() => {
     try { localStorage.setItem(VIEW_STORAGE_KEY, viewMode); } catch { /* storage blocked */ }
@@ -277,7 +297,20 @@ export function ClientsScreen() {
     try { localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(visibleCols)); } catch { /* storage blocked */ }
   }, [visibleCols]);
 
-  const all = useMemo(() => load.data || [], [load.data]);
+  const everything = useMemo(() => load.data || [], [load.data]);
+
+  const segmentCounts = useMemo(() => ({
+    all: everything.length,
+    clients: everything.filter((cl) => cl.isClient).length,
+    prospects: everything.filter((cl) => !cl.isClient).length,
+  }), [everything]);
+
+  /** Rows in the active segment; every filter below works within it. */
+  const all = useMemo(() => {
+    if (segment === 'clients') return everything.filter((cl) => cl.isClient);
+    if (segment === 'prospects') return everything.filter((cl) => !cl.isClient);
+    return everything;
+  }, [everything, segment]);
 
   const categoryOpts = useMemo(() => optsFor(all, (cl) => cl.industry), [all]);
   const areaOpts = useMemo(() => optsFor(all, (cl) => cl.location), [all]);
@@ -360,7 +393,7 @@ export function ClientsScreen() {
   const safePage = Math.min(page, totalPages);
   const rows = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  useEffect(() => { setPage(1); }, [search, categories, areas, pincodes, healths, ratings, sources, withPhone, withSite, openOnly]);
+  useEffect(() => { setPage(1); }, [segment, search, categories, areas, pincodes, healths, ratings, sources, withPhone, withSite, openOnly]);
 
   const activeCols = COLUMN_DEFS.filter((col) => visibleCols[col.id]);
 
@@ -441,6 +474,54 @@ export function ClientsScreen() {
 
   return (
     <div className="pad">
+      {/* ---------------- segment ---------------- */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+        <div
+          role="tablist"
+          aria-label="Account segment"
+          style={{
+            display: 'inline-flex', border: `1px solid ${T.border}`,
+            borderRadius: 9, overflow: 'hidden', height: 32, background: T.surface,
+          }}
+        >
+          {SEGMENTS.map((sg) => {
+            const on = segment === sg.id;
+            return (
+              <button
+                key={sg.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setSegment(sg.id)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '0 12px', height: 32, border: 'none', cursor: 'pointer',
+                  background: on ? T.indigo : 'transparent',
+                  color: on ? '#fff' : T.inkBody,
+                  fontSize: 12.5, fontWeight: on ? 700 : 550,
+                }}
+              >
+                {sg.label}
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: 11,
+                    color: on ? 'rgba(255,255,255,.82)' : T.inkFaint,
+                  }}
+                >
+                  {num(segmentCounts[sg.id])}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        {segment === 'prospects' && (
+          <span style={{ fontSize: 11.5, color: T.inkMuted }}>
+            Imported leads — not shown on the public portal.
+          </span>
+        )}
+      </div>
+
       {/* ---------------- toolbar ---------------- */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
         <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 200, maxWidth: 360 }}>
