@@ -341,10 +341,22 @@ def _client_extras(c: Company) -> dict:
 
 @router.get("/clients", response_model=list[ClientOut])
 async def list_clients(
+    segment: str = Query(
+        "all",
+        description="clients = accounts we work with, prospects = imported leads, all = both.",
+    ),
     me: WorkspaceIdentity = Depends(get_workspace_user),
     db: AsyncSession = Depends(get_db),
 ):
-    rows = (await db.execute(select(Company).order_by(Company.name))).scalars().all()
+    if segment not in ("all", "clients", "prospects"):
+        raise HTTPException(status_code=400, detail="segment must be all, clients or prospects")
+
+    query = select(Company).order_by(Company.name)
+    if segment == "clients":
+        query = query.where(Company.is_client.is_(True))
+    elif segment == "prospects":
+        query = query.where(Company.is_client.is_(False))
+    rows = (await db.execute(query)).scalars().all()
 
     req_counts = dict(
         (

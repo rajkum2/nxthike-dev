@@ -56,6 +56,7 @@ function ClientEditModal({
     mapsUrl: client.mapsUrl || '',
     tags: (client.tags || []).join(', '),
     notes: client.notes || '',
+    isClient: client.isClient ? 'client' : 'prospect',
   });
   const [contacts, setContacts] = useState<ClientContact[]>(
     (client.contacts || []).length ? client.contacts.map((c) => ({ ...BLANK_CONTACT, ...c })) : [],
@@ -108,6 +109,8 @@ function ClientEditModal({
       tags: f.tags.split(',').map((t) => t.trim()).filter(Boolean),
       notes: f.notes.trim(),
       contacts: cleaned,
+      // Promoting a prospect also puts it on the public company directory.
+      isClient: f.isClient === 'client',
     };
 
     setBusy(true); setErr(null);
@@ -157,6 +160,12 @@ function ClientEditModal({
           </Select>
         </Field>
         <Field label="Source"><Input value={f.source} onChange={set('source')} placeholder="e.g. Google Maps" /></Field>
+        <Field label="Account type">
+          <Select value={f.isClient} onChange={set('isClient')}>
+            <option value="client">Client — we work with them</option>
+            <option value="prospect">Prospect — imported lead</option>
+          </Select>
+        </Field>
       </div>
 
       <div style={{ marginTop: 10, display: 'grid', gap: 10 }}>
@@ -312,6 +321,11 @@ export function ClientDetailBody({
                 )}
               </span>
             )}
+            <Badge
+              label={cl.isClient ? 'Client' : 'Prospect'}
+              bg={cl.isClient ? T.indigoTint : T.fill}
+              fg={cl.isClient ? T.indigoInk : T.inkMuted}
+            />
             {cl.source && (
               <span style={{ fontSize: 11, color: T.inkFaint }}>via {cl.source}</span>
             )}
