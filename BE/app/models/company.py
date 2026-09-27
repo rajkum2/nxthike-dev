@@ -24,7 +24,9 @@ class Company(Base):
     margin_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
     terms: Mapped[str | None] = mapped_column(Text, nullable=True)
     owner_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
-    #: Separates CRM client accounts from the public portal's company listings.
+    #: True for an account the agency actually works with — a client. False for
+    #: a prospect imported from a directory (Google Maps and similar), which is
+    #: desk-only and never surfaces on the public portal.
     is_client: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     #: [{name, role, phone, email}]
     contacts: Mapped[list] = mapped_column(JSON, default=list)
