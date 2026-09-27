@@ -93,7 +93,8 @@ export async function adminDeleteCourse(id: string) {
 }
 
 export async function adminListCompanies() {
-  return apiFetch<any[]>('/api/companies');
+  // The public route hides imported prospects; admin tooling wants every row.
+  return apiFetch<any[]>('/api/companies?includeProspects=true');
 }
 
 export async function adminCreateCompany(body: Record<string, unknown>) {
