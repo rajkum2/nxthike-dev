@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,8 +25,26 @@ def company_to_response(c: Company) -> CompanyResponse:
 
 
 @router.get("", response_model=list[CompanyResponse])
-async def list_companies(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Company).order_by(Company.name))
+async def list_companies(
+    include_prospects: bool = Query(
+        False,
+        alias="includeProspects",
+        description="Admin tooling only. Public callers must never set this.",
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Public company directory.
+
+    This route is unauthenticated, so it returns only real client accounts.
+    Prospects bulk-imported from a directory (`is_client = false`) are desk-only
+    and must not leak here — without this filter a Google Maps scrape of
+    apartment buildings shows up on the public portal.
+    """
+    query = select(Company).order_by(Company.name)
+    if not include_prospects:
+        query = query.where(Company.is_client.is_(True))
+    result = await db.execute(query)
     companies = result.scalars().all()
     return [company_to_response(c) for c in companies]
 
@@ -36,6 +54,10 @@ async def get_company(company_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Company).where(Company.id == company_id))
     company = result.scalar_one_or_none()
     if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    # Same reasoning as the list route: a prospect is not public, and 404 keeps
+    # this route from confirming that the id exists.
+    if not bool(getattr(company, "is_client", False)):
         raise HTTPException(status_code=404, detail="Company not found")
     return company_to_response(company)
 
