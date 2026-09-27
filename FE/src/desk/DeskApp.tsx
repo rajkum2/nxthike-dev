@@ -33,7 +33,7 @@ const RequisitionsScreen = lazy(() => import('./screens/Demand').then((m) => ({ 
 const RequisitionScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.RequisitionScreen })));
 const NewRequisitionScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.NewRequisitionScreen })));
 const KanbanScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.KanbanScreen })));
-const ClientsScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.ClientsScreen })));
+const ClientsScreen = lazy(() => import('./screens/Clients').then((m) => ({ default: m.ClientsScreen })));
 const ClientScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.ClientScreen })));
 const SubmissionsScreen = lazy(() => import('./screens/Demand').then((m) => ({ default: m.SubmissionsScreen })));
 

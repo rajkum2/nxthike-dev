@@ -9,7 +9,7 @@
  */
 
 import * as XLSX from 'xlsx';
-import { deskApi, type DeskCandidate } from './api';
+import { deskApi, type Client, type DeskCandidate } from './api';
 import { stage } from './tokens';
 import { maskEmail, maskPhone } from './ui';
 
@@ -99,4 +99,55 @@ export function candidateExportFilename(roleName?: string | null) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'all';
   return `candidates_${slug}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Clients                                                           *
+ * ------------------------------------------------------------------ */
+
+/**
+ * The clients list is small enough that the API hands back every row at once,
+ * so there is no paging walk here — the caller passes the rows it already has
+ * after its own search and filters.
+ */
+export function buildClientSheetRows(list: Client[]) {
+  return list.map((c) => ({
+    ID: c.id,
+    Name: c.name || '',
+    Category: c.industry || '',
+    Area: c.location || '',
+    Phone: c.phone || '',
+    Website: c.website || '',
+    Rating: c.rating ?? '',
+    Reviews: c.reviewsCount ?? '',
+    Address: c.address || '',
+    Pincode: c.pincode || '',
+    Health: c.health || '',
+    'Open requisitions': c.openRequisitions ?? 0,
+    Submissions: c.submissions ?? 0,
+    Placements: c.placements ?? 0,
+    Source: c.source || '',
+    Contacts: (c.contacts || [])
+      .map((p) => [p.name, p.role, p.phone].filter(Boolean).join(' '))
+      .join('; '),
+    Hours: Object.entries(c.hours || {})
+      .map(([d, v]) => `${d}: ${v}`)
+      .join('; '),
+    'Maps link': c.mapsUrl || '',
+    Latitude: c.latitude ?? '',
+    Longitude: c.longitude ?? '',
+    Tags: (c.tags || []).join(', '),
+    Notes: c.notes || '',
+  }));
+}
+
+export function downloadClientsXlsx(list: Client[], filename: string) {
+  const ws = XLSX.utils.json_to_sheet(buildClientSheetRows(list));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Clients');
+  XLSX.writeFile(wb, filename);
+}
+
+export function clientExportFilename() {
+  return `clients_${new Date().toISOString().slice(0, 10)}.xlsx`;
 }

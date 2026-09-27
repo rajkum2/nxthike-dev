@@ -107,6 +107,19 @@ ADDITIVE_COLUMNS: dict[str, dict[str, Col]] = {
         "owner_id": Col("str"),
         "is_client": Col("bool", False),
         "contacts": Col("json"),
+        # Storefront detail for accounts imported from a listing source.
+        "phone": Col("str"),
+        "address": Col("text"),
+        "pincode": Col("str"),
+        "rating": Col("float"),
+        "reviews_count": Col("int"),
+        "maps_url": Col("text"),
+        "latitude": Col("float"),
+        "longitude": Col("float"),
+        "source": Col("str"),
+        "hours": Col("json"),
+        "notes": Col("text"),
+        "tags": Col("json"),
     },
     # ---- Candidates ------------------------------------------------------
     # The mobile app had to infer these from free text; the web design needs

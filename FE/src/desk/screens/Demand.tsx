@@ -482,61 +482,8 @@ export function KanbanScreen() {
 }
 
 /* ------------------------------------------------------------------ *
- *  Clients                                                           *
+ *  Client detail                                                     *
  * ------------------------------------------------------------------ */
-
-export function ClientsScreen() {
-  const { go, caps, words } = useDesk();
-  const c = caps();
-  const w = words();
-  const load = useLoad(() => deskApi.clients(), []);
-
-  const health: Record<string, { bg: string; fg: string; label: string }> = {
-    good: { bg: T.greenTint, fg: T.green, label: 'Healthy' },
-    watch: { bg: T.amberTint, fg: T.amber, label: 'Watch' },
-    risk: { bg: T.redTint, fg: T.red, label: 'At risk' },
-  };
-
-  return (
-    <div className="pad">
-      {load.loading && <SkeletonRows rows={5} />}
-      {load.error && <ErrorState message={load.error} onRetry={load.reload} />}
-      {load.data && !load.data.length && (
-        <EmptyState icon="apartment" title={`No ${w.clientPlural.toLowerCase()} yet`}
-          body="Companies added to the portal appear here as client accounts." />
-      )}
-      <div className="grid-panels">
-        {(load.data || []).map((cl) => {
-          const h = health[cl.health] || health.good;
-          return (
-            <Card key={cl.id} onClick={() => go('client', { clientId: cl.id })}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Avatar name={cl.name} id={cl.id} size={40} square />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 700 }}>{cl.name}</div>
-                  <div style={{ marginTop: 2, fontSize: 11.5, color: T.inkMuted }}>
-                    {[cl.industry, cl.location].filter(Boolean).join(' · ') || '—'}
-                  </div>
-                </div>
-                <Badge label={h.label} bg={h.bg} fg={h.fg} />
-              </div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 11.5, fontWeight: 700 }}>{cl.openRequisitions} open</span>
-                <span style={{ fontSize: 11.5, color: T.inkMuted }}>{cl.submissions} submitted</span>
-                <span style={{ fontSize: 11.5, color: T.inkMuted }}>{cl.placements} placed</span>
-                {c.rates && (
-                  <span className="mono" style={{ marginLeft: 'auto', fontSize: 11, color: cl.marginPct ? T.teal : T.inkGhost }}>
-                    {cl.marginPct ? `${cl.marginPct}%` : '—'}
-                  </span>
-                )}
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export function ClientScreen() {
   const { clientId, go, caps, words } = useDesk();

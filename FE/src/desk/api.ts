@@ -133,6 +133,20 @@ export interface Client {
   placements: number;
   website?: string | null;
   logo?: string | null;
+  /** Storefront detail for accounts imported from a listing source. */
+  phone?: string | null;
+  address?: string | null;
+  pincode?: string | null;
+  rating?: number | null;
+  reviewsCount?: number | null;
+  mapsUrl?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  source?: string | null;
+  hours?: Record<string, string>;
+  notes?: string | null;
+  tags?: string[];
+  isClient?: boolean;
 }
 
 export interface Submission {

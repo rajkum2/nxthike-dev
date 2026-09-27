@@ -304,6 +304,39 @@ class ClientOut(BaseModel):
     placements: int = 0
     website: str | None = None
     logo: str | None = None
+    # Storefront detail for accounts imported from a listing source.
+    phone: str | None = None
+    address: str | None = None
+    pincode: str | None = None
+    rating: float | None = None
+    reviewsCount: int | None = None
+    mapsUrl: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    source: str | None = None
+    hours: dict = {}
+    notes: str | None = None
+    tags: list = []
+    isClient: bool = False
+
+
+def _client_extras(c: Company) -> dict:
+    """Listing-sourced fields, tolerant of a DB that predates the migration."""
+    return dict(
+        phone=getattr(c, "phone", None),
+        address=getattr(c, "address", None),
+        pincode=getattr(c, "pincode", None),
+        rating=getattr(c, "rating", None),
+        reviewsCount=getattr(c, "reviews_count", None),
+        mapsUrl=getattr(c, "maps_url", None),
+        latitude=getattr(c, "latitude", None),
+        longitude=getattr(c, "longitude", None),
+        source=getattr(c, "source", None),
+        hours=dict(getattr(c, "hours", None) or {}),
+        notes=getattr(c, "notes", None),
+        tags=list(getattr(c, "tags", None) or []),
+        isClient=bool(getattr(c, "is_client", False)),
+    )
 
 
 @router.get("/clients", response_model=list[ClientOut])
@@ -351,6 +384,7 @@ async def list_clients(
             submissions=sub_counts.get(c.id, 0),
             placements=placed_counts.get(c.id, 0),
             website=c.website, logo=c.logo,
+            **_client_extras(c),
         )
         if me.sees_rates:
             item.marginPct = getattr(c, "margin_pct", None)
@@ -387,6 +421,7 @@ async def read_client(
         contacts=list(getattr(c, "contacts", None) or []),
         openRequisitions=reqs, submissions=subs, placements=placed,
         website=c.website, logo=c.logo,
+        **_client_extras(c),
     )
     if me.sees_rates:
         item.marginPct = getattr(c, "margin_pct", None)
