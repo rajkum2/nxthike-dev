@@ -109,6 +109,7 @@ ADDITIVE_COLUMNS: dict[str, dict[str, Col]] = {
         "contacts": Col("json"),
         # Storefront detail for accounts imported from a listing source.
         "phone": Col("str"),
+        "whatsapp": Col("str"),
         "address": Col("text"),
         "pincode": Col("str"),
         "rating": Col("float"),

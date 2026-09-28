@@ -306,6 +306,7 @@ class ClientOut(BaseModel):
     logo: str | None = None
     # Storefront detail for accounts imported from a listing source.
     phone: str | None = None
+    whatsapp: str | None = None
     address: str | None = None
     pincode: str | None = None
     rating: float | None = None
@@ -324,6 +325,7 @@ def _client_extras(c: Company) -> dict:
     """Listing-sourced fields, tolerant of a DB that predates the migration."""
     return dict(
         phone=getattr(c, "phone", None),
+        whatsapp=getattr(c, "whatsapp", None),
         address=getattr(c, "address", None),
         pincode=getattr(c, "pincode", None),
         rating=getattr(c, "rating", None),
@@ -447,6 +449,7 @@ class ClientContact(BaseModel):
     role: str | None = None
     phone: str | None = None
     altPhone: str | None = None
+    whatsapp: str | None = None
     email: str | None = None
 
 
@@ -465,6 +468,7 @@ class ClientPatch(BaseModel):
     website: str | None = None
     # --- Storefront detail ------------------------------------------------
     phone: str | None = None
+    whatsapp: str | None = None
     address: str | None = None
     pincode: str | None = None
     rating: float | None = None
@@ -510,7 +514,8 @@ async def patch_client(
         ("isClient", "is_client"), ("ownerId", "owner_id"),
         ("name", "name"), ("industry", "industry"), ("location", "location"),
         ("description", "description"), ("website", "website"),
-        ("phone", "phone"), ("address", "address"), ("pincode", "pincode"),
+        ("phone", "phone"), ("whatsapp", "whatsapp"),
+        ("address", "address"), ("pincode", "pincode"),
         ("rating", "rating"), ("reviewsCount", "reviews_count"),
         ("mapsUrl", "maps_url"), ("latitude", "latitude"), ("longitude", "longitude"),
         ("source", "source"), ("hours", "hours"), ("notes", "notes"), ("tags", "tags"),

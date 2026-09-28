@@ -12,6 +12,7 @@ import * as XLSX from 'xlsx';
 import { deskApi, type Client, type DeskCandidate } from './api';
 import { stage } from './tokens';
 import { maskEmail, maskPhone } from './ui';
+import { isLikelyWhatsAppMobile, mapsHref } from './messaging';
 
 /** Hard ceiling so an "all candidates" export can't run away. */
 export const EXPORT_ROW_CAP = 10000;
@@ -117,6 +118,7 @@ export function buildClientSheetRows(list: Client[]) {
     Category: c.industry || '',
     Area: c.location || '',
     Phone: c.phone || '',
+    WhatsApp: c.whatsapp || (isLikelyWhatsAppMobile(c.phone) ? c.phone || '' : ''),
     Website: c.website || '',
     Rating: c.rating ?? '',
     Reviews: c.reviewsCount ?? '',
@@ -128,12 +130,13 @@ export function buildClientSheetRows(list: Client[]) {
     Placements: c.placements ?? 0,
     Source: c.source || '',
     Contacts: (c.contacts || [])
-      .map((p) => [p.name, p.role, p.phone].filter(Boolean).join(' '))
+      .map((p) => [p.name, p.role, p.phone, p.altPhone && `alt ${p.altPhone}`,
+                   p.whatsapp && `wa ${p.whatsapp}`, p.email].filter(Boolean).join(' '))
       .join('; '),
     Hours: Object.entries(c.hours || {})
       .map(([d, v]) => `${d}: ${v}`)
       .join('; '),
-    'Maps link': c.mapsUrl || '',
+    'Maps link': mapsHref(c) || '',
     Latitude: c.latitude ?? '',
     Longitude: c.longitude ?? '',
     Tags: (c.tags || []).join(', '),

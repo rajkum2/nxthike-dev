@@ -17,11 +17,12 @@ import {
 } from '../ui';
 import { clientExportFilename, downloadClientsXlsx } from '../exportExcel';
 import { ClientDetailBody } from './ClientDetail';
+import { isLikelyWhatsAppMobile, mapsHref, openWhatsApp } from '../messaging';
 
 type ViewMode = 'cards' | 'table';
 
 type ColId =
-  | 'name' | 'category' | 'area' | 'phone' | 'rating' | 'reviews' | 'website'
+  | 'name' | 'category' | 'area' | 'phone' | 'whatsapp' | 'rating' | 'reviews' | 'website'
   | 'pincode' | 'address' | 'health' | 'openReqs' | 'submissions' | 'placements'
   | 'source' | 'hoursToday' | 'tags';
 
@@ -30,6 +31,7 @@ const COLUMN_DEFS: { id: ColId; label: string; defaultOn: boolean; minW?: number
   { id: 'category', label: 'Category', defaultOn: true, minW: 130 },
   { id: 'area', label: 'Area', defaultOn: true, minW: 140 },
   { id: 'phone', label: 'Phone', defaultOn: true, minW: 120 },
+  { id: 'whatsapp', label: 'WhatsApp', defaultOn: false, minW: 110 },
   { id: 'rating', label: 'Rating', defaultOn: true, minW: 80 },
   { id: 'reviews', label: 'Reviews', defaultOn: false, minW: 80 },
   { id: 'website', label: 'Website', defaultOn: false, minW: 160 },
@@ -75,6 +77,13 @@ const RATING_BANDS: { value: string; label: string; test: (r?: number | null) =>
 ];
 
 const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+/** Explicit WhatsApp number, else the main phone when it looks like a mobile. */
+function waNumber(c: Client): string | null {
+  if (c.whatsapp && isLikelyWhatsAppMobile(c.whatsapp)) return c.whatsapp;
+  if (!c.whatsapp && isLikelyWhatsAppMobile(c.phone)) return c.phone || null;
+  return c.whatsapp && c.whatsapp.trim() ? c.whatsapp : null;
+}
 
 const compactCtrl: React.CSSProperties = {
   height: 32,
@@ -253,6 +262,7 @@ export function ClientsScreen() {
   const [ratings, setRatings] = useState<string[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [withPhone, setWithPhone] = useState(false);
+  const [withWa, setWithWa] = useState(false);
   const [withSite, setWithSite] = useState(false);
   const [openOnly, setOpenOnly] = useState(false);
 
@@ -326,12 +336,12 @@ export function ClientsScreen() {
   const activeFilterCount =
     categories.length + areas.length + pincodes.length + healths.length +
     ratings.length + sources.length +
-    (withPhone ? 1 : 0) + (withSite ? 1 : 0) + (openOnly ? 1 : 0);
+    (withPhone ? 1 : 0) + (withWa ? 1 : 0) + (withSite ? 1 : 0) + (openOnly ? 1 : 0);
 
   const clearFilters = () => {
     setCategories([]); setAreas([]); setPincodes([]); setHealths([]);
     setRatings([]); setSources([]);
-    setWithPhone(false); setWithSite(false); setOpenOnly(false);
+    setWithPhone(false); setWithWa(false); setWithSite(false); setOpenOnly(false);
     setPage(1);
   };
 
@@ -340,7 +350,7 @@ export function ClientsScreen() {
     return all.filter((cl) => {
       if (t) {
         const hay = [
-          cl.name, cl.industry, cl.location, cl.phone, cl.address, cl.pincode,
+          cl.name, cl.industry, cl.location, cl.phone, cl.whatsapp, cl.address, cl.pincode,
           cl.website, cl.source, (cl.tags || []).join(' '),
           (cl.contacts || []).map((p) => [p.name, p.phone].filter(Boolean).join(' ')).join(' '),
         ].filter(Boolean).join(' ').toLowerCase();
@@ -356,11 +366,12 @@ export function ClientsScreen() {
         if (!bands.some((b) => b.test(cl.rating))) return false;
       }
       if (withPhone && !cl.phone) return false;
+      if (withWa && !waNumber(cl)) return false;
       if (withSite && !cl.website) return false;
       if (openOnly && !(cl.openRequisitions > 0)) return false;
       return true;
     });
-  }, [all, search, categories, areas, pincodes, healths, ratings, sources, withPhone, withSite, openOnly]);
+  }, [all, search, categories, areas, pincodes, healths, ratings, sources, withPhone, withWa, withSite, openOnly]);
 
   const sorted = useMemo(() => {
     const dir = sortDir === 'asc' ? 1 : -1;
@@ -369,6 +380,7 @@ export function ClientsScreen() {
         case 'category': return (cl.industry || '').toLowerCase();
         case 'area': return (cl.location || '').toLowerCase();
         case 'phone': return cl.phone || '';
+        case 'whatsapp': return waNumber(cl) || '';
         case 'rating': return cl.rating ?? -1;
         case 'reviews': return cl.reviewsCount ?? -1;
         case 'website': return (cl.website || '').toLowerCase();
@@ -393,7 +405,7 @@ export function ClientsScreen() {
   const safePage = Math.min(page, totalPages);
   const rows = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  useEffect(() => { setPage(1); }, [segment, search, categories, areas, pincodes, healths, ratings, sources, withPhone, withSite, openOnly]);
+  useEffect(() => { setPage(1); }, [segment, search, categories, areas, pincodes, healths, ratings, sources, withPhone, withWa, withSite, openOnly]);
 
   const activeCols = COLUMN_DEFS.filter((col) => visibleCols[col.id]);
 
@@ -418,6 +430,25 @@ export function ClientsScreen() {
       case 'category': return cl.industry || '—';
       case 'area': return cl.location || '—';
       case 'phone': return cl.phone || '—';
+      case 'whatsapp': {
+        const wa = waNumber(cl);
+        if (!wa) return '—';
+        return (
+          <button
+            type="button"
+            title={`WhatsApp ${wa}`}
+            onClick={(e) => { e.stopPropagation(); openWhatsApp(wa, cl.name); }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4, border: 'none',
+              background: 'transparent', cursor: 'pointer', padding: 0,
+              color: '#25D366', fontSize: 12.5, fontWeight: 600,
+            }}
+          >
+            <Icon name="chat" size={13} color="#25D366" />
+            <span className="mono">{wa}</span>
+          </button>
+        );
+      }
       case 'rating':
         return cl.rating == null ? '—' : (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
@@ -548,6 +579,7 @@ export function ClientsScreen() {
         )}
 
         {filterChip(withPhone, setWithPhone, 'Has phone', 'call')}
+        {filterChip(withWa, setWithWa, 'Has WhatsApp', 'chat')}
         {filterChip(withSite, setWithSite, 'Has site', 'language')}
         {filterChip(openOnly, setOpenOnly, 'Open roles', 'work')}
 
@@ -727,6 +759,41 @@ export function ClientsScreen() {
                         <Icon name="call" size={13} color={T.inkFaint} />
                         <span className="mono">{cl.phone}</span>
                       </span>
+                    )}
+                  </div>
+                )}
+
+                {(waNumber(cl) || mapsHref(cl)) && (
+                  <div style={{ marginTop: 9, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {waNumber(cl) && (
+                      <button
+                        type="button"
+                        title={`WhatsApp ${waNumber(cl)}`}
+                        onClick={(e) => { e.stopPropagation(); openWhatsApp(waNumber(cl), cl.name); }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4, height: 26,
+                          padding: '0 9px', borderRadius: 7, cursor: 'pointer',
+                          border: `1px solid ${T.border}`, background: T.surface,
+                          color: '#25D366', fontSize: 11.5, fontWeight: 650,
+                        }}
+                      >
+                        <Icon name="chat" size={13} color="#25D366" /> WhatsApp
+                      </button>
+                    )}
+                    {mapsHref(cl) && (
+                      <button
+                        type="button"
+                        title="Open on Google Maps"
+                        onClick={(e) => { e.stopPropagation(); window.open(mapsHref(cl) as string, '_blank', 'noopener,noreferrer'); }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4, height: 26,
+                          padding: '0 9px', borderRadius: 7, cursor: 'pointer',
+                          border: `1px solid ${T.border}`, background: T.surface,
+                          color: T.inkBody, fontSize: 11.5, fontWeight: 650,
+                        }}
+                      >
+                        <Icon name="place" size={13} color={T.inkMuted} /> Map
+                      </button>
                     )}
                   </div>
                 )}

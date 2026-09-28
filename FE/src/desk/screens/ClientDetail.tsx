@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { deskApi, type Client, type ClientContact } from '../api';
 import { T } from '../tokens';
 import { useDesk } from '../store';
+import { isLikelyWhatsAppMobile, mapsHref, openWhatsApp } from '../messaging';
 import {
   Avatar, Badge, Button, Card, EmptyState, ErrorState, FactGrid, Field, Icon,
   Input, Modal, Panel, Select, SkeletonRows, Stat, Textarea, num, useLoad,
@@ -26,7 +27,16 @@ const HEALTH: Record<string, { bg: string; fg: string; label: string }> = {
   risk: { bg: T.redTint, fg: T.red, label: 'At risk' },
 };
 
-const BLANK_CONTACT: ClientContact = { name: '', role: '', phone: '', altPhone: '', email: '' };
+const BLANK_CONTACT: ClientContact = {
+  name: '', role: '', phone: '', altPhone: '', whatsapp: '', email: '',
+};
+
+/** Explicit WhatsApp number, else the main phone when it looks like a mobile. */
+function waNumber(p: { whatsapp?: string | null; phone?: string | null }): string | null {
+  if (p.whatsapp && isLikelyWhatsAppMobile(p.whatsapp)) return p.whatsapp;
+  if (!p.whatsapp && isLikelyWhatsAppMobile(p.phone)) return p.phone || null;
+  return p.whatsapp && p.whatsapp.trim() ? p.whatsapp : null;
+}
 
 /**
  * Edit every field on an account, plus its contact list.
@@ -46,6 +56,7 @@ function ClientEditModal({
     industry: client.industry || '',
     location: client.location || '',
     phone: client.phone || '',
+    whatsapp: client.whatsapp || '',
     website: client.website || '',
     address: client.address || '',
     pincode: client.pincode || '',
@@ -88,9 +99,10 @@ function ClientEditModal({
         role: (c.role || '').trim(),
         phone: (c.phone || '').trim(),
         altPhone: (c.altPhone || '').trim(),
+        whatsapp: (c.whatsapp || '').trim(),
         email: (c.email || '').trim(),
       }))
-      .filter((c) => c.name || c.phone || c.altPhone || c.email);
+      .filter((c) => c.name || c.phone || c.altPhone || c.whatsapp || c.email);
     if (cleaned.some((c) => !c.name)) { setErr('Every contact needs a name.'); return; }
 
     const body: Record<string, unknown> = {
@@ -98,6 +110,7 @@ function ClientEditModal({
       industry: f.industry.trim(),
       location: f.location.trim(),
       phone: f.phone.trim(),
+      whatsapp: f.whatsapp.trim(),
       website: f.website.trim(),
       address: f.address.trim(),
       pincode: f.pincode.trim(),
@@ -148,6 +161,7 @@ function ClientEditModal({
         <Field label="Category"><Input value={f.industry} onChange={set('industry')} placeholder="e.g. Pet store" /></Field>
         <Field label="Area"><Input value={f.location} onChange={set('location')} placeholder="e.g. Gachibowli, Hyderabad" /></Field>
         <Field label="Phone"><Input value={f.phone} onChange={set('phone')} /></Field>
+        <Field label="WhatsApp"><Input value={f.whatsapp} onChange={set('whatsapp')} placeholder="Blank = use phone" /></Field>
         <Field label="Website"><Input value={f.website} onChange={set('website')} placeholder="https://…" /></Field>
         <Field label="Pincode"><Input value={f.pincode} onChange={set('pincode')} /></Field>
         <Field label="Rating (0–5)"><Input value={f.rating} onChange={set('rating')} inputMode="decimal" /></Field>
@@ -227,6 +241,13 @@ function ClientEditModal({
               <Field label="Alternative phone">
                 <Input value={ct.altPhone || ''} onChange={(e) => setContact(i, 'altPhone', e.target.value)} />
               </Field>
+              <Field label="WhatsApp">
+                <Input
+                  value={ct.whatsapp || ''}
+                  onChange={(e) => setContact(i, 'whatsapp', e.target.value)}
+                  placeholder="Blank = use phone"
+                />
+              </Field>
               <div style={{ gridColumn: '1 / -1' }}>
                 <Field label="Email">
                   <Input
@@ -297,6 +318,8 @@ export function ClientDetailBody({
   const clientReqs = (reqs.data || []).filter((r) => r.clientId === cl.id);
   const h = HEALTH[cl.health] || HEALTH.good;
   const hours = DAYS.filter(([k]) => (cl.hours || {})[k]);
+  const wa = waNumber(cl);
+  const map = mapsHref(cl);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 12 : 16 }}>
@@ -371,12 +394,23 @@ export function ClientDetailBody({
         </div>
       </div>
 
-      {/* quick actions — call / site / map */}
-      {(cl.phone || cl.website || cl.mapsUrl) && (
+      {/* quick actions — call / WhatsApp / site / map */}
+      {(cl.phone || wa || cl.website || map) && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {cl.phone && (
             <Button icon="call" onClick={() => { window.location.href = `tel:${cl.phone}`; }} style={{ height: 30 }}>
               Call
+            </Button>
+          )}
+          {wa && (
+            <Button
+              variant="ghost"
+              icon="chat"
+              title={`WhatsApp ${wa}`}
+              onClick={() => openWhatsApp(wa, cl.name)}
+              style={{ height: 30, color: '#25D366' }}
+            >
+              WhatsApp
             </Button>
           )}
           {cl.website && (
@@ -389,11 +423,12 @@ export function ClientDetailBody({
               Website
             </Button>
           )}
-          {cl.mapsUrl && (
+          {map && (
             <Button
               variant="ghost"
               icon="place"
-              onClick={() => window.open(cl.mapsUrl as string, '_blank', 'noopener,noreferrer')}
+              title={cl.mapsUrl ? 'Open the listing on Google Maps' : 'Search Google Maps for this address'}
+              onClick={() => window.open(map, '_blank', 'noopener,noreferrer')}
               style={{ height: 30 }}
             >
               Map
@@ -432,6 +467,7 @@ export function ClientDetailBody({
               columns={compact ? 1 : 2}
               facts={[
                 ['Phone', cl.phone ? <span className="mono">{cl.phone}</span> : ''],
+                ['WhatsApp', wa ? <span className="mono">{wa}</span> : ''],
                 ['Category', cl.industry || ''],
                 ['Area', cl.location || ''],
                 ['Pincode', cl.pincode ? <span className="mono">{cl.pincode}</span> : ''],
@@ -522,6 +558,7 @@ export function ClientDetailBody({
               <div style={{ fontSize: 11, color: T.inkMuted }}>
                 {[p.role, p.phone].filter(Boolean).join(' · ')}
                 {p.altPhone ? ` · alt ${p.altPhone}` : ''}
+                {p.whatsapp && p.whatsapp !== p.phone ? ` · wa ${p.whatsapp}` : ''}
               </div>
               {p.email && (
                 <a
@@ -533,6 +570,16 @@ export function ClientDetailBody({
                 </a>
               )}
             </div>
+            {waNumber(p) && (
+              <Button
+                variant="ghost"
+                icon="chat"
+                title={`WhatsApp ${waNumber(p)}`}
+                aria-label="WhatsApp"
+                onClick={() => openWhatsApp(waNumber(p), p.name)}
+                style={{ height: 30, width: 30, padding: 0, minWidth: 30, color: '#25D366' }}
+              />
+            )}
             {p.email && (
               <Button
                 variant="ghost"

@@ -125,6 +125,8 @@ export interface ClientContact {
   role?: string;
   phone?: string;
   altPhone?: string;
+  /** Falls back to `phone` when blank and that looks like a mobile. */
+  whatsapp?: string;
   email?: string;
 }
 
@@ -144,6 +146,7 @@ export interface Client {
   logo?: string | null;
   /** Storefront detail for accounts imported from a listing source. */
   phone?: string | null;
+  whatsapp?: string | null;
   address?: string | null;
   pincode?: string | null;
   rating?: number | null;

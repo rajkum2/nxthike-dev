@@ -15,6 +15,10 @@ import {
   FactGrid, Icon, Input, Modal, Panel, Select, SkeletonRows, Textarea,
   maskEmail, maskPhone, num, shortDate, splitList, useLoad, useMediaQuery, whenLabel,
 } from '../ui';
+import {
+  hasCallablePhone, messagingChannel,
+  openEmail, openSms, openWhatsApp, telHref, type MsgChannel,
+} from '../messaging';
 import { CallRow } from './Calls';
 import {
   candidateExportFilename, downloadCandidatesXlsx, fetchAllFilteredCandidates,
@@ -56,50 +60,6 @@ const ROW_ACTION_BTN: React.CSSProperties = {
   boxSizing: 'border-box',
   lineHeight: 0,
 };
-
-function phoneDigits(phone?: string | null) {
-  return (phone || '').replace(/\D/g, '');
-}
-
-/** Normalize to a dialable digit string (strip leading 0). */
-function normalizePhoneDigits(phone?: string | null) {
-  let d = phoneDigits(phone);
-  if (d.startsWith('0') && d.length >= 11) d = d.replace(/^0+/, '');
-  return d;
-}
-
-/**
- * Heuristic: Indian mobiles (6–9 + 9 digits) are WhatsApp-eligible in our market.
- * We cannot query Meta for registration; this avoids landlines / junk numbers.
- */
-function isLikelyWhatsAppMobile(phone?: string | null): boolean {
-  const d = normalizePhoneDigits(phone);
-  if (/^[6-9]\d{9}$/.test(d)) return true;
-  if (/^91[6-9]\d{9}$/.test(d)) return true;
-  return false;
-}
-
-type MsgChannel = 'whatsapp' | 'sms' | 'email' | 'none' | 'blocked';
-
-function messagingChannel(opts: {
-  phone?: string | null;
-  email?: string | null;
-  dnc?: boolean | null;
-}): MsgChannel {
-  if (opts.dnc) return 'blocked';
-  if (isLikelyWhatsAppMobile(opts.phone)) return 'whatsapp';
-  const d = normalizePhoneDigits(opts.phone);
-  if (d.length >= 10) return 'sms';
-  const em = (opts.email || '').trim();
-  if (em.includes('@')) return 'email';
-  return 'none';
-}
-
-/** `tel:` target: 10-digit Indian mobiles dial as-is, 91-prefixed ones get their +. */
-function telHref(phone?: string | null) {
-  const d = normalizePhoneDigits(phone);
-  return `tel:${d.length === 12 && d.startsWith('91') ? `+${d}` : d}`;
-}
 
 function isPhoneBrowser() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -149,34 +109,6 @@ function dialCandidate(cand: { id: string; phone?: string | null; dnc?: boolean 
   link.click();
   link.remove();
   window.setTimeout(() => go('queue', { candidateId: cand.id }), onPhone ? 600 : 0);
-}
-
-function hasCallablePhone(phone?: string | null) {
-  return normalizePhoneDigits(phone).length >= 10;
-}
-
-/** Open WhatsApp (Indian 10-digit → 91 prefix). */
-function openWhatsApp(phone?: string | null, name?: string | null) {
-  if (!isLikelyWhatsAppMobile(phone)) return;
-  let d = normalizePhoneDigits(phone);
-  if (/^[6-9]\d{9}$/.test(d)) d = `91${d}`;
-  const text = encodeURIComponent(name ? `Hi ${name}` : 'Hi');
-  window.open(`https://wa.me/${d}?text=${text}`, '_blank', 'noopener');
-}
-
-function openSms(phone?: string | null, name?: string | null) {
-  const d = normalizePhoneDigits(phone);
-  if (d.length < 10) return;
-  const body = encodeURIComponent(name ? `Hi ${name}` : 'Hi');
-  window.open(`sms:${d}?body=${body}`, '_self');
-}
-
-function openEmail(email?: string | null, name?: string | null) {
-  const em = (email || '').trim();
-  if (!em.includes('@')) return;
-  const subject = encodeURIComponent('Hello');
-  const body = encodeURIComponent(name ? `Hi ${name},` : 'Hi,');
-  window.open(`mailto:${em}?subject=${subject}&body=${body}`, '_self');
 }
 
 function runMessagingChannel(

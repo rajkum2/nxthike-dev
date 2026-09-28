@@ -36,6 +36,9 @@ class Company(Base):
     # storefront detail the portal companies never had: a dialable number, a
     # street address, and the public rating the desk screens accounts by.
     phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    #: Business WhatsApp, when it differs from the landline. Blank falls back to
+    #: `phone` if that looks like a mobile.
+    whatsapp: Mapped[str | None] = mapped_column(String, nullable=True)
     address: Mapped[str | None] = mapped_column(Text, nullable=True)
     pincode: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
     rating: Mapped[float | None] = mapped_column(Float, nullable=True, index=True)
