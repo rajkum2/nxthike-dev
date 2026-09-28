@@ -185,6 +185,59 @@ interface DeskState {
   words: () => { client: string; clientPlural: string; req: string; reqPlural: string };
 }
 
+
+/* ------------------------------------------------------------------ *
+ *  Resume where you left off                                         *
+ * ------------------------------------------------------------------ */
+
+const LAST_SCREEN_KEY = 'nxthike.desk.lastScreen';
+
+/**
+ * Detail screens need an id to render anything. If we resume onto one and the
+ * id is gone, land on its list instead of an empty "nothing selected" state.
+ */
+const DETAIL_PARENT: Partial<Record<ScreenKey, ScreenKey>> = {
+  client: 'clients',
+  job: 'jobs',
+  offer: 'offers',
+};
+
+/** Transient screens — resuming onto them after a login makes no sense. */
+const NEVER_RESUME: ScreenKey[] = ['addcand', 'merge', 'newjob', 'intsched', 'offerletter'];
+
+interface LastScreen {
+  userId: string;
+  screen: ScreenKey;
+  candidateId?: string | null;
+  candidateRoleId?: string | null;
+  requisitionId?: string | null;
+  clientId?: string | null;
+  offerId?: string | null;
+  interviewId?: string | null;
+}
+
+function saveLastScreen(v: LastScreen) {
+  try {
+    localStorage.setItem(LAST_SCREEN_KEY, JSON.stringify(v));
+  } catch {
+    /* private window or storage blocked — resuming is a convenience, not a feature to fight for */
+  }
+}
+
+function readLastScreen(userId: string): LastScreen | null {
+  try {
+    const raw = localStorage.getItem(LAST_SCREEN_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as LastScreen;
+    // Keyed by user so signing in as someone else does not inherit their place.
+    if (!v || v.userId !== userId) return null;
+    if (!(v.screen in SCREENS)) return null;
+    return v;
+  } catch {
+    return null;
+  }
+}
+
 export const useDesk = create<DeskState>((set, get) => ({
   loading: true,
   error: null,
@@ -225,31 +278,76 @@ export const useDesk = create<DeskState>((set, get) => ({
       // Dashboard is the post-login landing. Persona landings like `users`
       // (Admin / Ops) only apply when Dashboard is not on the nav.
       const landing = nav.includes('home') ? 'home' : personaLanding;
+
+      // Resume where this user left off, unless a deep-link asked for something
+      // specific. Anything they can no longer reach falls back to the landing.
+      const last = readLastScreen(session.userId);
+      let resumed: ScreenKey | null = null;
+      let ctx: Partial<DeskState> = {};
+      if (last && !NEVER_RESUME.includes(last.screen) && nav.includes(last.screen)) {
+        resumed = last.screen;
+        const parent = DETAIL_PARENT[last.screen];
+        const idFor: Partial<Record<ScreenKey, string | null | undefined>> = {
+          client: last.clientId,
+          job: last.requisitionId,
+          offer: last.offerId,
+        };
+        if (parent && !idFor[last.screen]) {
+          resumed = nav.includes(parent) ? parent : landing;
+        } else {
+          ctx = {
+            candidateId: last.candidateId ?? null,
+            candidateRoleId: last.candidateRoleId ?? null,
+            requisitionId: last.requisitionId ?? null,
+            clientId: last.clientId ?? null,
+            offerId: last.offerId ?? null,
+            interviewId: last.interviewId ?? null,
+          };
+        }
+      }
+
       const screen =
-        preferred && nav.includes(preferred) ? preferred : landing;
+        preferred && nav.includes(preferred) ? preferred : (resumed || landing);
       set({
         session,
         loading: false,
         screen,
+        ...(screen === resumed ? ctx : {}),
       });
     } catch (e) {
       set({ loading: false, error: (e as Error).message });
     }
   },
 
-  go: (screen, ctx) => set((s) => ({
-    screen,
-    modal: null,
-    palette: false,
-    drawer: false,
-    // Use `in` so callers can clear a context key by passing null.
-    candidateId: ctx && 'candidateId' in ctx ? (ctx.candidateId ?? null) : s.candidateId,
-    candidateRoleId: ctx && 'candidateRoleId' in ctx ? (ctx.candidateRoleId ?? null) : s.candidateRoleId,
-    requisitionId: ctx && 'requisitionId' in ctx ? (ctx.requisitionId ?? null) : s.requisitionId,
-    clientId: ctx && 'clientId' in ctx ? (ctx.clientId ?? null) : s.clientId,
-    offerId: ctx && 'offerId' in ctx ? (ctx.offerId ?? null) : s.offerId,
-    interviewId: ctx && 'interviewId' in ctx ? (ctx.interviewId ?? null) : s.interviewId,
-  })),
+  go: (screen, ctx) => set((s) => {
+    const next = {
+      screen,
+      modal: null,
+      palette: false,
+      drawer: false,
+      // Use `in` so callers can clear a context key by passing null.
+      candidateId: ctx && 'candidateId' in ctx ? (ctx.candidateId ?? null) : s.candidateId,
+      candidateRoleId: ctx && 'candidateRoleId' in ctx ? (ctx.candidateRoleId ?? null) : s.candidateRoleId,
+      requisitionId: ctx && 'requisitionId' in ctx ? (ctx.requisitionId ?? null) : s.requisitionId,
+      clientId: ctx && 'clientId' in ctx ? (ctx.clientId ?? null) : s.clientId,
+      offerId: ctx && 'offerId' in ctx ? (ctx.offerId ?? null) : s.offerId,
+      interviewId: ctx && 'interviewId' in ctx ? (ctx.interviewId ?? null) : s.interviewId,
+    };
+    const userId = s.session?.userId;
+    if (userId && !NEVER_RESUME.includes(screen)) {
+      saveLastScreen({
+        userId,
+        screen,
+        candidateId: next.candidateId,
+        candidateRoleId: next.candidateRoleId,
+        requisitionId: next.requisitionId,
+        clientId: next.clientId,
+        offerId: next.offerId,
+        interviewId: next.interviewId,
+      });
+    }
+    return next;
+  }),
 
   setCandidateRoleId: (roleId) => set({ candidateRoleId: roleId }),
 
