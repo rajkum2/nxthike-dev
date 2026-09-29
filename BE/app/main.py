@@ -10,7 +10,7 @@ from app.migrations import run_migrations
 from app.middleware.security import SecurityHeadersMiddleware
 from app.api import (
     auth, jobs, events, courses, companies, dashboard, uploads, hiring, calls,
-    workspace, recruiting,
+    workspace, recruiting, sales,
 )
 from app.admin.routes import router as admin_router
 # Ensure models are registered on Base.metadata
@@ -103,6 +103,8 @@ app.include_router(calls.router)
 # TalentDialer recruiting workspace (additive; existing routes unchanged)
 app.include_router(workspace.router)
 app.include_router(recruiting.router)
+# Sales CRM Phase 1 (additive; companies reused as accounts)
+app.include_router(sales.router)
 
 # Admin dashboard
 app.include_router(admin_router)
