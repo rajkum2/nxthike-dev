@@ -15,6 +15,12 @@ from app.models.recruiting import (
     Submission,
     Tag,
 )
+from app.models.sales import (
+    SalesActivity,
+    SalesContact,
+    SalesLead,
+    SalesOpportunity,
+)
 from app.models.workspace import (
     AuditEvent,
     ErasureRequest,
@@ -51,4 +57,9 @@ __all__ = [
     "PERSONA_DEFS",
     "Task",
     "WorkspaceSettings",
+    # sales
+    "SalesActivity",
+    "SalesContact",
+    "SalesLead",
+    "SalesOpportunity",
 ]
