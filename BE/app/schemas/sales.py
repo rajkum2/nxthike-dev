@@ -1,9 +1,9 @@
-"""Pydantic schemas for Sales CRM Phase 1."""
+"""Pydantic schemas for Sales CRM (Phase 1 + Phase 2 activities / approve queue)."""
 
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +12,16 @@ OpportunityStage = Literal[
     "qualify", "discovery", "proposal", "negotiation", "won", "lost", "on_hold"
 ]
 LeadStatus = Literal["new", "working", "qualified", "disqualified", "converted"]
-ActivityType = Literal["note", "call", "email", "meeting", "task"]
+ActivityType = Literal[
+    "note", "call", "email", "meeting", "task",
+    "outreach_draft", "outreach_sent", "stage_change",
+]
+ActivityStatus = Literal[
+    "planned", "done", "cancelled",
+    "pending_approval", "approved", "rejected", "sent",
+]
+ActivityDirection = Literal["inbound", "outbound", "internal"]
+ActivityChannel = Literal["email", "phone", "linkedin", "whatsapp", "other"]
 
 
 # ---- Contacts ------------------------------------------------------------
@@ -179,9 +188,10 @@ class SalesHomeStats(BaseModel):
     won: int
     byProductLine: dict[str, int] = Field(default_factory=dict)
     byStage: dict[str, int] = Field(default_factory=dict)
+    pendingApprovals: int = 0
 
 
-# ---- Activities (minimal) ------------------------------------------------
+# ---- Activities (Phase 2) ------------------------------------------------
 
 class SalesActivityCreate(BaseModel):
     opportunityId: str | None = None
@@ -189,21 +199,76 @@ class SalesActivityCreate(BaseModel):
     contactId: str | None = None
     companyId: str | None = None
     activityType: ActivityType = "note"
+    status: ActivityStatus | None = None
+    direction: ActivityDirection | None = None
+    channel: ActivityChannel | None = None
     subject: str | None = None
     body: str = ""
+    bodyHtml: str | None = None
     occurredAt: datetime | None = None
+    scheduledAt: datetime | None = None
+    completedAt: datetime | None = None
     ownerId: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SalesActivityUpdate(BaseModel):
+    opportunityId: str | None = None
+    leadId: str | None = None
+    contactId: str | None = None
+    companyId: str | None = None
+    activityType: ActivityType | None = None
+    status: ActivityStatus | None = None
+    direction: ActivityDirection | None = None
+    channel: ActivityChannel | None = None
+    subject: str | None = None
+    body: str | None = None
+    bodyHtml: str | None = None
+    occurredAt: datetime | None = None
+    scheduledAt: datetime | None = None
+    completedAt: datetime | None = None
+    ownerId: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class SalesActivityResponse(BaseModel):
     id: str
     opportunityId: str | None = None
+    opportunityName: str | None = None
     leadId: str | None = None
     contactId: str | None = None
     companyId: str | None = None
+    companyName: str | None = None
     activityType: str
+    status: str = "done"
+    direction: str | None = None
+    channel: str | None = None
     subject: str | None = None
     body: str = ""
+    bodyHtml: str | None = None
     occurredAt: datetime | None = None
+    scheduledAt: datetime | None = None
+    completedAt: datetime | None = None
     ownerId: str | None = None
+    createdBy: str | None = None
+    approvedBy: str | None = None
+    approvedAt: datetime | None = None
+    rejectedReason: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
     createdAt: datetime | None = None
+    updatedAt: datetime | None = None
+
+
+class SalesActivityRejectRequest(BaseModel):
+    reason: str = Field(..., min_length=1)
+
+
+class SalesDraftOutreachRequest(BaseModel):
+    channel: ActivityChannel = "email"
+    contactId: str | None = None
+
+
+class SalesMarkSentResponse(BaseModel):
+    activity: SalesActivityResponse
+    wouldSend: bool = True
+    logMessage: str
