@@ -1,6 +1,6 @@
 /**
- * Sales desk shell — Phase 1 skeleton mounted under /sales/*.
- * Mirrors the hiring desk chrome (rail + top bar) with a smaller screen set.
+ * Sales desk shell — Phase 1 + Phase 2 (approve queue) under /sales/*.
+ * Mirrors the hiring desk chrome (rail + top bar).
  */
 
 import React, { useEffect, useState } from 'react';
@@ -14,21 +14,24 @@ import { HomeScreen } from './screens/Home';
 import { OpportunitiesScreen } from './screens/Opportunities';
 import { OpportunityDetailScreen } from './screens/OpportunityDetail';
 import { PipelineScreen } from './screens/Pipeline';
+import { ApproveQueueScreen } from './screens/ApproveQueue';
 
 const NAV: { id: SalesScreen; label: string; icon: string; path: string }[] = [
   { id: 'home', label: 'Home', icon: 'home', path: '/sales' },
   { id: 'opps', label: 'Opportunities', icon: 'work', path: '/sales/opportunities' },
   { id: 'pipeline', label: 'Pipeline', icon: 'view_kanban', path: '/sales/pipeline' },
+  { id: 'approve', label: 'Approve queue', icon: 'fact_check', path: '/sales/approve' },
 ];
 
 function pathToScreen(pathname: string, id?: string): { screen: SalesScreen; oppId: string | null } {
+  if (pathname.includes('/approve') || pathname.includes('/queue')) return { screen: 'approve', oppId: null };
   if (pathname.includes('/pipeline')) return { screen: 'pipeline', oppId: null };
   if (pathname.includes('/opportunities/') && id) return { screen: 'opp', oppId: id };
   if (pathname.includes('/opportunities')) return { screen: 'opps', oppId: null };
   return { screen: 'home', oppId: null };
 }
 
-function SalesShell({ children }: { children: React.ReactNode }) {
+function SalesShell({ children, pendingCount }: { children: React.ReactNode; pendingCount: number }) {
   const navigate = useNavigate();
   const { screen, go } = useSales();
   const signOut = useAuthStore((s) => s.signOut);
@@ -61,7 +64,7 @@ function SalesShell({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <div style={{ fontSize: 14.5, fontWeight: 700 }}>NxtHike</div>
-            <div style={{ fontSize: 9, color: T.railFaint, letterSpacing: '.05em' }}>SALES DESK · PHASE 1</div>
+            <div style={{ fontSize: 9, color: T.railFaint, letterSpacing: '.05em' }}>SALES DESK · PHASE 2</div>
           </div>
         </div>
 
@@ -81,7 +84,17 @@ function SalesShell({ children }: { children: React.ReactNode }) {
                 }}
               >
                 <span className="material-symbols-rounded" style={{ fontSize: 18 }}>{item.icon}</span>
-                {item.label}
+                <span style={{ flex: 1 }}>{item.label}</span>
+                {item.id === 'approve' && pendingCount > 0 && (
+                  <span style={{
+                    minWidth: 18, height: 18, padding: '0 5px', borderRadius: 999,
+                    background: T.amber, color: '#fff', fontSize: 10, fontWeight: 700,
+                    display: 'grid', placeItems: 'center',
+                  }}
+                  >
+                    {pendingCount > 99 ? '99+' : pendingCount}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -159,8 +172,8 @@ export default function SalesApp() {
   const { go, screen } = useSales();
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingCount, setPendingCount] = useState(0);
 
-  // Sync URL → store
   useEffect(() => {
     const id = (params as { id?: string }).id;
     const mapped = pathToScreen(location.pathname, id);
@@ -175,6 +188,18 @@ export default function SalesApp() {
         setReady(true);
       });
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const tick = () => {
+      salesApi.home()
+        .then((h) => { if (!cancelled) setPendingCount(h.pendingApprovals || 0); })
+        .catch(() => { /* ignore */ });
+    };
+    tick();
+    const t = window.setInterval(tick, 30000);
+    return () => { cancelled = true; window.clearInterval(t); };
+  }, [screen, location.pathname]);
 
   useEffect(() => {
     document.title = `Sales · NxtHike`;
@@ -196,6 +221,7 @@ export default function SalesApp() {
   if (screen === 'opps') body = <OpportunitiesScreen />;
   if (screen === 'opp') body = <OpportunityDetailScreen />;
   if (screen === 'pipeline') body = <PipelineScreen />;
+  if (screen === 'approve') body = <ApproveQueueScreen />;
 
-  return <SalesShell>{body}</SalesShell>;
+  return <SalesShell pendingCount={pendingCount}>{body}</SalesShell>;
 }
