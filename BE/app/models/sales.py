@@ -1,4 +1,4 @@
-"""Sales CRM Phase 1 models — additive tables only; accounts reuse companies."""
+"""Sales CRM models — Phase 1 tables + Phase 2 activity / approve-queue fields."""
 
 from __future__ import annotations
 
@@ -21,7 +21,27 @@ OPPORTUNITY_STAGES = (
     "on_hold",
 )
 LEAD_STATUSES = ("new", "working", "qualified", "disqualified", "converted")
-ACTIVITY_TYPES = ("note", "call", "email", "meeting", "task")
+ACTIVITY_TYPES = (
+    "note",
+    "call",
+    "email",
+    "meeting",
+    "task",
+    "outreach_draft",
+    "outreach_sent",
+    "stage_change",
+)
+ACTIVITY_STATUSES = (
+    "planned",
+    "done",
+    "cancelled",
+    "pending_approval",
+    "approved",
+    "rejected",
+    "sent",
+)
+ACTIVITY_DIRECTIONS = ("inbound", "outbound", "internal")
+ACTIVITY_CHANNELS = ("email", "phone", "linkedin", "whatsapp", "other")
 
 
 def _utcnow() -> datetime:
@@ -93,7 +113,7 @@ class SalesOpportunity(Base):
 
 
 class SalesActivity(Base):
-    """Optional minimal activity log for sales."""
+    """Sales activity / outreach draft with human approval gates (Phase 2)."""
 
     __tablename__ = "sales_activities"
 
@@ -103,9 +123,20 @@ class SalesActivity(Base):
     contact_id: Mapped[str | None] = mapped_column(String, nullable=True)
     company_id: Mapped[str | None] = mapped_column(String, nullable=True)
     activity_type: Mapped[str] = mapped_column(String, nullable=False, default="note")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="done", index=True)
+    direction: Mapped[str | None] = mapped_column(String, nullable=True)
+    channel: Mapped[str | None] = mapped_column(String, nullable=True)
     subject: Mapped[str | None] = mapped_column(String, nullable=True)
     body: Mapped[str] = mapped_column(Text, default="")
+    body_html: Mapped[str | None] = mapped_column(Text, nullable=True)
     occurred_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, index=True)
+    scheduled_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     owner_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_by: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    approved_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    rejected_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    metadata_: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
