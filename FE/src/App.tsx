@@ -36,6 +36,7 @@ import RequireWorkspace from './desk/RequireWorkspace';
 
 /** The dashboard is a large, self-contained app — keep it out of the site bundle. */
 const DeskApp = lazy(() => import('./desk/DeskApp'));
+const SalesApp = lazy(() => import('./sales/SalesApp'));
 
 function DeskRoute() {
   return (
@@ -53,19 +54,41 @@ function DeskRoute() {
   );
 }
 
+function SalesRoute() {
+  return (
+    <RequireWorkspace>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-surface-50">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600" />
+          </div>
+        }
+      >
+        <SalesApp />
+      </Suspense>
+    </RequireWorkspace>
+  );
+}
+
 function AppShell() {
   const location = useLocation();
   // Hiring workspace uses its own chrome (no site Navbar/Footer).
   const isHiring = location.pathname.startsWith('/hiring');
+  const isSales = location.pathname.startsWith('/sales');
 
   /*
    * The dashboard brings its own full-height rail and top bar, so it renders
    * outside the site chrome entirely. Every other route is untouched.
    */
-  if (isHiring) {
+  if (isHiring || isSales) {
     return (
       <Routes>
         <Route path="/hiring/*" element={<DeskRoute />} />
+        <Route path="/sales" element={<SalesRoute />} />
+        <Route path="/sales/opportunities" element={<SalesRoute />} />
+        <Route path="/sales/opportunities/:id" element={<SalesRoute />} />
+        <Route path="/sales/pipeline" element={<SalesRoute />} />
+        <Route path="/sales/*" element={<SalesRoute />} />
       </Routes>
     );
   }
@@ -115,7 +138,7 @@ function AppShell() {
   );
 }
 
-const SALESIQ_HIDDEN = [/^\/hiring(\/|$)/, /^\/admin(\/|$)/, /^\/dashboard(\/|$)/, /^\/employer\/dashboard(\/|$)/];
+const SALESIQ_HIDDEN = [/^\/hiring(\/|$)/, /^\/sales(\/|$)/, /^\/admin(\/|$)/, /^\/dashboard(\/|$)/, /^\/employer\/dashboard(\/|$)/];
 
 function SalesIQGate() {
   const { pathname } = useLocation();
