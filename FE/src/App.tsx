@@ -88,6 +88,8 @@ function AppShell() {
         <Route path="/sales/opportunities" element={<SalesRoute />} />
         <Route path="/sales/opportunities/:id" element={<SalesRoute />} />
         <Route path="/sales/pipeline" element={<SalesRoute />} />
+        <Route path="/sales/approve" element={<SalesRoute />} />
+        <Route path="/sales/queue" element={<SalesRoute />} />
         <Route path="/sales/*" element={<SalesRoute />} />
       </Routes>
     );
