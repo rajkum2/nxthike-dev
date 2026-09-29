@@ -1,5 +1,5 @@
 /**
- * Sales CRM Phase 1 client — `/api/sales/*`.
+ * Sales CRM client — `/api/sales/*` (Phase 1 + Phase 2 activities / approve queue).
  * Accounts reuse companies; no destructive ops against hiring data.
  */
 
@@ -29,6 +29,27 @@ export type OppStage =
   | 'lost'
   | 'on_hold';
 
+export type ActivityType =
+  | 'note'
+  | 'call'
+  | 'email'
+  | 'meeting'
+  | 'task'
+  | 'outreach_draft'
+  | 'outreach_sent'
+  | 'stage_change';
+
+export type ActivityStatus =
+  | 'planned'
+  | 'done'
+  | 'cancelled'
+  | 'pending_approval'
+  | 'approved'
+  | 'rejected'
+  | 'sent';
+
+export type ActivityChannel = 'email' | 'phone' | 'linkedin' | 'whatsapp' | 'other';
+
 export interface SalesOpportunity {
   id: string;
   companyId?: string | null;
@@ -50,6 +71,34 @@ export interface SalesOpportunity {
   updatedAt?: string | null;
 }
 
+export interface SalesActivity {
+  id: string;
+  opportunityId?: string | null;
+  opportunityName?: string | null;
+  leadId?: string | null;
+  contactId?: string | null;
+  companyId?: string | null;
+  companyName?: string | null;
+  activityType: ActivityType | string;
+  status: ActivityStatus | string;
+  direction?: string | null;
+  channel?: string | null;
+  subject?: string | null;
+  body: string;
+  bodyHtml?: string | null;
+  occurredAt?: string | null;
+  scheduledAt?: string | null;
+  completedAt?: string | null;
+  ownerId?: string | null;
+  createdBy?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  rejectedReason?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface SalesHomeStats {
   contacts: number;
   leads: number;
@@ -58,6 +107,7 @@ export interface SalesHomeStats {
   won: number;
   byProductLine: Record<string, number>;
   byStage: Record<string, number>;
+  pendingApprovals?: number;
 }
 
 export interface SalesPipelineColumn {
@@ -80,8 +130,11 @@ export interface SalesMeta {
   stages: { id: string; label: string }[];
   leadStatuses: string[];
   activityTypes: string[];
+  activityStatuses?: string[];
+  activityDirections?: string[];
+  activityChannels?: string[];
   persona: { id: string; name: string; mode: string };
-  caps: { sales: boolean; accounts: string };
+  caps: { sales: boolean; accounts: string; approveQueue?: boolean };
 }
 
 export interface SalesAccount {
@@ -92,6 +145,12 @@ export interface SalesAccount {
   isClient: boolean;
   phone?: string | null;
   website?: string | null;
+}
+
+export interface MarkSentResult {
+  activity: SalesActivity;
+  wouldSend: boolean;
+  logMessage: string;
 }
 
 export const salesApi = {
@@ -113,6 +172,47 @@ export const salesApi = {
       method: 'PATCH',
       body: JSON.stringify(body),
     }),
+  timeline: (oppId: string) =>
+    req<SalesActivity[]>(`/api/sales/opportunities/${oppId}/timeline`),
+  draftOutreach: (oppId: string, body: { channel?: ActivityChannel; contactId?: string } = {}) =>
+    req<SalesActivity>(`/api/sales/opportunities/${oppId}/draft-outreach`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  activities: (p: { opportunityId?: string; status?: string; type?: string } = {}) =>
+    req<SalesActivity[]>(`/api/sales/activities${qs({
+      opportunity_id: p.opportunityId,
+      status: p.status,
+      type: p.type,
+    })}`),
+  createActivity: (body: {
+    opportunityId?: string;
+    activityType?: ActivityType;
+    status?: ActivityStatus;
+    direction?: string;
+    channel?: ActivityChannel;
+    subject?: string;
+    body?: string;
+  }) =>
+    req<SalesActivity>('/api/sales/activities', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  updateActivity: (id: string, body: Partial<SalesActivity>) =>
+    req<SalesActivity>(`/api/sales/activities/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  approveQueue: () => req<SalesActivity[]>('/api/sales/approve-queue'),
+  approve: (id: string) =>
+    req<SalesActivity>(`/api/sales/activities/${id}/approve`, { method: 'POST' }),
+  reject: (id: string, reason: string) =>
+    req<SalesActivity>(`/api/sales/activities/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    }),
+  markSent: (id: string) =>
+    req<MarkSentResult>(`/api/sales/activities/${id}/mark-sent`, { method: 'POST' }),
 };
 
 export type SalesApi = typeof salesApi;
