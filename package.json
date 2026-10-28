@@ -1,7 +1,7 @@
 {
   "name": "nxthike-dev",
   "private": true,
-  "description": "NxtHike monorepo — FE (Vite) + BE (FastAPI)",
+  "description": "NxtHike monorepo \u2014 FE (Vite) + BE (FastAPI)",
   "scripts": {
     "dev:fe": "npm --prefix FE run dev",
     "build:fe": "npm --prefix FE run build",
