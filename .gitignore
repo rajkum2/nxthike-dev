@@ -73,12 +73,9 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
-.env.*
 .env.development.local
 .env.test.local
 .env.production.local
-.env.local
 # ...but keep the templates tracked
 !.env.example
 !**/.env.example
@@ -141,4 +138,4 @@ temp_interactive_push.bat
 **/.env.admin-credentials.local
 **/*credentials.local*
 .vercel
-.env*
+config.bat
