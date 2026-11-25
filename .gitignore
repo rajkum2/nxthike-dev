@@ -73,8 +73,6 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files — never commit live secrets
-.env
-.env.*
 .env*.local
 .env.bak
 **/.env.bak
@@ -90,9 +88,10 @@ FE/public/seed/
 .cache
 .parcel-cache
 
-# Next.js build output
+# Next.js / frontend publish output (Netlify UI publishes dist or build)
 .next
 out
+/build
 
 # Nuxt.js build / generate output
 .nuxt
