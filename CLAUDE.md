@@ -34,7 +34,7 @@ BE/app/
 ├── models/         # SQLAlchemy models (incl. Candidate, HiringRole)
 ├── schemas/        # Pydantic DTOs
 ├── services/       # auth helpers
-├── seed_hiring.py  # load FE/public/seed into DB
+├── seed_hiring.py  # load BE/seed/hiring into DB
 └── main.py
 ```
 
@@ -58,7 +58,8 @@ BE/app/
 - `DATABASE_URL` or `SUPABASE_DB_URL` — Postgres URI (asyncpg) or SQLite
 - `SECRET_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
 - `CORS_ORIGINS` — include FE origin
-- `SEED_DIR` — default `../FE/public/seed`
+- `SEED_DIR` — default `BE/seed/hiring` (private; never `FE/public`)
+- `ENVIRONMENT` — set `production` on the API host. OpenAPI stays off unless `ENABLE_API_DOCS=true` or the environment is development/dev/local/test
 - **Storage:** `STORAGE_BACKEND=local|r2` plus R2 keys when using Cloudflare R2
   - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
 
@@ -94,4 +95,4 @@ Pages → Zustand → services → FastAPI → Supabase/SQLite
 Hiring UI → hiring/store → hiringService → /api/hiring
 ```
 
-If the API is down, hiring falls back to `public/seed/*.json`.
+If the API is down, hiring does not load applicant records in the browser.

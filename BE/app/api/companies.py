@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.company import Company
 from app.schemas.company import CompanyCreate, CompanyUpdate, CompanyResponse
-from app.services.auth import get_admin_user
+from app.services.auth import get_admin_user, get_current_user, security
+from app.services.personas import get_workspace_user
 from app.models.user import User
 
 router = APIRouter(prefix="/api/companies", tags=["companies"])
@@ -24,25 +26,42 @@ def company_to_response(c: Company) -> CompanyResponse:
     )
 
 
+async def _allow_prospects(
+    include_prospects: bool,
+    credentials: HTTPAuthorizationCredentials | None,
+    db: AsyncSession,
+) -> bool:
+    """
+    Prospects are desk-only. Anonymous callers, and portal accounts with no
+    recruiting persona, never receive them — even if they pass the flag.
+    """
+    if not include_prospects:
+        return False
+    user = await get_current_user(credentials, db)
+    await get_workspace_user(user)
+    return True
+
+
 @router.get("", response_model=list[CompanyResponse])
 async def list_companies(
     include_prospects: bool = Query(
         False,
         alias="includeProspects",
-        description="Admin tooling only. Public callers must never set this.",
+        description="Admin and recruiting staff only. Anyone else receives 401 or 403.",
     ),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Public company directory.
 
-    This route is unauthenticated, so it returns only real client accounts.
-    Prospects bulk-imported from a directory (`is_client = false`) are desk-only
-    and must not leak here — without this filter a Google Maps scrape of
-    apartment buildings shows up on the public portal.
+    Unauthenticated callers receive only real client accounts (`is_client`).
+    Prospects bulk-imported from a directory are returned only to an authenticated
+    admin or a workspace staff member (a user with a recruiting persona).
     """
+    show_prospects = await _allow_prospects(include_prospects, credentials, db)
     query = select(Company).order_by(Company.name)
-    if not include_prospects:
+    if not show_prospects:
         query = query.where(Company.is_client.is_(True))
     result = await db.execute(query)
     companies = result.scalars().all()

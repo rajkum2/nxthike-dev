@@ -4,3 +4,16 @@ mobile/.gradle
 BE/venv
 BE/.venv
 *.db
+
+# Live secrets and applicant seed must not ship with a frontend deploy
+.env
+.env.*
+.env*.local
+**/.env
+**/.env.*
+**/.env.bak
+!.env.example
+!**/.env.example
+!**/*.env.example
+FE/public/seed
+BE/seed

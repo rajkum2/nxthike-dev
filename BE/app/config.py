@@ -1,5 +1,6 @@
 import os
 import ssl
+from pathlib import Path
 from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode, quote_plus, unquote
 
 from dotenv import load_dotenv
@@ -96,6 +97,27 @@ _WEAK_ADMIN_PASSWORDS = frozenset({
     "change-me", "12345678", "nxthike", "admin@123", "Admin@123",
 })
 
+_BE_ROOT = Path(__file__).resolve().parents[1]
+_DEV_ENVIRONMENTS = frozenset({"development", "dev", "local", "test"})
+
+
+def _raw_environment() -> str:
+    return (os.getenv("ENVIRONMENT") or os.getenv("ENV") or "").strip().lower()
+
+
+def docs_enabled() -> bool:
+    """
+    Publish Swagger / OpenAPI only when asked, or when this process is clearly local.
+
+    An unset ENVIRONMENT used to count as development, so a production host that
+    forgot ENVIRONMENT=production served /openapi.json to the public internet.
+    Unset now fails closed. Set ENABLE_API_DOCS=true to turn docs on anyway.
+    """
+    raw = os.getenv("ENABLE_API_DOCS")
+    if raw is not None and raw.strip() != "":
+        return raw.strip().lower() in ("1", "true", "yes")
+    return _raw_environment() in _DEV_ENVIRONMENTS
+
 
 class Settings:
     # Prefer SUPABASE_DB_URL, then DATABASE_URL. Local default: SQLite.
@@ -110,7 +132,7 @@ class Settings:
         "sqlite"
     )
 
-    ENVIRONMENT: str = (os.getenv("ENVIRONMENT") or os.getenv("ENV") or "development").lower()
+    ENVIRONMENT: str = _raw_environment() or "development"
     IS_PRODUCTION: bool = ENVIRONMENT in ("production", "prod", "staging")
     # Trust X-Forwarded-For / X-Real-IP only behind a reverse proxy you control.
     TRUST_PROXY: bool = os.getenv("TRUST_PROXY", "0").lower() in ("1", "true", "yes")
@@ -119,11 +141,8 @@ class Settings:
         "ALLOW_PUBLIC_REGISTER",
         "false" if (os.getenv("ENVIRONMENT") or "").lower() in ("production", "prod", "staging") else "true",
     ).lower() in ("1", "true", "yes")
-    # Swagger / OpenAPI — off by default in production.
-    ENABLE_API_DOCS: bool = os.getenv(
-        "ENABLE_API_DOCS",
-        "false" if (os.getenv("ENVIRONMENT") or "").lower() in ("production", "prod", "staging") else "true",
-    ).lower() in ("1", "true", "yes")
+    # Swagger / OpenAPI — off unless ENABLE_API_DOCS=true or ENVIRONMENT is local/dev.
+    ENABLE_API_DOCS: bool = docs_enabled()
 
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -145,7 +164,8 @@ class Settings:
         if o.strip()
     ]
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "./uploads")
-    SEED_DIR: str = os.getenv("SEED_DIR", "../FE/public/seed")
+    # Private hiring seed (applicant PII). Never point this at a statically served folder.
+    SEED_DIR: str = os.getenv("SEED_DIR", str(_BE_ROOT / "seed" / "hiring"))
 
     # Storage: "local" (disk) or "r2" (Cloudflare R2)
     STORAGE_BACKEND: str = os.getenv("STORAGE_BACKEND", "local")

@@ -1,9 +1,12 @@
 """
-Seed hiring roles + candidates from FE/public/seed JSON files.
+Seed hiring roles + candidates from the private seed directory.
+
+The JSON lives in BE/seed/hiring (override with SEED_DIR). It must not be
+placed under a frontend public/ or static folder.
 
 Usage (from BE/):
   python -m app.seed_hiring
-  python -m app.seed_hiring --seed-dir ../FE/public/seed
+  python -m app.seed_hiring --seed-dir seed/hiring
 """
 
 from __future__ import annotations
@@ -155,7 +158,7 @@ def main():
     parser.add_argument(
         "--seed-dir",
         default=settings.SEED_DIR,
-        help="Directory containing roles.json and role seed files",
+        help="Directory containing roles.json and role seed files (private; not a static folder)",
     )
     parser.add_argument("--reset", action="store_true", help="Wipe hiring tables first")
     args = parser.parse_args()

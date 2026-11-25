@@ -6,6 +6,13 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Backstop: never serve applicant seed JSON, even if a file is copied into publish/ again.
+[[redirects]]
+  from = "/seed/*"
+  to = "/404"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
