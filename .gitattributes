@@ -1,0 +1,4 @@
+# Netlify runs these on Linux. CRLF makes `set -o pipefail` fail.
+*.sh text eol=lf
+*.mjs text eol=lf
+netlify.toml text eol=lf
