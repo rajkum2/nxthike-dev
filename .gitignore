@@ -73,6 +73,8 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files — never commit live secrets
+.env
+.env.*
 .env*.local
 .env.bak
 **/.env.bak
