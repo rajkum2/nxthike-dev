@@ -9,13 +9,16 @@ checklist items you must still configure.
 | Threat | Mitigation | Residual risk |
 |--------|------------|---------------|
 | Anonymous access to CRM / candidates | JWT required; workspace persona required (`get_workspace_user`) | Stolen credentials or assigned persona still sees data they are allowed to |
+| Prospect directory scrape (`/api/companies?includeProspects=true`) | Flag is honored only for an authenticated admin or workspace staff member. Public list is `is_client = true` only | A staff token can still export prospects they are allowed to see |
+| Applicant seed JSON on the website | Seed lives in `BE/seed/hiring`, not `FE/public`. The hiring UI does not fetch `/seed/*.json` | Copies already deployed, and git history, until those are purged |
+| Supabase anon read of candidates / public resume bucket | Migration `20261125000000_lock_down_anon_and_resumes.sql` drops anon policies and makes the `resumes` bucket private | Must be applied on the live project. Avatars, logos, event and course images stay public so the portal can render them |
 | Self-signup → admin / CRM | Register only `student`/`employer`; **no persona** ⇒ no `/api/hiring` | If admin later assigns persona carelessly, access expands |
 | Public registration abuse | `ALLOW_PUBLIC_REGISTER` (off by default in production) + rate limits | Brute-force against open register if left enabled |
 | Password guessing | bcrypt (cost 12), min 12-char complexity rules, generic login errors, rate limits, timing-safe login | Offline cracks if DB dump + weak passwords |
 | JWT theft (XSS / shared PC) | Shorter default TTL (8h), `no-store` on authenticated APIs | Token still in `localStorage` — XSS in FE can steal it |
 | Scraping candidate list | Auth + persona; pageSize ≤ 100; rate limits on list/bulk | A **legitimate full-access admin** can still export data they are entitled to |
 | Bulk wipe / mass edit | Cap `MAX_BULK_IDS` (200), import cap, admin for delete | Compromised admin account is full access by design |
-| OpenAPI / Swagger recon | Docs off when `ENABLE_API_DOCS=false` (default prod) | If left on, schema is public |
+| OpenAPI / Swagger recon | Docs stay off unless `ENABLE_API_DOCS=true`, or `ENVIRONMENT` is `development` / `dev` / `local` / `test`. An unset environment does not publish `/openapi.json` | Setting `ENABLE_API_DOCS=true` in production publishes the schema |
 | CORS abuse | Explicit `CORS_ORIGINS` only (never `*`) | Misconfigured origin list still risky |
 | PII leak to limited roles | Server-side mask on candidate responses + dialer queue | Notes/resume links may still leak context; call logs store numbers |
 | Anonymous file upload | Uploads require auth | Local `/uploads` mount is not JWT-gated if `STORAGE_BACKEND=local` |
@@ -38,11 +41,11 @@ checklist items you must still configure.
 Set these on the **API** host (Railway / Fly / VPS / etc.):
 
 ```bash
-ENVIRONMENT=production
+ENVIRONMENT=production              # required; an unset value is not a safe default for docs
 SECRET_KEY=<long random 32+ chars, e.g. secrets.token_urlsafe(48)>
 ADMIN_PASSWORD=<strong unique password, 12+ chars, 3 of 4: lower/upper/digit/symbol>
 ALLOW_PUBLIC_REGISTER=false          # or true only if public portal signup is needed
-ENABLE_API_DOCS=false
+ENABLE_API_DOCS=false                # leave unset or false; true is the only way to publish docs in production
 CORS_ORIGINS=https://your-frontend.example.com
 TRUST_PROXY=1                        # only if behind nginx/Cloudflare that sets X-Forwarded-For
 ACCESS_TOKEN_EXPIRE_MINUTES=480      # 8h default; lower if you want tighter sessions

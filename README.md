@@ -63,7 +63,7 @@ SUPABASE_SERVICE_ROLE_KEY=...
 4. Seed:
 
 ```bash
-cd BE && python -m app.seed_hiring --seed-dir ../FE/public/seed
+cd BE && python -m app.seed_hiring --seed-dir seed/hiring
 ```
 
 FastAPI uses **SQLAlchemy + asyncpg** against Supabase Postgres (same schema as the migration). The service role / DB password is for the API only; do not expose it in the FE.
@@ -112,7 +112,7 @@ python -m app.upload_resumes_r2
 
 | Layer | What loads from where |
 |-------|------------------------|
-| Hiring CRM (`/hiring`) | Always tries `VITE_API_URL` → `/api/hiring/*`; falls back to `FE/public/seed/*.json` if API down |
+| Hiring CRM (`/hiring`) | `VITE_API_URL` → `/api/hiring/*`. Applicant seed is not served by the website; if the API is down the screen stays empty |
 | Jobs / courses / etc. | `VITE_DATA_SOURCE=api` → BE; `json` → `FE/src/data/*`; `supabase` → Supabase client |
 | Resumes | BE `/api/uploads/resume` → R2 or local disk |
 
@@ -120,7 +120,7 @@ python -m app.upload_resumes_r2
 
 ```bash
 cd BE && source venv/bin/activate
-python -m app.seed_hiring --seed-dir ../FE/public/seed
+python -m app.seed_hiring --seed-dir seed/hiring
 # optional portal data:
 # python -m app.seed
 ```

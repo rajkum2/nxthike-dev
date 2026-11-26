@@ -299,7 +299,7 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                     </>
                   )}
                 <span className={`mode-pill ${apiMode ? 'api' : 'seed'}`}>
-                  {apiMode ? 'API' : 'Seed fallback'}
+                  {apiMode ? 'API' : 'Offline'}
                 </span>
                 {error ? <span className="muted">· {error}</span> : null}
               </div>
@@ -419,7 +419,7 @@ export default function HiringApp({ initialView }: { initialView?: ViewMode }) {
                       Open <strong>Candidates</strong> to search, filter, and edit applications.
                       {apiMode
                         ? ' Changes sync to the server (API).'
-                        : ' API is offline — edits are stored locally until the backend is available.'}
+                        : ' The API is offline, so applicant records are not loaded in the browser.'}
                       {' '}Use <strong>Export</strong> for an Excel of the current filtered list.
                     </div>
                   </div>

@@ -154,29 +154,8 @@ function emptyCandidate(roleId: string, roleName: string): Candidate {
   };
 }
 
-/** Fallback: load seed JSON from public/seed when API is offline */
-async function loadSeedFallback(roleId?: string): Promise<{ roles: RoleMeta[]; candidates: Candidate[] }> {
-  const rolesRes = await fetch('/seed/roles.json');
-  if (!rolesRes.ok) throw new Error('Failed to load seed roles.json');
-  const rolesData = await rolesRes.json();
-  const roles: RoleMeta[] = (rolesData.roles || []).map((r: RoleMeta & { file?: string }) => ({
-    id: r.id,
-    name: r.name,
-    count: r.count,
-    file: (r as { file?: string }).file || `${r.id}.json`,
-  }));
-
-  const toLoad = roleId && roleId !== 'all' ? roles.filter((r) => r.id === roleId) : roles;
-  let candidates: Candidate[] = [];
-  for (const r of toLoad) {
-    const file = (r as RoleMeta & { file?: string }).file || `${r.id}.json`;
-    const res = await fetch(`/seed/${file}`);
-    if (!res.ok) continue;
-    const data = await res.json();
-    candidates = candidates.concat((data.candidates || []) as Candidate[]);
-  }
-  return { roles, candidates };
-}
+const API_OFFLINE =
+  'API offline — applicant records are not available from the website.';
 
 export const useStore = create<AppState>((set, get) => ({
   roles: [],
@@ -221,14 +200,13 @@ export const useStore = create<AppState>((set, get) => ({
         await get().refresh();
         await get().loadDashboard();
       } else {
-        const { roles, candidates } = await loadSeedFallback();
         set({
-          roles,
-          candidates,
-          total: candidates.length,
-          totalPages: Math.max(1, Math.ceil(candidates.length / get().pageSize)),
+          roles: [],
+          candidates: [],
+          total: 0,
+          totalPages: 1,
           apiMode: false,
-          error: 'API offline — using local seed data (read-only fallback for edits via local memory)',
+          error: API_OFFLINE,
         });
         await get().loadDashboard();
       }
@@ -265,13 +243,11 @@ export const useStore = create<AppState>((set, get) => ({
           page: data.page,
         });
       } else {
-        const { candidates } = await loadSeedFallback(
-          activeRoleId === 'all' ? undefined : activeRoleId,
-        );
         set({
-          candidates,
-          total: candidates.length,
-          totalPages: Math.max(1, Math.ceil(candidates.length / pageSize)),
+          candidates: [],
+          total: 0,
+          totalPages: 1,
+          error: API_OFFLINE,
         });
       }
     } catch (e) {

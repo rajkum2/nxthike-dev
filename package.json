@@ -3,6 +3,7 @@
   "private": true,
   "description": "NxtHike monorepo \u2014 FE (Vite) + BE (FastAPI)",
   "scripts": {
+    "build": "node init && bash scripts/publish-frontend.sh",
     "dev:fe": "node init && npm --prefix FE run dev",
     "build:fe": "node init && npm --prefix FE run build",
     "dev:be": "node init && cd BE && . venv/bin/activate && uvicorn app.main:app --reload --port 8000",

@@ -1,0 +1,31 @@
+# Repo-root config for Netlify sites whose UI base is this repository.
+# The UI build command (`npm run build`) and publish directory still win when
+# they are set in the site settings. `scripts/publish-frontend.sh` fills both
+# `dist` and `build` so either publish directory works.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Never serve applicant seed JSON, even if a file is copied into publish/ again.
+[[redirects]]
+  from = "/seed/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self' blob:;"

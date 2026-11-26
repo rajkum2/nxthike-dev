@@ -72,21 +72,26 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variable files
-.env.development.local
-.env.test.local
-.env.production.local
+# dotenv environment variable files — never commit live secrets
+.env*.local
+.env.bak
+**/.env.bak
 # ...but keep the templates tracked
 !.env.example
 !**/.env.example
+!**/*.env.example
+
+# Applicant PII must never sit in a statically served folder
+FE/public/seed/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
 
-# Next.js build output
+# Next.js / frontend publish output (Netlify UI publishes dist or build)
 .next
 out
+/build
 
 # Nuxt.js build / generate output
 .nuxt
